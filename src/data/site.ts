@@ -6,10 +6,10 @@ export const siteConfig = {
 };
 
 export const home = {
-  title: "One Template\nEvery Framework",
-  subtitle: "Ultimate Astro Template",
+  title: "Headline here...",
+  subtitle: "Subtitle here..",
   description:
-    "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
+    "Description here..",
   features: [
     {
       title: "All Frameworks",
