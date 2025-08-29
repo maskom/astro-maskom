@@ -1,9 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Astro/Hero.astro';
+import Header from '../components/Astro/Header.astro';
+import Footer from '../components/Astro/Footer.astro';
 ---
 
 <Layout title="Maskom Indonesia - Layanan Internet Cepat & Stabil">
+    <Header />
     <Hero title="Selamat Datang di Maskom Indonesia" subtitle="Layanan Internet Cepat dan Stabil untuk Kebutuhan Anda" />
     <main class="container mx-auto px-4 py-8">
         <section class="text-center my-12">
@@ -16,4 +19,5 @@ import Hero from '../components/Astro/Hero.astro';
         </section>
         <!-- Bagian lain akan ditambahkan di sini -->
     </main>
+    <Footer />
 </Layout>
