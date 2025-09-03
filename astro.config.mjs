@@ -2,10 +2,6 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
-import react from "@astrojs/react";
-import svelte from "@astrojs/svelte";
-import vue from "@astrojs/vue";
-import solidJs from "@astrojs/solid-js";
 import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
@@ -17,14 +13,6 @@ export default defineConfig({
       applyBaseStyles: true,
     }),
     icon(),
-    react({
-      include: ["**/React/**/*.{jsx,tsx}"],
-    }),
-    svelte(),
-    vue(),
-    solidJs({
-      include: ["**/Solid/**/*.{jsx,tsx}"],
-    }),
     sitemap(),
   ],
 
@@ -33,10 +21,6 @@ export default defineConfig({
   },
 
   vite: {
-    optimizeDeps: {
-      include: ["react", "react-dom", "solid-js"],
-      exclude: ["@astrojs/solid-js/client.js"],
-    },
     ssr: {
       noExternal: ["@astrojs/*"],
     },

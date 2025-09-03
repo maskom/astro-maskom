@@ -1,6 +1,5 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import Analytics from "@vercel/analytics/astro";
 import { SEO } from "astro-seo";
 import Background from "../components/ui/Background.astro";
 import Footer from "../components/ui/Footer.astro";
@@ -36,26 +35,26 @@ const {
     <meta name="generator" content={Astro.generator} />
     <SEO
       title={title}
-      titleTemplate="%s - Astro Framework Theme"
-      description="Your comprehensive guide to building modern websites with Astro Framework"
-      canonical="https://ultimate-astro-template.vercel.app/"
+      titleTemplate="%s - Maskom Network"
+      description="Maskom Network menyediakan layanan internet cepat dan andal untuk bisnis di Indonesia"
+      canonical="https://maskom.co.id/"
       noindex={false}
       nofollow={false}
       openGraph={{
         basic: {
-          title: title || "Astro Framework Theme",
+          title: title || "Maskom Network",
           type: "website",
-          image: "/astro-template.png",
-          url: "https://ultimate-astro-template.vercel.app/",
+          image: "https://maskom.co.id/wp-content/uploads/2023/10/icon-internet.png",
+          url: "https://maskom.co.id/",
         },
         optional: {
-          locale: "en_US",
-          siteName: "Astro Framework Theme",
+          locale: "id_ID",
+          siteName: "Maskom Network",
           description:
-            "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
+            "Maskom Network adalah penyedia layanan internet terpercaya untuk bisnis di seluruh Indonesia.",
         },
         image: {
-          alt: "Astro Framework Theme Preview",
+          alt: "Maskom Network",
           width: 1200,
           height: 630,
           type: "image/png",
@@ -63,37 +62,36 @@ const {
       }}
       twitter={{
         card: "summary_large_image",
-        site: "@marvelousbc",
-        creator: "@marvelousbc",
-        title: title || "Astro Framework Theme",
+        site: "@maskomcoid",
+        creator: "@maskomcoid",
+        title: title || "Maskom Network",
         description:
-          "Discover the power of multi-framework development with our ultimate Astro template.",
-        image: "/astro-template.png",
-        imageAlt: "Astro Framework Theme Preview",
+          "Maskom Network menyediakan konektivitas internet cepat dan stabil untuk mendukung bisnis Anda.",
+        image: "https://maskom.co.id/wp-content/uploads/2023/10/icon-internet.png",
+        imageAlt: "Maskom Network",
       }}
       extend={{
         meta: [
-          { name: "twitter:image", content: "/astro-template.png" },
+          { name: "twitter:image", content: "https://maskom.co.id/wp-content/uploads/2023/10/icon-internet.png" },
           { name: "twitter:title", content: title },
           {
             name: "twitter:description",
             content:
-              "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
+              "Maskom Network menghadirkan solusi internet cepat, stabil, dan aman untuk kebutuhan bisnis Anda di seluruh Indonesia.",
           },
           { name: "theme-color", content: bgColor },
           { name: "apple-mobile-web-app-capable", content: "yes" },
           { name: "apple-mobile-web-app-status-bar-style", content: "black" },
-          { name: "author", content: "Ibrahim Elkamali" },
+          { name: "author", content: "Maskom Network" },
           {
             name: "keywords",
-            content:
-              "astro, framework, web development, react, vue, svelte, solid",
+            content: "maskom, internet, provider, indonesia, jaringan",
           },
         ],
         link: [
           {
             rel: "canonical",
-            href: "https://ultimate-astro-template.vercel.app/",
+            href: "https://maskom.co.id/",
           },
           { rel: "icon", type: "image/png", href: "/favicon.png" },
           { rel: "apple-touch-icon", href: "/favicon.png" },
@@ -113,7 +111,6 @@ const {
       href="https://api.fontshare.com/v2/css?f[]=cal-sans@400,500,600&display=swap"
       rel="stylesheet"
     />
-    <Analytics />
   </head>
   <body
     class="m-0 min-h-screen relative font-sans"
