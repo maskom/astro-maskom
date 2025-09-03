@@ -24,6 +24,12 @@ Ultimate Astro is a cutting-edge template that seamlessly integrates multiple fr
 
 ## 🚀 Quick Start
 
+### Deploy to Cloudflare Pages
+1. Connect the repository in the Cloudflare Pages dashboard.
+2. Set **Build command** to `npm run build` and **Output directory** to `dist`.
+3. Optionally, test locally with `npm run pages:dev` (requires `wrangler`).
+4. After deploying, link your custom domain `maskom.co.id` or use `https://astro-maskom.pages.dev`.
+
 1. **Clone and Install**
 
    ```bash
