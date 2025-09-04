@@ -3,130 +3,148 @@ import { frameworks } from '../../data/navigation';
 
 const currentPath = Astro.url.pathname;
 const isActivePath = (path: string) => {
-  const normalizedCurrent = currentPath.replace(/\/+$/, '').toLowerCase();
-  const normalizedPath = path.replace(/\/+$/, '').toLowerCase();
-  return path === '/'
-    ? normalizedCurrent === '' || normalizedCurrent === '/'
-    : normalizedCurrent.endsWith(normalizedPath);
+    const normalizedCurrent = currentPath.replace(/\/+$/, '').toLowerCase();
+    const normalizedPath = path.replace(/\/+$/, '').toLowerCase();
+    return path === '/'
+        ? (normalizedCurrent === '' || normalizedCurrent === '/')
+        : normalizedCurrent.endsWith(normalizedPath);
 };
 ---
 
-<header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200">
-  <nav class="max-w-6xl mx-auto px-4 py-4">
-    <div class="hidden lg:flex items-center justify-between">
-      <a href="/" class="flex items-center text-gray-900">
-        <img src="/logo-maskom.svg" alt="Maskom Network" class="h-8 w-auto mr-2" />
-        <span class="font-bold">Maskom Network</span>
-      </a>
-
-      <div class="flex gap-6">
-        {frameworks.map(link => (
-          <a
-            href={link.path}
-            class:list={[
-              'text-sm font-medium transition-colors',
-              isActivePath(link.path)
-                ? 'text-blue-600'
-                : 'text-gray-600 hover:text-blue-600',
-            ]}
-          >
-            {link.displayName}
-          </a>
-        ))}
-      </div>
-
-      <a
-        href="https://panel.maskom.co.id/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-sm text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-      >
-        Login
-      </a>
-    </div>
-
-    <div class="lg:hidden flex justify-between items-center">
-      <a href="/" class="flex items-center text-gray-900">
-        <img src="/logo-maskom.svg" alt="Maskom Network" class="h-8 mr-2" />
-        <span class="font-bold">Maskom Network</span>
-      </a>
-      <button
-        id="mobile-menu-button"
-        class="p-2 text-gray-700"
-        aria-label="Toggle Menu"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-    </div>
-
-    <div
-      id="mobile-menu"
-      class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm z-50"
-    >
-      <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="flex justify-end">
-          <button
-            id="mobile-menu-close"
-            class="p-2 text-gray-700"
-            aria-label="Close Menu"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <nav class="mt-8 flex flex-col gap-4">
-          {frameworks.map(link => (
-            <a
-              href={link.path}
-              class="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"
-            >
-              {link.displayName}
+<header class="top-0 left-0 right-0 z-50">
+    <nav class="container mx-auto px-4 py-6">
+        <!-- Desktop Navigation -->
+        <div class="hidden lg:grid grid-cols-[0.5fr_auto_0.5fr] xl:grid-cols-[1fr_auto_1fr] items-center">
+            <a href="/" class="flex items-center">
+                <img src="/logo-maskom.svg" alt="Maskom Network" class="h-8 w-auto mr-2" />
+                <span class="font-bold text-white">Maskom Network</span>
             </a>
-          ))}
 
-          <a
-            href="https://panel.maskom.co.id/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-6 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Login
-          </a>
-        </nav>
-      </div>
-    </div>
-  </nav>
+            <div class="bg-gray-900/50 backdrop-blur-md px-2 lg:px-3 xl:px-6 py-2 lg:py-2.5 rounded-full border border-gray-800/50">
+                {frameworks.map((framework, index) => (
+                    <>
+                        {index !== 0 && <span class="mx-1.5 lg:mx-2 xl:mx-4 text-gray-600">|</span>}
+                        <a
+                            href={framework.path}
+                            class:list={[
+                                'relative px-1.5 lg:px-2 xl:px-3 py-1 lg:py-1.5 text-[11px] lg:text-xs xl:text-sm transition-all duration-300 font-medium font-sans',
+                                isActivePath(framework.path)
+                                    ? 'text-white bg-gray-800/80 rounded-lg border border-gray-700/50 shadow-[0_0_15px_rgba(0,0,0,0.3)]'
+                                    : 'text-gray-400 hover:text-white'
+                            ]}
+                        >
+                            <span class="relative z-10">{framework.displayName}</span>
+                            {isActivePath(framework.path) && (
+                                <span
+                                    class="absolute bottom-0 left-0 h-[2px] w-full"
+                                    style={`background-color: ${framework.color}`}
+                                />
+                            )}
+                        </a>
+                    </>
+                ))}
+            </div>
+
+            <div class="flex justify-end items-center gap-3 lg:gap-4 xl:gap-6">
+                <a
+                    href="https://panel.maskom.co.id/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-4 py-2 text-sm font-medium text-white bg-gray-900 border-2 border-gray-700 hover:border-purple-500/50 hover:bg-gray-800 rounded-xl transition-all duration-300"
+                >
+                    Login
+                </a>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="lg:hidden flex justify-between items-center">
+            <a href="/" class="flex items-center">
+                <img src="/logo-maskom.svg" alt="Maskom Network" class="h-8 w-auto" />
+            </a>
+            <button
+                id="mobile-menu-button"
+                class="p-2 text-gray-400 hover:text-white"
+                aria-label="Toggle Menu"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+
+        <div
+            id="mobile-menu"
+            class="hidden fixed inset-0 bg-gray-900/95 backdrop-blur-md"
+            style="z-index: 100;"
+        >
+            <div class="container mx-auto px-4 py-8">
+                <div class="flex justify-end">
+                    <button
+                        id="mobile-menu-close"
+                        class="p-2 text-gray-400 hover:text-white"
+                        aria-label="Close Menu"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <nav class="mt-8 flex flex-col gap-4">
+                    {frameworks.map(framework => (
+                        <a
+                            href={framework.path}
+                            class:list={[
+                                'px-4 py-2 rounded-lg transition-all duration-200',
+                                isActivePath(framework.path)
+                                    ? 'text-white bg-gray-800'
+                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                            ]}
+                        >
+                            {framework.displayName}
+                        </a>
+                    ))}
+
+                    <a
+                        href="https://panel.maskom.co.id/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="mt-6 flex items-center justify-center px-4 py-2 bg-gray-900 border-2 border-gray-700 text-white rounded-xl hover:border-purple-500/50 hover:bg-gray-800 transition-all duration-300"
+                    >
+                        Login
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <script>
-  function setupMobileMenu() {
-    const button = document.getElementById('mobile-menu-button');
-    const closeButton = document.getElementById('mobile-menu-close');
-    const menu = document.getElementById('mobile-menu');
-    const body = document.body;
+    function setupMobileMenu() {
+        const button = document.getElementById('mobile-menu-button');
+        const closeButton = document.getElementById('mobile-menu-close');
+        const menu = document.getElementById('mobile-menu');
+        const body = document.body;
 
-    if (!button || !closeButton || !menu || !button.parentNode || !closeButton.parentNode) {
-      return;
+        if (!button || !closeButton || !menu || !button.parentNode || !closeButton.parentNode) {
+            return;
+        }
+
+        const newButton = button.cloneNode(true);
+        const newCloseButton = closeButton.cloneNode(true);
+
+        const toggleMenu = () => {
+            menu.classList.toggle('hidden');
+            body.style.overflow = menu.classList.contains('hidden') ? '' : 'hidden';
+        };
+
+        newButton.addEventListener('click', toggleMenu);
+        newCloseButton.addEventListener('click', toggleMenu);
+
+        button.parentNode.replaceChild(newButton, button);
+        closeButton.parentNode.replaceChild(newCloseButton, closeButton);
     }
 
-    const newButton = button.cloneNode(true);
-    const newCloseButton = closeButton.cloneNode(true);
-
-    const toggleMenu = () => {
-      menu.classList.toggle('hidden');
-      body.style.overflow = menu.classList.contains('hidden') ? '' : 'hidden';
-    };
-
-    newButton.addEventListener('click', toggleMenu);
-    newCloseButton.addEventListener('click', toggleMenu);
-
-    button.parentNode.replaceChild(newButton, button);
-    closeButton.parentNode.replaceChild(newCloseButton, closeButton);
-  }
-
-  document.addEventListener('DOMContentLoaded', setupMobileMenu);
+    document.addEventListener('DOMContentLoaded', setupMobileMenu);
 </script>
 
