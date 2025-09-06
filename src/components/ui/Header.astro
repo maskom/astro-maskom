@@ -1,49 +1,96 @@
 ---
+import { frameworks } from '../../data/navigation';
+
+const currentPath = Astro.url.pathname;
+const isActivePath = (path: string) => {
+  const normalizedCurrent = currentPath.replace(/\/+$/, '').toLowerCase();
+  const normalizedPath = path.replace(/\/+$/, '').toLowerCase();
+  return path === '/'
+    ? normalizedCurrent === '' || normalizedCurrent === '/'
+    : normalizedCurrent.endsWith(normalizedPath);
+};
 ---
 
-<header class="bg-white py-4 shadow-md">
-  <div class="container mx-auto px-4 flex justify-between items-center">
-    <div class="text-2xl font-bold text-gray-800">
-      <a href="/" class="flex items-center">
-        <img src="/logo-maskom.png" alt="Maskom Network Logo" class="h-10 mr-2">
-        Maskom Network
+<header class="fixed top-0 inset-x-0 z-50 bg-gray-900/80 backdrop-blur border-b border-purple-500/20">
+  <nav class="max-w-6xl mx-auto flex items-center justify-between p-4">
+    <a href="/" class="flex items-center">
+      <img src="/logo-maskom.svg" alt="Maskom Network" width="200" height="40" decoding="async" class="h-8 w-auto" />
+      <span class="ml-2 font-bold text-white">Maskom Network</span>
+    </a>
+
+    <div class="hidden md:flex items-center space-x-6">
+      {frameworks.map((framework) => (
+        <a
+          href={framework.path}
+          class:list={[
+            'text-sm font-medium transition-colors',
+            isActivePath(framework.path)
+              ? 'text-white'
+              : 'text-gray-300 hover:text-white'
+          ]}
+        >
+          {framework.displayName}
+        </a>
+      ))}
+
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition"
+      >
+        Login
       </a>
     </div>
-    <nav class="hidden md:flex space-x-6">
-      <a href="#home" class="text-gray-600 hover:text-blue-600 font-medium">Home</a>
-      <a href="#services" class="text-gray-600 hover:text-blue-600 font-medium">Layanan</a>
-      <a href="#about" class="text-gray-600 hover:text-blue-600 font-medium">Tentang Kami</a>
-      <a href="#contact" class="text-gray-600 hover:text-blue-600 font-medium">Kontak</a>
-      <a href="https://panel.maskom.co.id/" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">Login Pelanggan</a>
-    </nav>
-    <div class="md:hidden">
-      <button id="menu-button" class="text-gray-600 hover:text-blue-600 focus:outline-none">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-        </svg>
-      </button>
+
+    <button
+      id="mobile-menu-button"
+      class="md:hidden text-gray-200 p-2 focus:outline-none"
+      aria-label="Toggle navigation"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-gray-900/95 border-b border-purple-500/20">
+    <div class="max-w-6xl mx-auto p-4 flex flex-col space-y-4">
+      {frameworks.map((framework) => (
+        <a
+          href={framework.path}
+          class:list={[
+            'block px-2 py-2 rounded-md text-sm font-medium',
+            isActivePath(framework.path)
+              ? 'text-white bg-gray-800'
+              : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+          ]}
+        >
+          {framework.displayName}
+        </a>
+      ))}
+
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="block w-full text-center px-4 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition"
+      >
+        Login
+      </a>
     </div>
-  </div>
-  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
-    <nav class="px-2 pt-2 pb-3 space-y-1">
-      <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Home</a>
-      <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Layanan</a>
-      <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Tentang Kami</a>
-      <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Kontak</a>
-      <a href="https://panel.maskom.co.id/" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Login Pelanggan</a>
-    </nav>
   </div>
 </header>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const menuButton = document.getElementById('menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    if (menuButton && mobileMenu) {
-      menuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-      });
-    }
+    const button = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    if (!button || !menu) return;
+    button.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      document.body.style.overflow = menu.classList.contains('hidden') ? '' : 'hidden';
+    });
   });
 </script>
+

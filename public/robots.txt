@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://ultimate-astro-template.vercel.app/
+Sitemap: https://maskom.co.id/sitemap-index.xml
 
 # Block access to admin or sensitive areas if needed
 # Disallow: /admin/
