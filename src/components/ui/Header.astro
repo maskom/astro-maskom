@@ -1,49 +1,123 @@
 ---
+import { frameworks } from '../../data/navigation';
+
+const currentPath = Astro.url.pathname;
+const isActivePath = (path: string) => {
+  const normalizedCurrent = currentPath.replace(/\/+$/, '').toLowerCase();
+  const normalizedPath = path.replace(/\/+$/, '').toLowerCase();
+  return path === '/'
+    ? normalizedCurrent === '' || normalizedCurrent === '/'
+    : normalizedCurrent.endsWith(normalizedPath);
+};
 ---
 
-<header class="bg-white py-4 shadow-md">
-  <div class="container mx-auto px-4 flex justify-between items-center">
-    <div class="text-2xl font-bold text-gray-800">
-      <a href="/" class="flex items-center">
-        <img src="/logo-maskom.png" alt="Maskom Network Logo" class="h-10 mr-2">
-        Maskom Network
-      </a>
+<header class="fixed top-0 inset-x-0 z-50 bg-white shadow">
+  <nav class="max-w-6xl mx-auto flex items-center justify-between p-4">
+    <a href="/" class="flex items-center">
+      <img src="/logo-maskom.svg" alt="Maskom Network" width="200" height="40" decoding="async" class="h-8 w-auto" />
+    </a>
+
+    <div class="hidden md:flex items-center space-x-8">
+      {frameworks.map((framework) => (
+        <a
+          href={framework.path}
+          class:list={[
+            'text-sm font-medium transition-colors',
+            isActivePath(framework.path)
+              ? 'text-blue-600'
+              : 'text-gray-700 hover:text-blue-600'
+          ]}
+        >
+          {framework.displayName}
+        </a>
+      ))}
     </div>
-    <nav class="hidden md:flex space-x-6">
-      <a href="#home" class="text-gray-600 hover:text-blue-600 font-medium">Home</a>
-      <a href="#services" class="text-gray-600 hover:text-blue-600 font-medium">Layanan</a>
-      <a href="#about" class="text-gray-600 hover:text-blue-600 font-medium">Tentang Kami</a>
-      <a href="#contact" class="text-gray-600 hover:text-blue-600 font-medium">Kontak</a>
-      <a href="https://panel.maskom.co.id/" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">Login Pelanggan</a>
-    </nav>
-    <div class="md:hidden">
-      <button id="menu-button" class="text-gray-600 hover:text-blue-600 focus:outline-none">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+
+    <div class="flex items-center space-x-4">
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hidden md:inline-block px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+      >
+        Login
+      </a>
+
+      <button
+        id="mobile-menu-button"
+        class="md:hidden text-gray-700 p-2 focus:outline-none"
+        aria-label="Toggle navigation"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
-  </div>
-  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
-    <nav class="px-2 pt-2 pb-3 space-y-1">
-      <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Home</a>
-      <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Layanan</a>
-      <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Tentang Kami</a>
-      <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Kontak</a>
-      <a href="https://panel.maskom.co.id/" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-500">Login Pelanggan</a>
-    </nav>
+  </nav>
+
+  <div id="mobile-overlay" class="fixed inset-0 bg-black/50 hidden"></div>
+  <div
+    id="mobile-menu"
+    class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg transform translate-x-full transition-transform"
+  >
+    <div class="p-4 flex flex-col space-y-4">
+      <button
+        id="mobile-menu-close"
+        class="self-end p-2 text-gray-700 focus:outline-none"
+        aria-label="Close navigation"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      {frameworks.map((framework) => (
+        <a
+          href={framework.path}
+          class:list={[
+            'block text-sm font-medium',
+            isActivePath(framework.path)
+              ? 'text-blue-600'
+              : 'text-gray-700 hover:text-blue-600'
+          ]}
+        >
+          {framework.displayName}
+        </a>
+      ))}
+
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="block text-center px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+      >
+        Login
+      </a>
+    </div>
   </div>
 </header>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const menuButton = document.getElementById('menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
+    const button = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-overlay');
+    const closeBtn = document.getElementById('mobile-menu-close');
+    if (!button || !menu || !overlay || !closeBtn) return;
 
-    if (menuButton && mobileMenu) {
-      menuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-      });
-    }
+    const openMenu = () => {
+      menu.classList.remove('translate-x-full');
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      menu.classList.add('translate-x-full');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    button.addEventListener('click', openMenu);
+    overlay.addEventListener('click', closeMenu);
+    closeBtn.addEventListener('click', closeMenu);
   });
 </script>

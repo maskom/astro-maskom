@@ -8,7 +8,7 @@ import vue from "@astrojs/vue";
 import solidJs from "@astrojs/solid-js";
 import sitemap from "@astrojs/sitemap";
 
-// https://astro.build/config
+// Astro configuration
 export default defineConfig({
   site: "https://maskom.co.id/",
   output: "static",
