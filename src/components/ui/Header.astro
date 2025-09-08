@@ -11,8 +11,8 @@ const isActivePath = (path: string) => {
 };
 ---
 
-<header class="fixed top-0 inset-x-0 z-50 bg-white shadow">
-  <nav class="max-w-6xl mx-auto flex items-center justify-between p-4">
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+  <nav class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
     <a href="/" class="flex items-center">
       <img src="/logo-maskom.svg" alt="Maskom Network" width="200" height="40" decoding="async" class="h-8 w-auto" />
     </a>
@@ -22,10 +22,10 @@ const isActivePath = (path: string) => {
         <a
           href={framework.path}
           class:list={[
-            'text-sm font-medium transition-colors',
+            'text-sm font-heading font-medium transition-colors',
             isActivePath(framework.path)
               ? 'text-blue-600'
-              : 'text-gray-700 hover:text-blue-600'
+              : 'text-gray-800 hover:text-blue-600'
           ]}
         >
           {framework.displayName}
@@ -38,14 +38,14 @@ const isActivePath = (path: string) => {
         href="https://panel.maskom.co.id/"
         target="_blank"
         rel="noopener noreferrer"
-        class="hidden md:inline-block px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+        class="hidden md:inline-block px-5 py-2 rounded-md text-sm font-heading font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
       >
         Login
       </a>
 
       <button
         id="mobile-menu-button"
-        class="md:hidden text-gray-700 p-2 focus:outline-none"
+        class="md:hidden text-gray-800 p-2 focus:outline-none"
         aria-label="Toggle navigation"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ const isActivePath = (path: string) => {
     <div class="p-4 flex flex-col space-y-4">
       <button
         id="mobile-menu-close"
-        class="self-end p-2 text-gray-700 focus:outline-none"
+        class="self-end p-2 text-gray-800 focus:outline-none"
         aria-label="Close navigation"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,10 +74,10 @@ const isActivePath = (path: string) => {
         <a
           href={framework.path}
           class:list={[
-            'block text-sm font-medium',
+            'block text-sm font-heading font-medium',
             isActivePath(framework.path)
               ? 'text-blue-600'
-              : 'text-gray-700 hover:text-blue-600'
+              : 'text-gray-800 hover:text-blue-600'
           ]}
         >
           {framework.displayName}
@@ -88,7 +88,7 @@ const isActivePath = (path: string) => {
         href="https://panel.maskom.co.id/"
         target="_blank"
         rel="noopener noreferrer"
-        class="block text-center px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+        class="block text-center px-4 py-2 rounded-md text-sm font-heading font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
       >
         Login
       </a>
