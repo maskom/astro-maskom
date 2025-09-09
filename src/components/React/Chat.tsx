@@ -95,6 +95,9 @@ const InteractiveShowcase: React.FC = () => {
                 <img
                   className="aspect-square h-full w-full"
                   alt="Ibrahim Elkamali"
+                  width={40}
+                  height={40}
+                  decoding="async"
                   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23a855f7'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='40' fill='white' text-anchor='middle' dominant-baseline='middle'%3EI%3C/text%3E%3C/svg%3E"
                 />
               </span>

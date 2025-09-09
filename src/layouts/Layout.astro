@@ -1,6 +1,5 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import Analytics from "@vercel/analytics/astro";
 import { SEO } from "astro-seo";
 import Background from "../components/ui/Background.astro";
 import Footer from "../components/ui/Footer.astro";
@@ -36,84 +35,60 @@ const {
     <meta name="generator" content={Astro.generator} />
     <SEO
       title={title}
-      titleTemplate="%s - Astro Framework Theme"
-      description="Your comprehensive guide to building modern websites with Astro Framework"
-      canonical="https://ultimate-astro-template.vercel.app/"
+      titleTemplate="%s - Maskom Network"
+      description="Maskom Network menyediakan solusi internet cepat dan andal untuk bisnis maupun rumah Anda."
+      canonical="https://maskom.co.id/"
       noindex={false}
       nofollow={false}
       openGraph={{
         basic: {
-          title: title || "Astro Framework Theme",
+          title: title || "Maskom Network",
           type: "website",
-          image: "/astro-template.png",
-          url: "https://ultimate-astro-template.vercel.app/",
+          image: "/logo-maskom.svg",
+          url: "https://maskom.co.id/",
         },
         optional: {
-          locale: "en_US",
-          siteName: "Astro Framework Theme",
+          locale: "id_ID",
+          siteName: "Maskom Network",
           description:
-            "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
+            "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.",
         },
         image: {
-          alt: "Astro Framework Theme Preview",
-          width: 1200,
-          height: 630,
-          type: "image/png",
+          alt: "Maskom Network Logo",
+          width: 200,
+          height: 40,
+          type: "image/svg+xml",
         },
       }}
       twitter={{
         card: "summary_large_image",
-        site: "@marvelousbc",
-        creator: "@marvelousbc",
-        title: title || "Astro Framework Theme",
+        title: title || "Maskom Network",
         description:
-          "Discover the power of multi-framework development with our ultimate Astro template.",
-        image: "/astro-template.png",
-        imageAlt: "Astro Framework Theme Preview",
+          "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.",
+        image: "/logo-maskom.svg",
+        imageAlt: "Maskom Network Logo",
       }}
       extend={{
         meta: [
-          { name: "twitter:image", content: "/astro-template.png" },
-          { name: "twitter:title", content: title },
-          {
-            name: "twitter:description",
-            content:
-              "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
-          },
           { name: "theme-color", content: bgColor },
           { name: "apple-mobile-web-app-capable", content: "yes" },
           { name: "apple-mobile-web-app-status-bar-style", content: "black" },
-          { name: "author", content: "Ibrahim Elkamali" },
+          { name: "author", content: "Maskom Network" },
           {
             name: "keywords",
-            content:
-              "astro, framework, web development, react, vue, svelte, solid",
+            content: "maskom, internet, jaringan, fiber, wifi",
           },
         ],
         link: [
-          {
-            rel: "canonical",
-            href: "https://ultimate-astro-template.vercel.app/",
-          },
-          { rel: "icon", type: "image/png", href: "/favicon.png" },
-          { rel: "apple-touch-icon", href: "/favicon.png" },
+          { rel: "canonical", href: "https://maskom.co.id/" },
+          { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+          { rel: "apple-touch-icon", href: "/favicon.svg" },
         ],
       }}
     />
     <title>{title}</title>
     <ClientRouter />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://api.fontshare.com/v2/css?f[]=cal-sans@400,500,600&display=swap"
-      rel="stylesheet"
-    />
-    <Analytics />
   </head>
   <body
     class="m-0 min-h-screen relative font-sans"

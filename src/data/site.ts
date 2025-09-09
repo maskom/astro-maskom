@@ -6,36 +6,36 @@ export const siteConfig = {
 };
 
 export const home = {
-  title: "Headline here...",
-  subtitle: "Subtitle here..",
+  title: "Maskom Network",
+  subtitle: "Internet Cepat & Andal",
   description:
-    "Description here..",
+    "Maskom Network menyediakan solusi internet fiber dedicated untuk rumah, bisnis, dan korporasi di Indonesia.",
   features: [
     {
-      title: "All Frameworks",
-      description: "🎭 React, Vue, Svelte, Solid - use them all together",
+      title: "Jaringan Pribadi",
+      description: "🌐 Koneksi dedicated tanpa batas pemakaian",
     },
     {
-      title: "Best Practices",
-      description: "✨ Modern design patterns & optimized performance",
+      title: "Dukungan 24/7",
+      description: "🛠️ Tim support siap membantu kapan pun",
     },
     {
-      title: "Ready to Use",
-      description: "🚀 Pre-built components for each framework",
+      title: "Skalabel",
+      description: "📈 Pilihan paket untuk kebutuhan rumahan hingga enterprise",
     },
   ],
   stats: [
     {
-      value: "5+",
-      label: "Frameworks",
+      value: "99%",
+      label: "Uptime",
     },
     {
-      value: "10+",
-      label: "Components",
+      value: "24/7",
+      label: "Support",
     },
     {
-      value: "99",
-      label: "Performance Score",
+      value: "1000+",
+      label: "Pelanggan",
     },
   ],
 };
