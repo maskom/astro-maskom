@@ -2,47 +2,228 @@
 import { home } from '../../data/site';
 ---
 
-<section class="bg-gradient-to-br from-indigo-600 via-sky-600 to-blue-500 text-white">
-  <div class="max-w-6xl mx-auto px-4 pt-32 pb-24 text-center">
-    <p class="text-indigo-200 mb-2">{home.subtitle}</p>
-    <h1 class="text-4xl md:text-6xl font-bold mb-4">{home.title}</h1>
-    <p class="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto">
-      {home.description}
-    </p>
+<section class="relative overflow-hidden pt-36 pb-24">
+  <div class="hero-orb hero-orb--primary"></div>
+  <div class="hero-orb hero-orb--secondary"></div>
+  <div class="hero-grid"></div>
 
-    <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-6">
-      {home.stats.map(stat => (
-        <div class="text-center">
-          <p class="text-3xl font-bold">{stat.value}</p>
-          <p class="text-sm text-indigo-100">{stat.label}</p>
+  <div class="relative mx-auto max-w-6xl px-4">
+    <div class="mx-auto max-w-3xl text-center space-y-6">
+      <span class="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-indigo-200/80">
+        {home.subtitle}
+      </span>
+      <h1 class="font-cal text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight" style="text-wrap: balance;">
+        <span class="bg-gradient-to-r from-indigo-300 via-sky-200 to-cyan-300 bg-clip-text text-transparent">
+          {home.title}
+        </span>
+        <span class="block text-white/80">Internet dedicated cepat untuk pengalaman digital tanpa kompromi.</span>
+      </h1>
+      <p class="text-base md:text-lg text-white/70">
+        {home.description}
+      </p>
+      <div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
+        <a
+          href="https://wa.me/6283867803521"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta-button"
+        >
+          Chat WhatsApp
+        </a>
+        <button
+          class="cta-ghost"
+          type="button"
+          onclick="document.getElementById('paket')?.scrollIntoView({ behavior: 'smooth' })"
+        >
+          Lihat Paket Layanan
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-16 grid gap-6 sm:grid-cols-3">
+      {home.stats.map((stat) => (
+        <div class="stat-card">
+          <p class="text-3xl font-semibold text-white">{stat.value}</p>
+          <p class="text-sm uppercase tracking-wide text-white/60">{stat.label}</p>
         </div>
       ))}
     </div>
 
-    <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
-      {home.features.map(feature => (
-        <div class="bg-white/10 backdrop-blur rounded-xl p-6">
-          <h3 class="text-lg font-semibold mb-2">{feature.title}</h3>
-          <p class="text-sm text-indigo-100">{feature.description}</p>
+    <div class="mt-16 grid gap-6 md:grid-cols-3">
+      {home.features.map((feature) => (
+        <div class="feature-card">
+          <h3 class="text-lg font-semibold text-white">{feature.title}</h3>
+          <p class="mt-2 text-sm text-white/70">{feature.description}</p>
         </div>
       ))}
-    </div>
-
-    <div class="mt-12 flex flex-col sm:flex-row justify-center gap-4">
-      <a
-        href="https://wa.me/6283867803521"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="px-6 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-      >
-        Chat WhatsApp
-      </a>
-      <button
-        onclick="document.getElementById('paket').scrollIntoView({ behavior: 'smooth' })"
-        class="px-6 py-3 rounded-lg border border-white/50 hover:bg-white/10 transition"
-      >
-        Lihat Paket
-      </button>
     </div>
   </div>
 </section>
+
+<style>
+  .hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .hero-orb--primary {
+    width: 460px;
+    height: 460px;
+    top: -140px;
+    left: 50%;
+    transform: translateX(-40%);
+    background: radial-gradient(circle, rgba(129,140,248,0.5), rgba(56,189,248,0.08));
+  }
+
+  .hero-orb--secondary {
+    width: 380px;
+    height: 380px;
+    bottom: -120px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(14,165,233,0.45), rgba(14,165,233,0));
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 55%),
+      linear-gradient(rgba(148,163,184,0.08) 1px, transparent 0),
+      linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 0);
+    background-size: 100% 100%, 60px 60px, 60px 60px;
+    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .cta-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    color: #0f1115;
+    background: linear-gradient(135deg, #a855f7, #60a5fa, #22d3ee);
+    box-shadow: 0 16px 38px -24px rgba(56, 189, 248, 0.55);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 48px -28px rgba(129, 140, 248, 0.6);
+  }
+
+  .cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(15,17,21,0.55);
+    transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cta-ghost:hover {
+    color: #fff;
+    border-color: rgba(59,130,246,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px -28px rgba(56,189,248,0.45);
+  }
+
+  .stat-card {
+    position: relative;
+    border-radius: 1.5rem;
+    padding: 1.75rem;
+    background: linear-gradient(160deg, rgba(15,23,42,0.6), rgba(15,23,42,0.3));
+    border: 1px solid rgba(148,163,184,0.16);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(59,130,246,0.18), transparent 65%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59,130,246,0.35);
+    background: linear-gradient(160deg, rgba(15,23,42,0.7), rgba(15,23,42,0.35));
+  }
+
+  .stat-card:hover::before {
+    opacity: 1;
+  }
+
+  .stat-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-card {
+    position: relative;
+    border-radius: 1.75rem;
+    padding: 2rem;
+    border: 1px solid rgba(148,163,184,0.14);
+    background: linear-gradient(165deg, rgba(15,17,21,0.78), rgba(15,23,42,0.5));
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(140deg, rgba(94,234,212,0.12), rgba(14,165,233,0.18) 45%, transparent 75%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(165,180,252,0.38);
+    background: linear-gradient(165deg, rgba(17,22,33,0.85), rgba(15,23,42,0.58));
+  }
+
+  .feature-card:hover::before {
+    opacity: 1;
+  }
+
+  .feature-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 640px) {
+    .hero-orb--primary {
+      width: 320px;
+      height: 320px;
+      top: -180px;
+      transform: translateX(-50%);
+    }
+
+    .hero-orb--secondary {
+      width: 320px;
+      height: 320px;
+      right: -160px;
+    }
+  }
+</style>

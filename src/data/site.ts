@@ -9,19 +9,19 @@ export const home = {
   title: "Maskom Network",
   subtitle: "Internet Cepat & Andal",
   description:
-    "Maskom Network menyediakan solusi internet fiber dedicated untuk rumah, bisnis, dan korporasi di Indonesia.",
+    "Internet dedicated stabil untuk rumah, kantor, dan enterprise di seluruh Indonesia.",
   features: [
     {
       title: "Jaringan Pribadi",
-      description: "🌐 Koneksi dedicated tanpa batas pemakaian",
+      description: "Koneksi dedicated tanpa batas pemakaian",
     },
     {
       title: "Dukungan 24/7",
-      description: "🛠️ Tim support siap membantu kapan pun",
+      description: "Tim support siap membantu kapan pun",
     },
     {
       title: "Skalabel",
-      description: "📈 Pilihan paket untuk kebutuhan rumahan hingga enterprise",
+      description: "Paket untuk kebutuhan rumahan hingga enterprise",
     },
   ],
   stats: [

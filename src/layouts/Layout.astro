@@ -8,6 +8,9 @@ import "../styles/global.css";
 
 interface Props {
   title: string;
+  description?: string;
+  image?: string;
+  lang?: string;
   bgColor?: string;
   primaryBallColor?: string;
   secondaryBallColor?: string;
@@ -18,6 +21,9 @@ interface Props {
 
 const {
   title,
+  description,
+  image = "/logo-maskom.svg",
+  lang = "id",
   bgColor = "#0F1115",
   primaryBallColor,
   secondaryBallColor,
@@ -25,48 +31,55 @@ const {
   diagonalColor,
   vignetteColor,
 } = Astro.props;
+
+const pageTitle = title ?? "Maskom Network";
+const pageDescription =
+  description ??
+  "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.";
+const site = Astro.site;
+const currentUrl = Astro.url;
+const canonicalUrl = site
+  ? new URL(currentUrl.pathname, site).toString()
+  : `${currentUrl.origin}${currentUrl.pathname}`;
+const ogImageMeta = image.endsWith(".svg")
+  ? { alt: pageTitle, type: "image/svg+xml" }
+  : { alt: pageTitle, width: 1200, height: 630, type: "image/jpeg" };
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <SEO
-      title={title}
+      title={pageTitle}
       titleTemplate="%s - Maskom Network"
-      description="Maskom Network menyediakan solusi internet cepat dan andal untuk bisnis maupun rumah Anda."
-      canonical="https://maskom.co.id/"
+      description={pageDescription}
+      canonical={canonicalUrl}
       noindex={false}
       nofollow={false}
       openGraph={{
         basic: {
-          title: title || "Maskom Network",
+          title: pageTitle,
           type: "website",
-          image: "/logo-maskom.svg",
-          url: "https://maskom.co.id/",
+          image,
+          url: canonicalUrl,
         },
         optional: {
           locale: "id_ID",
           siteName: "Maskom Network",
-          description:
-            "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.",
+          description: pageDescription,
         },
-        image: {
-          alt: "Maskom Network Logo",
-          width: 200,
-          height: 40,
-          type: "image/svg+xml",
-        },
+        image: ogImageMeta,
       }}
       twitter={{
         card: "summary_large_image",
-        title: title || "Maskom Network",
-        description:
-          "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.",
-        image: "/logo-maskom.svg",
-        imageAlt: "Maskom Network Logo",
+        title: pageTitle,
+        description: pageDescription,
+        image,
+        imageAlt: pageTitle,
       }}
       extend={{
         meta: [
@@ -80,13 +93,13 @@ const {
           },
         ],
         link: [
-          { rel: "canonical", href: "https://maskom.co.id/" },
+          { rel: "canonical", href: canonicalUrl },
           { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
           { rel: "apple-touch-icon", href: "/favicon.svg" },
         ],
       }}
     />
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <ClientRouter />
     <link rel="sitemap" href="/sitemap-index.xml" />
   </head>
