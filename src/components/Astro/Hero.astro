@@ -1,5 +1,6 @@
 ---
 import { home } from '../../data/site';
+import { contactInfo } from '../../data/packages';
 ---
 
 <section class="relative overflow-hidden pt-36 pb-24">
@@ -23,7 +24,7 @@ import { home } from '../../data/site';
       </p>
       <div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
         <a
-          href="https://wa.me/6283867803521"
+          href={contactInfo.whatsapp}
           target="_blank"
           rel="noopener noreferrer"
           class="cta-button"
