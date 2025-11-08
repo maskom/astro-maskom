@@ -23,7 +23,7 @@ export interface PackageDetail {
 export const contactInfo = {
   whatsapp: "https://wa.me/6283867803521",
   contactLink: "#contact"
-};
+} as const;
 
 export const packages: Package[] = [
   {
