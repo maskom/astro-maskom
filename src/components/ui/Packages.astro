@@ -1,46 +1,6 @@
 ---
-const packages = [
-  {
-    name: "Home Access",
-    badge: "Rumah & keluarga",
-    description:
-      "Koneksi fiber simetris untuk kebutuhan hiburan dan produktivitas keluarga tanpa takut kuota habis.",
-    highlights: [
-      "Dedicated bandwidth",
-      "Unlimited + tanpa FUP",
-      "Instalasi dan maintenance cepat",
-    ],
-    accent: "#6366f1",
-    glow: "rgba(99,102,241,0.75)",
-  },
-  {
-    name: "SOHO",
-    badge: "Small Office Home Office",
-    description:
-      "Stabilitas jaringan bisnis rumahan dengan SLA jelas agar kolaborasi dan transaksi daring tetap lancar.",
-    highlights: [
-      "IP publik statis opsional",
-      "Monitoring 24/7",
-      "Prioritas support engineer",
-    ],
-    accent: "#0ea5e9",
-    glow: "rgba(14,165,233,0.75)",
-    featured: true,
-  },
-  {
-    name: "Corporate",
-    badge: "Perusahaan & enterprise",
-    description:
-      "Infrastruktur terkelola dengan kapasitas tinggi, redundancy, dan dukungan managed service profesional.",
-    highlights: [
-      "SLA premium & failover",
-      "Integrasi VPN/MPLS",
-      "Tim account manager dedikasi",
-    ],
-    accent: "#06b6d4",
-    glow: "rgba(6,182,212,0.75)",
-  },
-];
+import { packages } from '../../data/packages';
+import { contactInfo } from '../../data/packages';
 ---
 
 <section id="paket" class="relative py-24">
@@ -67,7 +27,7 @@ const packages = [
           <div class="plan-card__outline"></div>
           <div class="plan-card__content">
             <span class="plan-badge">{pkg.badge}</span>
-            <h3 class="text-2xl font-semibold text-white">{pkg.name}</h3>
+            <h3 class="text-2xl font-semibold text-white">{pkg.displayName}</h3>
             <p class="mt-3 text-sm text-white/70">{pkg.description}</p>
             <ul class="mt-6 space-y-3 text-sm text-white/80">
               {pkg.highlights.map((item) => (
@@ -78,7 +38,7 @@ const packages = [
               ))}
             </ul>
             <a
-              href="https://wa.me/6283867803521"
+              href={contactInfo.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               class="plan-cta"
