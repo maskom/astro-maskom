@@ -21,8 +21,9 @@ export interface PackageDetail {
 }
 
 export const contactInfo = {
-  whatsapp: "https://wa.me/6283867803521"
-};
+  whatsapp: "https://wa.me/6283867803521",
+  contactLink: "#contact"
+} as const;
 
 export const packages: Package[] = [
   {
@@ -127,7 +128,7 @@ export const sohoPackages: PackageDetail[] = [
       "IP Publik Statis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   },
   {
     id: "soho-business",
@@ -140,7 +141,7 @@ export const sohoPackages: PackageDetail[] = [
       "Dedicated Support"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   },
   {
     id: "soho-enterprise",
@@ -153,7 +154,7 @@ export const sohoPackages: PackageDetail[] = [
       "Managed Service"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   }
 ];
 
@@ -169,7 +170,7 @@ export const corporatePackages: PackageDetail[] = [
       "IP Publik Statis + Monitoring Jaringan"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   },
   {
     id: "corporate-enterprise",
@@ -182,7 +183,7 @@ export const corporatePackages: PackageDetail[] = [
       "Managed Service + Security"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   },
   {
     id: "corporate-custom",
@@ -195,7 +196,7 @@ export const corporatePackages: PackageDetail[] = [
       "Dedicated Infrastructure"
     ],
     ctaText: "Konsultasi",
-    ctaLink: "#contact"
+    ctaLink: contactInfo.contactLink
   }
 ];
 
@@ -210,7 +211,7 @@ export const landingPackages = [
       "Pemasangan Gratis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: contactInfo.contactLink,
     color: "blue"
   },
   {
@@ -224,7 +225,7 @@ export const landingPackages = [
       "Prioritas Dukungan"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: contactInfo.contactLink,
     color: "blue"
   },
   {
@@ -238,7 +239,7 @@ export const landingPackages = [
       "IP Publik Statis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: contactInfo.contactLink,
     color: "blue"
   }
 ];
