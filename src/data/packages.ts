@@ -85,7 +85,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis 24/7"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: contactInfo.whatsapp
+    ctaLink: ""
   },
   {
     id: "home-b",
