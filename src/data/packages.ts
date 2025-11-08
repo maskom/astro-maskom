@@ -20,6 +20,10 @@ export interface PackageDetail {
   ctaLink: string;
 }
 
+export const contactInfo = {
+  whatsapp: "https://wa.me/6283867803521"
+};
+
 export const packages: Package[] = [
   {
     id: "home-access",
@@ -238,7 +242,3 @@ export const landingPackages = [
     color: "blue"
   }
 ];
-
-export const contactInfo = {
-  whatsapp: "https://wa.me/6283867803521"
-};
