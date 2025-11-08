@@ -6,7 +6,7 @@ Maskom Indonesia adalah penyedia layanan internet terkemuka yang berkomitmen unt
 
 ## Struktur Proyek
 
-```
+```text
 src/
 ├── components/     # Komponen UI yang dapat digunakan kembali
 ├── layouts/        # Layout template untuk halaman
@@ -26,9 +26,11 @@ src/
 
 ## Paket Layanan
 
-1. **Paket Rumah Basic** - 10 Mbps @ Rp 150.000/bulan
-2. **Paket Rumah Premium** - 50 Mbps @ Rp 300.000/bulan
-3. **Paket Bisnis Enterprise** - 100 Mbps @ Rp 750.000/bulan
+1. **Paket Rumah Basic** - Mulai dari 10 Mbps
+2. **Paket Rumah Premium** - Hingga 50 Mbps
+3. **Paket Bisnis Enterprise** - Hingga 100 Mbps
+
+*Untuk informasi harga terkini, silakan hubungi tim sales kami.*
 
 ## Pengembangan
 
