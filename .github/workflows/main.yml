@@ -1,0 +1,264 @@
+name: "🤖 iFlow CLI Automation"
+
+on:
+  issues:
+    types: [opened, reopened]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_review_comment:
+    types: [created]
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Optional: issue number to triage or implement'
+        required: false
+        type: number
+      pr_number:
+        description: 'Optional: pull request number to review or apply changes'
+        required: false
+        type: number
+
+jobs:
+  triage_issue:
+    if: |
+      github.event_name == 'issues' ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '@iflow-cli /triage')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.issue_number)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: "Run iFlow CLI for Issue Triage and Implementation"
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        id: iflow_issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title || 'manual' }}
+          ISSUE_BODY: ${{ github.event.issue.body || '' }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          REPOSITORY: ${{ github.repository }}
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: '7200'
+          debug: 'false'
+          prompt: |
+            ## Role
+            You are an AI developer and project manager responsible for
+            triaging issues and implementing features or bug fixes
+            described in those issues. Operate entirely through the
+            GitHub CLI (`gh`) and the local git repository.
+
+            ## Context
+            * The current issue title is "${{ env.ISSUE_TITLE }}".
+            * The issue body contains:
+              "${{ env.ISSUE_BODY }}".
+            * The issue number is `${{ env.ISSUE_NUMBER }}` in
+              repository `${{ env.REPOSITORY }}`.
+            * You have access to `gh` commands authenticated with
+              `${{ env.GH_TOKEN }}` and a checked-out repository.
+
+            ## Tasks
+            1. List existing labels using `gh label list` and classify the
+               issue by kind (bug, enhancement, documentation, cleanup, etc.)
+               and priority (p0–p3). Apply labels using
+               `gh issue edit "$ISSUE_NUMBER" --add-label` and remove
+               any `status/needs-triage` label if present.
+            2. Determine whether the issue requires an implementation.
+            3. If implementation is required:
+               a. Create a new git branch named
+                  `iflow/issue-${{ env.ISSUE_NUMBER }}` using `git checkout -b`.
+               b. Analyse the repository to identify the files to modify or
+                  create. Generate production-ready code aligned with
+                  existing conventions.
+               c. Stage and commit the changes with a meaningful message
+                  referencing the issue number.
+               d. Push the branch.
+               e. Open a pull request referencing the issue.
+
+            ## Guidelines
+            * Use only existing labels.
+            * Keep implementations small and focused.
+            * Never expose secrets.
+            * Prefer clarity and maintainability.
+
+  review_pr:
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'pull_request_review_comment' &&
+       contains(github.event.comment.body, '@iflow-cli /review')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.pr_number)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Run iFlow CLI for Pull Request Review"
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        id: iflow_review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref || 'main' }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || '' }}
+          REPOSITORY: ${{ github.repository }}
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: '7200'
+          debug: 'false'
+          prompt: |
+            ## Role
+            You are an AI code reviewer for this repository.
+
+            ## Tasks
+            1. `gh pr checkout $PR_NUMBER`.
+            2. `git diff $BASE_REF...$HEAD_REF` to inspect changes.
+            3. Review for quality, security, performance, and style.
+            4. Comment summary via
+               `gh pr comment $PR_NUMBER --body "<your review>"`.
+            ## Constraints
+            * Do not merge the PR.
+
+  apply_pr_changes:
+    if: github.event_name == 'pull_request_review_comment'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Run iFlow CLI to Apply Review Changes"
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        id: iflow_apply_review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+          REPOSITORY: ${{ github.repository }}
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: '7200'
+          debug: 'false'
+          prompt: |
+            ## Role
+            You are an autonomous AI maintainer for this repository.
+            You analyse each pull request review comment and decide whether
+            to apply code changes.
+
+            ## Context
+            * Pull request number: `${{ env.PR_NUMBER }}`
+            * Review comment ID: `${{ env.COMMENT_ID }}`
+            * Repository: `${{ env.REPOSITORY }}`
+
+            ## Inputs
+            1. Fetch the review comment:
+               `gh api repos/${{ env.REPOSITORY }}/pulls/${{ env.PR_NUMBER }}/comments/${{ env.COMMENT_ID }}`
+            2. If needed, inspect:
+               - `gh api repos/${{ env.REPOSITORY }}/pulls/${{ env.PR_NUMBER }}/reviews`
+               - `gh api repos/${{ env.REPOSITORY }}/pulls/${{ env.PR_NUMBER }}/files`
+               - `git diff`
+
+            ## When to APPLY changes
+            Apply edits if:
+            1. Comment includes a GitHub suggested change block.
+            2. Comment has concrete, local, technically sound instructions
+               that match the current diff and architecture.
+            3. Requests are limited to:
+               - small refactors
+               - doc or typing fixes
+               - tests
+               - safe security or performance fixes.
+
+            Steps:
+            1. `gh pr checkout $PR_NUMBER`.
+            2. Apply changes to targeted files only.
+            3. Run cheap checks if available (lint/tests).
+            4. If checks pass:
+               `git commit -am "Apply review suggestions from comment ${COMMENT_ID}"` and `git push`.
+            5. Optionally comment:
+               `gh pr comment $PR_NUMBER --body "Applied the suggested changes from this comment."`.
+
+            ## When to NOT apply
+            Do not change code if:
+            - komentar abstrak, hanya diskusi, atau tidak spesifik,
+            - bertentangan dengan arsitektur, keamanan, atau perilaku terdokumentasi,
+            - butuh perubahan besar atau keputusan produk baru,
+            - menyarankan melemahkan test atau security tanpa alasan kuat.
+
+            Jika tidak diterapkan:
+            - Tambahkan komentar singkat yang menjelaskan alasan atau minta klarifikasi.
+
+            ## Constraints
+            - Jangan expose secrets.
+            - Jangan ubah CI/workflow/access control kecuali diminta jelas dan aman.
+            - Jangan merge PR.
+            - Perubahan harus eksplisit, lokal, reversibel, dan bisa dites.
+
+  maintenance:
+    if: github.event_name == 'schedule'  
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Run iFlow CLI for Repository Maintenance"
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        id: iflow_maintenance
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: '10800'
+          debug: 'false'
+          prompt: |
+            ## Role
+            You are an AI architect and security engineer for this repository.
+
+            ## Tasks
+            1. Scan for performance issues, deprecated APIs, and vulnerabilities.
+            2. Refactor, remove dead code, and update dependencies where safe.
+            3. Create branch `iflow/maintenance/${{ github.run_id }}`.
+            4. Commit with a descriptive message and open a PR via `gh pr create --fill`.
+
+            ## Guidelines
+            * Ikuti style dan struktur yang ada.
+            * Kelompokkan perubahan terkait.
+            * Dokumentasikan dampak perubahan besar.
