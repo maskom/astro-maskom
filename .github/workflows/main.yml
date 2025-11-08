@@ -32,6 +32,9 @@ jobs:
       (github.event_name == 'issue_comment' &&
        contains(github.event.comment.body, '@iflow-cli /triage')) ||
       (github.event_name == 'workflow_dispatch' && inputs.issue_number)
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -102,6 +105,9 @@ jobs:
       (github.event_name == 'pull_request_review_comment' &&
        contains(github.event.comment.body, '@iflow-cli /review')) ||
       (github.event_name == 'workflow_dispatch' && inputs.pr_number)
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -143,6 +149,10 @@ jobs:
 
   apply_pr_changes:
     if: github.event_name == 'pull_request_review_comment'
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+
     runs-on: ubuntu-latest
     permissions:
       contents: write
