@@ -20,6 +20,10 @@ export interface PackageDetail {
   ctaLink: string;
 }
 
+export const contactInfo = {
+  whatsapp: "https://wa.me/6283867803521"
+};
+
 export const packages: Package[] = [
   {
     id: "home-access",
@@ -81,7 +85,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis 24/7"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   },
   {
     id: "home-b",
@@ -94,7 +98,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis Prioritas"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   },
   {
     id: "home-c",
@@ -107,7 +111,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis Premium"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   }
 ];
 
@@ -206,7 +210,7 @@ export const landingPackages = [
       "Pemasangan Gratis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   },
   {
@@ -220,7 +224,7 @@ export const landingPackages = [
       "Prioritas Dukungan"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   },
   {
@@ -234,11 +238,7 @@ export const landingPackages = [
       "IP Publik Statis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   }
 ];
-
-export const contactInfo = {
-  whatsapp: "https://wa.me/6283867803521"
-};
