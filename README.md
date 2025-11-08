@@ -2,6 +2,34 @@
 
 Sumber kode untuk situs [maskom.co.id](https://maskom.co.id) dibangun menggunakan [UltimateAstroTemplate](https://github.com/Marve10s/UltimateAstroTemplate).
 
+Maskom Indonesia adalah penyedia layanan internet terkemuka yang berkomitmen untuk menghadirkan konektivitas cepat, stabil, dan andal kepada seluruh pelanggan di Indonesia.
+
+## Struktur Proyek
+
+```
+src/
+├── components/     # Komponen UI yang dapat digunakan kembali
+├── layouts/        # Layout template untuk halaman
+├── pages/          # Halaman website (routing otomatis)
+├── data/           # Data statis untuk navigasi dan konfigurasi
+└── styles/         # File CSS global
+```
+
+## Halaman Utama
+
+- `index.astro` - Halaman beranda
+- `tentang-kami.astro` - Informasi tentang perusahaan
+- `layanan.astro` - Paket layanan internet
+- `area-layanan.astro` - Cakupan area layanan
+- `dukungan.astro` - Dukungan pelanggan
+- `kontak.astro` - Informasi kontak
+
+## Paket Layanan
+
+1. **Paket Rumah Basic** - 10 Mbps @ Rp 150.000/bulan
+2. **Paket Rumah Premium** - 50 Mbps @ Rp 300.000/bulan
+3. **Paket Bisnis Enterprise** - 100 Mbps @ Rp 750.000/bulan
+
 ## Pengembangan
 
 ```bash
@@ -9,13 +37,17 @@ npm install
 npm run dev
 ```
 
-## Build
+Server pengembangan akan berjalan di `http://localhost:4321`
+
+## Build untuk Produksi
 
 ```bash
 npm run build
 ```
 
-## Cloudflare Pages
+File hasil build akan tersedia di direktori `dist/`
+
+## Deployment ke Cloudflare Pages
 
 1. Hubungkan repositori ini di dashboard Cloudflare Pages.
 2. Build command: `npm run build`
@@ -25,3 +57,15 @@ npm run build
 ```bash
 npm run pages:dev
 ```
+
+## Kontribusi
+
+1. Fork repositori ini
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
+
+## Lisensi
+
+Proyek ini merupakan properti dari Maskom Indonesia.
