@@ -240,5 +240,6 @@ export const landingPackages = [
 ];
 
 export const contactInfo = {
-  whatsapp: "https://wa.me/6283867803521"
+  whatsapp: "https://wa.me/6283867803521",
+  contactLink: "#contact"
 };
