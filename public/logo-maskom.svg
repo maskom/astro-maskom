@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
-  <rect width="200" height="40" fill="#1e40af"/>
-  <text x="100" y="28" font-size="24" font-family="Arial, sans-serif" fill="#ffffff" text-anchor="middle">Maskom</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <style>
+    .logo-text {
+      font-family: 'Cal Sans', 'Inter', system-ui, -apple-system, sans-serif;
+      font-weight: 700;
+    }
+  </style>
+  <rect width="200" height="60" fill="transparent"/>
+  <text x="100" y="28" font-size="24" class="logo-text" fill="#ffffff" text-anchor="middle">Maskom</text>
+  <text x="100" y="50" font-size="16" class="logo-text" fill="#ffffff" text-anchor="middle">Network</text>
 </svg>
