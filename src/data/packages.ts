@@ -86,7 +86,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis 24/7"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   },
   {
     id: "home-b",
@@ -99,7 +99,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis Prioritas"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   },
   {
     id: "home-c",
@@ -112,7 +112,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis Premium"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: "https://wa.me/6283867803521"
+    ctaLink: ""
   }
 ];
 
