@@ -6,7 +6,7 @@ Maskom Indonesia adalah penyedia layanan internet terkemuka yang berkomitmen unt
 
 ## Struktur Proyek
 
-```
+```text
 src/
 ├── components/     # Komponen UI yang dapat digunakan kembali
 ├── layouts/        # Layout template untuk halaman
