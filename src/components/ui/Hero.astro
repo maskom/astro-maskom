@@ -8,24 +8,24 @@ import { contactInfo } from '../../data/packages';
     <div class="relative z-10 px-4 pt-32 pb-16">
         <div class="max-w-5xl mx-auto text-center">
             <!-- Subtitle -->
-            <p class="text-purple-400 font-medium mb-4 opacity-0 animate-fade-up">
+            <p class="text-purple-400 font-medium mb-4">
                 {home.subtitle}
             </p>
 
-            <!-- Title with animated gradient -->
+            <!-- Title with gradient -->
             <h1
-                class="text-5xl md:text-7xl font-bold font-cal bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient-x whitespace-pre-line"
+                class="text-5xl md:text-7xl font-bold font-cal bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 bg-clip-text text-transparent whitespace-pre-line"
             >
                 {home.title}
             </h1>
 
             <!-- Description -->
-            <p class="mt-8 text-xl text-gray-400 max-w-2xl mx-auto font-sans opacity-0 animate-fade-up animation-delay-100">
+            <p class="mt-8 text-xl text-gray-400 max-w-2xl mx-auto font-sans">
                 {home.description}
             </p>
 
             <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto mt-16 opacity-0 animate-fade-up animation-delay-200">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto mt-16">
                 {home.stats.map(stat => (
                     <div class="text-center">
                         <div class="text-4xl font-bold font-cal bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
@@ -37,9 +37,9 @@ import { contactInfo } from '../../data/packages';
             </div>
 
             <!-- Features -->
-            <div class="cursor-default grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-16 opacity-0 animate-fade-up animation-delay-300">
+            <div class="cursor-default grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-16">
                 {home.features.map(feature => (
-                    <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800/50 hover:border-purple-500/50 transition-colors duration-300">
+                    <div class="bg-gray-900/50 rounded-2xl p-6 border border-gray-800/50 hover:border-purple-500/50 transition-colors duration-300">
                         <h3 class="text-xl font-bold text-white mb-2">{feature.title}</h3>
                         <p class="text-gray-400 text-sm">{feature.description}</p>
                     </div>
@@ -47,7 +47,7 @@ import { contactInfo } from '../../data/packages';
             </div>
 
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 mt-10 opacity-0 animate-fade-up animation-delay-200">
+            <div class="flex flex-col sm:flex-row gap-4 mt-10">
                 <a
                     href={contactInfo.whatsapp}
                     target="_blank"
@@ -70,45 +70,12 @@ import { contactInfo } from '../../data/packages';
 <style>
     @keyframes float {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-10px, 10px); }
-    }
-
-    @keyframes gradient-x {
-        0%, 100% { background-size: 200% 100%; background-position: left center; }
-        50% { background-position: right center; }
-    }
-
-    @keyframes fade-up {
-        0% { opacity: 0; transform: translateY(20px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-gradient-x {
-        animation: gradient-x 15s ease infinite;
+        50% { transform: translate(-5px, 5px); }
     }
 
     .animate-float {
-        animation: float 8s ease-in-out infinite;
-    }
-
-    .animate-fade-up {
-        animation: fade-up 1s ease forwards;
-    }
-
-    .animation-delay-100 {
-        animation-delay: 100ms;
-    }
-
-    .animation-delay-200 {
-        animation-delay: 200ms;
-    }
-
-    .animation-delay-300 {
-        animation-delay: 300ms;
-    }
-
-    .animation-delay-400 {
-        animation-delay: 400ms;
+        animation: float 12s ease-in-out infinite;
+        will-change: transform;
     }
 </style>
 
