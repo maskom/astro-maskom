@@ -26,9 +26,23 @@ src/
 
 ## Paket Layanan
 
-1. **Paket Rumah Basic** - 10 Mbps @ Rp 150.000/bulan
-2. **Paket Rumah Premium** - 50 Mbps @ Rp 300.000/bulan
-3. **Paket Bisnis Enterprise** - 100 Mbps @ Rp 750.000/bulan
+### Untuk Pengguna Rumah
+
+1. **Home Access - Paket A** - 10 Mbps @ Rp 200.000/bulan
+2. **Home Access - Paket B** - 25 Mbps @ Rp 350.000/bulan
+3. **Home Access - Paket C** - 50 Mbps @ Rp 500.000/bulan
+
+### Untuk Bisnis Kecil dan Menengah (SOHO)
+
+1. **SOHO - Paket Pro** - 100 Mbps @ Rp 750.000/bulan
+2. **SOHO - Paket Business** - 200 Mbps @ Rp 1.500.000/bulan
+3. **SOHO - Paket Enterprise** - 500 Mbps @ Rp 3.000.000/bulan
+
+### Untuk Perusahaan dan Enterprise
+
+1. **Corporate - Paket Business** - 500 Mbps @ Rp 2.500.000/bulan
+2. **Corporate - Paket Enterprise** - 1 Gbps @ Rp 5.000.000/bulan
+3. **Corporate - Solusi Custom** - Bandwidth Sesuai Kebutuhan
 
 ## Pengembangan
 

@@ -1,45 +1,23 @@
 ---
+import { homeAccessPackages } from '../../data/packages';
 ---
 <section id="home-access" class="py-16 bg-gray-50">
   <div class="container mx-auto px-4 text-center">
     <h2 class="text-3xl font-bold text-gray-800 mb-8">Home Access</h2>
     <div class="grid md:grid-cols-3 gap-8">
-      <!-- Paket 1 -->
-      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-4">Paket A</h3>
-        <p class="text-gray-600 mb-4">Deskripsi singkat paket A untuk Home Access. Cocok untuk penggunaan rumahan.</p>
-        <p class="text-4xl font-bold text-gray-900 mb-6">Rp 200.000<span class="text-xl font-normal">/bulan</span></p>
-        <ul class="text-left text-gray-700 mb-6 space-y-2">
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Kecepatan hingga 10 Mbps</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited Kuota</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dukungan Teknis 24/7</li>
-        </ul>
-        <a href="https://wa.me/6283867803521" target="_blank" rel="noopener noreferrer" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-full hover:bg-indigo-700 transition-colors duration-300">Chat WhatsApp</a>
-      </div>
-      <!-- Paket 2 -->
-      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-4">Paket B</h3>
-        <p class="text-gray-600 mb-4">Deskripsi singkat paket B untuk Home Access. Lebih cepat dan stabil.</p>
-        <p class="text-4xl font-bold text-gray-900 mb-6">Rp 350.000<span class="text-xl font-normal">/bulan</span></p>
-        <ul class="text-left text-gray-700 mb-6 space-y-2">
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Kecepatan hingga 25 Mbps</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited Kuota</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dukungan Teknis Prioritas</li>
-        </ul>
-        <a href="https://wa.me/6283867803521" target="_blank" rel="noopener noreferrer" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-full hover:bg-indigo-700 transition-colors duration-300">Chat WhatsApp</a>
-      </div>
-      <!-- Paket 3 -->
-      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-4">Paket C</h3>
-        <p class="text-gray-600 mb-4">Deskripsi singkat paket C untuk Home Access. Performa terbaik untuk keluarga besar.</p>
-        <p class="text-4xl font-bold text-gray-900 mb-6">Rp 500.000<span class="text-xl font-normal">/bulan</span></p>
-        <ul class="text-left text-gray-700 mb-6 space-y-2">
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Kecepatan hingga 50 Mbps</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited Kuota</li>
-          <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dukungan Teknis Premium</li>
-        </ul>
-        <a href="https://wa.me/6283867803521" target="_blank" rel="noopener noreferrer" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-full hover:bg-indigo-700 transition-colors duration-300">Chat WhatsApp</a>
-      </div>
+      {homeAccessPackages.map((pkg) => (
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+          <h3 class="text-2xl font-semibold text-indigo-600 mb-4">{pkg.name}</h3>
+          <p class="text-gray-600 mb-4">{pkg.description}</p>
+          <p class="text-4xl font-bold text-gray-900 mb-6">{pkg.price}<span class="text-xl font-normal">/bulan</span></p>
+          <ul class="text-left text-gray-700 mb-6 space-y-2">
+            {pkg.features.map((feature) => (
+              <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>{feature}</li>
+            ))}
+          </ul>
+          <a href={pkg.ctaLink} target="_blank" rel="noopener noreferrer" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-full hover:bg-indigo-700 transition-colors duration-300">{pkg.ctaText}</a>
+        </div>
+      ))}
     </div>
   </div>
 </section>
