@@ -210,7 +210,7 @@ export const landingPackages = [
       "Pemasangan Gratis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   },
   {
@@ -224,7 +224,7 @@ export const landingPackages = [
       "Prioritas Dukungan"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   },
   {
@@ -238,7 +238,7 @@ export const landingPackages = [
       "IP Publik Statis"
     ],
     ctaText: "Pilih Paket",
-    ctaLink: "#",
+    ctaLink: "#contact",
     color: "blue"
   }
 ];
