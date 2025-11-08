@@ -111,7 +111,7 @@ export const homeAccessPackages: PackageDetail[] = [
       "Dukungan Teknis Premium"
     ],
     ctaText: "Chat WhatsApp",
-    ctaLink: contactInfo.whatsapp
+    ctaLink: ""
   }
 ];
 
