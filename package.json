@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
-    "@astrojs/tailwind": "^6.0.2",
-    "@fontsource/cal-sans": "^5.2.2",
-    "@fontsource/inter": "^5.2.6",
+    "@fontsource/cal-sans": "^5.2.3",
+    "@fontsource/inter": "^5.2.8",
+    "@tailwindcss/vite": "^4.1.17",
     "astro": "^5.15.4",
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
-    "tailwindcss": "^3.4.18",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
