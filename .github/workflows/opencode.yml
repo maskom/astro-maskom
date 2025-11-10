@@ -21,7 +21,7 @@ jobs:
       issues: write
       actions: read
     steps:
-      - name: Checkout repository
+      - name: Periksa repositori
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -30,12 +30,12 @@ jobs:
             AGENTS.md
           sparse-checkout-cone-mode: true
 
-      - name: Configure environment
+      - name: Konfigurasi lingkungan
         run: |
           echo "OPENCODE_ENV=production" >> $GITHUB_ENV
           echo "RUNNER_DEBUG=1" >> $GITHUB_ENV
 
-      - name: Run opencode
+      - name: Jalankan opencode
         uses: sst/opencode/github@latest
         with:
           model: iflowcn/qwen3-coder-plus

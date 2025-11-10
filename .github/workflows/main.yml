@@ -1,4 +1,4 @@
-name: "🤖 iFlow CLI Automation"
+name: "🤖 Otomatisasi iFlow CLI"
 
 on:
   issues:
@@ -30,7 +30,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  triage_issue:
+  klasifikasi_isu:
     if: |
       github.event_name == 'issues' ||
       (github.event_name == 'issue_comment' &&
@@ -46,7 +46,7 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: "Run iFlow CLI for Issue Triage and Implementation"
+      - name: "Jalankan iFlow CLI untuk Klasifikasi Isu dan Implementasi"
         uses: iflow-ai/iflow-cli-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -57,14 +57,14 @@ jobs:
         with:
           api_key: ${{ secrets.IFLOW_API_KEY }}
           timeout: '7200'
-          prompt: |
-            ## Role
-            You are an AI developer and project manager responsible for triaging issues and implementing features or bug fixes.
+           prompt: |
+             ## Peran
+             Anda adalah pengembang AI dan manajer proyek yang bertanggung jawab atas klasifikasi isu dan implementasi fitur atau perbaikan bug.
 
-            ## Tasks
-            - Label, implement, and open PR if needed.
+             ## Tugas
+             - Beri label, implementasikan, dan buka PR jika diperlukan.
 
-  review_pr:
+  tinjau_pr:
     if: |
       github.event_name == 'pull_request' ||
       (github.event_name == 'pull_request_review_comment' &&
@@ -82,7 +82,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Run iFlow CLI for Pull Request Review"
+      - name: "Jalankan iFlow CLI untuk Tinjauan Pull Request"
         uses: iflow-ai/iflow-cli-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -93,15 +93,15 @@ jobs:
         with:
           api_key: ${{ secrets.IFLOW_API_KEY }}
           timeout: '7200'
-          prompt: |
-            ## Role
-            You are an AI code reviewer.
+           prompt: |
+             ## Peran
+             Anda adalah peninjau kode AI.
 
-            ## Tasks
-            - Checkout PR and review diff.
-            - Post structured feedback comment.
+             ## Tugas
+             - Periksa PR dan tinjau perbedaan.
+             - Posting komentar umpan balik terstruktur.
 
-  apply_pr_changes:
+  terapkan_perubahan_pr:
     if: github.event_name == 'pull_request_review_comment'
     runs-on: ubuntu-latest
     concurrency:
@@ -118,7 +118,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Run iFlow CLI to Apply Review Changes (All Comments in Conversation)"
+      - name: "Jalankan iFlow CLI untuk Menerapkan Perubahan Tinjauan (Semua Komentar dalam Percakapan)"
         uses: iflow-ai/iflow-cli-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -128,36 +128,36 @@ jobs:
         with:
           api_key: ${{ secrets.IFLOW_API_KEY }}
           timeout: '7200'
-          prompt: |
-            ## Role
-            You are an autonomous AI maintainer.
+           prompt: |
+             ## Peran
+             Anda adalah pemelihara AI otonom.
 
-            ## Context
-            - PR: `${{ env.PR_NUMBER }}`
-            - Comment ID: `${{ env.COMMENT_ID }}`
-            - Repository: `${{ env.REPOSITORY }}`
+             ## Konteks
+             - PR: `${{ env.PR_NUMBER }}`
+             - ID Komentar: `${{ env.COMMENT_ID }}`
+             - Repositori: `${{ env.REPOSITORY }}`
 
-            ## Steps
-            1. Identify the conversation thread from the comment:
-               `thread_id=$(gh api repos/${{ env.REPOSITORY }}/pulls/comments/${{ env.COMMENT_ID }} --jq '.in_reply_to_id // .id')`
-            2. Fetch all comments in that conversation:
-               `gh api repos/${{ env.REPOSITORY }}/pulls/${{ env.PR_NUMBER }}/comments --paginate --jq ".[] | select(.in_reply_to_id == $thread_id or .id == $thread_id)" > conversation.json`
-            3. Analyse `conversation.json` to gather all technical instructions.
-            4. Checkout the PR branch: `gh pr checkout $PR_NUMBER`.
-            5. Apply all actionable changes derived from the full comment thread.
-            6. Run quick checks (lint/tests).
-            7. If valid:
-               `git commit -am "Apply review suggestions from conversation ${thread_id}" && git push`.
-            8. Comment confirmation:
-               `gh pr comment $PR_NUMBER --body "Applied all actionable suggestions from this conversation."`
+             ## Langkah-langkah
+             1. Identifikasi utas percakapan dari komentar:
+                `thread_id=$(gh api repos/${{ env.REPOSITORY }}/pulls/comments/${{ env.COMMENT_ID }} --jq '.in_reply_to_id // .id')`
+             2. Ambil semua komentar dalam percakapan tersebut:
+                `gh api repos/${{ env.REPOSITORY }}/pulls/${{ env.PR_NUMBER }}/comments --paginate --jq ".[] | select(.in_reply_to_id == $thread_id or .id == $thread_id)" > conversation.json`
+             3. Analisis `conversation.json` untuk mengumpulkan semua instruksi teknis.
+             4. Periksa cabang PR: `gh pr checkout $PR_NUMBER`.
+             5. Terapkan semua perubahan yang dapat dilakukan dari utas komentar lengkap.
+             6. Jalankan pemeriksaan cepat (lint/tes).
+             7. Jika valid:
+                `git commit -am "Terapkan saran tinjauan dari percakapan ${thread_id}" && git push`.
+             8. Komentar konfirmasi:
+                `gh pr comment $PR_NUMBER --body "Telah menerapkan semua saran yang dapat dilakukan dari percakapan ini."`
 
-            ## Rules
-            - Only apply precise, safe, local edits.
-            - Ignore abstract or unclear feedback.
-            - Do not merge PR.
-            - Keep atomic commits and concurrency safe.
+             ## Aturan
+             - Hanya terapkan edit lokal yang tepat dan aman.
+             - Abaikan umpan balik yang abstrak atau tidak jelas.
+             - Jangan gabungkan PR.
+             - Pertahankan komit atomik dan aman untuk konkurensi.
 
-  maintenance:
+  pemeliharaan:
     if: github.event_name == 'schedule'  
     runs-on: ubuntu-latest
     permissions:
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: "Run iFlow CLI for Repository Maintenance"
+      - name: "Jalankan iFlow CLI untuk Pemeliharaan Repositori"
         uses: iflow-ai/iflow-cli-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -178,10 +178,10 @@ jobs:
         with:
           api_key: ${{ secrets.IFLOW_API_KEY }}
           timeout: '10800'
-          prompt: |
-            ## Role
-            You are an AI maintainer ensuring long-term health and security.
+           prompt: |
+             ## Peran
+             Anda adalah pemelihara AI yang memastikan kesehatan dan keamanan jangka panjang.
 
-            ## Tasks
-            - Scan, refactor, update dependencies safely.
-            - Commit to `iflow/maintenance/${{ github.run_id }}` and open PR.
+             ## Tugas
+             - Pindai, refaktor, perbarui dependensi dengan aman.
+             - Komit ke `iflow/maintenance/${{ github.run_id }}` dan buka PR.
