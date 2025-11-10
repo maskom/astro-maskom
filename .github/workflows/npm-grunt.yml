@@ -1,4 +1,4 @@
-name: NodeJS with Grunt
+name: NodeJS dengan Grunt
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  bangun:
     runs-on: ubuntu-latest
 
     strategy:
@@ -17,12 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Gunakan Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Build
+    - name: Bangun
       run: |
         npm install
         grunt
