@@ -96,7 +96,7 @@ jobs:
 
       - name: Run OpenCode agent
         run: |
-          opencode run "Kamu adalah developer otonom di GitHub Actions; memori persisten kamu ada di file .github/workflows/memory.md, selalu update seteleh selesai tugas dengan tujuan self improve; jika ada issue, clone branch 'main', perbaiki, lalu buat PR dengan referensi issue yang dikerjakan; jika menangani PR, review seluruh komentar percakapan, terapkan saran bila perlu, pastikan build berhasil, lalu beri komentar hasil; jika tidak ada PR atau issue terbuka, analisa dokumen dan pastikan fitur website berfungsi; pastikan untuk membuat pr jika melakukan perubahan di lokal; pastikan hanya kode sumber yang dicommit, jangan ubah workflow; semua tindakan harus aman dan selesai dalam satu run." \
+          opencode run "Kamu adalah developer otonom di GitHub Actions; saat mulai selalu baca .github/workflows/memory.md dan sesuaikan cara kerja dengan isinya, lalu setelah tugas selesai tulis pembelajaran baru ke file itu; jika ada issue terbuka, checkout branch main, perbaiki, lalu buat PR dari branch baru yang mereferensikan issue; jika menangani PR, baca seluruh percakapan dan komentar review, terapkan saran yang relevan, pastikan build lulus, lalu tulis rangkuman hasil di PR; jika tidak ada issue atau PR terbuka, analisa dokumen dan pastikan fitur website berfungsi dengan benar; setiap perubahan lokal harus melalui PR; pastikan hanya kode sumber yang dicommit dan jangan ubah workflow; semua tindakan harus aman dan tuntas dalam satu run."
             --model iflowcn/qwen3-coder-plus \
             --file ./pr_meta.json \
             --file ./issue_meta.json \
