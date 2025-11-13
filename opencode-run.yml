@@ -1,0 +1,104 @@
+name: opencode run
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  opencode:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.comment.body, ' /mas') ||
+      startsWith(github.event.comment.body, '/mas') ||
+      contains(github.event.comment.body, ' /tolong') ||
+      startsWith(github.event.comment.body, '/tolong')
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY1 }}
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Collect metadata from open PRs and Issues
+        id: collect_meta
+        run: |
+          echo "Collecting PRs and Issues metadata..."
+          gh pr list --state open --json number,title,url,author,labels,headRefName,mergeable > pr_meta.json
+          gh issue list --state open --json number,title,url,author,labels > issue_meta.json
+          echo "✅ Saved metadata to pr_meta.json and issue_meta.json"
+
+      - name: Collect GitHub CLI / Runner environment metadata
+        id: collect_env
+        run: |
+          echo "Collecting GH CLI and runner environment metadata..."
+          gh --version > gh_cli_version.txt || true
+          gh auth status --show-token 2>/dev/null || gh auth status > gh_auth_status.txt || true
+          uname -a > runner_uname.txt || true
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}" > gh_action_env.txt
+          echo "GITHUB_REF=${GITHUB_REF}" >> gh_action_env.txt
+          echo "GITHUB_SHA=${GITHUB_SHA}" >> gh_action_env.txt
+          cat > metadata_sources.json <<'EOF'
+          {
+            "gh_cli_help": "https://cli.github.com/manual/gh_help_environment",
+            "opencode_cli_run": "https://opencode.ai/docs/cli/#run-1"
+          }
+          EOF
+          echo "✅ Saved environment metadata files."
+
+      - name: Summarize collected metadata
+        run: |
+          echo "=== Open Pull Requests ==="
+          cat pr_meta.json | jq . || true
+          echo "=== Open Issues ==="
+          cat issue_meta.json | jq . || true
+          echo "=== GH CLI Version ==="
+          cat gh_cli_version.txt || true
+          echo "=== Runner Info ==="
+          cat runner_uname.txt || true
+          echo "=== GH Env ==="
+          cat gh_action_env.txt || true
+
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Run OpenCode agent
+        run: |
+          opencode run "Kamu adalah developer otonom di GitHub Actions; jika ada issue, clone branch 'main', perbaiki, lalu buat PR dengan referensi issue yang dikerjakan; jika menangani PR, review seluruh komentar percakapan, terapkan saran bila perlu, pastikan build berhasil, lalu beri komentar hasil; jika tidak ada PR atau issue terbuka, analisa dokumen dan pastikan fitur website berfungsi; pastikan untuk membuat pr jika melakukan perubahan di lokal; pastikan hanya kode sumber yang dicommit, jangan ubah workflow; semua tindakan harus aman dan selesai dalam satu run." \
+            --model iflowcn/qwen3-coder-plus \
+            --file ./pr_meta.json \
+            --file ./issue_meta.json \
+            --file ./gh_cli_version.txt \
+            --file ./gh_action_env.txt \
+            --file ./metadata_sources.json \
+            --share false
