@@ -1,44 +1,20 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
-import react from "@astrojs/react";
-import svelte from "@astrojs/svelte";
-import vue from "@astrojs/vue";
-import solidJs from "@astrojs/solid-js";
 import sitemap from "@astrojs/sitemap";
+import tailwind from "@tailwindcss/vite";
 
-// https://astro.build/config
+// Astro configuration
 export default defineConfig({
   site: "https://maskom.co.id/",
   output: "static",
   integrations: [
-    tailwind({
-      applyBaseStyles: true,
-    }),
+    tailwind(),
     icon(),
-    react({
-      include: ["**/React/**/*.{jsx,tsx}"],
-    }),
-    svelte(),
-    vue(),
-    solidJs({
-      include: ["**/Solid/**/*.{jsx,tsx}"],
-    }),
     sitemap(),
   ],
 
   build: {
     inlineStylesheets: "auto",
-  },
-
-  vite: {
-    optimizeDeps: {
-      include: ["react", "react-dom", "solid-js"],
-      exclude: ["@astrojs/solid-js/client.js"],
-    },
-    ssr: {
-      noExternal: ["@astrojs/*"],
-    },
   },
 });

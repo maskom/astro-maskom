@@ -1,48 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PackageHomeAccess from '../components/ui/PackageHomeAccess.astro';
+import PackageSoho from '../components/ui/PackageSoho.astro';
+import PackageCorporate from '../components/ui/PackageCorporate.astro';
 ---
 
-<Layout title="Maskom Indonesia - Area Layanan">
-    <main class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10">Area Layanan Maskom Indonesia</h1>
-        <section class="text-center max-w-4xl mx-auto">
-            <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">
-                Maskom Indonesia terus memperluas jangkauan layanannya untuk memastikan semakin banyak masyarakat
-                dan bisnis dapat menikmati akses internet berkualitas tinggi. Saat ini, kami melayani di beberapa wilayah utama:
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left my-8">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">DKI Jakarta</h3>
-                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400">
-                        <li>Jakarta Pusat</li>
-                        <li>Jakarta Selatan</li>
-                        <li>Jakarta Barat</li>
-                        <li>Jakarta Utara</li>
-                        <li>Jakarta Timur</li>
-                    </ul>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">Jawa Barat</h3>
-                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400">
-                        <li>Bandung</li>
-                        <li>Bekasi</li>
-                        <li>Depok</li>
-                        <li>Bogor</li>
-                        <li>Karawang</li>
-                    </ul>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">Banten</h3>
-                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400">
-                        <li>Tangerang</li>
-                        <li>Tangerang Selatan</li>
-                        <li>Serang</li>
-                    </ul>
-                </div>
-            </div>
-            <p class="text-md text-gray-600 dark:text-gray-300 mt-8">
-                Jika wilayah Anda belum tercakup, jangan ragu untuk menghubungi kami untuk informasi ketersediaan terbaru.
-            </p>
-        </section>
-    </main>
+<Layout title="Area Layanan - Maskom Indonesia">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-4">Area Layanan Maskom Indonesia</h1>
+    <p class="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto">
+      Kami menyediakan layanan internet berkualitas tinggi di berbagai area. Temukan paket layanan yang sesuai dengan kebutuhan Anda.
+    </p>
+    
+    <PackageHomeAccess />
+    <PackageSoho />
+    <PackageCorporate />
+  </div>
 </Layout>

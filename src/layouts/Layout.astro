@@ -1,6 +1,5 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import Analytics from "@vercel/analytics/astro";
 import { SEO } from "astro-seo";
 import Background from "../components/ui/Background.astro";
 import Footer from "../components/ui/Footer.astro";
@@ -9,6 +8,9 @@ import "../styles/global.css";
 
 interface Props {
   title: string;
+  description?: string;
+  image?: string;
+  lang?: string;
   bgColor?: string;
   primaryBallColor?: string;
   secondaryBallColor?: string;
@@ -19,6 +21,9 @@ interface Props {
 
 const {
   title,
+  description,
+  image = "/logo-maskom.svg",
+  lang = "id",
   bgColor = "#0F1115",
   primaryBallColor,
   secondaryBallColor,
@@ -26,94 +31,77 @@ const {
   diagonalColor,
   vignetteColor,
 } = Astro.props;
+
+const pageTitle = title ?? "Maskom Network";
+const pageDescription =
+  description ??
+  "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.";
+const site = Astro.site;
+const currentUrl = Astro.url;
+const canonicalUrl = site
+  ? new URL(currentUrl.pathname, site).toString()
+  : `${currentUrl.origin}${currentUrl.pathname}`;
+const ogImageMeta = image.endsWith(".svg")
+  ? { alt: pageTitle, type: "image/svg+xml" }
+  : { alt: pageTitle, width: 1200, height: 630, type: "image/jpeg" };
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <SEO
-      title={title}
-      titleTemplate="%s - Astro Framework Theme"
-      description="Your comprehensive guide to building modern websites with Astro Framework"
-      canonical="https://ultimate-astro-template.vercel.app/"
+      title={pageTitle}
+      titleTemplate="%s - Maskom Network"
+      description={pageDescription}
+      canonical={canonicalUrl}
       noindex={false}
       nofollow={false}
       openGraph={{
         basic: {
-          title: title || "Astro Framework Theme",
+          title: pageTitle,
           type: "website",
-          image: "/astro-template.png",
-          url: "https://ultimate-astro-template.vercel.app/",
+          image,
+          url: canonicalUrl,
         },
         optional: {
-          locale: "en_US",
-          siteName: "Astro Framework Theme",
-          description:
-            "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
+          locale: "id_ID",
+          siteName: "Maskom Network",
+          description: pageDescription,
         },
-        image: {
-          alt: "Astro Framework Theme Preview",
-          width: 1200,
-          height: 630,
-          type: "image/png",
-        },
+        image: ogImageMeta,
       }}
       twitter={{
         card: "summary_large_image",
-        site: "@marvelousbc",
-        creator: "@marvelousbc",
-        title: title || "Astro Framework Theme",
-        description:
-          "Discover the power of multi-framework development with our ultimate Astro template.",
-        image: "/astro-template.png",
-        imageAlt: "Astro Framework Theme Preview",
+        title: pageTitle,
+        description: pageDescription,
+        image,
+        imageAlt: pageTitle,
       }}
       extend={{
         meta: [
-          { name: "twitter:image", content: "/astro-template.png" },
-          { name: "twitter:title", content: title },
-          {
-            name: "twitter:description",
-            content:
-              "Discover the power of multi-framework development with our ultimate Astro template. From React to Vue, Svelte to Solid - experience them all in one blazing-fast website.",
-          },
           { name: "theme-color", content: bgColor },
           { name: "apple-mobile-web-app-capable", content: "yes" },
           { name: "apple-mobile-web-app-status-bar-style", content: "black" },
-          { name: "author", content: "Ibrahim Elkamali" },
+          { name: "author", content: "Maskom Network" },
           {
             name: "keywords",
-            content:
-              "astro, framework, web development, react, vue, svelte, solid",
+            content: "maskom, internet, jaringan, fiber, wifi",
           },
         ],
         link: [
-          {
-            rel: "canonical",
-            href: "https://ultimate-astro-template.vercel.app/",
-          },
-          { rel: "icon", type: "image/png", href: "/favicon.png" },
-          { rel: "apple-touch-icon", href: "/favicon.png" },
+          { rel: "canonical", href: canonicalUrl },
+          { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+          { rel: "apple-touch-icon", href: "/favicon.svg" },
         ],
       }}
     />
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <ClientRouter />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://api.fontshare.com/v2/css?f[]=cal-sans@400,500,600&display=swap"
-      rel="stylesheet"
-    />
-    <Analytics />
   </head>
   <body
     class="m-0 min-h-screen relative font-sans"
