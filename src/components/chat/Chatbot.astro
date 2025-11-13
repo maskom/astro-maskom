@@ -1,0 +1,134 @@
+---
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface ChatbotProps {
+  initialMessages?: Message[];
+}
+---
+
+<script>
+  import { createRef } from 'react';
+  import type { Message } from './Chatbot.types';
+  
+  // Get initial messages from props or default to empty array
+  const initialMessages = Astro.props.initialMessages || [];
+  
+  // State for messages and input
+  let messages: Message[] = [...initialMessages];
+  let input = '';
+  let loading = false;
+  
+  // Reference for auto-scrolling to bottom
+  const messagesEndRef = createRef();
+  
+  // Function to scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  
+  // Function to send message
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    
+    // Add user message to chat
+    const userMessage: Message = { role: 'user', content: input };
+    messages = [...messages, userMessage];
+    input = '';
+    loading = true;
+    
+    try {
+      // Send request to chat API
+      const response = await fetch('/api/chat/completion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: messages.slice(1) }), // Exclude system message
+      });
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      // Add assistant response to chat
+      const assistantMessage: Message = { role: 'assistant', content: data.response };
+      messages = [...messages, assistantMessage];
+    } catch (error) {
+      // Add error message to chat
+      const errorMessage: Message = { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      };
+      messages = [...messages, errorMessage];
+    } finally {
+      loading = false;
+    }
+  };
+  
+  // Scroll to bottom when messages change
+  scrollToBottom();
+</script>
+
+<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden">
+  <!-- Chat header -->
+  <div class="bg-indigo-600 text-white p-4">
+    <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
+  </div>
+  
+  <!-- Messages container -->
+  <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+    {messages.map((message) => (
+      <div class={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+        <div class={`inline-block p-3 rounded-lg max-w-[80%] ${
+          message.role === 'user' 
+            ? 'bg-indigo-500 text-white rounded-br-none' 
+            : 'bg-white border border-gray-200 rounded-bl-none'
+        }`}>
+          {message.content}
+        </div>
+      </div>
+    ))}
+    {loading && (
+      <div class="text-left mb-4">
+        <div class="inline-block p-3 rounded-lg bg-white border border-gray-200 rounded-bl-none">
+          <div class="flex space-x-2">
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+          </div>
+        </div>
+      </div>
+    )}
+    <div ref={messagesEndRef} />
+  </div>
+  
+  <!-- Input area -->
+  <div class="border-t border-gray-200 p-4 bg-white">
+    <form 
+      onSubmit={(e) => {
+        e.preventDefault();
+        sendMessage();
+      }}
+      class="flex space-x-2"
+    >
+      <input
+        type="text"
+        value={input}
+        onInput={(e) => input = e.target.value}
+        placeholder="Type your message..."
+        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        disabled={loading}
+      />
+      <button
+        type="submit"
+        class="bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+        disabled={loading || !input.trim()}
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</div>
