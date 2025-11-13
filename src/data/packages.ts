@@ -1,16 +1,4 @@
-export interface Package {
-  id: string;
-  name: string;
-  displayName: string;
-  badge: string;
-  description: string;
-  highlights: string[];
-  accent: string;
-  glow: string;
-  featured?: boolean;
-}
-
-export interface PackageDetail {
+export interface BasePackage {
   id: string;
   name: string;
   description: string;
@@ -19,6 +7,17 @@ export interface PackageDetail {
   ctaText: string;
   ctaLink: string;
 }
+
+export interface Package extends BasePackage {
+  displayName: string;
+  badge: string;
+  highlights: string[];
+  accent: string;
+  glow: string;
+  featured?: boolean;
+}
+
+export interface PackageDetail extends BasePackage {}
 
 export const contactInfo = {
   whatsapp: "https://wa.me/6283867803521",
@@ -40,6 +39,10 @@ export const packages: Package[] = [
     ],
     accent: "#6366f1",
     glow: "rgba(99,102,241,0.75)",
+    price: "Mulai dari Rp 200.000/bulan",
+    features: [],
+    ctaText: "Konsultasi via WhatsApp",
+    ctaLink: contactInfo.whatsapp,
   },
   {
     id: "soho",
@@ -56,6 +59,10 @@ export const packages: Package[] = [
     accent: "#0ea5e9",
     glow: "rgba(14,165,233,0.75)",
     featured: true,
+    price: "Mulai dari Rp 750.000/bulan",
+    features: [],
+    ctaText: "Konsultasi via WhatsApp",
+    ctaLink: contactInfo.whatsapp,
   },
   {
     id: "corporate",
@@ -71,6 +78,10 @@ export const packages: Package[] = [
     ],
     accent: "#06b6d4",
     glow: "rgba(6,182,212,0.75)",
+    price: "Mulai dari Rp 2.500.000/bulan",
+    features: [],
+    ctaText: "Konsultasi via WhatsApp",
+    ctaLink: contactInfo.whatsapp,
   },
 ];
 
@@ -200,10 +211,11 @@ export const corporatePackages: PackageDetail[] = [
   }
 ];
 
-export const landingPackages = [
+export const landingPackages: BasePackage[] = [
   {
+    id: "home-basic",
     name: "Paket Rumah Basic",
-    speed: "10 Mbps",
+    description: "Browsing & Streaming Ringan, Cocok untuk 1-2 Pengguna, Pemasangan Gratis",
     price: "Rp 150.000",
     features: [
       "Browsing & Streaming Ringan",
@@ -212,11 +224,11 @@ export const landingPackages = [
     ],
     ctaText: "Pilih Paket",
     ctaLink: contactInfo.contactLink,
-    color: "blue"
   },
   {
+    id: "home-premium",
     name: "Paket Rumah Premium",
-    speed: "50 Mbps",
+    description: "Streaming HD & Gaming Online, Cocok untuk 3-5 Pengguna, Pemasangan Gratis, Prioritas Dukungan",
     price: "Rp 300.000",
     features: [
       "Streaming HD & Gaming Online",
@@ -226,11 +238,11 @@ export const landingPackages = [
     ],
     ctaText: "Pilih Paket",
     ctaLink: contactInfo.contactLink,
-    color: "blue"
   },
   {
+    id: "business-enterprise",
     name: "Paket Bisnis Enterprise",
-    speed: "100 Mbps",
+    description: "Kinerja Tinggi untuk Bisnis, SLA Terjamin, Dukungan 24/7, IP Publik Statis",
     price: "Rp 750.000",
     features: [
       "Kinerja Tinggi untuk Bisnis",
@@ -240,6 +252,5 @@ export const landingPackages = [
     ],
     ctaText: "Pilih Paket",
     ctaLink: contactInfo.contactLink,
-    color: "blue"
   }
 ];

@@ -6,21 +6,20 @@ import { landingPackages } from '../data/packages';
 <Layout title="Maskom Indonesia - Paket Layanan">
     <main class="container mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10">Paket Layanan Internet Maskom Indonesia</h1>
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {landingPackages.map((pkg) => (
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
-                    <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4">{pkg.name}</h3>
-                    <p class="text-gray-700 dark:text-gray-300 mb-4">Kecepatan {pkg.speed}</p>
-                    <p class="text-4xl font-bold text-gray-900 dark:text-white mb-6">{pkg.price}<span class="text-lg font-normal">/bulan</span></p>
-                    <ul class="text-left text-gray-600 dark:text-gray-400 mb-6 space-y-2">
-                        {pkg.features.map((feature) => (
-                            <li>✅ {feature}</li>
-                        ))}
-                    </ul>
-                    <a href={pkg.ctaLink} class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">{pkg.ctaText}</a>
-                </div>
-            ))}
-        </section>
+         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+             {landingPackages.map((pkg) => (
+                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+                     <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4">{pkg.name}</h3>
+                     <p class="text-4xl font-bold text-gray-900 dark:text-white mb-6">{pkg.price}<span class="text-lg font-normal">/bulan</span></p>
+                     <ul class="text-left text-gray-600 dark:text-gray-400 mb-6 space-y-2">
+                         {pkg.features.map((feature) => (
+                             <li>✅ {feature}</li>
+                         ))}
+                     </ul>
+                     <a href={pkg.ctaLink} class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">{pkg.ctaText}</a>
+                 </div>
+             ))}
+         </section>
         <!-- Lebih banyak detail paket atau informasi tambahan dapat ditambahkan di sini -->
     </main>
 </Layout>

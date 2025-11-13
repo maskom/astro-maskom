@@ -37,12 +37,12 @@ import { packages, contactInfo } from '../../data/packages';
               ))}
             </ul>
             <a
-              href={contactInfo.whatsapp}
+              href={pkg.ctaLink}
               target="_blank"
               rel="noopener noreferrer"
               class="plan-cta"
             >
-              Konsultasi via WhatsApp
+              {pkg.ctaText}
             </a>
           </div>
         </article>
