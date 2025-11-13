@@ -7,5 +7,9 @@ export interface Framework {
 
 export const frameworks: Framework[] = [
     { name: 'home', displayName: 'Home', path: '/', color: '#FF5D01' },
-    { name: 'paket', displayName: 'Paket', path: '/#paket', color: '#61DAFB' },
+    { name: 'area-layanan', displayName: 'Area Layanan', path: '/area-layanan', color: '#61DAFB' },
+    { name: 'layanan', displayName: 'Layanan', path: '/layanan', color: '#61DAFB' },
+    { name: 'tentang-kami', displayName: 'Tentang Kami', path: '/tentang-kami', color: '#61DAFB' },
+    { name: 'kontak', displayName: 'Kontak', path: '/kontak', color: '#61DAFB' },
+    { name: 'dukungan', displayName: 'Dukungan', path: '/dukungan', color: '#61DAFB' },
 ];
