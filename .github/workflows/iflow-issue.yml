@@ -1,0 +1,215 @@
+name: "iFlow - Solve Highest Priority Issue"
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      manual_issue_number:
+        description: 'Optional: manually specify an issue number to process (leave empty to auto-select highest priority)'
+        required: false
+        type: string
+
+jobs:
+  solve_highest_priority_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Select highest priority issue
+        id: select_issue
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          manual_number="${{ github.event.inputs.manual_issue_number || '' }}"
+
+          if [[ -n "$manual_number" ]]; then
+            echo "Manual override detected. Using issue #$manual_number"
+            echo "ISSUE_NUMBER=$manual_number" >> "$GITHUB_ENV"
+            echo "MANUAL_OVERRIDE=true" >> "$GITHUB_ENV"
+            echo "Selected issue via manual input: #$manual_number" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "🔍 Automatically selecting highest priority open issue..."
+
+            issues=$(gh api graphql -f query='
+              query($owner: String!, $repo: String!) {
+                repository(owner: $owner, name: $repo) {
+                  issues(first: 100, states: OPEN) {
+                    nodes {
+                      number
+                      title
+                      labels(first: 10) {
+                        nodes { name }
+                      }
+                    }
+                  }
+                }
+              }
+            ' -f owner="${{ github.repository_owner }}" -f repo="${{ github.event.repository.name }}" --jq '
+              .data.repository.issues.nodes[]
+              | [.number, .title, (.labels.nodes[].name? // "no-priority")]
+              | @csv
+            ' || true)
+
+            if [[ -z "$issues" ]]; then
+              echo "No open issues found."
+              echo "SKIP_WORKFLOW=true" >> "$GITHUB_ENV"
+              exit 0
+            fi
+
+            temp_file=$(mktemp)
+            while IFS=, read -r number title label; do
+              label_clean=$(echo "$label" | tr -d '"')
+              case "$label_clean" in
+                priority/p0) val=0 ;;
+                priority/p1) val=1 ;;
+                priority/p2) val=2 ;;
+                priority/p3) val=3 ;;
+                *) val=4 ;;
+              esac
+              echo "$val,$number,$title,$label_clean" >> "$temp_file"
+            done <<< "$issues"
+
+            selected=$(sort -t',' -k1,1n "$temp_file" | head -n1)
+            rm "$temp_file"
+
+            ISSUE_NUMBER=$(echo "$selected" | cut -d',' -f2)
+            ISSUE_TITLE=$(echo "$selected" | cut -d',' -f3)
+            ISSUE_PRIORITY=$(echo "$selected" | cut -d',' -f4)
+
+            if [[ -z "$ISSUE_NUMBER" ]]; then
+              echo "No valid issue found."
+              echo "SKIP_WORKFLOW=true" >> "$GITHUB_ENV"
+              exit 0
+            fi
+
+            {
+              echo "ISSUE_NUMBER=$ISSUE_NUMBER"
+              echo "ISSUE_TITLE=$ISSUE_TITLE"
+              echo "ISSUE_PRIORITY=$ISSUE_PRIORITY"
+            } >> "$GITHUB_ENV"
+
+            echo "✅ Selected highest priority issue: #$ISSUE_NUMBER ($ISSUE_PRIORITY)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Get issue details
+        if: env.SKIP_WORKFLOW != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${ISSUE_NUMBER:-}" ]]; then
+            echo "❌ ISSUE_NUMBER is empty. Cannot fetch issue details."
+            exit 1
+          fi
+
+          echo "Fetching issue #${ISSUE_NUMBER}..."
+          data=$(gh api "repos/${{ github.repository }}/issues/${ISSUE_NUMBER}")
+
+          title=$(jq -r '.title // "manual"' <<<"$data")
+          body=$(jq -r '.body // ""' <<<"$data")
+
+          {
+            echo "REPOSITORY=${{ github.repository }}"
+            echo "ISSUE_TITLE<<__EOF__"
+            echo "$title"
+            echo "__EOF__"
+            echo "ISSUE_BODY<<__EOF__"
+            echo "$body"
+            echo "__EOF__"
+          } >> "$GITHUB_ENV"
+
+      - name: Solve Issue
+        if: env.SKIP_WORKFLOW != 'true'
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          ISSUE_TITLE: ${{ env.ISSUE_TITLE }}
+          ISSUE_BODY: ${{ env.ISSUE_BODY }}
+          ISSUE_NUMBER: ${{ env.ISSUE_NUMBER }}
+          REPOSITORY: ${{ env.REPOSITORY }}
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: '7200'
+          debug: 'false'
+          prompt: |
+            ## Persona
+            You are an Autonomous AI Software Engineer. Your mission is to resolve GitHub issues from end-to-end by understanding the problem, investigating the codebase, formulating a plan, implementing a solution, writing tests, and opening a pull request.
+
+            ## Context
+            - ISSUE_TITLE: ${{ env.ISSUE_TITLE }}
+            - ISSUE_BODY: ${{ env.ISSUE_BODY }}
+            - ISSUE_NUMBER: ${{ env.ISSUE_NUMBER }}
+            - REPOSITORY: ${{ env.REPOSITORY }}
+
+            ## Primary Objective
+            Autonomously understand, solve, test, and submit a pull request for the given issue. If no code change is needed, triage and close the issue appropriately.
+
+            ## Step-by-Step Workflow
+            1.  **Triage and Initial Planning:**
+                - First, post a comment on the issue to acknowledge you are starting work: `Working on the highest priority issue.`
+                - Analyze the issue title and body.
+                - Apply appropriate labels (`bug`, `enhancement`, `documentation`) and remove `status/needs-triage`. Add `status/in-progress`.
+
+            2.  **Code Investigation (CRITICAL STEP):**
+                - Before writing any code, you MUST investigate the repository.
+                - Use file system and search tools to identify the relevant files, functions, and code sections related to the issue.
+                - Understand the existing logic and architecture. This step is essential for creating an effective plan.
+
+            3.  **Develop and Announce Plan:**
+                - Based on your investigation, formulate a detailed plan of action.
+                - Post a new comment on the issue outlining your plan: "Here is my plan: 
+                    1. Modify function `X` in `file.py`. 
+                    2. Add a new test case in `tests/test_file.py`. 
+                    3. Update the `README.md` with the new behavior."
+
+            4.  **Implementation:**
+                - Create a new branch: `git checkout -b iflow/issue-${ISSUE_NUMBER}`
+                - Apply the code changes as described in your plan.
+                - **Focus on small, atomic changes.** Do not refactor unrelated code.
+
+            5.  **Testing:**
+                - **You must add or update tests.**
+                - Identify the project's testing framework (e.g., Jest, Pytest, GoTest).
+                - Add new unit or integration tests that validate your fix and cover edge cases.
+                - Run the entire test suite to ensure your changes have not caused any regressions.
+
+            6.  **Commit and Push:**
+                - Commit your changes with a conventional commit message: `git commit -am "fix: [short summary of fix] | Closes #${ISSUE_NUMBER}"`
+                - Push the branch to the repository: `git push --set-upstream origin iflow/issue-${ISSUE_NUMBER}`
+
+            7.  **Create Pull Request:**
+                - Create a pull request using `gh pr create`.
+                - **Title:** `fix: [short summary of fix]`
+                - **Body:** The PR body MUST be descriptive. It should contain:
+                  - A link to the original issue (e.g., `Closes #${ISSUE_NUMBER}`).
+                  - A "Problem" section explaining the issue.
+                  - A "Solution" section explaining your changes.
+                  - A "Testing" section describing the tests you added or updated.
+
+            8.  **Final Reporting:**
+                - Post a final comment on the original issue with a link to the newly created pull request.
+                - Update the issue label from `status/in-progress` to `status/review`.
+
+            ## Error Handling
+            - If any step fails (especially testing), stop, revert all local changes (`git reset --hard`), and post a comment on the issue explaining the failure and why you are stopping.
+
+            ## Strict Rules
+            - **Investigate First:** Never write code without first understanding the relevant parts of the codebase.
+            - **Test Your Work:** Code without tests is incomplete. You must provide tests.
+            - **Conventional Commits:** All commit messages and PR titles must follow the conventional commit format.
+            - **Stay Focused:** Only implement changes related to the issue.
+            - **Security:** Never log, print, or commit secrets or sensitive information.
