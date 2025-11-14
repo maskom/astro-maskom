@@ -17,8 +17,7 @@ concurrency:
 
 jobs:
   opencode:
-    if: |
-      github.event_name == 'workflow_dispatch' ||
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
       
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -100,3 +99,4 @@ jobs:
             --file ./gh_action_env.txt \
             --file ./metadata_sources.json \
             --share false
+
