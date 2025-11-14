@@ -10,6 +10,7 @@
     "pages:dev": "wrangler pages dev ./dist"
   },
   "dependencies": {
+    "@astrojs/node": "^9.5.0",
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/cal-sans": "^5.2.3",
     "@fontsource/inter": "^5.2.8",

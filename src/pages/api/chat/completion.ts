@@ -1,15 +1,16 @@
-// With `output: 'static'` configured:
-// export const prerender = false;
 import type { APIRoute } from "astro";
 import OpenAI from "openai";
-import { supabase } from "../../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.OPENAI_API_KEY,
-});
-
+export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
   const { messages } = await request.json();
+  
+  // Create Supabase client
+  const supabase = createClient(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_ANON_KEY,
+  );
   
   // Get relevant data from Supabase
   const { data: packages, error } = await supabase
@@ -35,6 +36,10 @@ export const POST: APIRoute = async ({ request }) => {
   const chatMessages = [systemMessage, ...messages];
   
   try {
+    const openai = new OpenAI({
+      apiKey: import.meta.env.OPENAI_API_KEY,
+    });
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: chatMessages,

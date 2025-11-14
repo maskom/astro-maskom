@@ -1,8 +1,7 @@
-// With `output: 'static'` configured:
-// export const prerender = false;
 import type { APIRoute } from "astro";
-import { supabase } from "../../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
+export const prerender = false;
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const formData = await request.formData();
   const email = formData.get("email")?.toString();
@@ -11,6 +10,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   if (!email || !password) {
     return new Response("Email and password are required", { status: 400 });
   }
+
+  const supabase = createClient(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_ANON_KEY,
+  );
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
