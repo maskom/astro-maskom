@@ -9,15 +9,13 @@ export interface BasePackage {
 }
 
 export interface Package extends BasePackage {
-  displayName: string;
-  badge: string;
-  highlights: string[];
-  accent: string;
-  glow: string;
+  displayName?: string;
+  badge?: string;
+  highlights?: string[];
+  accent?: string;
+  glow?: string;
   featured?: boolean;
 }
-
-export interface PackageDetail extends BasePackage {}
 
 export const contactInfo = {
   whatsapp: "https://wa.me/6283867803521",
@@ -85,7 +83,7 @@ export const packages: Package[] = [
   },
 ];
 
-export const homeAccessPackages: PackageDetail[] = [
+export const homeAccessPackages: Package[] = [
   {
     id: "home-a",
     name: "Paket A",
@@ -127,7 +125,7 @@ export const homeAccessPackages: PackageDetail[] = [
   }
 ];
 
-export const sohoPackages: PackageDetail[] = [
+export const sohoPackages: Package[] = [
   {
     id: "soho-pro",
     name: "Paket Pro",
@@ -169,7 +167,7 @@ export const sohoPackages: PackageDetail[] = [
   }
 ];
 
-export const corporatePackages: PackageDetail[] = [
+export const corporatePackages: Package[] = [
   {
     id: "corporate-business",
     name: "Paket Business",
@@ -211,7 +209,7 @@ export const corporatePackages: PackageDetail[] = [
   }
 ];
 
-export const landingPackages: BasePackage[] = [
+export const landingPackages: Package[] = [
   {
     id: "home-basic",
     name: "Paket Rumah Basic",
