@@ -17,8 +17,6 @@ export interface Package extends BasePackage {
   featured?: boolean;
 }
 
-export interface PackageDetail extends BasePackage {}
-
 export const contactInfo = {
   whatsapp: "https://wa.me/6283867803521",
   contactLink: "#contact"
@@ -85,7 +83,7 @@ export const packages: Package[] = [
   },
 ];
 
-export const homeAccessPackages: PackageDetail[] = [
+export const homeAccessPackages: BasePackage[] = [
   {
     id: "home-a",
     name: "Paket A",
@@ -127,7 +125,7 @@ export const homeAccessPackages: PackageDetail[] = [
   }
 ];
 
-export const sohoPackages: PackageDetail[] = [
+export const sohoPackages: BasePackage[] = [
   {
     id: "soho-pro",
     name: "Paket Pro",
@@ -169,7 +167,7 @@ export const sohoPackages: PackageDetail[] = [
   }
 ];
 
-export const corporatePackages: PackageDetail[] = [
+export const corporatePackages: BasePackage[] = [
   {
     id: "corporate-business",
     name: "Paket Business",
