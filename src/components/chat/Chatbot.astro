@@ -53,7 +53,7 @@ const { initialMessages = [] } = Astro.props;
 </div>
 
 <script>
-  const initialMessages = JSON.parse('{JSON.stringify(initialMessages)}');
+  const initialMessages = JSON.parse('{JSON.stringify(Astro.props.initialMessages || [])}');
   let messages = [...initialMessages];
   let loading = false;
   
@@ -72,17 +72,23 @@ const { initialMessages = [] } = Astro.props;
   
   const renderMessages = () => {
     if (messagesList) {
-      messagesList.innerHTML = messages.map(message => `
-      <div class="mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}">
-        <div class="inline-block p-3 rounded-lg max-w-[80%] ${
-          message.role === 'user' 
-            ? 'bg-indigo-500 text-white rounded-br-none' 
+      messagesList.innerHTML = ''; // Clear previous messages
+      messages.forEach(message => {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = `mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`;
+
+        const messageBubble = document.createElement('div');
+        messageBubble.className = `inline-block p-3 rounded-lg max-w-[80%] ${
+          message.role === 'user'
+            ? 'bg-indigo-500 text-white rounded-br-none'
             : 'bg-white border border-gray-200 rounded-bl-none'
-        }">
-          ${message.content}
-        </div>
-      </div>
-    `).join('');
+        }`;
+
+        messageBubble.textContent = message.content;
+
+        messageContainer.appendChild(messageBubble);
+        messagesList.appendChild(messageContainer);
+      });
       scrollToBottom();
     }
   };
