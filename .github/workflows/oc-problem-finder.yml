@@ -56,8 +56,8 @@ jobs:
         timeout-minutes: 20
         run: |
           opencode run "$(cat <<'PROMPT'
-          Anda adalah Orchestrator utama untuk repositori Headless WordPress.
-          Repositori: https://github.com/sulhimbn/headlesswp
+          Anda adalah Orchestrator utama untuk repositori Astro Maskom.
+          Repositori: https://github.com/maskom/astro-maskom
           
           Tugas Anda:          
           1. **Analisis Mendalam Repositori**
