@@ -1,22 +1,35 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase client for server-side operations
-const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for server-side operations
-);
+// Singleton Supabase client for server-side operations
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+
+const getSupabaseClient = () => {
+  if (!supabaseClient) {
+    supabaseClient = createClient(
+      import.meta.env.SUPABASE_URL,
+      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for server-side operations
+    );
+  }
+  return supabaseClient;
+};
 
 export const prerender = false;
 
 // GET endpoint to fetch subscribers
 export const GET: APIRoute = async () => {
   try {
-    // In a real implementation, you would fetch subscribers from a database
-    // For now, we'll return an empty array
-    const subscribers = [];
+    const supabase = getSupabaseClient();
     
-    return new Response(JSON.stringify(subscribers), {
+    // Fetch subscribers from database
+    const { data: subscribers, error } = await supabase
+      .from('subscribers')
+      .select('*')
+      .order('subscribed_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    return new Response(JSON.stringify(subscribers || []), {
       headers: { 
         "Content-Type": "application/json",
         "Cache-Control": "no-cache"
@@ -43,14 +56,28 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
     
-    // In a real implementation, you would:
-    // 1. Check if email already exists in database
-    // 2. Insert new subscriber into database
-    // 3. Send confirmation email
+    const supabase = getSupabaseClient();
     
-    // For now, we'll just simulate the process
+    // Check if email already exists
+    const { data: existingSubscriber, error: checkError } = await supabase
+      .from('subscribers')
+      .select('id')
+      .eq('email', email)
+      .single();
+    
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" error
+      throw checkError;
+    }
+    
+    if (existingSubscriber) {
+      return new Response(JSON.stringify({ error: "Email already subscribed" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    
+    // Insert new subscriber into database
     const newSubscriber = {
-      id: Math.random().toString(36).substring(2, 9),
       email,
       preferences: preferences || {
         incidents: true,
@@ -61,10 +88,17 @@ export const POST: APIRoute = async ({ request }) => {
       confirmed: false // Would be set to true after email confirmation
     };
     
-    // Simulate database operation
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const { data: insertedSubscriber, error: insertError } = await supabase
+      .from('subscribers')
+      .insert([newSubscriber])
+      .select()
+      .single();
     
-    return new Response(JSON.stringify(newSubscriber), {
+    if (insertError) throw insertError;
+    
+    // TODO: Send confirmation email (would require email service integration)
+    
+    return new Response(JSON.stringify(insertedSubscriber), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (error) {

@@ -26,12 +26,17 @@ export interface StatusData {
   incidents: Incident[];
 }
 
-// Create Supabase client for server-side usage
+// Singleton Supabase client for server-side usage
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+
 export const createSupabaseClient = () => {
-  return createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
-  );
+  if (!supabaseClient) {
+    supabaseClient = createClient(
+      import.meta.env.SUPABASE_URL,
+      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
+    );
+  }
+  return supabaseClient;
 };
 
 // Status API functions
@@ -51,19 +56,25 @@ export const getStatusData = async (): Promise<StatusData> => {
     const { data: incidents, error: incidentsError } = await supabase
       .from('incidents')
       .select('*')
-      .eq('status', 'investigating')
-      .or('status.eq.identified, status.eq.monitoring')
+      .in('status', ['investigating', 'identified', 'monitoring'])
       .order('created_at', { ascending: false });
       
     if (incidentsError) throw incidentsError;
     
-    // Calculate overall status
+    // Calculate overall status based on services and incidents
     let overall_status: 'operational' | 'degraded' | 'outage' = 'operational';
-    if (incidents.some((incident: Incident) => incident.status === 'investigating' || incident.status === 'identified')) {
-      overall_status = 'degraded';
-    }
-    if (incidents.some((incident: Incident) => incident.status === 'outage')) {
+    
+    // First check if any services have outages or degraded status
+    const hasServiceOutage = services.some(service => service.status === 'outage');
+    const hasServiceDegraded = services.some(service => service.status === 'degraded');
+    
+    // Then consider active incidents
+    const hasActiveIncidents = incidents.length > 0;
+    
+    if (hasServiceOutage) {
       overall_status = 'outage';
+    } else if (hasServiceDegraded || hasActiveIncidents) {
+      overall_status = 'degraded';
     }
     
     return {

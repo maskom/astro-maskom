@@ -124,40 +124,67 @@ interface IncidentForm {
       const container = document.getElementById('incidents-list');
       if (!container) return;
       
+      // Clear existing content
+      container.innerHTML = '';
+      
       if (incidents.length === 0) {
-        container.innerHTML = `
-          <div class="bg-gray-800 rounded-lg p-8 text-center">
-            <p class="text-gray-400">No active incidents.</p>
-          </div>
-        `;
+        const noIncidentsDiv = document.createElement('div');
+        noIncidentsDiv.className = 'bg-gray-800 rounded-lg p-8 text-center';
+        const noIncidentsText = document.createElement('p');
+        noIncidentsText.className = 'text-gray-400';
+        noIncidentsText.textContent = 'No active incidents.';
+        noIncidentsDiv.appendChild(noIncidentsText);
+        container.appendChild(noIncidentsDiv);
         return;
       }
       
-      container.innerHTML = incidents.map(incident => `
-        <div class="bg-gray-800 rounded-lg p-4">
-          <div class="flex justify-between items-start">
-            <h3 class="font-medium">${incident.title}</h3>
-            <span class="text-xs px-2 py-1 rounded bg-gray-700">
-              ${incident.status === 'investigating' ? 'Investigating' :
-                incident.status === 'identified' ? 'Identified' :
-                incident.status === 'monitoring' ? 'Monitoring' : 'Resolved'}
-            </span>
-          </div>
-          <p class="text-sm text-gray-300 mt-2">${incident.description}</p>
-          <p class="text-xs text-gray-500 mt-3">
-            Updated: ${new Date(incident.updated_at).toLocaleString()}
-          </p>
-        </div>
-      `).join('');
+      incidents.forEach(incident => {
+        const incidentDiv = document.createElement('div');
+        incidentDiv.className = 'bg-gray-800 rounded-lg p-4';
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'flex justify-between items-start';
+        
+        const titleElement = document.createElement('h3');
+        titleElement.className = 'font-medium';
+        titleElement.textContent = incident.title;
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'text-xs px-2 py-1 rounded bg-gray-700';
+        const statusText = incident.status === 'investigating' ? 'Investigating' :
+                          incident.status === 'identified' ? 'Identified' :
+                          incident.status === 'monitoring' ? 'Monitoring' : 'Resolved';
+        statusSpan.textContent = statusText;
+        
+        headerDiv.appendChild(titleElement);
+        headerDiv.appendChild(statusSpan);
+        
+        const descriptionElement = document.createElement('p');
+        descriptionElement.className = 'text-sm text-gray-300 mt-2';
+        descriptionElement.textContent = incident.description;
+        
+        const updatedElement = document.createElement('p');
+        updatedElement.className = 'text-xs text-gray-500 mt-3';
+        updatedElement.textContent = `Updated: ${new Date(incident.updated_at).toLocaleString()}`;
+        
+        incidentDiv.appendChild(headerDiv);
+        incidentDiv.appendChild(descriptionElement);
+        incidentDiv.appendChild(updatedElement);
+        
+        container.appendChild(incidentDiv);
+      });
     } catch (error) {
       console.error('Error loading incidents:', error);
       const container = document.getElementById('incidents-list');
       if (container) {
-        container.innerHTML = `
-          <div class="bg-gray-800 rounded-lg p-8 text-center">
-            <p class="text-gray-400">Failed to load incidents.</p>
-          </div>
-        `;
+        container.innerHTML = '';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-gray-800 rounded-lg p-8 text-center';
+        const errorText = document.createElement('p');
+        errorText.className = 'text-gray-400';
+        errorText.textContent = 'Failed to load incidents.';
+        errorDiv.appendChild(errorText);
+        container.appendChild(errorDiv);
       }
     }
   }
