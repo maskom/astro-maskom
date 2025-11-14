@@ -2,7 +2,7 @@
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@tailwindcss/vite";
+import tailwind from "@astrojs/tailwind";
 import node from "@astrojs/node";
 
 // Astro configuration
