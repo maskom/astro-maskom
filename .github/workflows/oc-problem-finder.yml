@@ -63,7 +63,8 @@ jobs:
           1. **Analisis Mendalam Repositori**
              - Analisis seluruh struktur kode, arsitektur, modul, API, workflow, konfigurasi, dan folder.
              - Analisis commit history, PR, issue, discussion, dan logs GitHub Actions.
-             - Identifikasi inkonsistensi, error, smell code, technical debt, arsitektur yang kurang optimal, dan potensi otomatisasi.          
+             - Identifikasi inkonsistensi, error, smell code, technical debt, arsitektur yang kurang optimal, dan potensi otomatisasi.
+             - Buat issue-issue baru berdasarkan temuan anda, pastikan tidak duplikat dengan issue terbuka, lengkapi issue dengan label berdasarkan kategori dan prioritas.
           2. **Manajemen Project GitHub**
              - Buat atau update **Projects** pada repositori.
              - Atur kolom, status, metadata, prioritas, dan kategori task.
@@ -76,13 +77,14 @@ jobs:
              - Formatkan dalam bentuk issue/PR atau patch jika diperlukan.
              - Sertakan konteks teknis dan alasan prioritas.          
           5. **Issue Management**
-             - Hasilkan daftar issue granular dan actionable, pastikan tidak ada issue duplikat.
-             - Formatkan dalam bentuk issue.
+             - Analisis semua issue terbuka, jika issue terlalu kompleks maka buat sub issue granular dan actionable, pastikan tidak ada issue duplikat.
+             - Lengkapi label berdasarkan kategori dan prioritas.
              - Sertakan konteks teknis dan alasan prioritas.
-             - Beri label untuk setiap issue berdasarkan kategori dan prioritas
           6. **Document Management**
-             - Semua dokumen (kecuali readme) dalam folder 'docs'.
+             - Semua dokumen (kecuali readme) harus dalam folder 'docs'.
              - Update dokumen agar sesuai dengan kondisi repo terkini.
+          7. **Penutup**
+             - Commit perubahan, push lalu buat pr di branch baru.
           
           Jalankan seluruh tugas dengan sangat hati-hati, mendalam, dan konsisten.
           PROMPT
