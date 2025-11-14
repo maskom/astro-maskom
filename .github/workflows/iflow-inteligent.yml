@@ -1,4 +1,4 @@
-name: "?? iflow intelijen"
+name: "iFlow Intelijen"
 
 on:
   schedule:
@@ -53,6 +53,11 @@ jobs:
   analyse_and_create_issues:
     needs: gather_data
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,42 +69,71 @@ jobs:
           name: repo-intel-data-${{ github.run_id }}
           path: ./intel
 
+      ##############################################
+      # ANTI-DUPLICATE ISSUE SYSTEM
+      ##############################################
+      - name: Prevent duplicate issues (collect all titles)
+        id: dedupe
+        run: |
+          echo "Collecting existing issue titles..."
+          gh issue list --state open --limit 300 --json number,title > existing_issues.json
+
+          # Convert to single string separated by |
+          TITLES=$(jq -r '.[].title' existing_issues.json | tr '\n' '|' | sed 's/|$//')
+          echo "existing_issues=$TITLES" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      ##############################################
+      # IFLOW EXECUTION WITH BUILT-IN DE-DUP LOGIC
+      ##############################################
       - name: Run iFlow CLI Agent for analysis and auto-issue creation
         uses: iflow-ai/iflow-cli-action@v2.1.0
         with:
           api_key: ${{ secrets.IFLOW_API_KEY }}
           timeout: "7200"
           prompt: |
-            ## ROLE  
+            ## ROLE
             You are an autonomous GitHub repository intelligence agent with write-access.
 
-            ## CONTEXT  
-            - Repository: ${{ github.repository }}  
-            - CI/CD runs data: ./intel/gha_runs.json  
-            - Open issues data: ./intel/open_issues.json  
-            - PR history data: ./intel/recent_prs.json  
-            - Full repository code base is checked-out and available for deep analysis
+            ## CONTEXT
+            - Repository: ${{ github.repository }}
+            - CI/CD runs data: ./intel/gha_runs.json
+            - Open issues data: ./intel/open_issues.json
+            - PR history data: ./intel/recent_prs.json
+            - Existing issue titles (for deduplication):
+              "${{ steps.dedupe.outputs.existing_issues }}"
+            - Full repository code base is checked-out and available.
 
-            ## TASKS  
-            1. Deeply analyze the codebase: modules, dependencies, documentation, test coverage gaps, duplication, naming inconsistencies.  
-            2. Analyze CI/CD logs: identify jobs with frequent failures, long durations (>10 minutes), reruns, unstable workflows.  
-            3. Analyze issue/PR history: stale issues (open >60 days), PRs closed without merge, recurring bug patterns.  
-            4. Generate findings:  
-               - Bugs/inefficiencies (with description, location, impact)  
-               - Improvement opportunities (with gap and suggestion)  
-               - Feature ideas (at least two) with value proposition, rough implementation steps, estimated effort/impact  
-            5. Select 1 most important from findings and  **create a GitHub Issue** immediately.  
-               - use `gh issue create --title "<Issue Title>" --body "<Issue body>" --label "kind/bug,priority/high"` (or appropriate labels)  
-               - Category label must be one of `kind/bug`, `kind/enhancement`, `kind/documentation`, `kind/architecture`  
-               - Priority label must be one of `priority/critical`, `priority/high`, `priority/medium`, `priority/low`  
-            6. For improvement requiring workflow/config change: output unified-diff snippet targeting `.github/workflows/` or config files and commit or open PR if safe.  
-            7. Self-improvement plan: propose what additional data you will collect next time, what thresholds to adjust, how you will refine your prompt or analysis logic, save to `intel/self_improvement_plan.md`.
+            ## TASKS
+            1. Deep-analyze the entire codebase: modules, dependencies, structure, architecture, smells, duplication, unreachable code, documentation gaps.
+            2. Analyze CI/CD logs: recurring failures, high-duration workflows (>10m), flaky steps.
+            3. Analyze issue/PR history: stale issues (>60 days), unmerged PRs, repeat bug patterns.
+            4. Produce findings:
+               - Bugs
+               - Inefficiencies
+               - Improvement suggestions
+               - Feature proposals
+            5. Select the **single most important finding**.
+            6. Create a GitHub Issue ***ONLY IF*** no duplicate exists, using:
+               `gh issue create --title "<Issue Title>" --body "<Issue Body>" --label "<labels>"`
+            7. If similar issue exists (>50% substring or semantic match):
+               - Do NOT create a new issue.
+               - Instead, add a comment to the existing issue:
+                 `gh issue comment <number> --body "<additional findings>"`
+            8. Provide unified diff patches for workflow/config changes if needed.
+            9. Generate a self-improvement plan saved to: `intel/self_improvement_plan.md`
 
-            ## RULES  
-            - Do not expose or log any secrets.  
-            - All code changes (issue creation, patches) must be small, atomic, maintainable.  
-            - When creating issues: ensure labels exist or propose their creation in the issue body.  
-            - Use `gh issue create` or `gh pr create` commands within the agent to perform creations.
+            ## RULES
+            - ABSOLUTE RULE: No duplicate issue may be created.
+            - Duplicate detection rules:
+              - Case-insensitive
+              - Substring match threshold: 0.5
+              - Fuzzy similarity > 0.5 means duplicate
+            - If duplicate: comment, not create.
+            - Do not print secrets.
+            - Use smallest atomic commits/changes.
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -111,4 +145,3 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
