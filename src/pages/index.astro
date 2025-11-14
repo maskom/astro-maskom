@@ -2,10 +2,17 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Astro/Hero.astro';
 import Packages from '../components/ui/Packages.astro';
+import Chatbot from '../components/chat/Chatbot.astro';
 ---
 
 <Layout title="Maskom Network">
   <Hero />
   <Packages />
+  
+  <!-- Add chatbot to the homepage -->
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h2 class="text-2xl font-bold text-center mb-6">Need help choosing a package?</h2>
+    <p class="text-center text-gray-600 mb-8">Chat with our AI assistant to find the perfect plan for your needs.</p>
+    <Chatbot />
+  </div>
 </Layout>
-
