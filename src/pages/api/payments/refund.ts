@@ -24,11 +24,17 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid authentication token' }),
+        JSON.stringify({
+          success: false,
+          error: 'Invalid authentication token',
+        }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -43,13 +49,13 @@ export const POST: APIRoute = async ({ request }) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Payment refund error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to refund payment' 
+      JSON.stringify({
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Failed to refund payment',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );

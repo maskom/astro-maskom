@@ -27,7 +27,7 @@ export class SessionManager {
         last_activity: new Date(),
         expires_at: expiresAt,
         is_active: true,
-        mfa_verified: false
+        mfa_verified: false,
       };
 
       const { error } = await this.supabase
@@ -46,7 +46,10 @@ export class SessionManager {
     }
   }
 
-  async validateSession(sessionId: string, ipAddress?: string): Promise<SessionSecurity | null> {
+  async validateSession(
+    sessionId: string,
+    ipAddress?: string
+  ): Promise<SessionSecurity | null> {
     try {
       let query = this.supabase
         .from('user_sessions')
@@ -84,7 +87,7 @@ export class SessionManager {
         .from('user_sessions')
         .update({
           is_active: false,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('session_id', sessionId);
 
@@ -100,13 +103,16 @@ export class SessionManager {
     }
   }
 
-  async invalidateAllUserSessions(userId: string, exceptSessionId?: string): Promise<boolean> {
+  async invalidateAllUserSessions(
+    userId: string,
+    exceptSessionId?: string
+  ): Promise<boolean> {
     try {
       let query = this.supabase
         .from('user_sessions')
         .update({
           is_active: false,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('user_id', userId)
         .eq('is_active', true);
@@ -129,7 +135,10 @@ export class SessionManager {
     }
   }
 
-  async extendSession(sessionId: string, additionalMinutes: number = 30): Promise<boolean> {
+  async extendSession(
+    sessionId: string,
+    additionalMinutes: number = 30
+  ): Promise<boolean> {
     try {
       const newExpiresAt = new Date(Date.now() + additionalMinutes * 60 * 1000);
 
@@ -138,7 +147,7 @@ export class SessionManager {
         .update({
           expires_at: newExpiresAt,
           last_activity: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('session_id', sessionId)
         .eq('is_active', true);
@@ -161,7 +170,7 @@ export class SessionManager {
         .from('user_sessions')
         .update({
           mfa_verified: true,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('session_id', sessionId)
         .eq('is_active', true);
@@ -233,7 +242,9 @@ export class SessionManager {
 
       // Check for old sessions (more than 24 hours)
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const oldSessions = sessions.filter(s => new Date(s.created_at) < oneDayAgo);
+      const oldSessions = sessions.filter(
+        s => new Date(s.created_at) < oneDayAgo
+      );
       suspiciousSessions.push(...oldSessions);
 
       // Check for sessions with unusual user agents
@@ -256,7 +267,7 @@ export class SessionManager {
         .from('user_sessions')
         .update({
           last_activity: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('session_id', sessionId);
     } catch (error) {
@@ -266,7 +277,10 @@ export class SessionManager {
 
   // Middleware helper for session validation
   requireValidSession() {
-    return async (sessionId: string, ipAddress?: string): Promise<SessionSecurity | null> => {
+    return async (
+      sessionId: string,
+      ipAddress?: string
+    ): Promise<SessionSecurity | null> => {
       return await this.validateSession(sessionId, ipAddress);
     };
   }

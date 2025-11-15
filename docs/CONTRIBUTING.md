@@ -5,7 +5,8 @@ Thank you for your interest in contributing to Astro Maskom! This guide will hel
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn package manager
 - Git
 - VS Code (recommended)
@@ -13,23 +14,27 @@ Thank you for your interest in contributing to Astro Maskom! This guide will hel
 ### Development Setup
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/your-username/astro-maskom.git
    cd astro-maskom
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
+
    ```bash
    cp .env.example .env
    # Fill in your environment variables
    ```
 
 4. **Start Development Server**
+
    ```bash
    npm run dev
    ```
@@ -61,16 +66,19 @@ astro-maskom/
 ## 🛠️ Development Workflow
 
 ### 1. Create Branch
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 ### 2. Make Changes
+
 - Follow existing code style and patterns
 - Add TypeScript types for new code
 - Test your changes thoroughly
 
 ### 3. Run Tests
+
 ```bash
 npm run build        # Verify build works
 npm run lint         # Check code style (if available)
@@ -78,12 +86,14 @@ npm run typecheck    # Verify TypeScript types
 ```
 
 ### 4. Commit Changes
+
 ```bash
 git add .
 git commit -m "feat: add your feature description"
 ```
 
 ### 5. Push and Create PR
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -91,18 +101,21 @@ git push origin feature/your-feature-name
 ## 📝 Code Style Guidelines
 
 ### TypeScript/Astro
+
 - Use TypeScript for all new code
 - Follow Astro component patterns
 - Define proper interfaces and types
 - Use meaningful variable and function names
 
 ### CSS/Tailwind
+
 - Use Tailwind CSS classes
 - Follow mobile-first responsive design
 - Maintain consistent spacing and colors
 - Use semantic HTML elements
 
 ### File Naming
+
 - Components: PascalCase (e.g., `UserProfile.astro`)
 - Files: kebab-case (e.g., `user-profile.ts`)
 - Directories: kebab-case (e.g., `user-profile/`)
@@ -110,6 +123,7 @@ git push origin feature/your-feature-name
 ## 🐛 Bug Reports
 
 When reporting bugs, please include:
+
 - Clear description of the issue
 - Steps to reproduce
 - Expected vs actual behavior
@@ -119,6 +133,7 @@ When reporting bugs, please include:
 ## ✨ Feature Requests
 
 For feature requests:
+
 - Describe the problem you're solving
 - Explain the proposed solution
 - Consider implementation complexity
@@ -127,6 +142,7 @@ For feature requests:
 ## 🔧 Code Review Process
 
 ### Review Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] TypeScript types are properly defined
 - [ ] Build completes without errors
@@ -135,6 +151,7 @@ For feature requests:
 - [ ] Security implications are considered
 
 ### Review Guidelines
+
 - Be constructive and respectful
 - Focus on code quality, not personal preferences
 - Explain reasoning for suggested changes
@@ -172,6 +189,7 @@ For feature requests:
 ## 🏆 Recognition
 
 Contributors are recognized in:
+
 - README.md contributors section
 - Release notes for significant contributions
 - Annual community highlights
@@ -180,4 +198,4 @@ Contributors are recognized in:
 
 Thank you for contributing to Astro Maskom! Your contributions help make our ISP website better for everyone.
 
-*Last Updated: 2025-11-14*
+_Last Updated: 2025-11-14_

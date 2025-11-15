@@ -5,13 +5,15 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { orderId, amount, customerDetails, itemDetails, paymentMethod } = body;
+    const { orderId, amount, customerDetails, itemDetails, paymentMethod } =
+      body;
 
     if (!orderId || !amount || !customerDetails || !itemDetails) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Missing required fields: orderId, amount, customerDetails, itemDetails' 
+        JSON.stringify({
+          success: false,
+          error:
+            'Missing required fields: orderId, amount, customerDetails, itemDetails',
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
@@ -27,11 +29,17 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid authentication token' }),
+        JSON.stringify({
+          success: false,
+          error: 'Invalid authentication token',
+        }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -55,13 +63,13 @@ export const POST: APIRoute = async ({ request }) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Payment creation error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Payment processing failed' 
+      JSON.stringify({
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Payment processing failed',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );

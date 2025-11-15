@@ -13,7 +13,9 @@ export function getPaymentManager(): ReturnType<typeof PaymentManager> {
     const config: PaymentGatewayConfig = {
       serverKey: import.meta.env.MIDTRANS_SERVER_KEY || '',
       clientKey: import.meta.env.MIDTRANS_CLIENT_KEY || '',
-      environment: (import.meta.env.MIDTRANS_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
+      environment:
+        (import.meta.env.MIDTRANS_ENVIRONMENT as 'sandbox' | 'production') ||
+        'sandbox',
       merchantId: import.meta.env.MIDTRANS_MERCHANT_ID || '',
     };
 

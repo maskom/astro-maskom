@@ -10,19 +10,22 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const token = authHeader.substring(7);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -44,9 +47,9 @@ export const GET: APIRoute = async ({ request }) => {
     const { data: notifications, error: notifError } = await query;
 
     if (notifError) {
-      return new Response(JSON.stringify({ error: notifError.message }), { 
+      return new Response(JSON.stringify({ error: notifError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -58,25 +61,27 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('is_read', false);
 
     if (countError) {
-      return new Response(JSON.stringify({ error: countError.message }), { 
+      return new Response(JSON.stringify({ error: countError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({
-      notifications: notifications || [],
-      unreadCount: unreadCount || 0
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        notifications: notifications || [],
+        unreadCount: unreadCount || 0,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Notifications API error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -87,27 +92,33 @@ export const PUT: APIRoute = async ({ request }) => {
     const { notificationIds, markAsRead } = body;
 
     if (!notificationIds || !Array.isArray(notificationIds)) {
-      return new Response(JSON.stringify({ error: 'Notification IDs array required' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: 'Notification IDs array required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const token = authHeader.substring(7);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -120,25 +131,27 @@ export const PUT: APIRoute = async ({ request }) => {
       .select();
 
     if (updateError) {
-      return new Response(JSON.stringify({ error: updateError.message }), { 
+      return new Response(JSON.stringify({ error: updateError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      updatedCount: data?.length || 0 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        updatedCount: data?.length || 0,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Notifications PUT error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -149,27 +162,33 @@ export const DELETE: APIRoute = async ({ request }) => {
     const { notificationIds } = body;
 
     if (!notificationIds || !Array.isArray(notificationIds)) {
-      return new Response(JSON.stringify({ error: 'Notification IDs array required' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: 'Notification IDs array required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const token = authHeader.substring(7);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -181,24 +200,26 @@ export const DELETE: APIRoute = async ({ request }) => {
       .in('id', notificationIds);
 
     if (deleteError) {
-      return new Response(JSON.stringify({ error: deleteError.message }), { 
+      return new Response(JSON.stringify({ error: deleteError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Notifications DELETE error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

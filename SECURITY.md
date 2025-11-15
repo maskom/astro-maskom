@@ -9,6 +9,7 @@ We take the security of our project seriously. If you discover a security vulner
 **Please do NOT open a public issue for security vulnerabilities.**
 
 Instead, send your report to:
+
 - **Email**: security@maskom.id
 - **GitHub**: Use [GitHub's private vulnerability reporting](https://github.com/maskom/astro-maskom/security/advisories)
 
@@ -50,6 +51,7 @@ Security researchers who follow this policy will be acknowledged in our security
 ## 🛠️ Security Best Practices
 
 ### For Developers
+
 - Never commit secrets or API keys
 - Use environment variables for sensitive configuration
 - Follow secure coding guidelines in CONTRIBUTING.md
@@ -57,6 +59,7 @@ Security researchers who follow this policy will be acknowledged in our security
 - Review all code changes carefully
 
 ### For Users
+
 - Keep your software updated
 - Use strong, unique passwords
 - Enable two-factor authentication where available
@@ -64,9 +67,9 @@ Security researchers who follow this policy will be acknowledged in our security
 
 ## 🔐 Supported Versions
 
-| Version | Security Support | Status |
-|---------|------------------|---------|
-| 0.0.x   | ✅ Full          | Current |
+| Version | Security Support | Status      |
+| ------- | ---------------- | ----------- |
+| 0.0.x   | ✅ Full          | Current     |
 | < 0.0   | ❌ None          | End of Life |
 
 ## 📊 Security Measures
@@ -106,4 +109,4 @@ In case of a security incident:
 
 **Thank you for helping keep our project secure!** 🙏
 
-*Last Updated: 2025-11-15*
+_Last Updated: 2025-11-15_

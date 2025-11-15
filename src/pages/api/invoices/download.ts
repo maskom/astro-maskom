@@ -24,11 +24,17 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid authentication token' }),
+        JSON.stringify({
+          success: false,
+          error: 'Invalid authentication token',
+        }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -61,13 +67,13 @@ export const GET: APIRoute = async ({ request }) => {
         'Content-Disposition': `inline; filename="invoice-${invoice.invoiceNumber}.html"`,
       },
     });
-
   } catch (error) {
     console.error('Invoice download error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to download invoice' 
+      JSON.stringify({
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Failed to download invoice',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
@@ -75,14 +81,18 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 function generateInvoiceHTML(invoice: any): string {
-  const itemsHTML = invoice.items.map((item: any) => `
+  const itemsHTML = invoice.items
+    .map(
+      (item: any) => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.description}</td>
       <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb;">${item.quantity}</td>
       <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb;">Rp ${item.unitPrice.toLocaleString('id-ID')}</td>
       <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb;">Rp ${item.total.toLocaleString('id-ID')}</td>
     </tr>
-  `).join('');
+  `
+    )
+    .join('');
 
   return `
     <!DOCTYPE html>

@@ -1,11 +1,13 @@
 # Architecture Documentation
 
 ## Overview
+
 Astro Maskom is built with a modern, performance-focused architecture using Astro as the primary framework, Supabase for backend services, and Tailwind CSS for styling. This document outlines the system architecture, component relationships, and data flow.
 
 ## 🏗️ System Architecture
 
 ### High-Level Architecture
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Client Side   │    │   Server Side   │    │   Data Layer    │
@@ -22,12 +24,14 @@ Astro Maskom is built with a modern, performance-focused architecture using Astr
 ### Technology Stack
 
 #### Frontend
+
 - **Astro 5.15.4**: Modern static site generator with SSR capabilities
 - **TypeScript 5.9.3**: Type-safe JavaScript development
 - **Tailwind CSS 3.4.18**: Utility-first CSS framework
 - **Svelte**: Lightweight components for interactive features (being phased out)
 
 #### Backend
+
 - **Supabase**: Backend-as-a-Service providing:
   - PostgreSQL database
   - Authentication service
@@ -36,6 +40,7 @@ Astro Maskom is built with a modern, performance-focused architecture using Astr
   - Edge functions
 
 #### Deployment
+
 - **Node.js**: Runtime environment (standalone mode)
 - **Cloudflare Pages**: Static site hosting (planned)
 - **GitHub Actions**: Advanced automation workflows (8 workflows)
@@ -96,16 +101,19 @@ astro-maskom/
 ## 🔄 Data Flow Architecture
 
 ### Authentication Flow
+
 ```
 User → Sign In Form → API Route (/api/auth/signin) → Supabase Auth → JWT Token → Client Storage
 ```
 
 ### Chat Flow
+
 ```
 User Message → Chatbot Component → API Route (/api/chat/completion) → OpenAI API → Response → UI Update
 ```
 
 ### Data Fetching Flow
+
 ```
 Page Load → Astro Server Component → Supabase Client → Database → SSR → HTML → Client Hydration
 ```
@@ -113,6 +121,7 @@ Page Load → Astro Server Component → Supabase Client → Database → SSR �
 ## 🧩 Component Architecture
 
 ### Component Hierarchy
+
 ```
 Layout.astro
 ├── Header.astro
@@ -131,18 +140,21 @@ Layout.astro
 ### Component Patterns
 
 #### 1. Astro Components (`.astro`)
+
 - Used for static content and server-side logic
 - Can contain TypeScript in code fences (`---`)
 - Support component composition
 - Optimized for minimal client-side JavaScript
 
 #### 2. UI Components
+
 - Reusable across multiple pages
 - Accept props for customization
 - Follow consistent design system
 - Responsive by default
 
 #### 3. API Routes
+
 - Handle server-side logic
 - Process authentication
 - Interact with databases
@@ -151,18 +163,21 @@ Layout.astro
 ## 🔐 Security Architecture
 
 ### Authentication & Authorization
+
 - **Supabase Auth**: Handles user authentication
 - **JWT Tokens**: Stateless session management
 - **Row Level Security (RLS)**: Database-level access control
 - **Middleware**: Request validation and authentication
 
 ### Data Protection
+
 - **Environment Variables**: Sensitive data protection
 - **HTTPS**: Encrypted data transmission
 - **Input Validation**: XSS and injection prevention
 - **CORS**: Cross-origin request control
 
 ### Security Layers
+
 ```
 ┌─────────────────┐
 │   Application   │ ← Input validation, error handling (NEEDS IMPLEMENTATION)
@@ -176,6 +191,7 @@ Layout.astro
 ```
 
 ### Current Security Issues
+
 - **Critical**: Outdated dependencies (form-data, axios, js-yaml, undici)
 - **High**: Missing input validation and error handling
 - **Medium**: Hardcoded values in source code
@@ -186,32 +202,38 @@ Layout.astro
 ### Optimization Strategies
 
 #### 1. Static Generation
+
 - Pre-built pages at build time
 - Minimal server-side processing
 - CDN-friendly static assets
 
 #### 2. Code Splitting
+
 - Component-level code splitting
 - Lazy loading for heavy components
 - Optimized bundle sizes
 
 #### 3. Caching Strategy
+
 - Browser caching for static assets
 - CDN caching for global distribution
 - Database query caching
 
 #### 4. Image Optimization
+
 - Responsive images with Astro
 - Modern image formats (WebP)
 - Lazy loading implementation
 
 ### Performance Metrics (TARGETS)
+
 - **First Contentful Paint**: < 1.5s (CURRENT: Unknown)
 - **Largest Contentful Paint**: < 2.5s (CURRENT: Unknown)
 - **Cumulative Layout Shift**: < 0.1 (CURRENT: Unknown)
 - **First Input Delay**: < 100ms (CURRENT: Unknown)
 
 ### Current Performance Issues
+
 - **High**: No performance monitoring implemented
 - **Medium**: No code splitting or lazy loading
 - **Medium**: No image optimization
@@ -222,32 +244,35 @@ Layout.astro
 ### Third-Party Services
 
 #### Supabase Integration
+
 ```typescript
 // Client configuration
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
   import.meta.env.SUPABASE_ANON_KEY
-)
+);
 ```
 
 #### OpenAI Integration
+
 ```typescript
 // Chat completion API
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
   headers: {
-    'Authorization': `Bearer ${import.meta.env.OPENAI_API_KEY}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${import.meta.env.OPENAI_API_KEY}`,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     model: 'gpt-3.5-turbo',
-    messages: [{ role: 'user', content: message }]
-  })
-})
+    messages: [{ role: 'user', content: message }],
+  }),
+});
 ```
 
 ### API Architecture
+
 - **RESTful Design**: Standard HTTP methods and status codes
 - **JSON Format**: Consistent request/response format
 - **Error Handling**: Standardized error responses
@@ -256,16 +281,19 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 ## 🚀 Deployment Architecture
 
 ### Build Process
+
 ```
 Source Code → Astro Build → Static Files → Optimization → Deployment
 ```
 
 ### Environments
+
 - **Development**: Local development with hot reload
 - **Staging**: Pre-production testing environment
 - **Production**: Live production environment
 
 ### Hosting Strategy
+
 - **Static Assets**: CDN distribution
 - **Server Components**: Edge computing
 - **Database**: Managed PostgreSQL
@@ -274,16 +302,19 @@ Source Code → Astro Build → Static Files → Optimization → Deployment
 ## 📈 Monitoring & Observability
 
 ### Logging Strategy
+
 - **Application Logs**: Error tracking and debugging
 - **Access Logs**: Request monitoring
 - **Performance Logs**: Optimization insights
 
 ### Error Handling
+
 - **Global Error Boundaries**: Prevent crashes
 - **Graceful Degradation**: Fallback functionality
 - **User Feedback**: Clear error messages
 
 ### Analytics
+
 - **Performance Monitoring**: Core Web Vitals
 - **User Analytics**: Behavior tracking
 - **Business Metrics**: Conversion and engagement
@@ -291,12 +322,14 @@ Source Code → Astro Build → Static Files → Optimization → Deployment
 ## 🔮 Future Architecture Considerations
 
 ### Scalability
+
 - **Microservices**: Service decomposition
 - **Event-Driven Architecture**: Async processing
 - **Load Balancing**: Traffic distribution
 - **Database Sharding**: Horizontal scaling
 
 ### Enhanced Features
+
 - **Progressive Web App**: Offline functionality
 - **Real-time Updates**: WebSocket integration
 - **AI Integration**: Advanced chatbot features
@@ -309,11 +342,13 @@ This architecture documentation serves as a guide for understanding the system d
 ## 🚨 Current Architecture Issues
 
 ### ✅ Resolved Issues (Since Last Analysis)
+
 1. **Security Vulnerabilities**: FIXED - All dependencies updated (Issue #71, PR #105)
 2. **Missing Dependencies**: FIXED - All dependencies installed (Issue #66, PR #68)
 3. **CI/CD Pipeline**: IMPLEMENTED - Basic pipeline added (PR #106)
 
 ### 🔄 Current Active Issues
+
 1. **Security Headers**: Missing CSP and security headers (Issue #111) - PR #128 active
 2. **Code Quality**: Console statements need logging system (Issue #108)
 3. **Error Handling**: Inconsistent error handling patterns (Issue #109)
@@ -322,6 +357,7 @@ This architecture documentation serves as a guide for understanding the system d
 6. **Payment Gateway**: Midtrans integration for billing (Issue #116) - PR #119 active
 
 ### 📊 Architecture Health Status
+
 - **Security**: 🟡 Medium (Vulnerabilities fixed, headers in progress)
 - **Performance**: 🟡 Medium (No optimization, large bundles)
 - **Code Quality**: 🟢 Good (TypeScript errors resolved, structure solid)
@@ -329,6 +365,7 @@ This architecture documentation serves as a guide for understanding the system d
 - **Documentation**: 🟢 Good (Comprehensive docs in place)
 
 ### Updated Technical Debt Summary
+
 - **Total Issues**: 29 (0 Critical, 0 High, 29 Medium, 0 Low)
 - **Estimated Effort**: 80-100 hours
 - **Time to Stable**: 2-3 weeks
@@ -341,16 +378,19 @@ This architecture documentation serves as a guide for understanding the system d
 ## 📈 Architecture Improvements Made
 
 ### Security Enhancements (✅ Completed)
+
 - **Dependency Updates**: All vulnerable packages updated
 - **Security Audit**: Automated scanning implemented
 - **Environment Variables**: Better validation added
 
 ### Infrastructure Improvements (✅ Completed)
+
 - **CI/CD Pipeline**: Basic build and test pipeline
 - **Code Quality**: ESLint and Prettier configuration planned
 - **Documentation**: Comprehensive task and roadmap documentation
 
 ### Current Focus Areas (🔄 In Progress)
+
 - **Content Security Policy**: Implementation in progress
 - **Error Handling**: Standardization effort underway
 - **Performance Optimization**: Bundle analysis and code splitting
@@ -358,6 +398,6 @@ This architecture documentation serves as a guide for understanding the system d
 
 ---
 
-*Last Updated: 2025-11-15*
-*Architecture Health: 🟡 MEDIUM (Improving)*
-*Next Major Review: 2025-11-22*
+_Last Updated: 2025-11-15_
+_Architecture Health: 🟡 MEDIUM (Improving)_
+_Next Major Review: 2025-11-22_
