@@ -101,50 +101,5 @@ export function sanitizeResponse(response: string): string {
   return sanitizeInput(response);
 }
 
-/**
- * Validate JSON input and sanitize string fields
- */
-export function sanitizeJsonInput(data: any): any {
-  if (!data || typeof data !== 'object') {
-    return {};
-  }
-  
-  const sanitized: any = {};
-  
-  for (const [key, value] of Object.entries(data)) {
-    if (typeof value === 'string') {
-      sanitized[key] = sanitizeText(value);
-    } else if (Array.isArray(value)) {
-      sanitized[key] = value.map(item => 
-        typeof item === 'string' ? sanitizeText(item) : item
-      );
-    } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitizeJsonInput(value);
-    } else {
-      sanitized[key] = value;
-    }
-  }
-  
-  return sanitized;
-}
-
-/**
- * Validate required fields in an object
- */
-export function validateRequiredFields(data: any, requiredFields: string[]): { isValid: boolean; missingFields: string[] } {
-  const missingFields: string[] = [];
-  
-  for (const field of requiredFields) {
-    if (!data[field] || (typeof data[field] === 'string' && data[field].trim() === '')) {
-      missingFields.push(field);
-    }
-  }
-  
-  return {
-    isValid: missingFields.length === 0,
-    missingFields
-  };
-}
-
-// Backward compatibility aliases
+// Alias for sanitizeInput to maintain backward compatibility
 export const sanitizeString = sanitizeInput;
