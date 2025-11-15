@@ -66,7 +66,7 @@ declare global {
     path: string;
     pattern: URLPattern;
     params: Record<string, string>;
-    component: any;
+    component: unknown;
     type: 'page' | 'endpoint';
   }
 }
