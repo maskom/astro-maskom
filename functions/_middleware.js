@@ -1,4 +1,4 @@
-import { generateNonce, applySecurityHeaders } from '../src/middleware/security.js';
+import { getSecurityHeaders, generateNonce } from '../src/middleware/security.js';
 
 export const onRequest = async ({ request, next }) => {
   const response = await next();
@@ -11,21 +11,16 @@ export const onRequest = async ({ request, next }) => {
     response.headers.set('Cache-Control', 'public, max-age=3600');
   }
   
-  // Apply security headers to HTML pages
-  if (pathname.endsWith('.html') || pathname === '/' || !pathname.includes('.')) {
-    const nonce = generateNonce();
-    applySecurityHeaders(response, nonce);
-    
-    // Inject nonce into HTML for script tags
-    const html = await response.text();
-    const htmlWithNonce = html.replace(/<script/g, `<script nonce="${nonce}"`);
-    
-    return new Response(htmlWithNonce, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers
-    });
-  }
+  // Apply security headers
+  const nonce = generateNonce();
+  const securityHeaders = getSecurityHeaders(nonce);
+  
+  Object.entries(securityHeaders).forEach(([header, value]) => {
+    response.headers.set(header, value);
+  });
+  
+  // Add nonce to response for use in templates
+  response.headers.set('X-Nonce', nonce);
   
   return response;
 };
