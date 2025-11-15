@@ -5,20 +5,33 @@ import { sanitizeJsonInput, validateRequiredFields, escapeHtml } from "../../uti
 export const prerender = false;
 
 // GET endpoint to fetch all incidents
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const incidents = await getAllIncidents();
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeString(value);
+    }
+    
+    const incidents = await getAllIncidents(sanitizedParams);
     
     return new Response(JSON.stringify(incidents), {
       headers: { 
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -39,7 +52,10 @@ export const POST: APIRoute = async ({ request }) => {
         missingFields: validation.missingFields 
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -48,17 +64,27 @@ export const POST: APIRoute = async ({ request }) => {
     if (!newIncident) {
       return new Response(JSON.stringify({ error: "Failed to create incident" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     return new Response(JSON.stringify(newIncident), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -69,10 +95,19 @@ export const PUT: APIRoute = async ({ request }) => {
     const requestData = await request.json();
     const { id, ...updates } = requestData;
     
-    if (!id) {
-      return new Response(JSON.stringify({ error: "Missing incident ID" }), {
+    // Validate and sanitize input
+    const validation = validateRequestBody(requestData, ['id']);
+    
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Validation failed", 
+        details: validation.errors 
+      }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -84,17 +119,27 @@ export const PUT: APIRoute = async ({ request }) => {
     if (!updatedIncident) {
       return new Response(JSON.stringify({ error: "Failed to update incident" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     return new Response(JSON.stringify(updatedIncident), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };

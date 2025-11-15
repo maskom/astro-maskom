@@ -15,7 +15,7 @@ const nonce = crypto.getRandomValues(new Uint8Array(16))
   .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 ---
 
-<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot">
+<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot" data-initial-messages={JSON.stringify(initialMessages)}>
   <!-- Chat header -->
   <div class="bg-indigo-600 text-white p-4">
     <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
