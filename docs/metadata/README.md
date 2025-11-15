@@ -83,9 +83,9 @@ Modify `pr_meta.json` to adjust PR requirements and checklists.
 - **Label Configuration**: Added new labels for granular task tracking
 
 ### Current Metadata Structure
-- **Total Issues**: 27 active issues with proper categorization
+- **Total Issues**: 24 active issues with proper categorization
 - **Label Coverage**: 95% of issues properly labeled
-- **Priority Distribution**: P0 (1), P1 (5), P2 (15), P3 (6)
+- **Priority Distribution**: P0 (1), P1 (4), P2 (15), P3 (4)
 - **Automation Success**: 80% auto-categorization rate
 
 ### Integration with GitHub Projects
