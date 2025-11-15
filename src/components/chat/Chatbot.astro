@@ -53,14 +53,14 @@ const { initialMessages = [] } = Astro.props;
 </div>
 
 <script>
-  const initialMessages = JSON.parse('{JSON.stringify(Astro.props.initialMessages || [])}');
+  const initialMessages = JSON.parse(JSON.stringify(Astro.props.initialMessages || []));
   let messages = [...initialMessages];
   let loading = false;
   
   const messagesList = document.getElementById('messages-list');
-  const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+  const chatInput = document.getElementById('chat-input');
   const chatForm = document.getElementById('chat-form');
-  const sendButton = document.getElementById('send-button') as HTMLButtonElement;
+  const sendButton = document.getElementById('send-button');
   const loadingIndicator = document.getElementById('loading-indicator');
   
   const scrollToBottom = () => {
