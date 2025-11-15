@@ -7,7 +7,6 @@ import {
 import {
   sanitizeJsonInput,
   validateRequiredFields,
-  escapeHtml,
   sanitizeText,
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';

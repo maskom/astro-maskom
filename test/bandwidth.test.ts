@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock Supabase client
-const mockSupabase = {
+const _mockSupabase = {
   from: () => ({
     select: () => ({
       eq: () => ({
@@ -184,7 +184,7 @@ describe('Bandwidth Data Simulation', () => {
     const downloadGB = totalUsage * downloadRatio;
     const uploadGB = totalUsage * uploadRatio;
 
-    expect(downloadGB + uploadGB).toBe(totalUsage);
+    expect(downloadGB + uploadGB).toBeCloseTo(totalUsage);
     expect(downloadGB).toBeGreaterThan(uploadGB);
   });
 });

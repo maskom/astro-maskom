@@ -46,7 +46,10 @@ export class SecurityAuditLogger {
       }
 
       // Create security event for high-risk actions
-      if (riskLevel === RiskLevel.HIGH || riskLevel === RiskLevel.CRITICAL) {
+      if (
+        riskLevel === ('high' as RiskLevel) ||
+        riskLevel === ('critical' as RiskLevel)
+      ) {
         await this.createSecurityEvent(
           SecurityEventType.SUSPICIOUS_ACTIVITY,
           SecuritySeverity.HIGH,
@@ -202,36 +205,36 @@ export class SecurityAuditLogger {
   private calculateRiskLevel(
     action: SecurityAction,
     success: boolean,
-    details?: Record<string, any>
+    _details?: Record<string, any>
   ): RiskLevel {
     if (!success) {
-      return RiskLevel.MEDIUM;
+      return 'medium' as RiskLevel;
     }
 
     const highRiskActions = [
-      SecurityAction.ROLE_CHANGE,
-      SecurityAction.PERMISSION_GRANT,
-      SecurityAction.PERMISSION_REVOKE,
-      SecurityAction.DATA_DELETE,
-      SecurityAction.ADMIN_ACTION,
-      SecurityAction.SECURITY_BREACH,
+      'role_change' as SecurityAction,
+      'permission_grant' as SecurityAction,
+      'permission_revoke' as SecurityAction,
+      'data_delete' as SecurityAction,
+      'admin_action' as SecurityAction,
+      'security_breach' as SecurityAction,
     ];
 
     if (highRiskActions.includes(action)) {
-      return RiskLevel.HIGH;
+      return 'high' as RiskLevel;
     }
 
     const mediumRiskActions = [
-      SecurityAction.MFA_DISABLE,
-      SecurityAction.PASSWORD_CHANGE,
-      SecurityAction.DATA_EXPORT,
+      'mfa_disable' as SecurityAction,
+      'password_change' as SecurityAction,
+      'data_export' as SecurityAction,
     ];
 
     if (mediumRiskActions.includes(action)) {
-      return RiskLevel.MEDIUM;
+      return 'medium' as RiskLevel;
     }
 
-    return RiskLevel.LOW;
+    return 'low' as RiskLevel;
   }
 
   private async getRecentFailedLogins(

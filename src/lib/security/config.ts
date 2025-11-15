@@ -56,7 +56,7 @@ export function isIPWhitelisted(ip: string): boolean {
   return ipWhitelist.some(allowedIP => {
     if (allowedIP.includes('/')) {
       // CIDR notation check (simplified)
-      const [network, prefix] = allowedIP.split('/');
+      const [network] = allowedIP.split('/');
       return ip.startsWith(network);
     }
     return ip === allowedIP;

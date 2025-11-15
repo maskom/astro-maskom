@@ -4,8 +4,6 @@ import type {
   PaymentRequest,
   PaymentResponse,
   WebhookNotification,
-  CustomerDetails,
-  ItemDetails,
 } from './types';
 
 export class MidtransGateway {

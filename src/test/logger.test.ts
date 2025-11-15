@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Logger, LogLevel } from '../lib/logger';
+import { Logger } from '../lib/logger';
 
 describe('Logger', () => {
   it('should create logger with default log level', () => {

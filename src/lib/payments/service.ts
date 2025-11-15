@@ -1,4 +1,4 @@
-import type { PaymentTransaction, Invoice, InvoiceItem } from './types';
+import type { PaymentTransaction, Invoice } from './types';
 
 export class PaymentService {
   private supabase: any;

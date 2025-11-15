@@ -4,7 +4,7 @@ import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { sessionManager } from '../../../lib/security/session';
 import { mfaService } from '../../../lib/security/mfa';
-import { dataProtectionService } from '../../../lib/security/data-protection';
+
 import { SecurityAction } from '../../../lib/security/types';
 
 export const prerender = false;

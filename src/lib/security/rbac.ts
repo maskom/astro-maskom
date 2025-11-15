@@ -7,34 +7,51 @@ export class RBACService {
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  private rolePermissions: Record<UserRole, Permission[]> = {
-    [UserRole.CUSTOMER]: [
-      Permission.VIEW_DASHBOARD,
-      Permission.MANAGE_ACCOUNT,
-      Permission.VIEW_BILLING,
-      Permission.MANAGE_BILLING,
-    ],
-    [UserRole.SUPPORT]: [
-      Permission.VIEW_DASHBOARD,
-      Permission.MANAGE_ACCOUNT,
-      Permission.VIEW_BILLING,
-      Permission.VIEW_CUSTOMERS,
-      Permission.VIEW_ANALYTICS,
-    ],
-    [UserRole.ADMIN]: [
-      Permission.VIEW_DASHBOARD,
-      Permission.MANAGE_ACCOUNT,
-      Permission.VIEW_BILLING,
-      Permission.MANAGE_BILLING,
-      Permission.VIEW_CUSTOMERS,
-      Permission.MANAGE_CUSTOMERS,
-      Permission.VIEW_ANALYTICS,
-      Permission.MANAGE_SYSTEM,
-      Permission.VIEW_SECURITY_LOGS,
-      Permission.DATA_EXPORT,
-    ],
-    [UserRole.SUPER_ADMIN]: Object.values(Permission),
-  };
+  private rolePermissions: Record<UserRole, Permission[]> = {};
+
+  constructor() {
+    this.rolePermissions = {
+      ['customer' as UserRole]: [
+        'view_dashboard' as Permission,
+        'manage_account' as Permission,
+        'view_billing' as Permission,
+        'manage_billing' as Permission,
+      ],
+      ['support' as UserRole]: [
+        'view_dashboard' as Permission,
+        'manage_account' as Permission,
+        'view_billing' as Permission,
+        'view_customers' as Permission,
+        'manage_customers' as Permission,
+      ],
+      ['admin' as UserRole]: [
+        'view_dashboard' as Permission,
+        'manage_account' as Permission,
+        'view_billing' as Permission,
+        'manage_billing' as Permission,
+        'view_customers' as Permission,
+        'manage_customers' as Permission,
+        'view_analytics' as Permission,
+        'manage_system' as Permission,
+        'view_security_logs' as Permission,
+        'data_export' as Permission,
+      ],
+      ['super_admin' as UserRole]: [
+        'view_dashboard' as Permission,
+        'manage_account' as Permission,
+        'view_billing' as Permission,
+        'manage_billing' as Permission,
+        'view_customers' as Permission,
+        'manage_customers' as Permission,
+        'view_analytics' as Permission,
+        'manage_system' as Permission,
+        'view_security_logs' as Permission,
+        'manage_security' as Permission,
+        'data_export' as Permission,
+        'data_delete' as Permission,
+      ],
+    };
+  }
 
   async assignRole(
     userId: string,

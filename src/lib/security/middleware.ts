@@ -1,6 +1,5 @@
-import type { APIRoute } from 'astro';
+import type { AstroCookies, APIContext } from 'astro';
 import { securityAuditLogger } from './audit';
-import { mfaService } from './mfa';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';
 import { dataProtectionService } from './data-protection';
@@ -118,7 +117,7 @@ export class SecurityMiddleware {
       if (!hasPermission) {
         await securityAuditLogger.logSecurityAction(
           securityContext.userId,
-          SecurityAction.UNAUTHORIZED_ACCESS,
+          'unauthorized_access' as SecurityAction,
           context.url.pathname,
           securityContext.ipAddress,
           securityContext.userAgent,
@@ -151,7 +150,7 @@ export class SecurityMiddleware {
       if (!hasRole) {
         await securityAuditLogger.logSecurityAction(
           securityContext.userId,
-          SecurityAction.UNAUTHORIZED_ACCESS,
+          'unauthorized_access' as SecurityAction,
           context.url.pathname,
           securityContext.ipAddress,
           securityContext.userAgent,
