@@ -101,5 +101,58 @@ export function sanitizeResponse(response: string): string {
   return sanitizeInput(response);
 }
 
+/**
+ * Recursively sanitize JSON input data
+ */
+export function sanitizeJsonInput(data: any): any {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  
+  if (typeof data === 'string') {
+    return sanitizeInput(data);
+  }
+  
+  if (Array.isArray(data)) {
+    return data.map(item => sanitizeJsonInput(item));
+  }
+  
+  if (typeof data === 'object') {
+    const sanitized: any = {};
+    for (const [key, value] of Object.entries(data)) {
+      const sanitizedKey = sanitizeInput(key);
+      sanitized[sanitizedKey] = sanitizeJsonInput(value);
+    }
+    return sanitized;
+  }
+  
+  return data;
+}
+
+/**
+ * Validate that required fields are present in an object
+ */
+export function validateRequiredFields(data: any, requiredFields: string[]): { isValid: boolean; missingFields: string[] } {
+  if (!data || typeof data !== 'object') {
+    return {
+      isValid: false,
+      missingFields: requiredFields
+    };
+  }
+  
+  const missingFields: string[] = [];
+  
+  for (const field of requiredFields) {
+    if (!(field in data) || data[field] === null || data[field] === undefined || data[field] === '') {
+      missingFields.push(field);
+    }
+  }
+  
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
+  };
+}
+
 // Alias for sanitizeInput to maintain backward compatibility
 export const sanitizeString = sanitizeInput;
