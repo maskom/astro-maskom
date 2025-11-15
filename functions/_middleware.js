@@ -1,4 +1,4 @@
-import { applySecurityHeaders, generateNonce } from '../src/middleware/security.js';
+import { getSecurityHeaders, generateNonce } from '../src/middleware/security.js';
 
 export const onRequest = async ({ request, next }) => {
   const response = await next();
@@ -11,14 +11,16 @@ export const onRequest = async ({ request, next }) => {
     response.headers.set('Cache-Control', 'public, max-age=3600');
   }
   
-  // Generate nonce for pages that might need inline scripts
-  const nonce = pathname.includes('chat') || pathname.includes('dashboard') ? generateNonce() : undefined;
-  if (nonce) {
-    response.headers.set('x-nonce', nonce);
-  }
-  
   // Apply security headers
-  applySecurityHeaders(response, nonce);
+  const nonce = generateNonce();
+  const securityHeaders = getSecurityHeaders(nonce);
+  
+  Object.entries(securityHeaders).forEach(([header, value]) => {
+    response.headers.set(header, value);
+  });
+  
+  // Add nonce to response for use in templates
+  response.headers.set('X-Nonce', nonce);
   
   return response;
 };

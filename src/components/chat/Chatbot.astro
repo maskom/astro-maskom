@@ -9,9 +9,13 @@ interface ChatbotProps {
 }
 
 const { initialMessages = [] } = Astro.props;
+
+// Generate nonce for CSP
+const nonce = crypto.getRandomValues(new Uint8Array(16))
+  .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 ---
 
-<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot">
+<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot" data-initial-messages={JSON.stringify(initialMessages)}>
   <!-- Chat header -->
   <div class="bg-indigo-600 text-white p-4">
     <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
@@ -52,96 +56,9 @@ const { initialMessages = [] } = Astro.props;
   </div>
 </div>
 
-<script define:vars={{ initialMessages }}>
-  const initialMessagesData = JSON.parse(JSON.stringify(initialMessages || []));
-  let messages = [...initialMessagesData];
-  let loading = false;
+<script type="module" nonce={nonce}>
+  import { initializeChatbot } from '../../scripts/chatbot.js';
   
-  const messagesList = document.getElementById('messages-list');
-  const chatInput = document.getElementById('chat-input');
-  const chatForm = document.getElementById('chat-form');
-  const sendButton = document.getElementById('send-button');
-  const loadingIndicator = document.getElementById('loading-indicator');
-  
-  const scrollToBottom = () => {
-    const messagesEnd = document.getElementById('messages-end');
-    if (messagesEnd) {
-      messagesEnd.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-  
-  const renderMessages = () => {
-    if (messagesList) {
-      messagesList.innerHTML = ''; // Clear previous messages
-      messages.forEach(message => {
-        const messageContainer = document.createElement('div');
-        messageContainer.className = `mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`;
-
-        const messageBubble = document.createElement('div');
-        messageBubble.className = `inline-block p-3 rounded-lg max-w-[80%] ${
-          message.role === 'user'
-            ? 'bg-indigo-500 text-white rounded-br-none'
-            : 'bg-white border border-gray-200 rounded-bl-none'
-        }`;
-
-        messageBubble.textContent = message.content;
-
-        messageContainer.appendChild(messageBubble);
-        messagesList.appendChild(messageContainer);
-      });
-      scrollToBottom();
-    }
-  };
-  
-  const sendMessage = async () => {
-    if (!chatInput) return;
-    const input = chatInput.value.trim();
-    if (!input || loading) return;
-    
-    const userMessage = { role: 'user', content: input };
-    messages = [...messages, userMessage];
-    chatInput.value = '';
-    loading = true;
-    if (sendButton) sendButton.disabled = true;
-    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-    renderMessages();
-    
-    try {
-      const response = await fetch('/api/chat/completion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: messages.slice(1) }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      
-      const assistantMessage = { role: 'assistant', content: data.response };
-      messages = [...messages, assistantMessage];
-    } catch (error) {
-      const errorMessage = { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
-      };
-      messages = [...messages, errorMessage];
-    } finally {
-      loading = false;
-      if (sendButton) sendButton.disabled = false;
-      if (loadingIndicator) loadingIndicator.classList.add('hidden');
-      renderMessages();
-    }
-  };
-  
-  if (chatForm) {
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      sendMessage();
-    });
-  }
-  
-  // Initial render
-  renderMessages();
+  const initialMessages = JSON.parse(JSON.stringify(Astro.props.initialMessages || []));
+  initializeChatbot(initialMessages);
 </script>

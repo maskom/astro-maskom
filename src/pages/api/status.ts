@@ -1,25 +1,39 @@
 import type { APIRoute } from "astro";
 import { getStatusData } from "../../lib/status";
+import { sanitizeString } from "../../lib/sanitization";
 
 export const prerender = false;
 
 // GET endpoint to fetch status data
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const statusData = await getStatusData();
+    // Sanitize any query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeString(value);
+    }
+    
+    const statusData = await getStatusData(sanitizedParams);
     
     return new Response(JSON.stringify(statusData), {
       headers: { 
         "Content-Type": "application/json",
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
-        "Expires": "0"
+        "Expires": "0",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
