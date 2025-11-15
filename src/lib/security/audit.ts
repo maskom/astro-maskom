@@ -20,7 +20,7 @@ export class SecurityAuditLogger {
     ipAddress: string,
     userAgent: string,
     success: boolean,
-    details?: Record<string, any>
+    details?: Record<string, string | number | boolean>
   ): Promise<void> {
     const riskLevel = this.calculateRiskLevel(action, success, details);
 
@@ -100,7 +100,7 @@ export class SecurityAuditLogger {
     userId?: string,
     ipAddress?: string,
     description?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, string | number | boolean>
   ): Promise<void> {
     const securityEvent: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'> =
       {
@@ -201,7 +201,7 @@ export class SecurityAuditLogger {
   private calculateRiskLevel(
     action: SecurityAction,
     success: boolean,
-    _details?: Record<string, any>
+    _details?: Record<string, string | number | boolean>
   ): RiskLevel {
     if (!success) {
       return RiskLevel.MEDIUM;

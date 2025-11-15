@@ -3,7 +3,11 @@ import { dataProtectionService } from '../../../lib/security/data-protection';
 import { rbacService } from '../../../lib/security/rbac';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
-import { Permission, SecurityAction } from '../../../lib/security/types';
+import {
+  Permission,
+  SecurityAction,
+  ConsentType,
+} from '../../../lib/security/types';
 
 export const prerender = false;
 
@@ -36,7 +40,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Check data processing consent
     const hasConsent = await dataProtectionService.hasDataConsent(
       userId,
-      'data_processing' as any
+      ConsentType.DATA_PROCESSING
     );
 
     if (!hasConsent) {
@@ -92,12 +96,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 };
 
-function convertToCSV(data: Record<string, any>): string {
-  const csvRows: string[] = [];
+function convertToCSV(data: Record<string, unknown>[]): string {
+  const headers = Object.keys(data[0] || {});
 
-  // Helper function to flatten nested objects
-  const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
-    const flattened: Record<string, any> = {};
+  const flattenObject = (
+    obj: Record<string, unknown>,
+    prefix = ''
+  ): Record<string, unknown> => {
+    const flattened: Record<string, unknown> = {};
 
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
@@ -121,15 +127,17 @@ function convertToCSV(data: Record<string, any>): string {
   };
 
   // Flatten all data sections
-  const flattenedData: Record<string, any> = {};
+  const flattenedData: Record<string, unknown> = {};
 
   for (const section in data) {
     if (typeof data[section] === 'object' && data[section] !== null) {
       if (Array.isArray(data[section])) {
-        data[section].forEach((item: any, index: number) => {
-          const flattened = flattenObject(item, `${section}[${index}]`);
-          Object.assign(flattenedData, flattened);
-        });
+        data[section].forEach(
+          (item: Record<string, unknown>, index: number) => {
+            const flattened = flattenObject(item, `${section}[${index}]`);
+            Object.assign(flattenedData, flattened);
+          }
+        );
       } else {
         const flattened = flattenObject(data[section], section);
         Object.assign(flattenedData, flattened);
@@ -140,8 +148,9 @@ function convertToCSV(data: Record<string, any>): string {
   }
 
   // Create header row
-  const headers = Object.keys(flattenedData);
-  csvRows.push(headers.join(','));
+  const csvHeaders = Object.keys(flattenedData);
+  const csvRows: string[] = [];
+  csvRows.push(csvHeaders.join(','));
 
   // Create data row
   const values = headers.map(header => {

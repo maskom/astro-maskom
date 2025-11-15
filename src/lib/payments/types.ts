@@ -16,7 +16,7 @@ export interface PaymentTransaction {
   paymentMethod: PaymentMethod;
   createdAt: Date;
   updatedAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean>;
 }
 
 export interface Invoice {

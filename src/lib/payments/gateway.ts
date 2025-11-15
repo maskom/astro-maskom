@@ -6,6 +6,20 @@ import type {
   WebhookNotification,
 } from './types';
 
+interface GatewayResponseData {
+  transaction_id?: string;
+  order_id: string;
+  status_code: string;
+  status_message: string;
+  payment_type?: string;
+  transaction_status: string;
+  fraud_status?: string;
+  redirect_url?: string;
+  token?: string;
+  approval_code?: string;
+  gross_amount: string;
+}
+
 export class MidtransGateway {
   private config: PaymentGatewayConfig;
   private apiUrl: string;
@@ -196,7 +210,7 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: GatewayResponseData): PaymentResponse {
     return {
       transactionId: data.transaction_id || data.order_id,
       orderId: data.order_id,
