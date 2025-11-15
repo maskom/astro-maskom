@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
-import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeString } from "../../lib/sanitization";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeText } from "../../lib/sanitization";
 
 export const prerender = false;
 
@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ url }) => {
     const sanitizedParams: Record<string, string> = {};
     
     for (const [key, value] of searchParams.entries()) {
-      sanitizedParams[key] = sanitizeString(value);
+      sanitizedParams[key] = sanitizeText(value);
     }
     
     const incidents = await getAllIncidents(sanitizedParams);
@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ url }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    const sanitizedError = sanitizeText(error.message || 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
@@ -39,10 +39,10 @@ export const GET: APIRoute = async ({ url }) => {
 // POST endpoint to create a new incident
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const incidentData = await request.json();
+    const rawData = await request.json();
     
     // Sanitize input data
-    const sanitizedData = sanitizeJsonInput(incidentData);
+    const sanitizedData = sanitizeJsonInput(rawData);
     
     // Validate required fields
     const validation = validateRequiredFields(sanitizedData, ['title', 'description', 'status']);
@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    const sanitizedError = sanitizeText(error.message || 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
@@ -100,7 +100,7 @@ export const PUT: APIRoute = async ({ request }) => {
     
     if (!validation.isValid) {
       return new Response(JSON.stringify({ 
-        error: "Validation failed", 
+        error: "Missing required fields", 
         missingFields: validation.missingFields 
       }), {
         status: 400,
@@ -133,7 +133,7 @@ export const PUT: APIRoute = async ({ request }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    const sanitizedError = sanitizeText(error.message || 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
