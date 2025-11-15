@@ -75,7 +75,9 @@ export class SecurityMiddleware {
       }
 
       // Attach security context to the request for use in handlers
-      (context.request as any).securityContext = securityContext;
+      (
+        context.request as Request & { securityContext?: unknown }
+      ).securityContext = securityContext;
 
       return await next();
     };
@@ -92,7 +94,9 @@ export class SecurityMiddleware {
         return new Response('MFA verification required', { status: 401 });
       }
 
-      (context.request as any).securityContext = securityContext;
+      (
+        context.request as Request & { securityContext?: unknown }
+      ).securityContext = securityContext;
 
       return await next();
     };
@@ -128,7 +132,9 @@ export class SecurityMiddleware {
         return new Response('Insufficient permissions', { status: 403 });
       }
 
-      (context.request as any).securityContext = securityContext;
+      (
+        context.request as Request & { securityContext?: unknown }
+      ).securityContext = securityContext;
 
       return await next();
     };
@@ -161,7 +167,9 @@ export class SecurityMiddleware {
         return new Response('Insufficient role privileges', { status: 403 });
       }
 
-      (context.request as any).securityContext = securityContext;
+      (
+        context.request as Request & { securityContext?: unknown }
+      ).securityContext = securityContext;
 
       return await next();
     };
@@ -180,14 +188,16 @@ export class SecurityMiddleware {
 
       const hasConsent = await dataProtectionService.hasDataConsent(
         securityContext.userId,
-        consentType as any
+        consentType
       );
 
       if (!hasConsent) {
         return new Response('Data consent required', { status: 451 });
       }
 
-      (context.request as any).securityContext = securityContext;
+      (
+        context.request as Request & { securityContext?: unknown }
+      ).securityContext = securityContext;
 
       return await next();
     };
@@ -212,8 +222,8 @@ export class SecurityMiddleware {
 
       if (current.count >= maxRequests) {
         await securityAuditLogger.createSecurityEvent(
-          'rate_limit_exceeded' as any,
-          'medium' as any,
+          SecurityEventType.RATE_LIMIT_EXCEEDED,
+          SecuritySeverity.MEDIUM,
           undefined,
           ipAddress,
           `Rate limit exceeded: ${maxRequests} requests per ${windowMinutes} minutes`
@@ -239,9 +249,11 @@ export class SecurityMiddleware {
     action: SecurityAction,
     resource: string,
     success: boolean,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): Promise<void> {
-    const securityContext = (context.request as any).securityContext;
+    const securityContext = (
+      context.request as Request & { securityContext?: unknown }
+    ).securityContext;
 
     if (securityContext) {
       await securityAuditLogger.logSecurityAction(
@@ -273,8 +285,8 @@ export class SecurityMiddleware {
 
     if (suspiciousSessions.length > 0) {
       await securityAuditLogger.createSecurityEvent(
-        'suspicious_activity' as any,
-        'high' as any,
+        SecurityEventType.SUSPICIOUS_ACTIVITY,
+        SecuritySeverity.HIGH,
         securityContext.userId,
         securityContext.ipAddress,
         'Suspicious session activity detected',
@@ -327,7 +339,10 @@ export class SecurityMiddleware {
 
 // Helper function to get security context in API routes
 export function getSecurityContext(request: Request): SecurityContext | null {
-  return (request as any).securityContext || null;
+  return (
+    (request as Request & { securityContext?: SecurityContext })
+      .securityContext || null
+  );
 }
 
 // Helper function to check permissions in API routes

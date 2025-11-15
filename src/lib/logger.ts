@@ -10,7 +10,7 @@ export interface LogContext {
   userId?: string;
   service?: string;
   action?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface LogEntry {

@@ -10,7 +10,7 @@ export class PaymentManager {
   private gateway: MidtransGateway;
   private service: PaymentService;
 
-  constructor(supabaseClient: any, config: PaymentGatewayConfig) {
+  constructor(supabaseClient: unknown, config: PaymentGatewayConfig) {
     this.gateway = new MidtransGateway(config);
     this.service = new PaymentService(supabaseClient);
   }
@@ -54,7 +54,7 @@ export class PaymentManager {
     }
   }
 
-  async handleWebhook(notification: any) {
+  async handleWebhook(notification: Record<string, unknown>) {
     try {
       const isValid = this.gateway.verifyWebhookSignature(notification);
       if (!isValid) {

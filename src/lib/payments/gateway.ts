@@ -196,7 +196,7 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: Record<string, unknown>): PaymentResponse {
     return {
       transactionId: data.transaction_id || data.order_id,
       orderId: data.order_id,
