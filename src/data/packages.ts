@@ -1,3 +1,5 @@
+import { socialUrls } from '../lib/env';
+
 export interface BasePackage {
   id: string;
   name: string;
@@ -18,7 +20,7 @@ export interface Package extends BasePackage {
 }
 
 export const contactInfo = {
-  whatsapp: "https://wa.me/6283867803521",
+  whatsapp: socialUrls.whatsapp,
   contactLink: "#contact"
 } as const;
 

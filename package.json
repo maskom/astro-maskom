@@ -28,10 +28,12 @@
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
     "chart.js": "^4.4.0",
+    "dotenv": "^17.2.3",
     "openai": "^6.9.0",
     "supabase": "^2.58.5",
     "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

@@ -5,9 +5,12 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import cloudflare from "@astrojs/cloudflare";
 
+// Validate environment variables at config load
+import "./src/middleware/env-validation.ts";
+
 // Astro configuration
 export default defineConfig({
-  site: "https://maskom.co.id/",
+  site: process.env.SITE_URL || "https://maskom.co.id/",
   output: "server",
   adapter: cloudflare({
     mode: "advanced",

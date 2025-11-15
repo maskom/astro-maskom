@@ -1,12 +1,13 @@
-// Only for Astro page
+import { env } from '../lib/env';
 
+// Only for Astro page
 export const siteConfig = {
-  title: "Ultimate Astro",
-  description: "The Ultimate Multi-Framework Astro Template",
+  title: env.SITE_NAME,
+  description: env.SITE_DESCRIPTION,
 };
 
 export const home = {
-  title: "Maskom Network",
+  title: env.SITE_NAME,
   subtitle: "Internet Cepat & Andal",
   description:
     "Internet dedicated stabil untuk rumah, kantor, dan enterprise di seluruh Indonesia.",
