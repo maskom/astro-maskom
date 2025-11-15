@@ -150,7 +150,7 @@ export const createIncident = async (
   if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
-    const result = await (supabase as unknown)
+    const result = await (supabase as any)
       .from('incidents')
       .insert([
         {
@@ -178,7 +178,7 @@ export const updateIncident = async (
   if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
-    const result = await (supabase as unknown)
+    const result = await (supabase as any)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
