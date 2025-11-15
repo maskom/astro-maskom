@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
-import { sanitizeJsonInput, validateRequiredFields, escapeHtml } from "../../utils/sanitization";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeString } from "../../lib/sanitization";
 
 export const prerender = false;
 
@@ -96,12 +96,12 @@ export const PUT: APIRoute = async ({ request }) => {
     const { id, ...updates } = requestData;
     
     // Validate and sanitize input
-    const validation = validateRequestBody(requestData, ['id']);
+    const validation = validateRequiredFields(requestData, ['id']);
     
     if (!validation.isValid) {
       return new Response(JSON.stringify({ 
         error: "Validation failed", 
-        details: validation.errors 
+        missingFields: validation.missingFields 
       }), {
         status: 400,
         headers: { 
