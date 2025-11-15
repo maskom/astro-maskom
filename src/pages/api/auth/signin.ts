@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail } from "../../../utils/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
@@ -7,7 +8,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
 
-  if (!email || !password) {
+  // Validate and sanitize email
+  const sanitizedEmail = sanitizeEmail(email || "");
+  
+  if (!sanitizedEmail || !password) {
     return new Response("Email and password are required", { status: 400 });
   }
 
@@ -17,7 +21,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   );
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: sanitizedEmail,
     password,
   });
 

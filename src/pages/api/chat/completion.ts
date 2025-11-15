@@ -1,10 +1,29 @@
 import type { APIRoute } from "astro";
 import OpenAI from "openai";
 import { packages as hardcodedPackages } from "../../../data/packages";
+import { sanitizeJsonInput, sanitizeText } from "../../../utils/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
-  const { messages } = await request.json();
+  const requestData = await request.json();
+  
+  // Sanitize input data
+  const sanitizedData = sanitizeJsonInput(requestData);
+  const { messages } = sanitizedData;
+  
+  // Validate messages array
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return new Response(JSON.stringify({ error: "Valid messages array is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  
+  // Sanitize each message content
+  const sanitizedMessages = messages.map(msg => ({
+    role: msg.role,
+    content: sanitizeText(msg.content || "")
+  })).filter(msg => msg.content.length > 0);
   
   // Create system message with context about packages
   const systemMessage = {
@@ -15,7 +34,7 @@ export const POST: APIRoute = async ({ request }) => {
   };
   
   // Combine system message with conversation history
-  const chatMessages = [systemMessage, ...messages];
+  const chatMessages = [systemMessage, ...sanitizedMessages];
   
   try {
     const openai = new OpenAI({
