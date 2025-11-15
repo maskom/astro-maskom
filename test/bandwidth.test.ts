@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock the environment
-(globalThis as any).import = {
+(globalThis as { import: { meta: { env: Record<string, string> } } }).import = {
   meta: {
     env: {
       SUPABASE_URL: 'test-url',

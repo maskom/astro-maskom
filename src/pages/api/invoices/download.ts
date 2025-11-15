@@ -2,6 +2,23 @@ import { getPaymentManager } from '../../../lib/payments';
 import { supabase } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
 
+interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+interface Invoice {
+  invoiceNumber: string;
+  dueDate: string;
+  status: string;
+  amount: number;
+  tax: number;
+  total: number;
+  items: InvoiceItem[];
+}
+
 export const GET: APIRoute = async ({ request }) => {
   try {
     const url = new URL(request.url);
@@ -84,10 +101,10 @@ export const GET: APIRoute = async ({ request }) => {
   }
 };
 
-function generateInvoiceHTML(invoice: any): string {
+function generateInvoiceHTML(invoice: Invoice): string {
   const itemsHTML = invoice.items
     .map(
-      (item: any) => `
+      (item: InvoiceItem) => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.description}</td>
       <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb;">${item.quantity}</td>
