@@ -1,18 +1,120 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import BandwidthChart from '../components/bandwidth/BandwidthChart.astro';
+import Notifications from '../components/bandwidth/Notifications.astro';
+import DataCapManagement from '../components/bandwidth/DataCapManagement.astro';
+import { packages } from '../data/packages.ts';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  import.meta.env.SUPABASE_URL,
+  import.meta.env.SUPABASE_ANON_KEY
+);
+
+// Get user session
+const session = Astro.cookies.get('sb-access-token')?.value;
+
+let bandwidthData = [];
+let dataCap = null;
+let notifications = [];
+let unreadCount = 0;
+
+if (session) {
+  try {
+    // Get bandwidth usage
+    const usageResponse = await fetch(`${Astro.site.origin}/api/bandwidth/usage`, {
+      headers: {
+        'Authorization': `Bearer ${session}`
+      }
+    });
+    
+    if (usageResponse.ok) {
+      const usageData = await usageResponse.json();
+      bandwidthData = usageData.usage || [];
+      dataCap = usageData.dataCap;
+      notifications = usageData.notifications || [];
+      unreadCount = usageData.notifications?.filter(n => !n.is_read).length || 0;
+    }
+  } catch (error) {
+    console.error('Error fetching bandwidth data:', error);
+  }
+}
 ---
 
 <Layout title="Dashboard">
-  <div class="max-w-4xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
-    <p class="mb-4">
-      Welcome to your dashboard! You are successfully logged in.
-    </p>
-    <a
-      href="/api/auth/signout"
-      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-    >
-      Sign Out
-    </a>
+  <div class="max-w-6xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <div class="flex items-center space-x-4">
+        {unreadCount > 0 && (
+          <div class="relative">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full">
+              {unreadCount}
+            </span>
+          </div>
+        )}
+        <a
+          href="/api/auth/signout"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- Welcome Message -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 mb-6 text-white">
+      <h2 class="text-2xl font-bold mb-2">Selamat Datang di Dashboard Maskom!</h2>
+      <p class="opacity-90">Pantau penggunaan bandwidth Anda dan kelola kuota data dengan mudah.</p>
+    </div>
+
+    <!-- Bandwidth Monitoring Section -->
+    <div class="space-y-6">
+      <BandwidthChart data={bandwidthData} dataCap={dataCap} />
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DataCapManagement dataCap={dataCap} availablePackages={packages} />
+        <Notifications notifications={notifications} unreadCount={unreadCount} />
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="/layanan" class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <div class="text-blue-600 mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+            </svg>
+          </div>
+          <h4 class="font-medium text-gray-800">Layanan</h4>
+          <p class="text-sm text-gray-600">Lihat semua layanan kami</p>
+        </a>
+        
+        <a href="/billing/history" class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <div class="text-blue-600 mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h4 class="font-medium text-gray-800">Tagihan</h4>
+          <p class="text-sm text-gray-600">Kelola tagihan dan pembayaran</p>
+        </a>
+        
+        <a href="/kontak" class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <div class="text-blue-600 mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <h4 class="font-medium text-gray-800">Dukungan</h4>
+          <p class="text-sm text-gray-600">Hubungi tim dukungan kami</p>
+        </a>
+      </div>
+    </div>
   </div>
 </Layout>

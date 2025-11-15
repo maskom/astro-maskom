@@ -1,29 +1,42 @@
-import type { APIRoute } from 'astro';
-import {
-  createIncident,
-  getAllIncidents,
-  updateIncident,
-} from '../../lib/status';
+import type { APIRoute } from "astro";
+import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeText } from "../../lib/sanitization";
+import { logger } from "../../lib/logger";
 
 export const prerender = false;
 
 // GET endpoint to fetch all incidents
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const incidents = await getAllIncidents();
-
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeText(value);
+    }
+    
+    const incidents = await getAllIncidents(sanitizedParams);
+    
     return new Response(JSON.stringify(incidents), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-      },
+      headers: { 
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logger.apiError('Incidents GET error', error, {
+      action: 'getAllIncidents',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -31,44 +44,56 @@ export const GET: APIRoute = async () => {
 // POST endpoint to create a new incident
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const incidentData = await request.json();
-
+    const rawData = await request.json();
+    
+    // Sanitize input data
+    const sanitizedData = sanitizeJsonInput(rawData);
+    
     // Validate required fields
-    if (
-      !incidentData.title ||
-      !incidentData.description ||
-      !incidentData.status
-    ) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
+    const validation = validateRequiredFields(sanitizedData, ['title', 'description', 'status']);
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Missing required fields", 
+        missingFields: validation.missingFields 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
         }
-      );
+      });
     }
-
-    const newIncident = await createIncident(incidentData);
-
+    
+    const newIncident = await createIncident(sanitizedData);
+    
     if (!newIncident) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to create incident' }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Failed to create incident" }), {
+        status: 500,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
         }
-      );
+      });
     }
 
     return new Response(JSON.stringify(newIncident), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logger.apiError('Incidents POST error', error, {
+      action: 'createIncident',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -76,36 +101,58 @@ export const POST: APIRoute = async ({ request }) => {
 // PUT endpoint to update an existing incident
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const { id, ...updates } = await request.json();
-
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'Missing incident ID' }), {
+    const requestData = await request.json();
+    const { id, ...updates } = requestData;
+    
+    // Validate and sanitize input
+    const validation = validateRequiredFields(requestData, ['id']);
+    
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Missing required fields", 
+        missingFields: validation.missingFields 
+      }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
+      });
+    }
+    
+    // Sanitize update data
+    const sanitizedUpdates = sanitizeJsonInput(updates);
+    
+    const updatedIncident = await updateIncident(id, sanitizedUpdates);
+    
+    if (!updatedIncident) {
+      return new Response(JSON.stringify({ error: "Failed to update incident" }), {
+        status: 500,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
 
-    const updatedIncident = await updateIncident(id, updates);
-
-    if (!updatedIncident) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to update incident' }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     return new Response(JSON.stringify(updatedIncident), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logger.apiError('Incidents PUT error', error, {
+      action: 'updateIncident',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };

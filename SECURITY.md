@@ -1,91 +1,109 @@
 # Security Policy
 
-## Supported Versions
+## 🛡️ Reporting Security Vulnerabilities
 
-This project follows semantic versioning. Security updates are provided for the following versions:
+We take the security of our project seriously. If you discover a security vulnerability, please report it responsibly.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.x.x   | ✅ Current version |
+### 📧 How to Report
 
-## Reporting a Vulnerability
+**Please do NOT open a public issue for security vulnerabilities.**
 
-The Maskom Network team takes security vulnerabilities seriously. We appreciate your efforts to responsibly disclose your findings.
+Instead, send your report to:
+- **Email**: security@maskom.id
+- **GitHub**: Use [GitHub's private vulnerability reporting](https://github.com/maskom/astro-maskom/security/advisories)
 
-If you discover a security vulnerability, please report it to us privately before disclosing it publicly.
-
-### How to Report
-
-**Email:** security@maskom.co.id
+### 📋 What to Include
 
 Please include the following information in your report:
 
-- **Description:** A detailed description of the vulnerability
-- **Steps to Reproduce:** Clear steps to reproduce the issue
-- **Impact:** The potential impact of the vulnerability
-- **Environment:** Any specific environment details (browser, OS, etc.)
+1. **Vulnerability Type**
+   - Brief description of the vulnerability
+   - Severity assessment (Critical, High, Medium, Low)
 
-### Response Timeline
+2. **Technical Details**
+   - Steps to reproduce the issue
+   - Affected versions/components
+   - Proof of concept (if applicable)
 
-- **Initial Response:** We will acknowledge receipt of your report within 48 hours
-- **Detailed Response:** We will provide a detailed response and planned mitigation within 7 days
-- **Resolution:** We aim to resolve security issues within 30 days of reporting
+3. **Impact Assessment**
+   - Potential impact on users/data
+   - Scope of affected systems
 
-### What to Expect
+4. **Suggested Fix** (Optional)
+   - Any suggested remediation steps
+   - Patches or workarounds
 
-1. **Confirmation:** We will confirm receipt of your vulnerability report
-2. **Assessment:** Our security team will assess the vulnerability and determine its severity
-3. **Coordination:** We will work with you to understand and validate the vulnerability
-4. **Resolution:** We will develop and test a fix
-5. **Disclosure:** We will coordinate public disclosure of the vulnerability
+### ⏰ Response Timeline
 
-### Security Best Practices
+- **Initial Response**: Within 48 hours
+- **Detailed Assessment**: Within 7 business days
+- **Public Disclosure**: After fix is deployed (typically within 30 days)
 
-We follow these security practices:
+### 🔒 Confidentiality
 
-- **Regular Updates:** Dependencies are regularly updated and monitored for vulnerabilities
-- **Code Review:** All code changes undergo security-focused review
-- **Testing:** Automated security testing is integrated into our CI/CD pipeline
-- **Least Privilege:** We follow the principle of least privilege for all systems and access
-- **Encryption:** All data transmission uses HTTPS/TLS encryption
+All security reports will be kept confidential until a fix is deployed. We coordinate with reporters to determine appropriate disclosure timing.
 
-### Security Features
+### 🏆 Recognition
 
-This application includes the following security measures:
+Security researchers who follow this policy will be acknowledged in our security advisories (with permission).
 
-- **Input Validation:** All user inputs are validated and sanitized
-- **Authentication:** Secure authentication mechanisms using industry standards
-- **Authorization:** Proper access controls and permissions
-- **Secure Headers:** Implementation of security headers (CSP, HSTS, etc.)
-- **Dependency Scanning:** Automated scanning for known vulnerabilities
+## 🛠️ Security Best Practices
 
-### Responsible Disclosure Policy
+### For Developers
+- Never commit secrets or API keys
+- Use environment variables for sensitive configuration
+- Follow secure coding guidelines in CONTRIBUTING.md
+- Keep dependencies updated
+- Review all code changes carefully
 
-We request that researchers:
+### For Users
+- Keep your software updated
+- Use strong, unique passwords
+- Enable two-factor authentication where available
+- Report suspicious activity immediately
 
-- **Report Privately:** Report vulnerabilities to us before public disclosure
-- **Provide Details:** Include sufficient information for us to reproduce and validate the issue
-- **Allow Reasonable Time:** Allow us reasonable time to address the vulnerability before public disclosure
-- **No Exploitation:** Do not exploit the vulnerability beyond what's necessary to demonstrate it
+## 🔐 Supported Versions
 
-### Recognition
+| Version | Security Support | Status |
+|---------|------------------|---------|
+| 0.0.x   | ✅ Full          | Current |
+| < 0.0   | ❌ None          | End of Life |
 
-We recognize and appreciate the efforts of security researchers who help us maintain the security of our systems. With your permission, we will acknowledge your contribution in our security advisories.
+## 📊 Security Measures
 
-### Security Updates
+We implement multiple layers of security:
 
-Security updates will be announced through:
+- **Code Reviews**: All changes require review
+- **Dependency Scanning**: Automated vulnerability checks
+- **Secret Management**: No hardcoded secrets
+- **Secure Defaults**: Least privilege configurations
+- **Regular Updates**: Dependencies kept current
 
-- GitHub Security Advisories
-- Release notes
-- Security email notifications (for critical issues)
+## 🚨 Incident Response
 
-### Contact Information
+In case of a security incident:
 
-For security-related inquiries:
+1. **Assessment**: Evaluate impact and scope
+2. **Containment**: Implement immediate fixes
+3. **Communication**: Notify affected users
+4. **Remediation**: Deploy comprehensive fixes
+5. **Post-mortem**: Document and improve processes
 
-- **Security Email:** security@maskom.co.id
-- **GitHub Issues:** Please do NOT report security vulnerabilities via GitHub issues
-- **General Contact:** Use the contact information in our README for non-security matters
+## 📞 Additional Contacts
 
-Thank you for helping keep Maskom Network safe and secure for everyone.
+- **General Security**: security@maskom.id
+- **Urgent Issues**: +62-812-3456-7890 (Security Hotline)
+- **GitHub Security**: Use private vulnerability reporting
+
+## 🔗 Related Resources
+
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Environment Setup](docs/ENVIRONMENT.md)
+- [API Documentation](docs/API.md)
+- [GitHub Security Best Practices](https://docs.github.com/en/code-security)
+
+---
+
+**Thank you for helping keep our project secure!** 🙏
+
+*Last Updated: 2025-11-15*

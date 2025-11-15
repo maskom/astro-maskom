@@ -1,5 +1,7 @@
-import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import type { APIRoute } from "astro";
+import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail, sanitizeJsonInput, sanitizeText } from "../../lib/sanitization";
+import { logger } from "../../lib/logger";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -17,8 +19,16 @@ const getSupabaseClient = () => {
 export const prerender = false;
 
 // GET endpoint to fetch subscribers
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeText(value);
+    }
+    
     const supabase = getSupabaseClient();
 
     // Fetch subscribers from database
@@ -30,17 +40,24 @@ export const GET: APIRoute = async () => {
     if (error) throw error;
 
     return new Response(JSON.stringify(subscribers || []), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-      },
+      headers: { 
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logger.apiError('Subscribers GET error', error, {
+      action: 'getSubscribers',
+      endpoint: '/api/subscribers'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -48,17 +65,22 @@ export const GET: APIRoute = async () => {
 // POST endpoint to add a new subscriber
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email, preferences } = await request.json();
-
-    // Validate email
-    if (!email || !email.includes('@')) {
-      return new Response(
-        JSON.stringify({ error: 'Valid email is required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
+    const requestData = await request.json();
+    
+    // Sanitize input data
+    const sanitizedData = sanitizeJsonInput(requestData);
+    const { email, preferences } = sanitizedData;
+    
+    // Validate and sanitize email
+    const sanitizedEmail = sanitizeEmail(email);
+    if (!sanitizedEmail) {
+      return new Response(JSON.stringify({ error: "Valid email is required" }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
         }
-      );
+      });
     }
 
     const supabase = getSupabaseClient();
@@ -67,7 +89,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('subscribers')
       .select('id')
-      .eq('email', email)
+      .eq('email', sanitizedEmail)
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') {
@@ -76,18 +98,18 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     if (existingSubscriber) {
-      return new Response(
-        JSON.stringify({ error: 'Email already subscribed' }),
-        {
-          status: 409,
-          headers: { 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: "Email already subscribed" }), {
+        status: 409,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
         }
-      );
+      });
     }
 
     // Insert new subscriber into database
     const newSubscriber = {
-      email,
+      email: sanitizedEmail,
       preferences: preferences || {
         incidents: true,
         maintenance: true,
@@ -108,14 +130,23 @@ export const POST: APIRoute = async ({ request }) => {
     // TODO: Send confirmation email (would require email service integration)
 
     return new Response(JSON.stringify(insertedSubscriber), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logger.apiError('Subscribers POST error', error, {
+      action: 'createSubscriber',
+      endpoint: '/api/subscribers'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
