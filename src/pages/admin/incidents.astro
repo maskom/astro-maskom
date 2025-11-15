@@ -1,0 +1,191 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+interface IncidentForm {
+  title: string;
+  description: string;
+  affected_services: string[];
+  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+}
+---
+
+<Layout title="Incident Management">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Incident Management</h1>
+    
+    <div class="bg-gray-800 rounded-lg p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Create New Incident</h2>
+      <form id="incident-form" class="space-y-4">
+        <div>
+          <label for="title" class="block text-sm font-medium mb-1">Title</label>
+          <input type="text" id="title" name="title" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        
+        <div>
+          <label for="description" class="block text-sm font-medium mb-1">Description</label>
+          <textarea id="description" name="description" rows="4" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-1">Affected Services</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <label class="flex items-center">
+              <input type="checkbox" name="affected_services" value="internet" class="mr-2">
+              <span>Internet</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="affected_services" value="voip" class="mr-2">
+              <span>VoIP</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="affected_services" value="iptv" class="mr-2">
+              <span>IPTV</span>
+            </label>
+          </div>
+        </div>
+        
+        <div>
+          <label for="status" class="block text-sm font-medium mb-1">Status</label>
+          <select id="status" name="status" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="investigating">Investigating</option>
+            <option value="identified">Identified</option>
+            <option value="monitoring">Monitoring</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition">Create Incident</button>
+      </form>
+    </div>
+    
+    <div>
+      <h2 class="text-2xl font-semibold mb-4">Active Incidents</h2>
+      <div id="incidents-list" class="space-y-4">
+        <!-- Incidents will be loaded here dynamically -->
+        <div class="bg-gray-800 rounded-lg p-8 text-center">
+          <p class="text-gray-400">Loading incidents...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Load existing incidents
+    await loadIncidents();
+    
+    // Handle form submission
+    const form = document.getElementById('incident-form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(form);
+        const incident = {
+          title: formData.get('title'),
+          description: formData.get('description'),
+          affected_services: formData.getAll('affected_services'),
+          status: formData.get('status')
+        };
+        
+        // Submit to API
+        try {
+          const response = await fetch('/api/incidents', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(incident)
+          });
+          
+          if (response.ok) {
+            // Reset form
+            form.reset();
+            // Reload incidents
+            await loadIncidents();
+          } else {
+            throw new Error('Failed to create incident');
+          }
+        } catch (error) {
+          console.error('Error creating incident:', error);
+          alert('Failed to create incident. Please try again.');
+        }
+      });
+    }
+  });
+  
+  async function loadIncidents() {
+    try {
+      const response = await fetch('/api/incidents');
+      const incidents = await response.json();
+      
+      const container = document.getElementById('incidents-list');
+      if (!container) return;
+      
+      // Clear existing content
+      container.innerHTML = '';
+      
+      if (incidents.length === 0) {
+        const noIncidentsDiv = document.createElement('div');
+        noIncidentsDiv.className = 'bg-gray-800 rounded-lg p-8 text-center';
+        const noIncidentsText = document.createElement('p');
+        noIncidentsText.className = 'text-gray-400';
+        noIncidentsText.textContent = 'No active incidents.';
+        noIncidentsDiv.appendChild(noIncidentsText);
+        container.appendChild(noIncidentsDiv);
+        return;
+      }
+      
+      incidents.forEach(incident => {
+        const incidentDiv = document.createElement('div');
+        incidentDiv.className = 'bg-gray-800 rounded-lg p-4';
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'flex justify-between items-start';
+        
+        const titleElement = document.createElement('h3');
+        titleElement.className = 'font-medium';
+        titleElement.textContent = incident.title;
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'text-xs px-2 py-1 rounded bg-gray-700';
+        const statusText = incident.status === 'investigating' ? 'Investigating' :
+                          incident.status === 'identified' ? 'Identified' :
+                          incident.status === 'monitoring' ? 'Monitoring' : 'Resolved';
+        statusSpan.textContent = statusText;
+        
+        headerDiv.appendChild(titleElement);
+        headerDiv.appendChild(statusSpan);
+        
+        const descriptionElement = document.createElement('p');
+        descriptionElement.className = 'text-sm text-gray-300 mt-2';
+        descriptionElement.textContent = incident.description;
+        
+        const updatedElement = document.createElement('p');
+        updatedElement.className = 'text-xs text-gray-500 mt-3';
+        updatedElement.textContent = `Updated: ${new Date(incident.updated_at).toLocaleString()}`;
+        
+        incidentDiv.appendChild(headerDiv);
+        incidentDiv.appendChild(descriptionElement);
+        incidentDiv.appendChild(updatedElement);
+        
+        container.appendChild(incidentDiv);
+      });
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      const container = document.getElementById('incidents-list');
+      if (container) {
+        container.innerHTML = '';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-gray-800 rounded-lg p-8 text-center';
+        const errorText = document.createElement('p');
+        errorText.className = 'text-gray-400';
+        errorText.textContent = 'Failed to load incidents.';
+        errorDiv.appendChild(errorText);
+        container.appendChild(errorDiv);
+      }
+    }
+  }
+</script>
