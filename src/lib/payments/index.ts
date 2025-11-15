@@ -5,10 +5,11 @@ export * from './types';
 
 import { supabase } from '../supabase';
 import type { PaymentGatewayConfig } from './types';
+import { PaymentManager } from './manager';
 
-let paymentManager: ReturnType<typeof PaymentManager> | null = null;
+let paymentManager: PaymentManager | null = null;
 
-export function getPaymentManager(): ReturnType<typeof PaymentManager> {
+export function getPaymentManager(): PaymentManager {
   if (!paymentManager) {
     const config: PaymentGatewayConfig = {
       serverKey: import.meta.env.MIDTRANS_SERVER_KEY || '',

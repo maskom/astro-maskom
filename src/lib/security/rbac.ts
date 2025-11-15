@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { UserRole, Permission, UserSecurityProfile } from './types';
+import { UserRole, Permission, type UserSecurityProfile } from './types';
 
 export class RBACService {
   private supabase = createClient(

@@ -9,9 +9,7 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://maskom.co.id/',
   output: 'server',
-  adapter: cloudflare({
-    mode: 'advanced',
-  }),
+  adapter: cloudflare(),
   integrations: [icon(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

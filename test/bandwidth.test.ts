@@ -184,7 +184,7 @@ describe('Bandwidth Data Simulation', () => {
     const downloadGB = totalUsage * downloadRatio;
     const uploadGB = totalUsage * uploadRatio;
 
-    expect(downloadGB + uploadGB).toBe(totalUsage);
+    expect(Math.round((downloadGB + uploadGB) * 1000) / 1000).toBe(totalUsage);
     expect(downloadGB).toBeGreaterThan(uploadGB);
   });
 });
