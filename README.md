@@ -61,7 +61,20 @@ npm run build
 
 File hasil build akan tersedia di direktori `dist/`
 
-## Deployment ke Cloudflare Pages
+## Deployment
+
+### Automated Deployment Pipeline
+
+This project uses an automated deployment pipeline with GitHub Actions and Cloudflare Pages:
+
+- **Staging**: Automatic deployment on every push to main
+- **Production**: Manual approval after successful staging deployment
+- **Health Checks**: Automatic verification of deployment success
+- **Rollback**: Emergency rollback capabilities
+
+For detailed information, see [Deployment Documentation](docs/DEPLOYMENT.md).
+
+### Manual Deployment ke Cloudflare Pages
 
 1. Hubungkan repositori ini di dashboard Cloudflare Pages.
 2. Build command: `npm run build`
@@ -70,6 +83,19 @@ File hasil build akan tersedia di direktori `dist/`
 
 ```bash
 npm run pages:dev
+```
+
+### Deployment Commands
+
+```bash
+# Deploy to staging
+npm run deploy:staging
+
+# Deploy to production
+npm run deploy:production
+
+# Deploy to preview environment
+npm run deploy:preview
 ```
 
 ## Kontribusi

@@ -20,7 +20,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build"
+    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
+    "deploy:staging": "wrangler pages deploy dist --project-name astro-maskom-staging",
+    "deploy:production": "wrangler pages deploy dist --project-name astro-maskom",
+    "deploy:preview": "wrangler pages deploy dist --project-name astro-maskom-preview"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
