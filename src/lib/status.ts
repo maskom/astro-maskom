@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -84,7 +85,9 @@ export const getStatusData = async (): Promise<StatusData> => {
       incidents: incidents || []
     };
   } catch (error) {
-    console.error('Error fetching status data:', error);
+    logger.error('Error fetching status data', error instanceof Error ? error : new Error(String(error)), {
+      action: 'getStatusData'
+    });
     // Return mock data in case of error
     return {
       overall_status: 'operational',
@@ -113,7 +116,11 @@ export const getUptimePercentage = async (serviceId: string, days: number = 30):
     
     return data?.uptime_percentage || 99.9;
   } catch (error) {
-    console.error('Error fetching uptime data:', error);
+    logger.error('Error fetching uptime data', error instanceof Error ? error : new Error(String(error)), {
+      action: 'getUptimePercentage',
+      serviceId,
+      days
+    });
     return 99.9; // Default to 99.9% uptime
   }
 };
@@ -132,7 +139,10 @@ export const createIncident = async (incident: Omit<Incident, 'id' | 'created_at
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating incident:', error);
+    logger.error('Error creating incident', error instanceof Error ? error : new Error(String(error)), {
+      action: 'createIncident',
+      incidentTitle: incident.title
+    });
     return null;
   }
 };
@@ -151,7 +161,10 @@ export const updateIncident = async (id: string, updates: Partial<Incident>): Pr
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating incident:', error);
+    logger.error('Error updating incident', error instanceof Error ? error : new Error(String(error)), {
+      action: 'updateIncident',
+      incidentId: id
+    });
     return null;
   }
 };
@@ -168,7 +181,9 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching incidents:', error);
+    logger.error('Error fetching incidents', error instanceof Error ? error : new Error(String(error)), {
+      action: 'getAllIncidents'
+    });
     return [];
   }
 };

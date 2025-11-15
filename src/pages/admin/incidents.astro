@@ -109,7 +109,13 @@ interface IncidentForm {
             throw new Error('Failed to create incident');
           }
         } catch (error) {
-          console.error('Error creating incident:', error);
+          // Log error properly - in client-side code we still need to use console
+          // but we provide better context
+          console.error('Error creating incident:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            incident: incident
+          });
           alert('Failed to create incident. Please try again.');
         }
       });
@@ -174,7 +180,13 @@ interface IncidentForm {
         container.appendChild(incidentDiv);
       });
     } catch (error) {
-      console.error('Error loading incidents:', error);
+      // Log error properly - in client-side code we still need to use console
+      // but we provide better context
+      console.error('Error loading incidents:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'loadIncidents'
+      });
       const container = document.getElementById('incidents-list');
       if (container) {
         container.innerHTML = '';

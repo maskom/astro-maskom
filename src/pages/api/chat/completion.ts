@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import OpenAI from "openai";
 import { packages as hardcodedPackages } from "../../../data/packages";
 import { validateMessages, sanitizeResponse } from "../../../lib/sanitization";
+import { logger } from "../../../lib/logger";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
@@ -46,8 +47,11 @@ export const POST: APIRoute = async ({ request }) => {
     headers: { "Content-Type": "application/json" }
   });
   
-  } catch (error: any) {
-    console.error('Chat completion error:', error);
+  } catch (error: unknown) {
+    logger.apiError('Chat completion error', error, {
+      action: 'chatCompletion',
+      endpoint: '/api/chat/completion'
+    });
     return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
       status: 500,
       headers: { 

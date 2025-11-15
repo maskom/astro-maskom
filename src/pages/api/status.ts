@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getStatusData } from "../../lib/status";
 import { sanitizeString } from "../../lib/sanitization";
+import { logger } from "../../lib/logger";
 
 export const prerender = false;
 
@@ -27,7 +28,11 @@ export const GET: APIRoute = async ({ url }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    logger.apiError('Status API error', error, {
+      action: 'getStatusData',
+      endpoint: '/api/status'
+    });
+    const sanitizedError = sanitizeString(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 

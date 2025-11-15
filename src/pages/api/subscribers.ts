@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 import { sanitizeEmail, sanitizeJsonInput, sanitizeText } from "../../lib/sanitization";
+import { logger } from "../../lib/logger";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -46,7 +47,11 @@ export const GET: APIRoute = async ({ url }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeText(error.message || 'Internal server error');
+    logger.apiError('Subscribers GET error', error, {
+      action: 'getSubscribers',
+      endpoint: '/api/subscribers'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
@@ -130,7 +135,11 @@ export const POST: APIRoute = async ({ request }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeText(error.message || 'Internal server error');
+    logger.apiError('Subscribers POST error', error, {
+      action: 'createSubscriber',
+      endpoint: '/api/subscribers'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
