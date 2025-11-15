@@ -1,18 +1,21 @@
-import type { APIRoute } from "astro";
-import { dataProtectionService } from "../../../lib/security/data-protection";
-import { rbacService } from "../../../lib/security/rbac";
-import { SecurityMiddleware } from "../../../lib/security/middleware";
-import { securityAuditLogger } from "../../../lib/security/audit";
-import { Permission, SecurityAction } from "../../../lib/security/types";
+import type { APIRoute } from 'astro';
+import { dataProtectionService } from '../../../lib/security/data-protection';
+import { rbacService } from '../../../lib/security/rbac';
+import { SecurityMiddleware } from '../../../lib/security/middleware';
+import { securityAuditLogger } from '../../../lib/security/audit';
+import { Permission, SecurityAction } from '../../../lib/security/types';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const securityContext = await SecurityMiddleware.createSecurityContext(request, cookies);
-    
+    const securityContext = await SecurityMiddleware.createSecurityContext(
+      request,
+      cookies
+    );
+
     if (!securityContext) {
-      return new Response("Authentication required", { status: 401 });
+      return new Response('Authentication required', { status: 401 });
     }
 
     const { targetUserId, format } = await request.json();
@@ -20,25 +23,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Check permissions for exporting other users' data
     if (targetUserId && targetUserId !== securityContext.userId) {
-      const hasPermission = await rbacService.hasPermission(securityContext.userId, Permission.DATA_EXPORT);
-      
+      const hasPermission = await rbacService.hasPermission(
+        securityContext.userId,
+        Permission.DATA_EXPORT
+      );
+
       if (!hasPermission) {
-        return new Response("Insufficient permissions", { status: 403 });
+        return new Response('Insufficient permissions', { status: 403 });
       }
     }
 
     // Check data processing consent
-    const hasConsent = await dataProtectionService.hasDataConsent(userId, 'data_processing' as any);
-    
+    const hasConsent = await dataProtectionService.hasDataConsent(
+      userId,
+      'data_processing' as any
+    );
+
     if (!hasConsent) {
-      return new Response("Data processing consent required", { status: 451 });
+      return new Response('Data processing consent required', { status: 451 });
     }
 
     // Export user data
     const userData = await dataProtectionService.exportUserData(userId);
-    
+
     if (!userData) {
-      return new Response("Failed to export user data", { status: 500 });
+      return new Response('Failed to export user data', { status: 500 });
     }
 
     let responseContent: string;
@@ -62,10 +71,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       securityContext.ipAddress,
       securityContext.userAgent,
       true,
-      { 
+      {
         target_user: userId,
         format,
-        record_count: Object.keys(userData).length
+        record_count: Object.keys(userData).length,
       }
     );
 
@@ -74,28 +83,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${filename}"`,
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      }
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
     });
-
   } catch (error) {
     console.error('Data export error:', error);
-    return new Response("Failed to export data", { status: 500 });
+    return new Response('Failed to export data', { status: 500 });
   }
 };
 
 function convertToCSV(data: Record<string, any>): string {
   const csvRows: string[] = [];
-  
+
   // Helper function to flatten nested objects
   const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
     const flattened: Record<string, any> = {};
-    
+
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = prefix ? `${prefix}.${key}` : key;
-        
-        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+
+        if (
+          typeof obj[key] === 'object' &&
+          obj[key] !== null &&
+          !Array.isArray(obj[key])
+        ) {
           Object.assign(flattened, flattenObject(obj[key], newKey));
         } else if (Array.isArray(obj[key])) {
           flattened[newKey] = JSON.stringify(obj[key]);
@@ -104,13 +116,13 @@ function convertToCSV(data: Record<string, any>): string {
         }
       }
     }
-    
+
     return flattened;
   };
 
   // Flatten all data sections
   const flattenedData: Record<string, any> = {};
-  
+
   for (const section in data) {
     if (typeof data[section] === 'object' && data[section] !== null) {
       if (Array.isArray(data[section])) {
@@ -139,7 +151,11 @@ function convertToCSV(data: Record<string, any>): string {
     }
     // Escape commas and quotes in values
     const stringValue = String(value);
-    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+    if (
+      stringValue.includes(',') ||
+      stringValue.includes('"') ||
+      stringValue.includes('\n')
+    ) {
       return `"${stringValue.replace(/"/g, '""')}"`;
     }
     return stringValue;

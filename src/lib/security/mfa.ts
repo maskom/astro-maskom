@@ -17,7 +17,7 @@ export class MFAService {
     const issuer = encodeURIComponent('Maskom Network');
     const account = encodeURIComponent(userEmail);
     const qrCodeUrl = `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}`;
-    
+
     return { secret, qrCodeUrl };
   }
 
@@ -32,7 +32,7 @@ export class MFAService {
   async enableMFA(userId: string, secret: string): Promise<boolean> {
     try {
       const backupCodes = this.generateBackupCodes();
-      
+
       const { error } = await this.supabase
         .from('user_security_profiles')
         .upsert({
@@ -40,7 +40,7 @@ export class MFAService {
           mfa_enabled: true,
           mfa_secret: secret,
           backup_codes: backupCodes,
-          updated_at: new Date()
+          updated_at: new Date(),
         });
 
       if (error) {
@@ -63,7 +63,7 @@ export class MFAService {
           mfa_enabled: false,
           mfa_secret: null,
           backup_codes: null,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('user_id', userId);
 
@@ -85,16 +85,16 @@ export class MFAService {
     try {
       const window = 1; // Allow 1 step before/after for clock drift
       const timeStep = 30; // 30-second time steps
-      
+
       for (let offset = -window; offset <= window; offset++) {
         const time = Math.floor(Date.now() / 1000 / timeStep) + offset;
         const expectedToken = this.generateTOTPToken(secret, time);
-        
+
         if (token === expectedToken) {
           return true;
         }
       }
-      
+
       return false;
     } catch (error) {
       console.error('TOTP verification error:', error);
@@ -128,7 +128,7 @@ export class MFAService {
         .from('user_security_profiles')
         .update({
           backup_codes: backupCodes,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('user_id', userId);
 
@@ -158,7 +158,9 @@ export class MFAService {
     }
   }
 
-  async getUserSecurityProfile(userId: string): Promise<UserSecurityProfile | null> {
+  async getUserSecurityProfile(
+    userId: string
+  ): Promise<UserSecurityProfile | null> {
     try {
       const { data: profile, error } = await this.supabase
         .from('user_security_profiles')
@@ -182,19 +184,19 @@ export class MFAService {
     // In production, use a proper TOTP library
     const buffer = Buffer.alloc(8);
     buffer.writeBigUInt64BE(BigInt(time), 0);
-    
+
     const hmac = crypto.createHmac('sha1', Buffer.from(secret, 'base64'));
     hmac.update(buffer);
     const digest = hmac.digest();
-    
+
     const offset = digest[digest.length - 1] & 0x0f;
-    const code = (
-      ((digest[offset] & 0x7f) << 24) |
-      ((digest[offset + 1] & 0xff) << 16) |
-      ((digest[offset + 2] & 0xff) << 8) |
-      (digest[offset + 3] & 0xff)
-    ) % 1000000;
-    
+    const code =
+      (((digest[offset] & 0x7f) << 24) |
+        ((digest[offset + 1] & 0xff) << 16) |
+        ((digest[offset + 2] & 0xff) << 8) |
+        (digest[offset + 3] & 0xff)) %
+      1000000;
+
     return code.toString().padStart(6, '0');
   }
 }

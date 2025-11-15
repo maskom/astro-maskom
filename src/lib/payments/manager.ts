@@ -1,6 +1,10 @@
 import { MidtransGateway } from './gateway';
 import { PaymentService } from './service';
-import type { PaymentGatewayConfig, PaymentRequest, PaymentResponse } from './types';
+import type {
+  PaymentGatewayConfig,
+  PaymentRequest,
+  PaymentResponse,
+} from './types';
 
 export class PaymentManager {
   private gateway: MidtransGateway;
@@ -28,7 +32,8 @@ export class PaymentManager {
         },
       });
 
-      const paymentResponse = await this.gateway.createTransaction(paymentRequest);
+      const paymentResponse =
+        await this.gateway.createTransaction(paymentRequest);
 
       await this.service.updateTransactionStatus(
         transaction.id,
@@ -56,21 +61,19 @@ export class PaymentManager {
         throw new Error('Invalid webhook signature');
       }
 
-      const transaction = await this.getTransactionByOrderId(notification.order_id);
+      const transaction = await this.getTransactionByOrderId(
+        notification.order_id
+      );
       if (!transaction) {
         throw new Error('Transaction not found');
       }
 
       const newStatus = this.mapMidtransStatus(notification.transaction_status);
-      
-      await this.service.updateTransactionStatus(
-        transaction.id,
-        newStatus,
-        {
-          webhookNotification: notification,
-          fraudStatus: notification.fraud_status,
-        }
-      );
+
+      await this.service.updateTransactionStatus(transaction.id, newStatus, {
+        webhookNotification: notification,
+        fraudStatus: notification.fraud_status,
+      });
 
       if (newStatus === 'success') {
         await this.generateInvoiceForTransaction(transaction);
@@ -129,7 +132,9 @@ export class PaymentManager {
       const transaction = await this.getTransactionByOrderId(orderId);
 
       if (transaction) {
-        const newStatus = this.mapMidtransStatus(paymentResponse.transactionStatus);
+        const newStatus = this.mapMidtransStatus(
+          paymentResponse.transactionStatus
+        );
         if (transaction.status !== newStatus) {
           await this.service.updateTransactionStatus(
             transaction.id,
@@ -172,18 +177,17 @@ export class PaymentManager {
 
   async refundPayment(orderId: string, amount?: number) {
     try {
-      const paymentResponse = await this.gateway.refundTransaction(orderId, amount);
+      const paymentResponse = await this.gateway.refundTransaction(
+        orderId,
+        amount
+      );
       const transaction = await this.getTransactionByOrderId(orderId);
 
       if (transaction) {
-        await this.service.updateTransactionStatus(
-          transaction.id,
-          'refund',
-          {
-            gatewayResponse: paymentResponse,
-            refundAmount: amount,
-          }
-        );
+        await this.service.updateTransactionStatus(transaction.id, 'refund', {
+          gatewayResponse: paymentResponse,
+          refundAmount: amount,
+        });
       }
 
       return paymentResponse;
@@ -205,16 +209,18 @@ export class PaymentManager {
     return this.gateway.getClientConfig();
   }
 
-  private mapMidtransStatus(midtransStatus: string): PaymentTransaction['status'] {
+  private mapMidtransStatus(
+    midtransStatus: string
+  ): PaymentTransaction['status'] {
     const statusMap: Record<string, PaymentTransaction['status']> = {
-      'capture': 'success',
-      'settlement': 'success',
-      'pending': 'pending',
-      'deny': 'failed',
-      'cancel': 'cancelled',
-      'expire': 'failed',
-      'refund': 'refund',
-      'partial_refund': 'refund',
+      capture: 'success',
+      settlement: 'success',
+      pending: 'pending',
+      deny: 'failed',
+      cancel: 'cancelled',
+      expire: 'failed',
+      refund: 'refund',
+      partial_refund: 'refund',
     };
 
     return statusMap[midtransStatus] || 'pending';
@@ -250,7 +256,9 @@ export class PaymentManager {
     }
   }
 
-  private async getTransactionByOrderId(orderId: string): Promise<PaymentTransaction | null> {
+  private async getTransactionByOrderId(
+    orderId: string
+  ): Promise<PaymentTransaction | null> {
     return this.service.getTransactionByOrderId(orderId);
   }
 }

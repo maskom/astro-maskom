@@ -2,7 +2,7 @@ export enum LogLevel {
   DEBUG = 'debug',
   INFO = 'info',
   WARN = 'warn',
-  ERROR = 'error'
+  ERROR = 'error',
 }
 
 export interface LogContext {
@@ -36,14 +36,22 @@ class Logger {
 
   private getLogLevel(): LogLevel {
     const envLevel = import.meta.env.LOG_LEVEL?.toUpperCase();
-    if (envLevel && Object.values(LogLevel).includes(envLevel.toLowerCase() as LogLevel)) {
+    if (
+      envLevel &&
+      Object.values(LogLevel).includes(envLevel.toLowerCase() as LogLevel)
+    ) {
       return envLevel.toLowerCase() as LogLevel;
     }
     return this.isDevelopment ? LogLevel.DEBUG : LogLevel.INFO;
   }
 
   private shouldLog(level: LogLevel): boolean {
-    const levels = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR];
+    const levels = [
+      LogLevel.DEBUG,
+      LogLevel.INFO,
+      LogLevel.WARN,
+      LogLevel.ERROR,
+    ];
     const currentLevelIndex = levels.indexOf(this.logLevel);
     const messageLevelIndex = levels.indexOf(level);
     return messageLevelIndex >= currentLevelIndex;
@@ -51,11 +59,18 @@ class Logger {
 
   private formatLog(entry: LogEntry): string {
     const contextStr = entry.context ? ` ${JSON.stringify(entry.context)}` : '';
-    const errorStr = entry.error ? ` ${entry.error.name}: ${entry.error.message}` : '';
+    const errorStr = entry.error
+      ? ` ${entry.error.name}: ${entry.error.message}`
+      : '';
     return `[${entry.timestamp}] ${entry.level.toUpperCase()}: ${entry.message}${contextStr}${errorStr}`;
   }
 
-  private log(level: LogLevel, message: string, context?: LogContext, error?: Error): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: LogContext,
+    error?: Error
+  ): void {
     if (!this.shouldLog(level)) {
       return;
     }
@@ -65,11 +80,13 @@ class Logger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      error: error ? {
-        name: error.name,
-        message: error.message,
-        stack: this.isDevelopment ? error.stack : undefined
-      } : undefined
+      error: error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: this.isDevelopment ? error.stack : undefined,
+          }
+        : undefined,
     };
 
     const formattedLog = this.formatLog(logEntry);
@@ -135,9 +152,14 @@ export const logger = new Logger();
 
 // Export convenience functions
 export const log = {
-  debug: (message: string, context?: LogContext) => logger.debug(message, context),
-  info: (message: string, context?: LogContext) => logger.info(message, context),
-  warn: (message: string, context?: LogContext) => logger.warn(message, context),
-  error: (message: string, error?: Error, context?: LogContext) => logger.error(message, error, context),
-  apiError: (message: string, error: unknown, context?: LogContext) => logger.apiError(message, error, context)
+  debug: (message: string, context?: LogContext) =>
+    logger.debug(message, context),
+  info: (message: string, context?: LogContext) =>
+    logger.info(message, context),
+  warn: (message: string, context?: LogContext) =>
+    logger.warn(message, context),
+  error: (message: string, error?: Error, context?: LogContext) =>
+    logger.error(message, error, context),
+  apiError: (message: string, error: unknown, context?: LogContext) =>
+    logger.apiError(message, error, context),
 };

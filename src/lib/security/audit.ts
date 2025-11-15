@@ -1,4 +1,11 @@
-import type { SecurityAuditLog, SecurityEvent, SecurityAction, SecurityEventType, SecuritySeverity, RiskLevel } from './types';
+import type {
+  SecurityAuditLog,
+  SecurityEvent,
+  SecurityAction,
+  SecurityEventType,
+  SecuritySeverity,
+  RiskLevel,
+} from './types';
 import { createClient } from '@supabase/supabase-js';
 
 export class SecurityAuditLogger {
@@ -17,7 +24,7 @@ export class SecurityAuditLogger {
     details?: Record<string, any>
   ): Promise<void> {
     const riskLevel = this.calculateRiskLevel(action, success, details);
-    
+
     const auditLog: Omit<SecurityAuditLog, 'id' | 'timestamp'> = {
       user_id: userId,
       action,
@@ -26,7 +33,7 @@ export class SecurityAuditLogger {
       user_agent: userAgent,
       success,
       details,
-      risk_level: riskLevel
+      risk_level: riskLevel,
     };
 
     try {
@@ -63,7 +70,7 @@ export class SecurityAuditLogger {
     try {
       // Check for brute force attempts
       const recentFailures = await this.getRecentFailedLogins(ipAddress, 15); // Last 15 minutes
-      
+
       if (recentFailures >= 5) {
         await this.createSecurityEvent(
           SecurityEventType.BRUTE_FORCE_ATTEMPT,
@@ -76,16 +83,13 @@ export class SecurityAuditLogger {
       }
 
       // Log the failed attempt
-      await this.supabase
-        .from('failed_login_attempts')
-        .insert({
-          email,
-          ip_address: ipAddress,
-          user_agent: userAgent,
-          reason,
-          timestamp: new Date()
-        });
-
+      await this.supabase.from('failed_login_attempts').insert({
+        email,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        reason,
+        timestamp: new Date(),
+      });
     } catch (error) {
       console.error('Failed login logging error:', error);
     }
@@ -99,14 +103,15 @@ export class SecurityAuditLogger {
     description?: string,
     metadata?: Record<string, any>
   ): Promise<void> {
-    const securityEvent: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'> = {
-      type,
-      severity,
-      user_id: userId,
-      ip_address: ipAddress || 'unknown',
-      description: description || `${type} detected`,
-      metadata
-    };
+    const securityEvent: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'> =
+      {
+        type,
+        severity,
+        user_id: userId,
+        ip_address: ipAddress || 'unknown',
+        description: description || `${type} detected`,
+        metadata,
+      };
 
     try {
       const { error } = await this.supabase
@@ -209,7 +214,7 @@ export class SecurityAuditLogger {
       SecurityAction.PERMISSION_REVOKE,
       SecurityAction.DATA_DELETE,
       SecurityAction.ADMIN_ACTION,
-      SecurityAction.SECURITY_BREACH
+      SecurityAction.SECURITY_BREACH,
     ];
 
     if (highRiskActions.includes(action)) {
@@ -219,7 +224,7 @@ export class SecurityAuditLogger {
     const mediumRiskActions = [
       SecurityAction.MFA_DISABLE,
       SecurityAction.PASSWORD_CHANGE,
-      SecurityAction.DATA_EXPORT
+      SecurityAction.DATA_EXPORT,
     ];
 
     if (mediumRiskActions.includes(action)) {
@@ -229,10 +234,13 @@ export class SecurityAuditLogger {
     return RiskLevel.LOW;
   }
 
-  private async getRecentFailedLogins(ipAddress: string, minutes: number): Promise<number> {
+  private async getRecentFailedLogins(
+    ipAddress: string,
+    minutes: number
+  ): Promise<number> {
     try {
       const since = new Date(Date.now() - minutes * 60 * 1000);
-      
+
       const { count, error } = await this.supabase
         .from('failed_login_attempts')
         .select('*', { count: 'exact', head: true })
@@ -251,7 +259,9 @@ export class SecurityAuditLogger {
     }
   }
 
-  private async triggerSecurityAlert(event: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'>): Promise<void> {
+  private async triggerSecurityAlert(
+    event: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'>
+  ): Promise<void> {
     // In a real implementation, this would send notifications via email, Slack, etc.
     console.error('🚨 CRITICAL SECURITY ALERT:', {
       type: event.type,
@@ -259,18 +269,16 @@ export class SecurityAuditLogger {
       user_id: event.user_id,
       ip_address: event.ip_address,
       description: event.description,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // Store alert for admin dashboard
     try {
-      await this.supabase
-        .from('security_alerts')
-        .insert({
-          ...event,
-          timestamp: new Date(),
-          acknowledged: false
-        });
+      await this.supabase.from('security_alerts').insert({
+        ...event,
+        timestamp: new Date(),
+        acknowledged: false,
+      });
     } catch (error) {
       console.error('Failed to store security alert:', error);
     }

@@ -1,1 +1,70 @@
-[{"author":{"is_bot":true,"login":"app/github-actions"},"labels":[],"number":52,"title":"Refactor Package Data Structure for Better Consistency and Maintainability","url":"https://github.com/maskom/astro-maskom/issues/52"},{"author":{"is_bot":true,"login":"app/github-actions"},"labels":[{"id":"LA_kwDON1C9Zc8AAAAB4zuP3A","name":"enhancement","description":"New feature or request","color":"a2eeef"}],"number":51,"title":"Refactor Package Data Structure for Consistency","url":"https://github.com/maskom/astro-maskom/issues/51"},{"author":{"is_bot":true,"login":"app/github-actions"},"labels":[{"id":"LA_kwDON1C9Zc8AAAAB4zuP3A","name":"enhancement","description":"New feature or request","color":"a2eeef"}],"number":47,"title":"Refactor Package Data Structure for Consistency","url":"https://github.com/maskom/astro-maskom/issues/47"},{"author":{"is_bot":true,"login":"app/github-actions"},"labels":[{"id":"LA_kwDON1C9Zc8AAAAB4zuP3A","name":"enhancement","description":"New feature or request","color":"a2eeef"}],"number":46,"title":"Refactor Package Data Structure for Consistency","url":"https://github.com/maskom/astro-maskom/issues/46"},{"author":{"id":"U_kgDODgFBdQ","is_bot":false,"login":"sulhimaskom","name":""},"labels":[{"id":"LA_kwDON1C9Zc8AAAAB4zuP3A","name":"enhancement","description":"New feature or request","color":"a2eeef"}],"number":29,"title":"go for it","url":"https://github.com/maskom/astro-maskom/issues/29"}]
+[
+  {
+    "author": { "is_bot": true, "login": "app/github-actions" },
+    "labels": [],
+    "number": 52,
+    "title": "Refactor Package Data Structure for Better Consistency and Maintainability",
+    "url": "https://github.com/maskom/astro-maskom/issues/52"
+  },
+  {
+    "author": { "is_bot": true, "login": "app/github-actions" },
+    "labels": [
+      {
+        "id": "LA_kwDON1C9Zc8AAAAB4zuP3A",
+        "name": "enhancement",
+        "description": "New feature or request",
+        "color": "a2eeef"
+      }
+    ],
+    "number": 51,
+    "title": "Refactor Package Data Structure for Consistency",
+    "url": "https://github.com/maskom/astro-maskom/issues/51"
+  },
+  {
+    "author": { "is_bot": true, "login": "app/github-actions" },
+    "labels": [
+      {
+        "id": "LA_kwDON1C9Zc8AAAAB4zuP3A",
+        "name": "enhancement",
+        "description": "New feature or request",
+        "color": "a2eeef"
+      }
+    ],
+    "number": 47,
+    "title": "Refactor Package Data Structure for Consistency",
+    "url": "https://github.com/maskom/astro-maskom/issues/47"
+  },
+  {
+    "author": { "is_bot": true, "login": "app/github-actions" },
+    "labels": [
+      {
+        "id": "LA_kwDON1C9Zc8AAAAB4zuP3A",
+        "name": "enhancement",
+        "description": "New feature or request",
+        "color": "a2eeef"
+      }
+    ],
+    "number": 46,
+    "title": "Refactor Package Data Structure for Consistency",
+    "url": "https://github.com/maskom/astro-maskom/issues/46"
+  },
+  {
+    "author": {
+      "id": "U_kgDODgFBdQ",
+      "is_bot": false,
+      "login": "sulhimaskom",
+      "name": ""
+    },
+    "labels": [
+      {
+        "id": "LA_kwDON1C9Zc8AAAAB4zuP3A",
+        "name": "enhancement",
+        "description": "New feature or request",
+        "color": "a2eeef"
+      }
+    ],
+    "number": 29,
+    "title": "go for it",
+    "url": "https://github.com/maskom/astro-maskom/issues/29"
+  }
+]

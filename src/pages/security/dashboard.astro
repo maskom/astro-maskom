@@ -8,7 +8,9 @@ import { securityConfig } from '../../lib/security/config';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Security Dashboard</h1>
-        <p class="mt-2 text-gray-600">Monitor and manage your account security</p>
+        <p class="mt-2 text-gray-600">
+          Monitor and manage your account security
+        </p>
       </div>
 
       <!-- Security Stats Overview -->
@@ -16,15 +18,29 @@ import { securityConfig } from '../../lib/security/config';
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              <div
+                class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  ></path>
                 </svg>
               </div>
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">MFA Status</p>
-              <p class="text-2xl font-semibold text-gray-900" id="mfa-status">Loading...</p>
+              <p class="text-2xl font-semibold text-gray-900" id="mfa-status">
+                Loading...
+              </p>
             </div>
           </div>
         </div>
@@ -32,15 +48,31 @@ import { securityConfig } from '../../lib/security/config';
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <div
+                class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Active Sessions</p>
-              <p class="text-2xl font-semibold text-gray-900" id="active-sessions">Loading...</p>
+              <p
+                class="text-2xl font-semibold text-gray-900"
+                id="active-sessions"
+              >
+                Loading...
+              </p>
             </div>
           </div>
         </div>
@@ -48,15 +80,32 @@ import { securityConfig } from '../../lib/security/config';
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              <div
+                class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  ></path>
                 </svg>
               </div>
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Security Events</p>
-              <p class="text-2xl font-semibold text-gray-900" id="security-events">Loading...</p>
+              <p
+                class="text-2xl font-semibold text-gray-900"
+                id="security-events"
+              >
+                Loading...
+              </p>
             </div>
           </div>
         </div>
@@ -64,15 +113,32 @@ import { securityConfig } from '../../lib/security/config';
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <div
+                class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
                 </svg>
               </div>
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Failed Logins</p>
-              <p class="text-2xl font-semibold text-gray-900" id="failed-logins">Loading...</p>
+              <p
+                class="text-2xl font-semibold text-gray-900"
+                id="failed-logins"
+              >
+                Loading...
+              </p>
             </div>
           </div>
         </div>
@@ -81,7 +147,9 @@ import { securityConfig } from '../../lib/security/config';
       <!-- MFA Setup Section -->
       <div class="bg-white rounded-lg shadow mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">Multi-Factor Authentication</h2>
+          <h2 class="text-lg font-medium text-gray-900">
+            Multi-Factor Authentication
+          </h2>
         </div>
         <div class="p-6">
           <div id="mfa-section">
@@ -105,7 +173,9 @@ import { securityConfig } from '../../lib/security/config';
       <!-- Recent Security Events -->
       <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">Recent Security Events</h2>
+          <h2 class="text-lg font-medium text-gray-900">
+            Recent Security Events
+          </h2>
         </div>
         <div class="p-6">
           <div id="events-section">
@@ -127,7 +197,7 @@ import { securityConfig } from '../../lib/security/config';
       async loadSecurityData() {
         try {
           const response = await fetch('/api/security/dashboard');
-          
+
           if (!response.ok) {
             throw new Error('Failed to load security data');
           }
@@ -144,15 +214,20 @@ import { securityConfig } from '../../lib/security/config';
       }
 
       updateSecurityStats(stats) {
-        document.getElementById('mfa-status').textContent = stats.mfaEnabled ? 'Enabled' : 'Disabled';
-        document.getElementById('active-sessions').textContent = stats.activeSessions;
-        document.getElementById('security-events').textContent = stats.criticalEvents;
-        document.getElementById('failed-logins').textContent = stats.failedLogins;
+        document.getElementById('mfa-status').textContent = stats.mfaEnabled
+          ? 'Enabled'
+          : 'Disabled';
+        document.getElementById('active-sessions').textContent =
+          stats.activeSessions;
+        document.getElementById('security-events').textContent =
+          stats.criticalEvents;
+        document.getElementById('failed-logins').textContent =
+          stats.failedLogins;
       }
 
       updateMFASection(mfaEnabled) {
         const mfaSection = document.getElementById('mfa-section');
-        
+
         if (mfaEnabled) {
           mfaSection.innerHTML = `
             <div class="flex items-center justify-between">
@@ -192,13 +267,16 @@ import { securityConfig } from '../../lib/security/config';
 
       updateSessionsSection(sessions) {
         const sessionsSection = document.getElementById('sessions-section');
-        
+
         if (sessions.length === 0) {
-          sessionsSection.innerHTML = '<p class="text-gray-600">No active sessions found.</p>';
+          sessionsSection.innerHTML =
+            '<p class="text-gray-600">No active sessions found.</p>';
           return;
         }
 
-        const sessionsHTML = sessions.map(session => `
+        const sessionsHTML = sessions
+          .map(
+            session => `
           <div class="border border-gray-200 rounded-lg p-4 mb-4">
             <div class="flex items-center justify-between">
               <div>
@@ -212,28 +290,33 @@ import { securityConfig } from '../../lib/security/config';
               </button>
             </div>
           </div>
-        `).join('');
+        `
+          )
+          .join('');
 
         sessionsSection.innerHTML = sessionsHTML;
       }
 
       updateEventsSection(events) {
         const eventsSection = document.getElementById('events-section');
-        
+
         if (events.length === 0) {
-          eventsSection.innerHTML = '<p class="text-gray-600">No recent security events.</p>';
+          eventsSection.innerHTML =
+            '<p class="text-gray-600">No recent security events.</p>';
           return;
         }
 
-        const eventsHTML = events.slice(0, 10).map(event => {
-          const severityColor = {
-            low: 'text-gray-600',
-            medium: 'text-yellow-600',
-            high: 'text-orange-600',
-            critical: 'text-red-600'
-          }[event.severity];
+        const eventsHTML = events
+          .slice(0, 10)
+          .map(event => {
+            const severityColor = {
+              low: 'text-gray-600',
+              medium: 'text-yellow-600',
+              high: 'text-orange-600',
+              critical: 'text-red-600',
+            }[event.severity];
 
-          return `
+            return `
             <div class="border border-gray-200 rounded-lg p-4 mb-4">
               <div class="flex items-center justify-between">
                 <div>
@@ -246,7 +329,8 @@ import { securityConfig } from '../../lib/security/config';
               </div>
             </div>
           `;
-        }).join('');
+          })
+          .join('');
 
         eventsSection.innerHTML = eventsHTML;
       }
@@ -260,11 +344,11 @@ import { securityConfig } from '../../lib/security/config';
           const response = await fetch('/api/auth/mfa', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: 'user@example.com' // Get from user context
-            })
+              email: 'user@example.com', // Get from user context
+            }),
           });
 
           if (!response.ok) {
@@ -280,12 +364,18 @@ import { securityConfig } from '../../lib/security/config';
       }
 
       async disableMFA() {
-        if (!confirm('Are you sure you want to disable MFA? This will make your account less secure.')) {
+        if (
+          !confirm(
+            'Are you sure you want to disable MFA? This will make your account less secure.'
+          )
+        ) {
           return;
         }
 
-        const verificationCode = prompt('Please enter your current verification code to disable MFA:');
-        
+        const verificationCode = prompt(
+          'Please enter your current verification code to disable MFA:'
+        );
+
         if (!verificationCode) {
           return;
         }
@@ -294,9 +384,9 @@ import { securityConfig } from '../../lib/security/config';
           const response = await fetch('/api/auth/mfa', {
             method: 'DELETE',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ verificationCode })
+            body: JSON.stringify({ verificationCode }),
           });
 
           if (!response.ok) {
@@ -307,7 +397,9 @@ import { securityConfig } from '../../lib/security/config';
           this.loadSecurityData();
         } catch (error) {
           console.error('Error disabling MFA:', error);
-          alert('Failed to disable MFA. Please check your verification code and try again.');
+          alert(
+            'Failed to disable MFA. Please check your verification code and try again.'
+          );
         }
       }
 
@@ -318,7 +410,7 @@ import { securityConfig } from '../../lib/security/config';
 
         try {
           const response = await fetch(`/api/auth/session/${sessionId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
           });
 
           if (!response.ok) {
@@ -336,7 +428,8 @@ import { securityConfig } from '../../lib/security/config';
       showMFAModal(data) {
         // Create modal for MFA setup
         const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.className =
+          'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
         modal.innerHTML = `
           <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Setup Multi-Factor Authentication</h3>
@@ -360,13 +453,14 @@ import { securityConfig } from '../../lib/security/config';
             </div>
           </div>
         `;
-        
+
         document.body.appendChild(modal);
       }
 
       async verifyMFA(secret) {
-        const verificationCode = document.getElementById('verification-code').value;
-        
+        const verificationCode =
+          document.getElementById('verification-code').value;
+
         if (!verificationCode) {
           alert('Please enter the verification code');
           return;
@@ -376,12 +470,12 @@ import { securityConfig } from '../../lib/security/config';
           const response = await fetch('/api/auth/mfa', {
             method: 'PUT',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               secret,
-              verificationCode
-            })
+              verificationCode,
+            }),
           });
 
           if (!response.ok) {
@@ -389,16 +483,20 @@ import { securityConfig } from '../../lib/security/config';
           }
 
           const data = await response.json();
-          
+
           if (data.backupCodes) {
-            alert(`MFA enabled successfully! Your backup codes are:\n${data.backupCodes.join('\n')}\n\nSave these codes in a safe place.`);
+            alert(
+              `MFA enabled successfully! Your backup codes are:\n${data.backupCodes.join('\n')}\n\nSave these codes in a safe place.`
+            );
           }
-          
+
           this.closeModal();
           this.loadSecurityData();
         } catch (error) {
           console.error('Error verifying MFA:', error);
-          alert('Failed to verify MFA. Please check your verification code and try again.');
+          alert(
+            'Failed to verify MFA. Please check your verification code and try again.'
+          );
         }
       }
 
@@ -411,12 +509,13 @@ import { securityConfig } from '../../lib/security/config';
 
       showError(message) {
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+        errorDiv.className =
+          'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
         errorDiv.textContent = message;
-        
+
         const container = document.querySelector('.max-w-7xl');
         container.insertBefore(errorDiv, container.firstChild);
-        
+
         setTimeout(() => errorDiv.remove(), 5000);
       }
     }

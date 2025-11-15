@@ -18,10 +18,10 @@ export class DataProtectionService {
     try {
       const iv = crypto.randomBytes(16);
       const cipher = crypto.createCipher('aes-256-cbc', this.encryptionKey);
-      
+
       let encrypted = cipher.update(data, 'utf8', 'hex');
       encrypted += cipher.final('hex');
-      
+
       return iv.toString('hex') + ':' + encrypted;
     } catch (error) {
       console.error('Encryption error:', error);
@@ -34,12 +34,12 @@ export class DataProtectionService {
       const parts = encryptedData.split(':');
       const iv = Buffer.from(parts[0], 'hex');
       const encrypted = parts[1];
-      
+
       const decipher = crypto.createDecipher('aes-256-cbc', this.encryptionKey);
-      
+
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
-      
+
       return decrypted;
     } catch (error) {
       console.error('Decryption error:', error);
@@ -49,14 +49,18 @@ export class DataProtectionService {
 
   hashPassword(password: string): string {
     const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    const hash = crypto
+      .pbkdf2Sync(password, salt, 10000, 64, 'sha512')
+      .toString('hex');
     return `${salt}:${hash}`;
   }
 
   verifyPassword(password: string, hashedPassword: string): boolean {
     try {
       const [salt, hash] = hashedPassword.split(':');
-      const verifyHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+      const verifyHash = crypto
+        .pbkdf2Sync(password, salt, 10000, 64, 'sha512')
+        .toString('hex');
       return hash === verifyHash;
     } catch (error) {
       console.error('Password verification error:', error);
@@ -81,7 +85,7 @@ export class DataProtectionService {
         ip_address: ipAddress,
         purpose,
         legal_basis: legalBasis,
-        retention_period_days: retentionPeriodDays
+        retention_period_days: retentionPeriodDays,
       };
 
       const { error } = await this.supabase
@@ -100,7 +104,10 @@ export class DataProtectionService {
     }
   }
 
-  async hasDataConsent(userId: string, consentType: ConsentType): Promise<boolean> {
+  async hasDataConsent(
+    userId: string,
+    consentType: ConsentType
+  ): Promise<boolean> {
     try {
       const { data: consent, error } = await this.supabase
         .from('data_consents')
@@ -119,8 +126,10 @@ export class DataProtectionService {
       // Check if consent has expired based on retention period
       if (consent) {
         const expiryDate = new Date(consent.timestamp);
-        expiryDate.setDate(expiryDate.getDate() + consent.retention_period_days);
-        
+        expiryDate.setDate(
+          expiryDate.getDate() + consent.retention_period_days
+        );
+
         if (new Date() > expiryDate) {
           return false;
         }
@@ -143,7 +152,7 @@ export class DataProtectionService {
           full_name: 'Deleted User',
           phone: null,
           address: null,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('id', userId);
 
@@ -153,15 +162,13 @@ export class DataProtectionService {
       }
 
       // Log the data deletion
-      await this.supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: userId,
-          action: 'data_delete',
-          resource: 'user_profile',
-          details: { anonymized: true },
-          timestamp: new Date()
-        });
+      await this.supabase.from('security_audit_logs').insert({
+        user_id: userId,
+        action: 'data_delete',
+        resource: 'user_profile',
+        details: { anonymized: true },
+        timestamp: new Date(),
+      });
 
       return true;
     } catch (error) {
@@ -191,7 +198,9 @@ export class DataProtectionService {
       // Delete expired failed login attempts
       const failedLoginRetention = 30; // 30 days
       const failedLoginCutoff = new Date();
-      failedLoginCutoff.setDate(failedLoginCutoff.getDate() - failedLoginRetention);
+      failedLoginCutoff.setDate(
+        failedLoginCutoff.getDate() - failedLoginRetention
+      );
 
       const { error: failedLoginError } = await this.supabase
         .from('failed_login_attempts')
@@ -249,7 +258,7 @@ export class DataProtectionService {
         userData.security_profile = {
           ...securityProfile,
           mfa_secret: undefined, // Exclude sensitive data
-          backup_codes: undefined
+          backup_codes: undefined,
         };
       }
 
@@ -274,15 +283,13 @@ export class DataProtectionService {
       }
 
       // Log the data export
-      await this.supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: userId,
-          action: 'data_export',
-          resource: 'user_data',
-          details: { record_count: Object.keys(userData).length },
-          timestamp: new Date()
-        });
+      await this.supabase.from('security_audit_logs').insert({
+        user_id: userId,
+        action: 'data_export',
+        resource: 'user_data',
+        details: { record_count: Object.keys(userData).length },
+        timestamp: new Date(),
+      });
 
       return userData;
     } catch (error) {
@@ -298,7 +305,7 @@ export class DataProtectionService {
       session_data_retention_days: 7,
       user_data_retention_days: 2555, // 7 years for GDPR compliance
       billing_data_retention_days: 2555,
-      consent_data_retention_days: 2555
+      consent_data_retention_days: 2555,
     };
   }
 }

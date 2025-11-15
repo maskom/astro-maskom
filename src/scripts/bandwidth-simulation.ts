@@ -14,34 +14,38 @@ const packageConfigs = {
   'soho-business': { capGB: 500, baseUsageGB: 12.3, variance: 4.5 },
   'soho-enterprise': { capGB: 1000, baseUsageGB: 18.7, variance: 6.8 },
   'corporate-business': { capGB: 1000, baseUsageGB: 22.1, variance: 8.2 },
-  'corporate-enterprise': { capGB: 2000, baseUsageGB: 35.4, variance: 12.5 }
+  'corporate-enterprise': { capGB: 2000, baseUsageGB: 35.4, variance: 12.5 },
 };
 
 // Generate random usage data based on package
 function generateUsageData(packageId, days = 30) {
   const config = packageConfigs[packageId] || packageConfigs['home-a'];
   const data = [];
-  
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    
+
     // Generate realistic usage with some randomness
     const dailyVariation = (Math.random() - 0.5) * config.variance;
-    const weekendMultiplier = (date.getDay() === 0 || date.getDay() === 6) ? 1.3 : 1.0;
-    const totalDailyGB = Math.max(0.1, (config.baseUsageGB + dailyVariation) * weekendMultiplier);
-    
+    const weekendMultiplier =
+      date.getDay() === 0 || date.getDay() === 6 ? 1.3 : 1.0;
+    const totalDailyGB = Math.max(
+      0.1,
+      (config.baseUsageGB + dailyVariation) * weekendMultiplier
+    );
+
     // Split between download and upload (typically 80/20 ratio)
     const downloadGB = totalDailyGB * 0.8;
     const uploadGB = totalDailyGB * 0.2;
-    
+
     data.push({
       usage_date: date.toISOString().split('T')[0],
       download_bytes: Math.round(downloadGB * 1024 * 1024 * 1024),
-      upload_bytes: Math.round(uploadGB * 1024 * 1024 * 1024)
+      upload_bytes: Math.round(uploadGB * 1024 * 1024 * 1024),
     });
   }
-  
+
   return data;
 }
 
@@ -53,15 +57,16 @@ async function createSampleDataCaps() {
     { email: 'user3@example.com', package_id: 'home-c' },
     { email: 'business1@example.com', package_id: 'soho-pro' },
     { email: 'business2@example.com', package_id: 'soho-business' },
-    { email: 'enterprise1@example.com', package_id: 'corporate-business' }
+    { email: 'enterprise1@example.com', package_id: 'corporate-business' },
   ];
 
   for (const user of sampleUsers) {
     try {
       // Get user ID from email (this would normally come from your auth system)
-      const { data: authUser, error: userError } = await supabase.auth.admin.listUsers();
+      const { data: authUser, error: userError } =
+        await supabase.auth.admin.listUsers();
       const targetUser = authUser.users.find(u => u.email === user.email);
-      
+
       if (!targetUser) {
         console.log(`User ${user.email} not found, skipping...`);
         continue;
@@ -80,7 +85,7 @@ async function createSampleDataCaps() {
           monthly_cap_gb: config.capGB,
           billing_cycle_start: billingStart.toISOString().split('T')[0],
           notification_thresholds: [80, 90, 100],
-          is_active: true
+          is_active: true,
         })
         .select()
         .single();
@@ -94,23 +99,27 @@ async function createSampleDataCaps() {
 
       // Generate and insert usage data
       const usageData = generateUsageData(user.package_id);
-      
+
       for (const usage of usageData) {
         const { error: usageError } = await supabase
           .from('bandwidth_usage')
           .insert({
             user_id: targetUser.id,
             package_id: user.package_id,
-            ...usage
+            ...usage,
           });
 
         if (usageError) {
-          console.error(`Error inserting usage data for ${user.email}:`, usageError);
+          console.error(
+            `Error inserting usage data for ${user.email}:`,
+            usageError
+          );
         }
       }
 
-      console.log(`Generated ${usageData.length} days of usage data for ${user.email}`);
-
+      console.log(
+        `Generated ${usageData.length} days of usage data for ${user.email}`
+      );
     } catch (error) {
       console.error(`Error processing user ${user.email}:`, error);
     }
@@ -119,13 +128,19 @@ async function createSampleDataCaps() {
 
 // Generate some high-usage scenarios for testing notifications
 async function createHighUsageScenarios() {
-  const highUsageUser = { email: 'poweruser@example.com', package_id: 'home-a' };
-  
+  const highUsageUser = {
+    email: 'poweruser@example.com',
+    package_id: 'home-a',
+  };
+
   try {
     // Get user ID
-    const { data: authUser, error: userError } = await supabase.auth.admin.listUsers();
-    const targetUser = authUser.users.find(u => u.email === highUsageUser.email);
-    
+    const { data: authUser, error: userError } =
+      await supabase.auth.admin.listUsers();
+    const targetUser = authUser.users.find(
+      u => u.email === highUsageUser.email
+    );
+
     if (!targetUser) {
       console.log(`High usage user ${highUsageUser.email} not found`);
       return;
@@ -144,7 +159,7 @@ async function createHighUsageScenarios() {
         monthly_cap_gb: config.capGB,
         billing_cycle_start: billingStart.toISOString().split('T')[0],
         notification_thresholds: [80, 90, 100],
-        is_active: true
+        is_active: true,
       })
       .select()
       .single();
@@ -162,10 +177,10 @@ async function createHighUsageScenarios() {
     for (let i = 0; i < days; i++) {
       const date = new Date();
       date.setDate(date.getDate() - (days - i - 1));
-      
+
       const downloadGB = dailyUsageGB * 0.8;
       const uploadGB = dailyUsageGB * 0.2;
-      
+
       const { error: usageError } = await supabase
         .from('bandwidth_usage')
         .insert({
@@ -173,7 +188,7 @@ async function createHighUsageScenarios() {
           package_id: highUsageUser.package_id,
           usage_date: date.toISOString().split('T')[0],
           download_bytes: Math.round(downloadGB * 1024 * 1024 * 1024),
-          upload_bytes: Math.round(uploadGB * 1024 * 1024 * 1024)
+          upload_bytes: Math.round(uploadGB * 1024 * 1024 * 1024),
         });
 
       if (usageError) {
@@ -181,8 +196,9 @@ async function createHighUsageScenarios() {
       }
     }
 
-    console.log(`Created high usage scenario for ${highUsageUser.email} (${targetUsageGB.toFixed(2)}GB used)`);
-
+    console.log(
+      `Created high usage scenario for ${highUsageUser.email} (${targetUsageGB.toFixed(2)}GB used)`
+    );
   } catch (error) {
     console.error(`Error creating high usage scenario:`, error);
   }
@@ -191,7 +207,7 @@ async function createHighUsageScenarios() {
 // Main execution
 async function main() {
   console.log('Starting bandwidth data simulation...');
-  
+
   try {
     await createSampleDataCaps();
     await createHighUsageScenarios();
@@ -206,4 +222,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { main, generateUsageData, createSampleDataCaps, createHighUsageScenarios };
+export {
+  main,
+  generateUsageData,
+  createSampleDataCaps,
+  createHighUsageScenarios,
+};

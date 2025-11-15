@@ -11,7 +11,7 @@ export const securityConfig: SecurityConfig = {
   data_retention_days: 2555, // 7 years for GDPR compliance
   enable_ip_whitelist: false,
   enable_rate_limiting: true,
-  rate_limit_requests_per_minute: 60
+  rate_limit_requests_per_minute: 60,
 };
 
 export const securityHeaders = {
@@ -24,7 +24,7 @@ export const securityHeaders = {
     "connect-src 'self' https://api.openai.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
-    "form-action 'self'"
+    "form-action 'self'",
   ].join('; '),
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
@@ -32,7 +32,7 @@ export const securityHeaders = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
   'X-XSS-Protection': '1; mode=block',
-  'X-Content-Security-Policy': 'default-src \'self\''
+  'X-Content-Security-Policy': "default-src 'self'",
 };
 
 export const ipWhitelist = [
@@ -45,14 +45,14 @@ export const trustedOrigins = [
   'https://maskom-network.com',
   'https://www.maskom-network.com',
   'http://localhost:3000',
-  'http://localhost:4321'
+  'http://localhost:4321',
 ];
 
 export function isIPWhitelisted(ip: string): boolean {
   if (!securityConfig.enable_ip_whitelist) {
     return true;
   }
-  
+
   return ipWhitelist.some(allowedIP => {
     if (allowedIP.includes('/')) {
       // CIDR notation check (simplified)

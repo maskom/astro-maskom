@@ -37,6 +37,7 @@ MIDTRANS_MERCHANT_ID=your_merchant_id
 ## Testing
 
 Midtrans provides test credentials for sandbox mode:
+
 - Test card numbers: `4811111111111114` (Visa), `5211111111111117` (Mastercard)
 - Use any future expiry date and 3-digit CVV
 - Test bank transfer and e-wallet options through Midtrans sandbox
@@ -44,11 +45,13 @@ Midtrans provides test credentials for sandbox mode:
 ## Webhook Configuration
 
 Configure your Midtrans webhook settings to point to:
+
 ```
 https://yourdomain.com/api/payments/webhook
 ```
 
 The webhook handles:
+
 - Payment status updates
 - Transaction confirmations
 - Fraud detection notifications
