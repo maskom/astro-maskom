@@ -1,0 +1,218 @@
+---
+import EmailLayout from './EmailLayout.astro';
+import EmailButton from './EmailButton.astro';
+import EmailCard from './EmailCard.astro';
+import EmailDivider from './EmailDivider.astro';
+
+export interface Props {
+  userName: string;
+  serviceName: string;
+  installationDate: string;
+  installationTime: string;
+  technicianName: string;
+  technicianPhone: string;
+  address: string;
+  packageName: string;
+  language?: 'id' | 'en';
+  trackingLink?: string;
+}
+
+const { 
+  userName, 
+  serviceName, 
+  installationDate, 
+  installationTime, 
+  technicianName, 
+  technicianPhone, 
+  address, 
+  packageName,
+  language = 'id',
+  trackingLink 
+} = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    subject: 'Konfirmasi Instalasi Layanan Maskom Network',
+    previewText: 'Instalasi layanan internet Anda telah dijadwalkan. Detail informasi teknisi dan jadwal.',
+    greeting: 'Halo {name},',
+    confirmationMessage: 'Kami senang menginformasikan bahwa instalasi layanan {service} Anda telah dijadwalkan.',
+    installationDetails: 'Detail Instalasi:',
+    dateLabel: 'Tanggal:',
+    timeLabel: 'Waktu:',
+    addressLabel: 'Alamat:',
+    packageLabel: 'Paket Layanan:',
+    technicianInfo: 'Informasi Teknisi:',
+    technicianName: 'Nama:',
+    technicianPhone: 'Telepon:',
+    preparationTitle: 'Persiapan Instalasi:',
+    preparation1: 'Pastikan ada akses ke lokasi instalasi',
+    preparation2: 'Siapkan dokumen identitas (KTP/SIM)',
+    preparation3: 'Pastikan ada sumber daya listrik',
+    preparation4: 'Hadir pada waktu yang telah ditentukan',
+    trackingButton: 'Lacak Status Instalasi',
+    contactSupport: 'Hubungi Dukungan',
+    whatToExpect: 'Apa yang Diharapkan:',
+    expect1: 'Teknisi akan tiba 15-30 menit sebelum jadwal',
+    expect2: 'Instalasi memakan waktu 2-3 jam',
+    expect3: 'Uji coba koneksi akan dilakukan',
+    expect4: 'Penjelasan penggunaan perangkat',
+    supportMessage: 'Jika Anda perlu mengubah jadwal atau memiliki pertanyaan, hubungi kami.',
+    thankYou: 'Terima kasih atas kepercayaan Anda.',
+    teamSignature: 'Tim Instalasi Maskom Network'
+  },
+  en: {
+    subject: 'Maskom Network Service Installation Confirmation',
+    previewText: 'Your internet service installation has been scheduled. Technician details and schedule information.',
+    greeting: 'Hello {name},',
+    confirmationMessage: 'We\'re pleased to inform you that your {service} installation has been scheduled.',
+    installationDetails: 'Installation Details:',
+    dateLabel: 'Date:',
+    timeLabel: 'Time:',
+    addressLabel: 'Address:',
+    packageLabel: 'Service Package:',
+    technicianInfo: 'Technician Information:',
+    technicianName: 'Name:',
+    technicianPhone: 'Phone:',
+    preparationTitle: 'Installation Preparation:',
+    preparation1: 'Ensure access to the installation location',
+    preparation2: 'Prepare identification documents (ID/Driver\'s License)',
+    preparation3: 'Ensure power source is available',
+    preparation4: 'Be present at the scheduled time',
+    trackingButton: 'Track Installation Status',
+    contactSupport: 'Contact Support',
+    whatToExpect: 'What to Expect:',
+    expect1: 'Technician will arrive 15-30 minutes before schedule',
+    expect2: 'Installation takes 2-3 hours',
+    expect3: 'Connection testing will be performed',
+    expect4: 'Device usage explanation',
+    supportMessage: 'If you need to reschedule or have any questions, please contact us.',
+    thankYou: 'Thank you for your trust in us.',
+    teamSignature: 'The Maskom Network Installation Team'
+  }
+};
+
+const t = translations[language];
+const greeting = t.greeting.replace('{name}', userName);
+const confirmationMessage = t.confirmationMessage.replace('{service}', serviceName);
+---
+
+<EmailLayout subject={t.subject} previewText={t.previewText} language={language}>
+  
+  <!-- Greeting -->
+  <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #111827; line-height: 1.3;">
+    {greeting}
+  </h1>
+  
+  <!-- Confirmation message -->
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {confirmationMessage}
+  </p>
+  
+  <!-- Installation Details -->
+  <EmailCard title={t.installationDetails}>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 120px;" valign="top">
+          {t.dateLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {installationDate}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.timeLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {installationTime}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.addressLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {address}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.packageLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          <strong>{packageName}</strong>
+        </td>
+      </tr>
+    </table>
+  </EmailCard>
+  
+  <!-- Technician Information -->
+  <EmailCard title={t.technicianInfo}>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 120px;" valign="top">
+          {t.technicianName}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {technicianName}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.technicianPhone}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          <a href={`tel:${technicianPhone}`} style="color: #3B82F6; text-decoration: none;">{technicianPhone}</a>
+        </td>
+      </tr>
+    </table>
+  </EmailCard>
+  
+  <!-- Preparation -->
+  <EmailCard title={t.preparationTitle}>
+    <ul style="margin: 0; padding-left: 20px; font-size: 16px; color: #374151; line-height: 1.6;">
+      <li style="margin-bottom: 8px;">{t.preparation1}</li>
+      <li style="margin-bottom: 8px;">{t.preparation2}</li>
+      <li style="margin-bottom: 8px;">{t.preparation3}</li>
+      <li>{t.preparation4}</li>
+    </ul>
+  </EmailCard>
+  
+  <!-- What to Expect -->
+  <EmailCard title={t.whatToExpect}>
+    <ul style="margin: 0; padding-left: 20px; font-size: 16px; color: #374151; line-height: 1.6;">
+      <li style="margin-bottom: 8px;">{t.expect1}</li>
+      <li style="margin-bottom: 8px;">{t.expect2}</li>
+      <li style="margin-bottom: 8px;">{t.expect3}</li>
+      <li>{t.expect4}</li>
+    </ul>
+  </EmailCard>
+  
+  <!-- Action buttons -->
+  {trackingLink && (
+    <EmailButton href={trackingLink} text={t.trackingButton} />
+  )}
+  
+  <EmailButton href="tel:+622112345678" text={t.contactSupport} color="secondary" />
+  
+  <!-- Support message -->
+  <div style="margin-top: 32px; padding: 20px; background-color: #FEF3C7; border-left: 4px solid #F59E0B; border-radius: 4px;">
+    <p style="margin: 0 0 8px 0; font-size: 16px; color: #92400E; font-weight: 600; line-height: 1.5;">
+      📞 {t.supportMessage}
+    </p>
+    <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+      Phone: +62 21 1234 5678 | Email: support@maskom.co.id
+    </p>
+  </div>
+  
+  <!-- Closing -->
+  <p style="margin: 32px 0 16px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.thankYou}
+  </p>
+  
+  <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    <strong>{t.teamSignature}</strong>
+  </p>
+  
+</EmailLayout>

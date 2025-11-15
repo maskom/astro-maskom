@@ -1,0 +1,350 @@
+---
+import EmailLayout from './EmailLayout.astro';
+import EmailButton from './EmailButton.astro';
+import EmailCard from './EmailCard.astro';
+
+export interface Props {
+  userName: string;
+  appointmentType: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  duration: string;
+  location: string;
+  staffName: string;
+  staffPhone: string;
+  purpose: string;
+  notes?: string;
+  language?: 'id' | 'en';
+  calendarLink?: string;
+  rescheduleLink?: string;
+  cancelLink?: string;
+}
+
+const { 
+  userName, 
+  appointmentType, 
+  appointmentDate, 
+  appointmentTime, 
+  duration, 
+  location, 
+  staffName, 
+  staffPhone, 
+  purpose, 
+  notes,
+  language = 'id',
+  calendarLink,
+  rescheduleLink,
+  cancelLink
+} = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    subject: 'Konfirmasi Janji Temu - Maskom Network',
+    previewText: 'Janji temu Anda telah dikonfirmasi. Detail informasi dan petunjuk lokasi.',
+    greeting: 'Halo {name},',
+    confirmationMessage: 'Janji temu Anda telah berhasil dikonfirmasi. Berikut detail informasi janji temu Anda.',
+    appointmentDetails: 'Detail Janji Temu:',
+    typeLabel: 'Jenis Janji Temu:',
+    dateLabel: 'Tanggal:',
+    timeLabel: 'Waktu:',
+    durationLabel: 'Durasi:',
+    locationLabel: 'Lokasi:',
+    staffLabel: 'Petugas:',
+    purposeLabel: 'Tujuan:',
+    notesLabel: 'Catatan:',
+    whatToBring: 'Yang Perlu Dibawa:',
+    preparation1: 'Dokumen identitas (KTP/SIM)',
+    preparation2: 'Dokumen terkait layanan (jika ada)',
+    preparation3: 'Alat tulis untuk catatan',
+    directions: 'Petunjuk Arah:',
+    parkingInfo: 'Informasi Parkir:',
+    contactInfo: 'Informasi Kontak:',
+    addToCalendar: 'Tambah ke Kalender',
+    reschedule: 'Jadwal Ulang',
+    cancel: 'Batalkan',
+    reminderMessage: 'Kami akan mengirimkan pengingat 24 jam sebelum janji temu.',
+    changeAppointment: 'Jika perlu mengubah janji temu, gunakan link di bawah.',
+    thankYou: 'Terima kasih telah menjadwalkan janji temu.',
+    teamSignature: 'Tim Layanan Pelanggan Maskom Network'
+  },
+  en: {
+    subject: 'Appointment Confirmation - Maskom Network',
+    previewText: 'Your appointment has been confirmed. Details and location information.',
+    greeting: 'Hello {name},',
+    confirmationMessage: 'Your appointment has been successfully confirmed. Here are your appointment details.',
+    appointmentDetails: 'Appointment Details:',
+    typeLabel: 'Appointment Type:',
+    dateLabel: 'Date:',
+    timeLabel: 'Time:',
+    durationLabel: 'Duration:',
+    locationLabel: 'Location:',
+    staffLabel: 'Staff:',
+    purposeLabel: 'Purpose:',
+    notesLabel: 'Notes:',
+    whatToBring: 'What to Bring:',
+    preparation1: 'Identification document (ID/Driver\'s License)',
+    preparation2: 'Service-related documents (if any)',
+    preparation3: 'Writing materials for notes',
+    directions: 'Directions:',
+    parkingInfo: 'Parking Information:',
+    contactInfo: 'Contact Information:',
+    addToCalendar: 'Add to Calendar',
+    reschedule: 'Reschedule',
+    cancel: 'Cancel',
+    reminderMessage: 'We will send a reminder 24 hours before your appointment.',
+    changeAppointment: 'If you need to change your appointment, use the links below.',
+    thankYou: 'Thank you for scheduling an appointment.',
+    teamSignature: 'The Maskom Network Customer Service Team'
+  }
+};
+
+const t = translations[language];
+const greeting = t.greeting.replace('{name}', userName);
+---
+
+<EmailLayout subject={t.subject} previewText={t.previewText} language={language}>
+  
+  <!-- Confirmation Header -->
+  <div style="margin-bottom: 24px; padding: 20px; background-color: #D1FAE5; border-left: 4px solid #10B981; border-radius: 4px;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="font-size: 24px; padding-right: 16px;" valign="middle">
+          ✅
+        </td>
+        <td valign="middle">
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #065F46; line-height: 1.3;">
+            Janji Temu Dikonfirmasi
+          </h2>
+          <p style="margin: 0; font-size: 14px; color: #065F46; font-weight: 600;">
+            {appointmentType}
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- Greeting -->
+  <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #111827; line-height: 1.3;">
+    {greeting}
+  </h1>
+  
+  <!-- Confirmation message -->
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.confirmationMessage}
+  </p>
+  
+  <!-- Appointment Details -->
+  <EmailCard title={t.appointmentDetails}>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 120px;" valign="top">
+          {t.typeLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          <strong>{appointmentType}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.dateLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {appointmentDate}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.timeLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {appointmentTime}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.durationLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {duration}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.locationLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {location}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.staffLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {staffName}<br>
+          <a href={`tel:${staffPhone}`} style="color: #3B82F6; text-decoration: none; font-size: 14px;">{staffPhone}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {t.purposeLabel}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {purpose}
+        </td>
+      </tr>
+      {notes && (
+        <tr>
+          <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+            {t.notesLabel}
+          </td>
+          <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+            {notes}
+          </td>
+        </tr>
+      )}
+    </table>
+  </EmailCard>
+  
+  <!-- What to Bring -->
+  <EmailCard title={t.whatToBring}>
+    <ul style="margin: 0; padding-left: 20px; font-size: 16px; color: #374151; line-height: 1.6;">
+      <li style="margin-bottom: 8px;">{t.preparation1}</li>
+      <li style="margin-bottom: 8px;">{t.preparation2}</li>
+      <li>{t.preparation3}</li>
+    </ul>
+  </EmailCard>
+  
+  <!-- Location Information -->
+  <EmailCard title="Informasi Lokasi">
+    <div style="margin-bottom: 16px;">
+      <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #111827;">
+        📍 {t.directions}
+      </h4>
+      <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+        {location}
+      </p>
+    </div>
+    
+    <div style="margin-bottom: 16px;">
+      <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #111827;">
+        🚗 {t.parkingInfo}
+      </h4>
+      <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+        Parkir tersedia di depan gedung. Gratis untuk pelanggan.
+      </p>
+    </div>
+    
+    <div>
+      <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #111827;">
+        📞 {t.contactInfo}
+      </h4>
+      <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+        Jika terlambat atau tersesat, hubungi: {staffPhone}
+      </p>
+    </div>
+  </EmailCard>
+  
+  <!-- Action buttons -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td align="center" style="padding: 10px;">
+        {calendarLink && (
+          <table border="0" cellpadding="0" cellspacing="0" style="display: inline-block; margin: 0 5px;">
+            <tr>
+              <td align="center" style="border-radius: 6px; background-color: #3B82F6;">
+                <a 
+                  href={calendarLink} 
+                  target="_blank" 
+                  style="
+                    display: inline-block;
+                    padding: 12px 20px;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    line-height: 1;
+                  "
+                >
+                  {t.addToCalendar}
+                </a>
+              </td>
+            </tr>
+          </table>
+        )}
+        
+        {rescheduleLink && (
+          <table border="0" cellpadding="0" cellspacing="0" style="display: inline-block; margin: 0 5px;">
+            <tr>
+              <td align="center" style="border-radius: 6px; background-color: #6B7280;">
+                <a 
+                  href={rescheduleLink} 
+                  target="_blank" 
+                  style="
+                    display: inline-block;
+                    padding: 12px 20px;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    line-height: 1;
+                  "
+                >
+                  {t.reschedule}
+                </a>
+              </td>
+            </tr>
+          </table>
+        )}
+        
+        {cancelLink && (
+          <table border="0" cellpadding="0" cellspacing="0" style="display: inline-block; margin: 0 5px;">
+            <tr>
+              <td align="center" style="border-radius: 6px; background-color: #EF4444;">
+                <a 
+                  href={cancelLink} 
+                  target="_blank" 
+                  style="
+                    display: inline-block;
+                    padding: 12px 20px;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    line-height: 1;
+                  "
+                >
+                  {t.cancel}
+                </a>
+              </td>
+            </tr>
+          </table>
+        )}
+      </td>
+    </tr>
+  </table>
+  
+  <!-- Reminder message -->
+  <div style="margin-top: 32px; padding: 20px; background-color: #F0F9FF; border-left: 4px solid #3B82F6; border-radius: 4px;">
+    <p style="margin: 0 0 8px 0; font-size: 16px; color: #1E40AF; font-weight: 600; line-height: 1.5;">
+      ⏰ {t.reminderMessage}
+    </p>
+    <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+      {t.changeAppointment}
+    </p>
+  </div>
+  
+  <!-- Closing -->
+  <p style="margin: 32px 0 16px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.thankYou}
+  </p>
+  
+  <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    <strong>{t.teamSignature}</strong>
+  </p>
+  
+</EmailLayout>
