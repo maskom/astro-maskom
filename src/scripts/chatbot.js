@@ -70,7 +70,7 @@ export function initializeChatbot(initialMessages = []) {
         content: sanitizeInput(data.response),
       };
       messages = [...messages, assistantMessage];
-    } catch (error) {
+    } catch {
       const errorMessage = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',

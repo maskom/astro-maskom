@@ -1,3 +1,4 @@
+import type { APIContext, AstroCookies } from 'astro';
 import { securityAuditLogger } from './audit';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';

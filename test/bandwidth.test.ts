@@ -1,26 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-// Mock Supabase client
-const mockSupabase = {
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        order: () => ({
-          limit: () => Promise.resolve({ data: [], error: null }),
-        }),
-      }),
-    }),
-    upsert: () => Promise.resolve({ data: {}, error: null }),
-    insert: () => Promise.resolve({ data: {}, error: null }),
-    update: () => Promise.resolve({ data: {}, error: null }),
-    delete: () => Promise.resolve({ error: null }),
-  }),
-  auth: {
-    getUser: () =>
-      Promise.resolve({ data: { user: { id: 'test-user' } }, error: null }),
-  },
-};
-
 // Mock the environment
 global.import = {
   meta: {
@@ -44,7 +23,7 @@ describe('Bandwidth Monitoring API', () => {
     it('should return bandwidth usage data for authenticated user', async () => {
       const mockRequest = {
         headers: {
-          get: header =>
+          get: (header: string) =>
             header === 'authorization' ? 'Bearer test-token' : null,
         },
         url: 'http://localhost/api/bandwidth/usage',
