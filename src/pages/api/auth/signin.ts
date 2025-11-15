@@ -1,14 +1,22 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeInput } from "../../../lib/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  const formData = await request.formData();
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
+  try {
+    const formData = await request.formData();
+    const email = sanitizeInput(formData.get("email")?.toString());
+    const password = formData.get("password")?.toString(); // Don't sanitize password
 
   if (!email || !password) {
     return new Response("Email and password are required", { status: 400 });
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return new Response("Invalid email format", { status: 400 });
   }
 
   const supabase = createClient(
@@ -22,15 +30,25 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   });
 
   if (error) {
-    return new Response(error.message, { status: 500 });
+    return new Response("Invalid credentials", { status: 401 });
   }
 
   const { access_token, refresh_token } = data.session;
   cookies.set("sb-access-token", access_token, {
     path: "/",
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict'
   });
   cookies.set("sb-refresh-token", refresh_token, {
     path: "/",
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict'
   });
   return redirect("/dashboard");
+  } catch (error) {
+    console.error('Signin error:', error);
+    return new Response("An error occurred during sign in", { status: 500 });
+  }
 };
