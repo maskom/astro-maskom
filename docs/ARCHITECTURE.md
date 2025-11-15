@@ -23,9 +23,9 @@ Astro Maskom is built with a modern, performance-focused architecture using Astr
 
 #### Frontend
 - **Astro 5.15.4**: Modern static site generator with SSR capabilities
-- **TypeScript**: Type-safe JavaScript development
-- **Tailwind CSS 4.1.17**: Utility-first CSS framework
-- **Svelte**: Lightweight components for interactive features
+- **TypeScript 5.9.3**: Type-safe JavaScript development
+- **Tailwind CSS 3.4.18**: Utility-first CSS framework
+- **Svelte**: Lightweight components for interactive features (being phased out)
 
 #### Backend
 - **Supabase**: Backend-as-a-Service providing:
@@ -36,9 +36,10 @@ Astro Maskom is built with a modern, performance-focused architecture using Astr
   - Edge functions
 
 #### Deployment
-- **Node.js**: Runtime environment
+- **Node.js**: Runtime environment (standalone mode)
 - **Cloudflare Pages**: Static site hosting (planned)
-- **GitHub Actions**: CI/CD pipeline
+- **GitHub Actions**: Advanced automation workflows (8 workflows)
+- **OpenCode Integration**: Automated repository maintenance
 
 ## 📁 Project Structure Deep Dive
 
@@ -164,15 +165,21 @@ Layout.astro
 ### Security Layers
 ```
 ┌─────────────────┐
-│   Application   │ ← Input validation, error handling
+│   Application   │ ← Input validation, error handling (NEEDS IMPLEMENTATION)
 ├─────────────────┤
-│   API Routes    │ ← Authentication, rate limiting
+│   API Routes    │ ← Authentication, rate limiting (PARTIALLY IMPLEMENTED)
 ├─────────────────┤
-│   Supabase      │ ← RLS, encryption, audit logs
+│   Supabase      │ ← RLS, encryption, audit logs (IMPLEMENTED)
 ├─────────────────┤
-│   Infrastructure│ ← HTTPS, firewalls, monitoring
+│   Infrastructure│ ← HTTPS, firewalls, monitoring (PARTIALLY IMPLEMENTED)
 └─────────────────┘
 ```
+
+### Current Security Issues
+- **Critical**: Outdated dependencies (form-data, axios, js-yaml, undici)
+- **High**: Missing input validation and error handling
+- **Medium**: Hardcoded values in source code
+- **Low**: No security scanning automation
 
 ## 📊 Performance Architecture
 
@@ -198,11 +205,17 @@ Layout.astro
 - Modern image formats (WebP)
 - Lazy loading implementation
 
-### Performance Metrics
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Cumulative Layout Shift**: < 0.1
-- **First Input Delay**: < 100ms
+### Performance Metrics (TARGETS)
+- **First Contentful Paint**: < 1.5s (CURRENT: Unknown)
+- **Largest Contentful Paint**: < 2.5s (CURRENT: Unknown)
+- **Cumulative Layout Shift**: < 0.1 (CURRENT: Unknown)
+- **First Input Delay**: < 100ms (CURRENT: Unknown)
+
+### Current Performance Issues
+- **High**: No performance monitoring implemented
+- **Medium**: No code splitting or lazy loading
+- **Medium**: No image optimization
+- **Low**: Bundle size not optimized
 
 ## 🔌 Integration Architecture
 
@@ -293,4 +306,32 @@ Source Code → Astro Build → Static Files → Optimization → Deployment
 
 This architecture documentation serves as a guide for understanding the system design and making informed decisions about future development.
 
-*Last Updated: 2025-11-14*
+## 🚨 Current Architecture Issues
+
+### Critical Issues
+1. **Security Vulnerabilities**: Outdated dependencies with CVEs
+2. **Build Failures**: TypeScript errors in Chatbot.astro
+3. **Missing Dependencies**: Project cannot build/run properly
+
+### High Priority Issues
+1. **Code Quality**: No linting or formatting tools
+2. **Testing**: No test infrastructure
+3. **CI/CD**: Basic pipeline missing
+4. **Documentation**: Missing security policy, code of conduct
+
+### Medium Priority Issues
+1. **Performance**: No optimization strategies implemented
+2. **Error Handling**: No global error boundaries
+3. **Environment**: Hardcoded values throughout codebase
+4. **Monitoring**: No observability or logging
+
+### Technical Debt Summary
+- **Total Issues**: 23 (3 Critical, 5 High, 8 Medium, 7 Low)
+- **Estimated Effort**: 60-80 hours
+- **Time to Stable**: 2-3 weeks
+- **Risk Level**: HIGH (Security vulnerabilities)
+
+---
+
+*Last Updated: 2025-11-15*
+*Architecture Health: 🔴 CRITICAL*
