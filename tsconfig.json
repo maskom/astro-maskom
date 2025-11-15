@@ -5,8 +5,7 @@
     "**/*"
   ],
   "exclude": [
-    "dist",
-    "src/components/Solid/**/*"
+    "dist"
   ],
   "compilerOptions": {
     "jsx": "preserve"
