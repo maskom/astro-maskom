@@ -1,4 +1,3 @@
-import { json } from '@astrojs/cloudflare';
 import type { APIRoute } from 'astro';
 import { emailService } from '@/lib/email';
 
@@ -10,18 +9,21 @@ export const GET: APIRoute = async ({ url }) => {
     const queueService = emailService.getQueueService();
     const templates = await queueService.getTemplates({
       category: category || undefined,
-      isActive
+      isActive,
     });
 
-    return json({
-      success: true,
-      data: templates
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: templates,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error fetching templates:', error);
-    return json(
-      { error: 'Failed to fetch templates' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Failed to fetch templates' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
@@ -29,13 +31,23 @@ export const GET: APIRoute = async ({ url }) => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { name, description, subject_template, html_template, text_template, category } = body;
+    const {
+      name,
+      description,
+      subject_template,
+      html_template,
+      text_template,
+      category,
+    } = body;
 
     // Validate required fields
     if (!name || !subject_template || !html_template) {
-      return json(
-        { error: 'Missing required fields: name, subject_template, html_template' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({
+          error:
+            'Missing required fields: name, subject_template, html_template',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -47,19 +59,22 @@ export const POST: APIRoute = async ({ request }) => {
       html_template,
       text_template,
       category: category || 'transactional',
-      is_active: true
+      is_active: true,
     });
 
-    return json({
-      success: true,
-      templateId,
-      message: 'Template created successfully'
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        templateId,
+        message: 'Template created successfully',
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error creating template:', error);
-    return json(
-      { error: 'Failed to create template' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Failed to create template' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };

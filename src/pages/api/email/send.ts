@@ -1,27 +1,35 @@
-import { json } from '@astrojs/cloudflare';
 import type { APIRoute } from 'astro';
 import { emailService } from '@/lib/email';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { to, subject, html, text, template, templateData, priority, metadata } = body;
+    const {
+      to,
+      subject,
+      html,
+      text,
+      template,
+      templateData,
+      priority,
+      metadata,
+    } = body;
 
     // Validate required fields
     if (!to || !subject) {
-      return json(
-        { error: 'Missing required fields: to, subject' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: to, subject' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(to)) {
-      return json(
-        { error: 'Invalid email address' },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid email address' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const emailId = await emailService.sendCustomEmail({
@@ -32,20 +40,23 @@ export const POST: APIRoute = async ({ request }) => {
       template,
       templateData,
       priority,
-      metadata
+      metadata,
     });
 
-    return json({
-      success: true,
-      emailId,
-      message: 'Email added to queue successfully'
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        emailId,
+        message: 'Email added to queue successfully',
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error sending email:', error);
-    return json(
-      { error: 'Failed to send email' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };
 
@@ -59,23 +70,26 @@ export const GET: APIRoute = async ({ url }) => {
     const emails = await queueService.getEmails({
       status: status || undefined,
       limit,
-      offset
+      offset,
     });
 
-    return json({
-      success: true,
-      data: emails,
-      pagination: {
-        limit,
-        offset,
-        count: emails.length
-      }
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: emails,
+        pagination: {
+          limit,
+          offset,
+          count: emails.length,
+        },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error fetching emails:', error);
-    return json(
-      { error: 'Failed to fetch emails' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch emails' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

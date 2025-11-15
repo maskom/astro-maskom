@@ -1,18 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
-import type { 
-  EmailQueueItem, 
-  EmailTemplate, 
-  EmailDeliveryLog, 
-  EmailQueueSettings, 
+import type {
+  EmailQueueItem,
+  EmailTemplate,
+  EmailDeliveryLog,
+  EmailQueueSettings,
   QueueStats,
-  SendEmailOptions 
+  SendEmailOptions,
 } from './types';
 
 export class EmailQueueService {
-  private supabase: ReturnType<typeof createClient>;
+  private supabase: any;
 
-  constructor(supabaseUrl: string, supabaseKey: string) {
-    this.supabase = createClient(supabaseUrl, supabaseKey);
+  constructor(supabaseUrl?: string, supabaseKey?: string) {
+    this.supabase = createClient(
+      supabaseUrl || import.meta.env.SUPABASE_URL,
+      supabaseKey || import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+    );
   }
 
   /**
@@ -25,32 +28,37 @@ export class EmailQueueService {
       p_subject: options.subject,
       p_content_html: options.html || null,
       p_content_text: options.text || null,
-      p_template_id: options.template ? await this.getTemplateIdByName(options.template) : null,
+      p_template_id: options.template
+        ? await this.getTemplateIdByName(options.template)
+        : null,
       p_template_data: options.templateData || {},
       p_priority: options.priority || 5,
-      p_metadata: options.metadata || {}
+      p_metadata: options.metadata || {},
     });
 
     if (error) {
       throw new Error(`Failed to add email to queue: ${error.message}`);
     }
 
-    return data;
+    return data as string;
   }
 
   /**
    * Process the email queue
    */
-  async processQueue(batchSize: number = 10): Promise<{ processed: number; failed: number }> {
+  async processQueue(
+    batchSize: number = 10
+  ): Promise<{ processed: number; failed: number }> {
     const { data, error } = await this.supabase.rpc('process_email_queue', {
-      batch_size: batchSize
+      batch_size: batchSize,
     });
 
     if (error) {
       throw new Error(`Failed to process email queue: ${error.message}`);
     }
 
-    return data[0] || { processed: 0, failed: 0 };
+    const result = data as { processed: number; failed: number }[];
+    return result[0] || { processed: 0, failed: 0 };
   }
 
   /**
@@ -63,29 +71,36 @@ export class EmailQueueService {
       throw new Error(`Failed to get queue stats: ${error.message}`);
     }
 
-    return data[0] || {
-      pending_count: 0,
-      processing_count: 0,
-      sent_today: 0,
-      failed_today: 0,
-      retry_count: 0
-    };
+    const result = data as QueueStats[];
+    return (
+      result[0] || {
+        pending_count: 0,
+        processing_count: 0,
+        sent_today: 0,
+        failed_today: 0,
+        retry_count: 0,
+      }
+    );
   }
 
   /**
    * Get emails from queue with filters
    */
-  async getEmails(filters: {
-    status?: string;
-    limit?: number;
-    offset?: number;
-    orderBy?: 'created_at' | 'priority' | 'next_retry_at';
-    orderDirection?: 'asc' | 'desc';
-  } = {}): Promise<EmailQueueItem[]> {
+  async getEmails(
+    filters: {
+      status?: string;
+      limit?: number;
+      offset?: number;
+      orderBy?: 'created_at' | 'priority' | 'next_retry_at';
+      orderDirection?: 'asc' | 'desc';
+    } = {}
+  ): Promise<EmailQueueItem[]> {
     let query = this.supabase
       .from('email_queue')
       .select('*')
-      .order(filters.orderBy || 'created_at', { ascending: filters.orderDirection !== 'desc' });
+      .order(filters.orderBy || 'created_at', {
+        ascending: filters.orderDirection !== 'desc',
+      });
 
     if (filters.status) {
       query = query.eq('status', filters.status);
@@ -96,7 +111,10 @@ export class EmailQueueService {
     }
 
     if (filters.offset) {
-      query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
+      query = query.range(
+        filters.offset,
+        filters.offset + (filters.limit || 10) - 1
+      );
     }
 
     const { data, error } = await query;
@@ -105,16 +123,18 @@ export class EmailQueueService {
       throw new Error(`Failed to get emails: ${error.message}`);
     }
 
-    return data || [];
+    return (data as EmailQueueItem[]) || [];
   }
 
   /**
    * Get email templates
    */
-  async getTemplates(filters: {
-    category?: string;
-    isActive?: boolean;
-  } = {}): Promise<EmailTemplate[]> {
+  async getTemplates(
+    filters: {
+      category?: string;
+      isActive?: boolean;
+    } = {}
+  ): Promise<EmailTemplate[]> {
     let query = this.supabase
       .from('email_templates')
       .select('*')
@@ -130,7 +150,7 @@ export class EmailQueueService {
       throw new Error(`Failed to get templates: ${error.message}`);
     }
 
-    return data || [];
+    return (data as EmailTemplate[]) || [];
   }
 
   /**
@@ -148,7 +168,7 @@ export class EmailQueueService {
       throw new Error(`Failed to get template: ${error.message}`);
     }
 
-    return data;
+    return data as EmailTemplate | null;
   }
 
   /**
@@ -162,10 +182,15 @@ export class EmailQueueService {
   /**
    * Create email template
    */
-  async createTemplate(template: Omit<EmailTemplate, 'id' | 'created_at' | 'updated_at' | 'version'>): Promise<string> {
+  async createTemplate(
+    template: Omit<
+      EmailTemplate,
+      'id' | 'created_at' | 'updated_at' | 'version'
+    >
+  ): Promise<string> {
     const { data, error } = await this.supabase
       .from('email_templates')
-      .insert(template)
+      .insert(template as any)
       .select('id')
       .single();
 
@@ -173,16 +198,20 @@ export class EmailQueueService {
       throw new Error(`Failed to create template: ${error.message}`);
     }
 
-    return data.id;
+    const result = data as { id: string };
+    return result.id;
   }
 
   /**
    * Update email template
    */
-  async updateTemplate(id: string, updates: Partial<EmailTemplate>): Promise<void> {
+  async updateTemplate(
+    id: string,
+    updates: Partial<EmailTemplate>
+  ): Promise<void> {
     const { error } = await this.supabase
       .from('email_templates')
-      .update(updates)
+      .update(updates as any)
       .eq('id', id);
 
     if (error) {
@@ -204,7 +233,7 @@ export class EmailQueueService {
       throw new Error(`Failed to get delivery logs: ${error.message}`);
     }
 
-    return data || [];
+    return (data as EmailDeliveryLog[]) || [];
   }
 
   /**
@@ -220,20 +249,18 @@ export class EmailQueueService {
       throw new Error(`Failed to get settings: ${error.message}`);
     }
 
-    return data || [];
+    return (data as EmailQueueSettings[]) || [];
   }
 
   /**
    * Update queue setting
    */
   async updateSetting(key: string, value: any): Promise<void> {
-    const { error } = await this.supabase
-      .from('email_queue_settings')
-      .upsert({
-        key,
-        value,
-        updated_at: new Date().toISOString()
-      });
+    const { error } = await this.supabase.from('email_queue_settings').upsert({
+      key,
+      value,
+      updated_at: new Date().toISOString(),
+    } as any);
 
     if (error) {
       throw new Error(`Failed to update setting: ${error.message}`);
@@ -246,7 +273,7 @@ export class EmailQueueService {
   async cancelEmail(emailId: string): Promise<void> {
     const { error } = await this.supabase
       .from('email_queue')
-      .update({ status: 'cancelled' })
+      .update({ status: 'cancelled' } as any)
       .eq('id', emailId)
       .in('status', ['pending', 'retry']);
 
@@ -261,11 +288,11 @@ export class EmailQueueService {
   async retryEmail(emailId: string): Promise<void> {
     const { error } = await this.supabase
       .from('email_queue')
-      .update({ 
+      .update({
         status: 'pending',
         next_retry_at: new Date().toISOString(),
-        error_message: null
-      })
+        error_message: null,
+      } as any)
       .eq('id', emailId)
       .eq('status', 'failed');
 
@@ -292,7 +319,8 @@ export class EmailQueueService {
       throw new Error(`Failed to cleanup old emails: ${error.message}`);
     }
 
-    return data?.length || 0;
+    const result = data as { id: string }[];
+    return result?.length || 0;
   }
 
   /**
@@ -307,16 +335,25 @@ export class EmailQueueService {
   /**
    * Send transactional email using template
    */
-  async sendTransactionalEmail(to: string, templateName: string, data: Record<string, any>, options: Partial<SendEmailOptions> = {}): Promise<string> {
+  async sendTransactionalEmail(
+    to: string,
+    templateName: string,
+    data: Record<string, any>,
+    options: Partial<SendEmailOptions> = {}
+  ): Promise<string> {
     const template = await this.getTemplateByName(templateName);
-    
+
     if (!template) {
       throw new Error(`Template '${templateName}' not found`);
     }
 
     const subject = this.renderTemplate(template.subject_template, data);
-    const html = template.html_template ? this.renderTemplate(template.html_template, data) : undefined;
-    const text = template.text_template ? this.renderTemplate(template.text_template, data) : undefined;
+    const html = template.html_template
+      ? this.renderTemplate(template.html_template, data)
+      : undefined;
+    const text = template.text_template
+      ? this.renderTemplate(template.text_template, data)
+      : undefined;
 
     return this.addEmailToQueue({
       to,
@@ -326,7 +363,7 @@ export class EmailQueueService {
       template: templateName,
       templateData: data,
       priority: options.priority || 3, // Higher priority for transactional emails
-      metadata: options.metadata
+      metadata: options.metadata,
     });
   }
 }

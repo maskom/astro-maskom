@@ -7,11 +7,12 @@ const mockQueueService = {
   sendTransactionalEmail: vi.fn(),
   addEmailToQueue: vi.fn(),
   processQueue: vi.fn(),
-  getQueueStats: vi.fn()
+  getQueueStats: vi.fn(),
+  getSettings: vi.fn(),
 };
 
 vi.mock('@/lib/email/queue', () => ({
-  EmailQueueService: vi.fn(() => mockQueueService)
+  EmailQueueService: vi.fn(() => mockQueueService),
 }));
 
 describe('EmailService', () => {
@@ -26,7 +27,10 @@ describe('EmailService', () => {
     it('should send welcome email', async () => {
       mockQueueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
-      const result = await service.sendWelcomeEmail('test@example.com', 'John Doe');
+      const result = await service.sendWelcomeEmail(
+        'test@example.com',
+        'John Doe'
+      );
 
       expect(result).toBe('email-id');
       expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
@@ -34,7 +38,7 @@ describe('EmailService', () => {
         'welcome_email',
         {
           user_name: 'John Doe',
-          signup_date: expect.any(String)
+          signup_date: expect.any(String),
         }
       );
     });
@@ -48,10 +52,13 @@ describe('EmailService', () => {
         orderId: 'ORD-123',
         amount: 100000,
         currency: 'IDR',
-        productName: 'Internet Package'
+        productName: 'Internet Package',
       };
 
-      const result = await service.sendPaymentConfirmation('test@example.com', orderData);
+      const result = await service.sendPaymentConfirmation(
+        'test@example.com',
+        orderData
+      );
 
       expect(result).toBe('email-id');
       expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
@@ -62,7 +69,7 @@ describe('EmailService', () => {
           amount: '100,000',
           currency: 'IDR',
           product_name: 'Internet Package',
-          payment_date: expect.any(String)
+          payment_date: expect.any(String),
         }
       );
     });
@@ -85,7 +92,7 @@ describe('EmailService', () => {
         {
           reset_url: 'https://example.com/reset?token=abc123',
           user_name: 'John Doe',
-          expiry_hours: '24'
+          expiry_hours: '24',
         }
       );
     });
@@ -109,7 +116,7 @@ describe('EmailService', () => {
         html: expect.stringContaining('Service Outage'),
         text: expect.stringContaining('Service Outage'),
         priority: 1,
-        metadata: { severity: 'error', type: 'service_notification' }
+        metadata: { severity: 'error', type: 'service_notification' },
       });
     });
 
@@ -130,7 +137,7 @@ describe('EmailService', () => {
         html: expect.stringContaining('Maintenance Notice'),
         text: expect.stringContaining('Maintenance Notice'),
         priority: 5,
-        metadata: { severity: 'info', type: 'service_notification' }
+        metadata: { severity: 'info', type: 'service_notification' },
       });
     });
   });
@@ -143,10 +150,13 @@ describe('EmailService', () => {
         invoiceNumber: 'INV-123',
         amount: 150000,
         dueDate: '2024-12-31',
-        productName: 'Premium Internet'
+        productName: 'Premium Internet',
       };
 
-      const result = await service.sendBillingReminder('test@example.com', invoiceData);
+      const result = await service.sendBillingReminder(
+        'test@example.com',
+        invoiceData
+      );
 
       expect(result).toBe('email-id');
       expect(mockQueueService.addEmailToQueue).toHaveBeenCalledWith({
@@ -157,8 +167,8 @@ describe('EmailService', () => {
         priority: 4,
         metadata: {
           type: 'billing_reminder',
-          invoice_number: 'INV-123'
-        }
+          invoice_number: 'INV-123',
+        },
       });
     });
   });
@@ -166,9 +176,12 @@ describe('EmailService', () => {
   describe('processQueue', () => {
     it('should process queue with custom batch size', async () => {
       mockQueueService.getSettings.mockResolvedValue([
-        { key: 'max_batch_size', value: 20 }
+        { key: 'max_batch_size', value: 20 },
       ]);
-      mockQueueService.processQueue.mockResolvedValue({ processed: 15, failed: 2 });
+      mockQueueService.processQueue.mockResolvedValue({
+        processed: 15,
+        failed: 2,
+      });
 
       const result = await service.processQueue();
 
