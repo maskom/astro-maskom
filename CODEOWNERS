@@ -1,0 +1,37 @@
+# Code Owners
+
+This file defines who owns code in this repository. Code owners are automatically requested for review when pull requests are opened.
+
+# Global owners - can review any change
+* @maskom-team
+
+# Core application files
+src/ @maskom-team
+docs/ @maskom-team
+
+# Configuration files
+*.config.* @maskom-team
+*.json @maskom-team
+*.md @maskom-team
+
+# Security and infrastructure
+.github/ @maskom-team
+SECURITY.md @maskom-team
+CODEOWNERS @maskom-team
+
+# API and backend
+src/pages/api/ @maskom-team
+src/lib/ @maskom-team
+
+# Database and authentication
+supabase/ @maskom-team
+src/lib/supabase.ts @maskom-team
+
+# Dependencies and build
+package.json @maskom-team
+package-lock.json @maskom-team
+astro.config.mjs @maskom-team
+
+# Emergency security changes
+**/SECURITY @maskom-team
+**/security @maskom-team

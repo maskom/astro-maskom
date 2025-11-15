@@ -1,9 +1,11 @@
 # Astro Maskom Development Roadmap
 
 ## 🎯 Vision
+
 Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, keamanan terjamin, dan pengalaman pengguna terbaik.
 
 ## 📊 Current Status
+
 - **Version**: 1.0.0-alpha
 - **Health**: 🔴 Critical (3 P0 security issues, 16 TypeScript errors, 23 total issues)
 - **Technical Debt**: High (Security vulns, missing CI/CD, documentation gaps)
@@ -15,6 +17,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🚀 Short Term Roadmap (Week 1-2)
 
 ### **Priority 0 - Critical Security & Stability**
+
 - [ ] **Fix Security Vulnerabilities** (Issue #71)
   - Update `form-data`, `axios`, `js-yaml`, `undici`
   - Run security audit and implement automated scanning
@@ -28,6 +31,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 1-2 hours
 
 ### **Priority 1 - Build & Type Safety**
+
 - [ ] **Fix TypeScript Errors** (Issue #72)
   - Convert Chatbot.astro to proper Astro syntax
   - Fix event handlers and type annotations
@@ -45,6 +49,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🏗️ Medium Term Roadmap (Week 3-4)
 
 ### **Priority 1 - Infrastructure & Quality**
+
 - [ ] **Implement CI/CD Pipeline** (Issue #75)
   - Create basic CI pipeline (Issue #93)
   - Add security scanning workflow (Issue #94)
@@ -67,6 +72,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Documentation & Compliance**
+
 - [ ] **Complete Documentation Suite**
   - Create Security Policy (Issue #96)
   - Add Code of Conduct (Issue #97)
@@ -82,6 +88,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Feature Development**
+
 - [ ] **Complete Network Status Page** (PR #70)
   - Review and merge network status implementation
   - Test real-time monitoring features
@@ -99,6 +106,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🎯 Long Term Roadmap (Month 2-3)
 
 ### **Priority 2 - Enhanced Features**
+
 - [ ] **Customer Portal Enhancement** (Issue #63)
   - Billing management system
   - Service usage tracking
@@ -114,6 +122,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 16-20 hours
 
 ### **Priority 3 - Performance & Optimization**
+
 - [ ] **Performance Optimization** (Issue #101)
   - Implement code splitting and lazy loading
   - Optimize bundle size and images
@@ -133,6 +142,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 📈 Success Metrics
 
 ### **Technical Metrics**
+
 - [ ] 0 TypeScript errors
 - [ ] 0 security vulnerabilities
 - [ ] Build time < 30 seconds
@@ -140,6 +150,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - [ ] 100% test coverage for critical paths
 
 ### **Business Metrics**
+
 - [ ] Page load time < 2 seconds
 - [ ] 99.9% uptime
 - [ ] Customer support ticket resolution < 24 hours
@@ -158,11 +169,13 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🚨 Risk Mitigation
 
 ### **High Risk Items**
+
 1. **Security Vulnerabilities** - Addressed in Week 1
 2. **Technical Debt** - Ongoing with weekly refactoring
 3. **Team Capacity** - Prioritize critical over nice-to-have features
 
 ### **Contingency Plans**
+
 - **Security Issues**: Immediate patch and security advisory
 - **Build Failures**: Rollback strategy and hotfix process
 - **Feature Delays**: Reprioritize based on business impact
@@ -172,6 +185,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 📋 New Issues Created (2025-11-15)
 
 ### **Sub-issues for Complex Tasks**
+
 - #88: 📧 Setup Email Service Provider Integration (Sub-issue of #87)
 - #89: 📧 Create Transactional Email Templates (Sub-issue of #87)
 - #90: 📧 Implement Email Queue System (Sub-issue of #87)
@@ -182,6 +196,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - #95: 🔧 Implement Deployment Pipeline (Sub-issue of #75)
 
 ### **New Infrastructure Issues**
+
 - #96: 📄 Create Security Policy Documentation
 - #97: 📄 Add Code of Conduct
 - #98: 📄 Create CHANGELOG.md
@@ -193,5 +208,5 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 
 ---
 
-*Last Updated: 2025-11-15*
-*Next Review: 2025-11-22*
+_Last Updated: 2025-11-15_
+_Next Review: 2025-11-22_

@@ -1,5 +1,5 @@
-import type { APIRoute } from "astro";
-import { createClient } from "@supabase/supabase-js";
+import type { APIRoute } from 'astro';
+import { createClient } from '@supabase/supabase-js';
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -20,25 +20,25 @@ export const prerender = false;
 export const GET: APIRoute = async () => {
   try {
     const supabase = getSupabaseClient();
-    
+
     // Fetch subscribers from database
     const { data: subscribers, error } = await supabase
       .from('subscribers')
       .select('*')
       .order('subscribed_at', { ascending: false });
-    
+
     if (error) throw error;
-    
+
     return new Response(JSON.stringify(subscribers || []), {
-      headers: { 
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
-      }
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -47,64 +47,71 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const { email, preferences } = await request.json();
-    
+
     // Validate email
     if (!email || !email.includes('@')) {
-      return new Response(JSON.stringify({ error: "Valid email is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ error: 'Valid email is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
-    
+
     const supabase = getSupabaseClient();
-    
+
     // Check if email already exists
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('subscribers')
       .select('id')
       .eq('email', email)
       .single();
-    
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" error
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      // PGRST116 is "not found" error
       throw checkError;
     }
-    
+
     if (existingSubscriber) {
-      return new Response(JSON.stringify({ error: "Email already subscribed" }), {
-        status: 409,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ error: 'Email already subscribed' }),
+        {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
-    
+
     // Insert new subscriber into database
     const newSubscriber = {
       email,
       preferences: preferences || {
         incidents: true,
         maintenance: true,
-        statusChanges: true
+        statusChanges: true,
       },
       subscribed_at: new Date().toISOString(),
-      confirmed: false // Would be set to true after email confirmation
+      confirmed: false, // Would be set to true after email confirmation
     };
-    
+
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
       .insert([newSubscriber])
       .select()
       .single();
-    
+
     if (insertError) throw insertError;
-    
+
     // TODO: Send confirmation email (would require email service integration)
-    
+
     return new Response(JSON.stringify(insertedSubscriber), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
