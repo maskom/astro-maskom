@@ -9,6 +9,10 @@ interface ChatbotProps {
 }
 
 const { initialMessages = [] } = Astro.props;
+
+// Generate nonce for CSP
+const nonce = crypto.getRandomValues(new Uint8Array(16))
+  .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 ---
 
 <div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot" data-initial-messages={JSON.stringify(initialMessages)}>
@@ -52,4 +56,9 @@ const { initialMessages = [] } = Astro.props;
   </div>
 </div>
 
-<script src="/src/scripts/chatbot.js"></script>
+<script type="module" nonce={nonce}>
+  import { initializeChatbot } from '../../scripts/chatbot.js';
+  
+  const initialMessages = JSON.parse(JSON.stringify(Astro.props.initialMessages || []));
+  initializeChatbot(initialMessages);
+</script>

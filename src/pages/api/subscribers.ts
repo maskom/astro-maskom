@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
-import { sanitizeEmail, sanitizeString, validateRequestBody } from "../../lib/sanitization";
+import { sanitizeEmail, sanitizeJsonInput } from "../../utils/sanitization";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -62,25 +62,11 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const requestData = await request.json();
     
-    // Validate and sanitize input
-    const validation = validateRequestBody(requestData, ['email']);
+    // Sanitize input data
+    const sanitizedData = sanitizeJsonInput(requestData);
+    const { email, preferences } = sanitizedData;
     
-    if (!validation.isValid) {
-      return new Response(JSON.stringify({ 
-        error: "Validation failed", 
-        details: validation.errors 
-      }), {
-        status: 400,
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Content-Type-Options": "nosniff"
-        }
-      });
-    }
-    
-    const { email, preferences } = validation.sanitized;
-    
-    // Additional email validation
+    // Validate and sanitize email
     const sanitizedEmail = sanitizeEmail(email);
     if (!sanitizedEmail) {
       return new Response(JSON.stringify({ error: "Valid email is required" }), {

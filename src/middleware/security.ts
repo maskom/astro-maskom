@@ -1,39 +1,23 @@
-/**
- * Security headers configuration for CSP and other security measures
- */
-
-export interface SecurityConfig {
-  contentSecurityPolicy: string;
-  frameOptions: string;
-  contentTypeOptions: string;
-  referrerPolicy: string;
-  permissionsPolicy: string;
-  strictTransportSecurity: string;
+export interface SecurityHeaders {
+  'Content-Security-Policy': string;
+  'X-Frame-Options': string;
+  'X-Content-Type-Options': string;
+  'Referrer-Policy': string;
+  'Permissions-Policy': string;
+  'Strict-Transport-Security': string;
 }
 
-/**
- * Generate a nonce for CSP
- */
-export function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Get security headers configuration
- */
-export function getSecurityHeaders(nonce?: string): Record<string, string> {
-  const cspNonce = nonce || generateNonce();
+export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
+  const cspScriptSrc = nonce ? `'nonce-${nonce}'` : "'self'";
   
   return {
     'Content-Security-Policy': [
       "default-src 'self'",
-      "script-src 'self' 'nonce-" + cspNonce + "'",
+      `script-src ${cspScriptSrc}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self'",
-      "connect-src 'self'",
+      "connect-src 'self' https://api.openai.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"
@@ -44,17 +28,10 @@ export function getSecurityHeaders(nonce?: string): Record<string, string> {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload'
   };
-}
+};
 
-/**
- * Apply security headers to a response
- */
-export function applySecurityHeaders(response: Response, nonce?: string): Response {
-  const headers = getSecurityHeaders(nonce);
-  
-  Object.entries(headers).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-  
-  return response;
-}
+export const generateNonce = (): string => {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+};

@@ -1,3 +1,5 @@
+import { getSecurityHeaders, generateNonce } from '../src/middleware/security.js';
+
 export const onRequest = async ({ request, next }) => {
   const response = await next();
   const { pathname } = new URL(request.url);
@@ -10,26 +12,15 @@ export const onRequest = async ({ request, next }) => {
   }
   
   // Apply security headers
-  const nonce = crypto.getRandomValues(new Uint8Array(16))
-    .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+  const nonce = generateNonce();
+  const securityHeaders = getSecurityHeaders(nonce);
   
-  response.headers.set('Content-Security-Policy', [
-    "default-src 'self'",
-    "script-src 'self' 'nonce-" + nonce + "'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https:",
-    "font-src 'self'",
-    "connect-src 'self'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'"
-  ].join('; '));
+  Object.entries(securityHeaders).forEach(([header, value]) => {
+    response.headers.set(header, value);
+  });
   
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  // Add nonce to response for use in templates
+  response.headers.set('X-Nonce', nonce);
   
   return response;
 };

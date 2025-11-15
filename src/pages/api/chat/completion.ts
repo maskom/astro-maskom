@@ -1,68 +1,54 @@
 import type { APIRoute } from "astro";
 import OpenAI from "openai";
 import { packages as hardcodedPackages } from "../../../data/packages";
-import { validateRequestBody, sanitizeString } from "../../../lib/sanitization";
+import { validateMessages, sanitizeResponse } from "../../../lib/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const requestData = await request.json();
+    const body = await request.json();
+    const { messages } = body;
     
     // Validate and sanitize input
-    const validation = validateRequestBody(requestData, ['messages']);
+    const sanitizedMessages = validateMessages(messages);
     
-    if (!validation.isValid) {
-      return new Response(JSON.stringify({ 
-        error: "Validation failed", 
-        details: validation.errors 
-      }), {
+    if (sanitizedMessages.length === 0) {
+      return new Response(JSON.stringify({ error: 'Invalid messages format' }), {
         status: 400,
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Content-Type-Options": "nosniff"
-        }
+        headers: { "Content-Type": "application/json" }
       });
     }
-    
-    const { messages } = validation.sanitized;
-    
-    // Sanitize message content
-    const sanitizedMessages = messages.map((msg: any) => ({
-      role: msg.role,
-      content: sanitizeString(msg.content)
-    }));
-    
-    // Create system message with context about packages
-    const systemMessage = {
-      role: "system",
-      content: `You are a helpful customer service assistant for Maskom Network. 
-                Here is information about our packages: ${JSON.stringify(hardcodedPackages)}
-                Please use this information to answer customer questions accurately.`
-    };
-    
-    // Combine system message with conversation history
-    const chatMessages = [systemMessage, ...sanitizedMessages];
-    
-    const openai = new OpenAI({
-      apiKey: import.meta.env.OPENAI_API_KEY,
-    });
-    
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: chatMessages,
-    });
-    
-    const response = sanitizeString(completion.choices[0].message.content || '');
-    
-    return new Response(JSON.stringify({ response }), {
-      headers: { 
-        "Content-Type": "application/json",
-        "X-Content-Type-Options": "nosniff"
-      }
-    });
+  
+  // Create system message with context about packages
+  const systemMessage = {
+    role: "system",
+    content: `You are a helpful customer service assistant for Maskom Network. 
+              Here is information about our packages: ${JSON.stringify(hardcodedPackages)}
+              Please use this information to answer customer questions accurately.`
+  };
+  
+  // Combine system message with conversation history
+  const chatMessages = [systemMessage, ...sanitizedMessages];
+  
+  const openai = new OpenAI({
+    apiKey: import.meta.env.OPENAI_API_KEY,
+  });
+  
+  const completion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: chatMessages,
+  });
+  
+  const rawResponse = completion.choices[0].message.content || '';
+  const sanitizedResponse = sanitizeResponse(rawResponse);
+  
+  return new Response(JSON.stringify({ response: sanitizedResponse }), {
+    headers: { "Content-Type": "application/json" }
+  });
+  
   } catch (error: any) {
-    const sanitizedError = sanitizeString(error?.message || 'Unknown error');
-    return new Response(JSON.stringify({ error: sanitizedError }), {
+    console.error('Chat completion error:', error);
+    return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
       status: 500,
       headers: { 
         "Content-Type": "application/json",
