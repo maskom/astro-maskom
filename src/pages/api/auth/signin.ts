@@ -1,11 +1,16 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail, sanitizeText } from "../../../lib/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const formData = await request.formData();
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
+  const rawEmail = formData.get("email")?.toString();
+  const rawPassword = formData.get("password")?.toString();
+
+  // Sanitize inputs
+  const email = sanitizeEmail(rawEmail || '');
+  const password = sanitizeText(rawPassword || '');
 
   if (!email || !password) {
     return new Response("Email and password are required", { status: 400 });

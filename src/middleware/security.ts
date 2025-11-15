@@ -29,7 +29,7 @@ export function generateCSPHeader(nonce: string): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' https://api.openai.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",

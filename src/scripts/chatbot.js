@@ -8,9 +8,9 @@ class ChatbotManager {
 
   constructor(initialMessages = []) {
     this.messagesList = document.getElementById('messages-list');
-    this.chatInput = document.getElementById('chat-input') as HTMLInputElement;
-    this.chatForm = document.getElementById('chat-form') as HTMLFormElement;
-    this.sendButton = document.getElementById('send-button') as HTMLButtonElement;
+    this.chatInput = document.getElementById('chat-input');
+    this.chatForm = document.getElementById('chat-form');
+    this.sendButton = document.getElementById('send-button');
     this.loadingIndicator = document.getElementById('loading-indicator');
     
     this.state = {
@@ -116,6 +116,6 @@ class ChatbotManager {
 // Initialize chatbot when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Get initial messages from global variable or use empty array
-  const initialMessages = (window as any).initialChatMessages || [];
+  const initialMessages = window.initialChatMessages || [];
   new ChatbotManager(initialMessages);
 });
