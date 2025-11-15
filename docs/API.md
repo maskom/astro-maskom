@@ -3,6 +3,8 @@
 ## Overview
 Astro Maskom provides RESTful APIs for authentication, chat functionality, and various backend services. All APIs are built with Astro and integrate with Supabase for data persistence.
 
+**⚠️ Current Status**: APIs are functional but have critical security vulnerabilities and missing error handling. See issues #71, #72, #103.
+
 ## Base URL
 ```
 https://your-domain.com/api
@@ -181,9 +183,10 @@ X-RateLimit-Reset: 1640995200
 - Secure token storage recommended
 
 ### Data Validation
-- All inputs are validated and sanitized
+- **⚠️ PARTIALLY IMPLEMENTED**: Basic validation exists
 - SQL injection protection via Supabase RLS
-- XSS protection in place
+- **❌ MISSING**: Comprehensive input validation (Issue #103)
+- **❌ MISSING**: XSS protection implementation
 
 ### HTTPS
 - All API calls require HTTPS
@@ -251,16 +254,37 @@ SUPABASE_ANON_KEY=your-anon-key
 OPENAI_API_KEY=your-openai-key  # For chat functionality
 ```
 
+## Current API Issues
+
+### Critical Issues
+- **Security Vulnerabilities**: Outdated dependencies (Issue #71)
+- **Build Errors**: TypeScript compilation failing (Issue #72)
+- **Missing Validation**: Input validation not implemented (Issue #103)
+
+### Planned Enhancements
+- **Status API**: Network monitoring endpoints (Issue #60)
+- **Coverage API**: Address validation and coverage checking (Issue #77)
+- **Billing API**: Payment and subscription management (Issue #78)
+- **Notification API**: Email and SMS notifications (Issue #87)
+
 ## Changelog
 
-### v1.0.0 (2025-11-14)
+### v1.0.0-alpha (2025-11-15)
 - Initial API release
-- Authentication endpoints
-- Chat completion functionality
+- Authentication endpoints (register, signin, signout)
+- Chat completion functionality with OpenAI integration
 - Basic error handling
+- **❌ KNOWN ISSUES**: Security vulnerabilities, missing validation
+
+### Upcoming v1.0.1
+- Security vulnerability patches
+- Input validation implementation
+- Error handling improvements
+- Rate limiting enhancements
 
 ---
 
 For API support and questions, please create an issue in the repository.
 
-*Last Updated: 2025-11-14*
+*Last Updated: 2025-11-15*
+*API Health: 🔴 CRITICAL - Security vulnerabilities present*
