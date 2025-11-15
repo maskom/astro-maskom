@@ -1,5 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Database types
+interface DatabaseService {
+  id: string;
+  name: string;
+  status: 'operational' | 'degraded' | 'outage';
+  description: string;
+  updated_at: string;
+}
+
+interface ServiceUptime {
+  service_id: string;
+  period_days: number;
+  uptime_percentage: number;
+}
+
 // Define types for our status data
 export interface ServiceStatus {
   id: string;
@@ -34,7 +49,7 @@ export const createSupabaseClient = () => {
     supabaseClient = createClient(
       import.meta.env.SUPABASE_URL,
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
-    );
+    ) as ReturnType<typeof createClient>;
   }
   return supabaseClient;
 };
@@ -42,6 +57,7 @@ export const createSupabaseClient = () => {
 // Status API functions
 export const getStatusData = async (): Promise<StatusData> => {
   const supabase = createSupabaseClient();
+  if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
     // Fetch services status
@@ -65,10 +81,10 @@ export const getStatusData = async (): Promise<StatusData> => {
     let overall_status: 'operational' | 'degraded' | 'outage' = 'operational';
 
     // First check if any services have outages or degraded status
-    const hasServiceOutage = services.some(
+    const hasServiceOutage = (services as DatabaseService[]).some(
       service => service.status === 'outage'
     );
-    const hasServiceDegraded = services.some(
+    const hasServiceDegraded = (services as DatabaseService[]).some(
       service => service.status === 'degraded'
     );
 
@@ -105,6 +121,7 @@ export const getUptimePercentage = async (
   days: number = 30
 ): Promise<number> => {
   const supabase = createSupabaseClient();
+  if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
     // This is a simplified implementation
@@ -118,7 +135,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return data?.uptime_percentage || 99.9;
+    return (data as ServiceUptime)?.uptime_percentage || 99.9;
   } catch (error) {
     console.error('Error fetching uptime data:', error);
     return 99.9; // Default to 99.9% uptime
@@ -130,9 +147,10 @@ export const createIncident = async (
   incident: Omit<Incident, 'id' | 'created_at' | 'updated_at'>
 ): Promise<Incident | null> => {
   const supabase = createSupabaseClient();
+  if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
-    const { data, error } = await supabase
+    const result = await (supabase as unknown)
       .from('incidents')
       .insert([
         {
@@ -144,8 +162,8 @@ export const createIncident = async (
       .select()
       .single();
 
-    if (error) throw error;
-    return data;
+    if (result.error) throw result.error;
+    return result.data as Incident;
   } catch (error) {
     console.error('Error creating incident:', error);
     return null;
@@ -157,17 +175,18 @@ export const updateIncident = async (
   updates: Partial<Incident>
 ): Promise<Incident | null> => {
   const supabase = createSupabaseClient();
+  if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
-    const { data, error } = await supabase
+    const result = await (supabase as unknown)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
 
-    if (error) throw error;
-    return data;
+    if (result.error) throw result.error;
+    return result.data as Incident;
   } catch (error) {
     console.error('Error updating incident:', error);
     return null;
@@ -176,6 +195,7 @@ export const updateIncident = async (
 
 export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
+  if (!supabase) throw new Error('Failed to create Supabase client');
 
   try {
     const { data, error } = await supabase

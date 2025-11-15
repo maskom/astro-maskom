@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock Astro globals
-global.Astro = {
+(globalThis as Record<string, unknown>).Astro = {
   props: {},
   params: {},
   url: new URL('http://localhost:4321'),
@@ -19,7 +20,7 @@ global.Astro = {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
