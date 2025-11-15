@@ -74,7 +74,7 @@ export enum SecurityAction {
   DATA_EXPORT = 'data_export',
   DATA_DELETE = 'data_delete',
   ADMIN_ACTION = 'admin_action',
-  SECURITY_BREACH = 'security_breach'
+  SECURITY_BREACH = 'security_breach',
 }
 
 export enum SecurityEventType {
@@ -84,28 +84,28 @@ export enum SecurityEventType {
   UNAUTHORIZED_ACCESS = 'unauthorized_access',
   DATA_BREACH = 'data_breach',
   MALICIOUS_REQUEST = 'malicious_request',
-  ANOMALOUS_BEHAVIOR = 'anomalous_behavior'
+  ANOMALOUS_BEHAVIOR = 'anomalous_behavior',
 }
 
 export enum SecuritySeverity {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export enum RiskLevel {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export enum UserRole {
   CUSTOMER = 'customer',
   SUPPORT = 'support',
   ADMIN = 'admin',
-  SUPER_ADMIN = 'super_admin'
+  SUPER_ADMIN = 'super_admin',
 }
 
 export enum Permission {
@@ -120,7 +120,7 @@ export enum Permission {
   VIEW_SECURITY_LOGS = 'view_security_logs',
   MANAGE_SECURITY = 'manage_security',
   DATA_EXPORT = 'data_export',
-  DATA_DELETE = 'data_delete'
+  DATA_DELETE = 'data_delete',
 }
 
 export enum ConsentType {
@@ -128,7 +128,7 @@ export enum ConsentType {
   ANALYTICS = 'analytics',
   PERSONALIZATION = 'personalization',
   LEGAL_COMPLIANCE = 'legal_compliance',
-  DATA_PROCESSING = 'data_processing'
+  DATA_PROCESSING = 'data_processing',
 }
 
 export interface SecurityConfig {

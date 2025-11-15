@@ -23,7 +23,7 @@ async function testSecurityHeaders() {
       'Strict-Transport-Security'
     ];
     
-    const headers: { [key: string]: string } = {};
+    const headers = {};
     response.headers.forEach((value, key) => {
       headers[key] = value;
       if (requiredHeaders.includes(key)) {

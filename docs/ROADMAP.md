@@ -1,9 +1,11 @@
 # Astro Maskom Development Roadmap
 
 ## 🎯 Vision
+
 Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, keamanan terjamin, dan pengalaman pengguna terbaik.
 
 ## 📊 Current Status
+
 - **Version**: 1.0.0-alpha
 - **Health**: 🟢 Good (TypeScript errors resolved, builds passing)
 - **Technical Debt**: Low (Security improvements needed, code quality enhancements)
@@ -16,6 +18,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🚀 Short Term Roadmap (Week 1-2)
 
 ### **Priority 0 - Critical Security & Stability**
+
 - [x] **Fix Security Vulnerabilities** (Issue #71) ✅ COMPLETED
   - Updated `form-data`, `axios`, `js-yaml`, `undici`
   - Implemented automated security scanning
@@ -29,6 +32,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 1-2 hours
 
 ### **Priority 1 - Build & Type Safety**
+
 - [x] **Fix TypeScript Errors** (PR #107) ✅ COMPLETED
   - Converted Chatbot.astro to proper Astro syntax
   - Fixed event handlers and type annotations
@@ -42,6 +46,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 1-2 hours
 
 ### **Priority 1 - New Security & Quality Issues**
+
 - [ ] **Implement Content Security Policy (CSP)** (Issue #111)
   - Add security headers middleware
   - Move inline scripts to separate files
@@ -65,6 +70,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🏗️ Medium Term Roadmap (Week 3-4)
 
 ### **Priority 1 - Infrastructure & Quality**
+
 - [ ] **Implement CI/CD Pipeline** (Issue #75)
   - Create basic CI pipeline (Issue #93)
   - Add security scanning workflow (Issue #94)
@@ -87,6 +93,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Documentation & Compliance**
+
 - [ ] **Complete Documentation Suite**
   - Create Security Policy (Issue #96)
   - Add Code of Conduct (Issue #97)
@@ -102,6 +109,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Feature Development**
+
 - [ ] **Complete Network Status Page** (PR #70)
   - Review and merge network status implementation
   - Test real-time monitoring features
@@ -119,6 +127,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🎯 Long Term Roadmap (Month 2-3)
 
 ### **Priority 2 - Enhanced Features**
+
 - [ ] **Customer Portal Enhancement** (Issue #63)
   - Billing management system
   - Service usage tracking
@@ -134,6 +143,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 16-20 hours
 
 ### **Priority 3 - Performance & Optimization**
+
 - [x] **Bundle Size Optimization** (Issue #110) 📋 NEW
   - Implement code splitting and lazy loading
   - Consolidate duplicate package data structures
@@ -159,6 +169,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 📈 Success Metrics
 
 ### **Technical Metrics**
+
 - [ ] 0 TypeScript errors
 - [ ] 0 security vulnerabilities
 - [ ] Build time < 30 seconds
@@ -166,6 +177,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - [ ] 100% test coverage for critical paths
 
 ### **Business Metrics**
+
 - [ ] Page load time < 2 seconds
 - [ ] 99.9% uptime
 - [ ] Customer support ticket resolution < 24 hours
@@ -184,11 +196,13 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🚨 Risk Mitigation
 
 ### **High Risk Items**
+
 1. **Security Vulnerabilities** - Addressed in Week 1
 2. **Technical Debt** - Ongoing with weekly refactoring
 3. **Team Capacity** - Prioritize critical over nice-to-have features
 
 ### **Contingency Plans**
+
 - **Security Issues**: Immediate patch and security advisory
 - **Build Failures**: Rollback strategy and hotfix process
 - **Feature Delays**: Reprioritize based on business impact
@@ -198,12 +212,14 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 📋 New Issues Created (2025-11-15)
 
 ### **Critical Security & Quality Issues (NEW)**
+
 - #108: 🧹 Remove Console Statements and Implement Proper Logging
 - #109: 🔄 Improve Error Handling with Proper Types and Responses
 - #110: 📊 Optimize Bundle Size and Implement Code Splitting
 - #111: 🔒 Implement Content Security Policy (CSP) and Security Headers
 
 ### **Sub-issues for Complex Tasks**
+
 - #88: 📧 Setup Email Service Provider Integration (Sub-issue of #87)
 - #89: 📧 Create Transactional Email Templates (Sub-issue of #87)
 - #90: 📧 Implement Email Queue System (Sub-issue of #87)
@@ -214,6 +230,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - #95: 🔧 Implement Deployment Pipeline (Sub-issue of #75)
 
 ### **Infrastructure & Documentation Issues**
+
 - #96: 📄 Create Security Policy Documentation
 - #97: 📄 Add Code of Conduct
 - #98: 📄 Create CHANGELOG.md
@@ -224,6 +241,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - #103: 🔄 Add Error Handling and Validation
 
 ### **Recently Completed**
+
 - ✅ #71: 🚨 Critical: Fix Security Vulnerabilities (COMPLETED)
 - ✅ #66: chore: Fix missing dependencies (COMPLETED)
 - ✅ PR #105: 🔒 Fix Security Vulnerabilities (MERGED)
@@ -231,7 +249,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 
 ---
 
-*Last Updated: 2025-11-15*
-*Next Review: 2025-11-22*
-*Repository Health: 🟢 GOOD (Stable)*
-*Active Issues: 29 | Active PRs: 3 | Recently Completed: 5*
+_Last Updated: 2025-11-15_
+_Next Review: 2025-11-22_
+_Repository Health: 🟢 GOOD (Stable)_
+_Active Issues: 29 | Active PRs: 3 | Recently Completed: 5_

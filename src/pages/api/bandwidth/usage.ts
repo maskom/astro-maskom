@@ -16,19 +16,22 @@ export const GET: APIRoute = async ({ request }) => {
     if (!userId) {
       const authHeader = request.headers.get('authorization');
       if (!authHeader?.startsWith('Bearer ')) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       const token = authHeader.substring(7);
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-      
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(token);
+
       if (error || !user) {
-        return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
@@ -37,13 +40,18 @@ export const GET: APIRoute = async ({ request }) => {
         .from('bandwidth_usage')
         .select('*')
         .eq('user_id', user.id)
-        .gte('usage_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .gte(
+          'usage_date',
+          new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0]
+        )
         .order('usage_date', { ascending: true });
 
       if (usageError) {
-        return new Response(JSON.stringify({ error: usageError.message }), { 
+        return new Response(JSON.stringify({ error: usageError.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
@@ -55,10 +63,11 @@ export const GET: APIRoute = async ({ request }) => {
         .eq('is_active', true)
         .single();
 
-      if (capError && capError.code !== 'PGRST116') { // Not found error
-        return new Response(JSON.stringify({ error: capError.message }), { 
+      if (capError && capError.code !== 'PGRST116') {
+        // Not found error
+        return new Response(JSON.stringify({ error: capError.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
@@ -72,43 +81,60 @@ export const GET: APIRoute = async ({ request }) => {
         .limit(10);
 
       if (notifError) {
-        return new Response(JSON.stringify({ error: notifError.message }), { 
+        return new Response(JSON.stringify({ error: notifError.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
-      return new Response(JSON.stringify({
-        usage: usage || [],
-        dataCap: dataCap || null,
-        notifications: notifications || [],
-        summary: {
-          totalUsageGB: usage?.reduce((sum, day) => sum + (day.total_bytes / (1024 * 1024 * 1024)), 0) || 0,
-          averageDailyGB: usage?.length ? usage.reduce((sum, day) => sum + (day.total_bytes / (1024 * 1024 * 1024)), 0) / usage.length : 0,
-          usagePercentage: dataCap ? (dataCap.current_usage_gb / dataCap.monthly_cap_gb) * 100 : 0
+      return new Response(
+        JSON.stringify({
+          usage: usage || [],
+          dataCap: dataCap || null,
+          notifications: notifications || [],
+          summary: {
+            totalUsageGB:
+              usage?.reduce(
+                (sum, day) => sum + day.total_bytes / (1024 * 1024 * 1024),
+                0
+              ) || 0,
+            averageDailyGB: usage?.length
+              ? usage.reduce(
+                  (sum, day) => sum + day.total_bytes / (1024 * 1024 * 1024),
+                  0
+                ) / usage.length
+              : 0,
+            usagePercentage: dataCap
+              ? (dataCap.current_usage_gb / dataCap.monthly_cap_gb) * 100
+              : 0,
+          },
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
         }
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      );
     }
 
     // Admin access to specific user data
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const token = authHeader.substring(7);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -120,9 +146,9 @@ export const GET: APIRoute = async ({ request }) => {
       .single();
 
     if (profile?.role !== 'admin') {
-      return new Response(JSON.stringify({ error: 'Admin access required' }), { 
+      return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -131,32 +157,48 @@ export const GET: APIRoute = async ({ request }) => {
       .from('bandwidth_usage')
       .select('*')
       .eq('user_id', userId)
-      .gte('usage_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .gte(
+        'usage_date',
+        new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0]
+      )
       .order('usage_date', { ascending: true });
 
     if (usageError) {
-      return new Response(JSON.stringify({ error: usageError.message }), { 
+      return new Response(JSON.stringify({ error: usageError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({
-      usage: usage || [],
-      summary: {
-        totalUsageGB: usage?.reduce((sum, day) => sum + (day.total_bytes / (1024 * 1024 * 1024)), 0) || 0,
-        averageDailyGB: usage?.length ? usage.reduce((sum, day) => sum + (day.total_bytes / (1024 * 1024 * 1024)), 0) / usage.length : 0
+    return new Response(
+      JSON.stringify({
+        usage: usage || [],
+        summary: {
+          totalUsageGB:
+            usage?.reduce(
+              (sum, day) => sum + day.total_bytes / (1024 * 1024 * 1024),
+              0
+            ) || 0,
+          averageDailyGB: usage?.length
+            ? usage.reduce(
+                (sum, day) => sum + day.total_bytes / (1024 * 1024 * 1024),
+                0
+              ) / usage.length
+            : 0,
+        },
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
       }
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    );
   } catch (error) {
     console.error('Bandwidth usage API error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -167,27 +209,33 @@ export const POST: APIRoute = async ({ request }) => {
     const { download_bytes, upload_bytes, usage_date, package_id } = body;
 
     if (!download_bytes && !upload_bytes) {
-      return new Response(JSON.stringify({ error: 'Download or upload bytes required' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: 'Download or upload bytes required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const token = authHeader.substring(7);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -199,31 +247,33 @@ export const POST: APIRoute = async ({ request }) => {
         package_id: package_id || 'unknown',
         usage_date: usage_date || new Date().toISOString().split('T')[0],
         download_bytes: download_bytes || 0,
-        upload_bytes: upload_bytes || 0
+        upload_bytes: upload_bytes || 0,
       })
       .select()
       .single();
 
     if (insertError) {
-      return new Response(JSON.stringify({ error: insertError.message }), { 
+      return new Response(JSON.stringify({ error: insertError.message }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      data 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Bandwidth usage POST error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

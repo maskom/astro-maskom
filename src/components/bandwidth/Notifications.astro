@@ -50,13 +50,15 @@ function getNotificationIcon(threshold: number): string {
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-xl font-semibold text-gray-800">
       Notifikasi Penggunaan
-      {unreadCount > 0 && (
-        <span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
-          {unreadCount} baru
-        </span>
-      )}
+      {
+        unreadCount > 0 && (
+          <span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+            {unreadCount} baru
+          </span>
+        )
+      }
     </h2>
-    <button 
+    <button
       class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
       onclick="markAllNotificationsAsRead()"
     >
@@ -64,62 +66,78 @@ function getNotificationIcon(threshold: number): string {
     </button>
   </div>
 
-  {notifications.length > 0 ? (
-    <div class="space-y-3">
-      {notifications.map((notification) => (
-        <div 
-          class={`p-4 rounded-lg border transition-all ${
-            notification.is_read 
-              ? 'bg-gray-50 border-gray-200' 
-              : 'bg-blue-50 border-blue-200'
-          }`}
-          data-notification-id={notification.id}
-        >
-          <div class="flex items-start">
-            <div class="text-2xl mr-3">
-              {getNotificationIcon(notification.threshold_percentage)}
-            </div>
-            <div class="flex-1">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class={`text-sm ${notification.is_read ? 'text-gray-700' : 'text-gray-900 font-medium'}`}>
-                    {notification.message}
-                  </p>
-                  <p class="text-xs text-gray-500 mt-1">
-                    {formatDate(notification.sent_at)}
-                  </p>
-                </div>
-                <div class="flex items-center space-x-2 ml-4">
-                  {!notification.is_read && (
-                    <button
-                      class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                      onclick="markNotificationAsRead('{notification.id}')"
+  {
+    notifications.length > 0 ? (
+      <div class="space-y-3">
+        {notifications.map(notification => (
+          <div
+            class={`p-4 rounded-lg border transition-all ${
+              notification.is_read
+                ? 'bg-gray-50 border-gray-200'
+                : 'bg-blue-50 border-blue-200'
+            }`}
+            data-notification-id={notification.id}
+          >
+            <div class="flex items-start">
+              <div class="text-2xl mr-3">
+                {getNotificationIcon(notification.threshold_percentage)}
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p
+                      class={`text-sm ${notification.is_read ? 'text-gray-700' : 'text-gray-900 font-medium'}`}
                     >
-                      Tandai dibaca
+                      {notification.message}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {formatDate(notification.sent_at)}
+                    </p>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-4">
+                    {!notification.is_read && (
+                      <button
+                        class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                        onclick="markNotificationAsRead('{notification.id}')"
+                      >
+                        Tandai dibaca
+                      </button>
+                    )}
+                    <button
+                      class="text-xs text-red-600 hover:text-red-800 transition-colors"
+                      onclick="deleteNotification('{notification.id}')"
+                    >
+                      Hapus
                     </button>
-                  )}
-                  <button
-                    class="text-xs text-red-600 hover:text-red-800 transition-colors"
-                    onclick="deleteNotification('{notification.id}')"
-                  >
-                    Hapus
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div class="text-center py-8 text-gray-500">
-      <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-      </svg>
-      <p>Belum ada notifikasi</p>
-      <p class="text-sm mt-1">Anda akan menerima notifikasi saat penggunaan kuota mendekati batas</p>
-    </div>
-  )}
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-8 text-gray-500">
+        <svg
+          class="w-12 h-12 mx-auto mb-3 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+          />
+        </svg>
+        <p>Belum ada notifikasi</p>
+        <p class="text-sm mt-1">
+          Anda akan menerima notifikasi saat penggunaan kuota mendekati batas
+        </p>
+      </div>
+    )
+  }
 </div>
 
 <script>
@@ -129,22 +147,26 @@ function getNotificationIcon(threshold: number): string {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`
+          Authorization: `Bearer ${localStorage.getItem('supabase_token')}`,
         },
         body: JSON.stringify({
           notificationIds: [notificationId],
-          markAsRead: true
-        })
+          markAsRead: true,
+        }),
       });
 
       if (response.ok) {
-        const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        const element = document.querySelector(
+          `[data-notification-id="${notificationId}"]`
+        );
         if (element) {
           element.classList.remove('bg-blue-50', 'border-blue-200');
           element.classList.add('bg-gray-50', 'border-gray-200');
-          
+
           // Remove the "Tandai dibaca" button
-          const markReadBtn = element.querySelector('button[onclick*="markNotificationAsRead"]');
+          const markReadBtn = element.querySelector(
+            'button[onclick*="markNotificationAsRead"]'
+          );
           if (markReadBtn) {
             markReadBtn.remove();
           }
@@ -157,10 +179,12 @@ function getNotificationIcon(threshold: number): string {
 
   async function markAllNotificationsAsRead() {
     try {
-      const notificationElements = document.querySelectorAll('[data-notification-id]');
-      const notificationIds = Array.from(notificationElements).map(el => 
-        el.getAttribute('data-notification-id')
-      ).filter(Boolean);
+      const notificationElements = document.querySelectorAll(
+        '[data-notification-id]'
+      );
+      const notificationIds = Array.from(notificationElements)
+        .map(el => el.getAttribute('data-notification-id'))
+        .filter(Boolean);
 
       if (notificationIds.length === 0) return;
 
@@ -168,28 +192,32 @@ function getNotificationIcon(threshold: number): string {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`
+          Authorization: `Bearer ${localStorage.getItem('supabase_token')}`,
         },
         body: JSON.stringify({
           notificationIds,
-          markAsRead: true
-        })
+          markAsRead: true,
+        }),
       });
 
       if (response.ok) {
         notificationElements.forEach(element => {
           element.classList.remove('bg-blue-50', 'border-blue-200');
           element.classList.add('bg-gray-50', 'border-gray-200');
-          
+
           // Remove all "Tandai dibaca" buttons
-          const markReadBtn = element.querySelector('button[onclick*="markNotificationAsRead"]');
+          const markReadBtn = element.querySelector(
+            'button[onclick*="markNotificationAsRead"]'
+          );
           if (markReadBtn) {
             markReadBtn.remove();
           }
         });
 
         // Update unread count badge
-        const badge = document.querySelector('.bg-red-500.text-white.text-xs.rounded-full');
+        const badge = document.querySelector(
+          '.bg-red-500.text-white.text-xs.rounded-full'
+        );
         if (badge) {
           badge.textContent = '0';
           badge.style.display = 'none';
@@ -206,15 +234,17 @@ function getNotificationIcon(threshold: number): string {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`
+          Authorization: `Bearer ${localStorage.getItem('supabase_token')}`,
         },
         body: JSON.stringify({
-          notificationIds: [notificationId]
-        })
+          notificationIds: [notificationId],
+        }),
       });
 
       if (response.ok) {
-        const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        const element = document.querySelector(
+          `[data-notification-id="${notificationId}"]`
+        );
         if (element) {
           element.remove();
         }

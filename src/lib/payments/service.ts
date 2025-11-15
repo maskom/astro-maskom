@@ -7,7 +7,9 @@ export class PaymentService {
     this.supabase = supabaseClient;
   }
 
-  async createTransaction(transactionData: Omit<PaymentTransaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<PaymentTransaction> {
+  async createTransaction(
+    transactionData: Omit<PaymentTransaction, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
         .from('payment_transactions')
@@ -27,7 +29,11 @@ export class PaymentService {
     }
   }
 
-  async updateTransactionStatus(transactionId: string, status: PaymentTransaction['status'], metadata?: Record<string, any>): Promise<PaymentTransaction> {
+  async updateTransactionStatus(
+    transactionId: string,
+    status: PaymentTransaction['status'],
+    metadata?: Record<string, any>
+  ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
         .from('payment_transactions')
@@ -48,7 +54,9 @@ export class PaymentService {
     }
   }
 
-  async getTransactionById(transactionId: string): Promise<PaymentTransaction | null> {
+  async getTransactionById(
+    transactionId: string
+  ): Promise<PaymentTransaction | null> {
     try {
       const { data, error } = await this.supabase
         .from('payment_transactions')
@@ -64,7 +72,9 @@ export class PaymentService {
     }
   }
 
-  async getTransactionByOrderId(orderId: string): Promise<PaymentTransaction | null> {
+  async getTransactionByOrderId(
+    orderId: string
+  ): Promise<PaymentTransaction | null> {
     try {
       const { data, error } = await this.supabase
         .from('payment_transactions')
@@ -80,7 +90,11 @@ export class PaymentService {
     }
   }
 
-  async getTransactionsByUserId(userId: string, limit = 20, offset = 0): Promise<PaymentTransaction[]> {
+  async getTransactionsByUserId(
+    userId: string,
+    limit = 20,
+    offset = 0
+  ): Promise<PaymentTransaction[]> {
     try {
       const { data, error } = await this.supabase
         .from('payment_transactions')
@@ -97,7 +111,9 @@ export class PaymentService {
     }
   }
 
-  async createInvoice(invoiceData: Omit<Invoice, 'id' | 'createdAt' | 'updatedAt'>): Promise<Invoice> {
+  async createInvoice(
+    invoiceData: Omit<Invoice, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<Invoice> {
     try {
       const { data, error } = await this.supabase
         .from('invoices')
@@ -117,7 +133,10 @@ export class PaymentService {
     }
   }
 
-  async updateInvoiceStatus(invoiceId: string, status: Invoice['status']): Promise<Invoice> {
+  async updateInvoiceStatus(
+    invoiceId: string,
+    status: Invoice['status']
+  ): Promise<Invoice> {
     try {
       const { data, error } = await this.supabase
         .from('invoices')
@@ -141,10 +160,12 @@ export class PaymentService {
     try {
       const { data, error } = await this.supabase
         .from('invoices')
-        .select(`
+        .select(
+          `
           *,
           invoice_items (*)
-        `)
+        `
+        )
         .eq('id', invoiceId)
         .single();
 
@@ -156,14 +177,20 @@ export class PaymentService {
     }
   }
 
-  async getInvoicesByUserId(userId: string, limit = 20, offset = 0): Promise<Invoice[]> {
+  async getInvoicesByUserId(
+    userId: string,
+    limit = 20,
+    offset = 0
+  ): Promise<Invoice[]> {
     try {
       const { data, error } = await this.supabase
         .from('invoices')
-        .select(`
+        .select(
+          `
           *,
           invoice_items (*)
-        `)
+        `
+        )
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
@@ -181,7 +208,7 @@ export class PaymentService {
       const prefix = 'INV';
       const year = new Date().getFullYear();
       const month = String(new Date().getMonth() + 1).padStart(2, '0');
-      
+
       const { data, error } = await this.supabase
         .from('invoices')
         .select('invoice_number')

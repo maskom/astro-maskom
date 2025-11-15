@@ -14,7 +14,7 @@ if (orderId) {
       .select('*')
       .eq('order_id', orderId)
       .single();
-    
+
     if (!error) {
       transaction = data;
     }
@@ -29,49 +29,71 @@ if (orderId) {
     <div class="bg-white rounded-lg shadow-lg p-8 text-center">
       <!-- Success Icon -->
       <div class="mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
-          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full"
+        >
+          <svg
+            class="w-8 h-8 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"></path>
           </svg>
         </div>
       </div>
 
       <h1 class="text-3xl font-bold text-gray-900 mb-4">Payment Successful!</h1>
       <p class="text-lg text-gray-600 mb-8">
-        Thank you for your payment. Your transaction has been completed successfully.
+        Thank you for your payment. Your transaction has been completed
+        successfully.
       </p>
 
-      {transaction && (
-        <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
-          <h2 class="text-xl font-semibold mb-4">Transaction Details</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">Order ID</p>
-              <p class="font-medium">{transaction.order_id}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Transaction ID</p>
-              <p class="font-medium">{transaction.id}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Amount</p>
-              <p class="font-medium">Rp {transaction.amount.toLocaleString('id-ID')}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Status</p>
-              <p class="font-medium text-green-600 capitalize">{transaction.status}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Payment Method</p>
-              <p class="font-medium capitalize">{transaction.payment_method?.name || 'Online Payment'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Date</p>
-              <p class="font-medium">{new Date(transaction.created_at).toLocaleDateString('id-ID')}</p>
+      {
+        transaction && (
+          <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+            <h2 class="text-xl font-semibold mb-4">Transaction Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Order ID</p>
+                <p class="font-medium">{transaction.order_id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Transaction ID</p>
+                <p class="font-medium">{transaction.id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Amount</p>
+                <p class="font-medium">
+                  Rp {transaction.amount.toLocaleString('id-ID')}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p class="font-medium text-green-600 capitalize">
+                  {transaction.status}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Payment Method</p>
+                <p class="font-medium capitalize">
+                  {transaction.payment_method?.name || 'Online Payment'}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Date</p>
+                <p class="font-medium">
+                  {new Date(transaction.created_at).toLocaleDateString('id-ID')}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a
@@ -97,25 +119,53 @@ if (orderId) {
 
     <!-- Additional Information -->
     <div class="mt-8 bg-blue-50 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-blue-900 mb-3">What happens next?</h3>
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">
+        What happens next?
+      </h3>
       <ul class="space-y-2 text-blue-800">
         <li class="flex items-start">
-          <svg class="w-5 h-5 mr-2 mt-0.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          <svg
+            class="w-5 h-5 mr-2 mt-0.5 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"></path>
           </svg>
-          <span>You will receive a confirmation email with your payment receipt.</span>
+          <span
+            >You will receive a confirmation email with your payment receipt.</span
+          >
         </li>
         <li class="flex items-start">
-          <svg class="w-5 h-5 mr-2 mt-0.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          <svg
+            class="w-5 h-5 mr-2 mt-0.5 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"></path>
           </svg>
-          <span>Your invoice has been generated and is available in your dashboard.</span>
+          <span
+            >Your invoice has been generated and is available in your dashboard.</span
+          >
         </li>
         <li class="flex items-start">
-          <svg class="w-5 h-5 mr-2 mt-0.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          <svg
+            class="w-5 h-5 mr-2 mt-0.5 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"></path>
           </svg>
-          <span>Your service activation will be processed within 24 hours.</span>
+          <span>Your service activation will be processed within 24 hours.</span
+          >
         </li>
       </ul>
     </div>

@@ -13,7 +13,14 @@
     "simulate-bandwidth": "tsx src/scripts/bandwidth-simulation.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
@@ -34,13 +41,26 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@babel/parser": "^7.28.5",
+    "@eslint/js": "^9.0.0",
+    "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.9.1",
+    "@types/eslint__js": "^8.42.3",
+    "@typescript-eslint/eslint-plugin": "^8.46.4",
+    "@typescript-eslint/parser": "^8.46.4",
+    "@vitest/coverage-v8": "^4.0.9",
     "@vitest/ui": "^4.0.9",
     "axios": "^1.13.2",
+    "eslint": "^9.0.0",
+    "eslint-plugin-astro": "^1.5.0",
     "form-data": "^4.0.4",
+    "globals": "^16.5.0",
     "js-yaml": "^4.1.1",
     "jsdom": "^27.2.0",
+    "prettier": "^3.2.0",
+    "prettier-plugin-astro": "^0.14.0",
     "tsx": "^4.6.0",
+    "typescript-eslint": "^8.0.0",
     "undici": "^7.16.0",
     "vitest": "^4.0.9",
     "wrangler": "^4.46.0"

@@ -1,11 +1,11 @@
 import crypto from 'crypto';
-import type { 
-  PaymentGatewayConfig, 
-  PaymentRequest, 
-  PaymentResponse, 
+import type {
+  PaymentGatewayConfig,
+  PaymentRequest,
+  PaymentResponse,
   WebhookNotification,
   CustomerDetails,
-  ItemDetails 
+  ItemDetails,
 } from './types';
 
 export class MidtransGateway {
@@ -14,22 +14,31 @@ export class MidtransGateway {
 
   constructor(config: PaymentGatewayConfig) {
     this.config = config;
-    this.apiUrl = config.environment === 'production' 
-      ? 'https://api.midtrans.com/v2' 
-      : 'https://api.sandbox.midtrans.com/v2';
+    this.apiUrl =
+      config.environment === 'production'
+        ? 'https://api.midtrans.com/v2'
+        : 'https://api.sandbox.midtrans.com/v2';
   }
 
   private getAuthHeader(): string {
-    const authString = Buffer.from(`${this.config.serverKey}:`).toString('base64');
+    const authString = Buffer.from(`${this.config.serverKey}:`).toString(
+      'base64'
+    );
     return `Basic ${authString}`;
   }
 
-  private createSignature(orderId: string, statusCode: string, grossAmount: string): string {
+  private createSignature(
+    orderId: string,
+    statusCode: string,
+    grossAmount: string
+  ): string {
     const input = `${orderId}${statusCode}${grossAmount}${this.config.serverKey}`;
     return crypto.createHash('sha512').update(input).digest('hex');
   }
 
-  async createTransaction(paymentRequest: PaymentRequest): Promise<PaymentResponse> {
+  async createTransaction(
+    paymentRequest: PaymentRequest
+  ): Promise<PaymentResponse> {
     try {
       const payload = {
         transaction_details: {
@@ -45,7 +54,9 @@ export class MidtransGateway {
           shipping_address: paymentRequest.customerDetails.shippingAddress,
         },
         item_details: paymentRequest.itemDetails,
-        enabled_payments: this.getEnabledPaymentMethods(paymentRequest.paymentMethod),
+        enabled_payments: this.getEnabledPaymentMethods(
+          paymentRequest.paymentMethod
+        ),
         callbacks: {
           finish: `${process.env.SITE_URL}/payment/finish`,
           error: `${process.env.SITE_URL}/payment/error`,
@@ -61,8 +72,8 @@ export class MidtransGateway {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.getAuthHeader(),
-          'Accept': 'application/json',
+          Authorization: this.getAuthHeader(),
+          Accept: 'application/json',
         },
         body: JSON.stringify(payload),
       });
@@ -85,8 +96,8 @@ export class MidtransGateway {
       const response = await fetch(`${this.apiUrl}/${orderId}/status`, {
         method: 'GET',
         headers: {
-          'Authorization': this.getAuthHeader(),
-          'Accept': 'application/json',
+          Authorization: this.getAuthHeader(),
+          Accept: 'application/json',
         },
       });
 
@@ -108,8 +119,8 @@ export class MidtransGateway {
       const response = await fetch(`${this.apiUrl}/${orderId}/cancel`, {
         method: 'POST',
         headers: {
-          'Authorization': this.getAuthHeader(),
-          'Accept': 'application/json',
+          Authorization: this.getAuthHeader(),
+          Accept: 'application/json',
         },
       });
 
@@ -126,16 +137,19 @@ export class MidtransGateway {
     }
   }
 
-  async refundTransaction(orderId: string, amount?: number): Promise<PaymentResponse> {
+  async refundTransaction(
+    orderId: string,
+    amount?: number
+  ): Promise<PaymentResponse> {
     try {
       const payload = amount ? { amount } : {};
-      
+
       const response = await fetch(`${this.apiUrl}/${orderId}/refund`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.getAuthHeader(),
-          'Accept': 'application/json',
+          Authorization: this.getAuthHeader(),
+          Accept: 'application/json',
         },
         body: JSON.stringify(payload),
       });
@@ -159,7 +173,7 @@ export class MidtransGateway {
       notification.status_code,
       notification.gross_amount
     );
-    
+
     return notification.signature_key === expectedSignature;
   }
 
@@ -167,7 +181,7 @@ export class MidtransGateway {
     if (method) {
       return [method];
     }
-    
+
     return [
       'credit_card',
       'bank_transfer',

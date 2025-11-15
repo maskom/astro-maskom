@@ -18,7 +18,10 @@ export interface SecurityContext {
 }
 
 export class SecurityMiddleware {
-  private static readonly RATE_LIMIT_MAP = new Map<string, { count: number; resetTime: number }>();
+  private static readonly RATE_LIMIT_MAP = new Map<
+    string,
+    { count: number; resetTime: number }
+  >();
 
   static async createSecurityContext(
     request: Request,
@@ -33,8 +36,11 @@ export class SecurityMiddleware {
         return null;
       }
 
-      const session = await sessionManager.validateSession(sessionId, ipAddress);
-      
+      const session = await sessionManager.validateSession(
+        sessionId,
+        ipAddress
+      );
+
       if (!session) {
         return null;
       }
@@ -50,7 +56,7 @@ export class SecurityMiddleware {
         isAuthenticated: true,
         mfaVerified: session.mfa_verified,
         role,
-        permissions
+        permissions,
       };
     } catch (error) {
       console.error('Security context creation error:', error);
@@ -60,43 +66,55 @@ export class SecurityMiddleware {
 
   static requireAuthentication() {
     return async (context: APIContext, next: () => Promise<Response>) => {
-      const securityContext = await this.createSecurityContext(context.request, context.cookies);
-      
+      const securityContext = await this.createSecurityContext(
+        context.request,
+        context.cookies
+      );
+
       if (!securityContext) {
         return new Response('Authentication required', { status: 401 });
       }
 
       // Attach security context to the request for use in handlers
       (context.request as any).securityContext = securityContext;
-      
+
       return await next();
     };
   }
 
   static requireMFA() {
     return async (context: APIContext, next: () => Promise<Response>) => {
-      const securityContext = await this.createSecurityContext(context.request, context.cookies);
-      
+      const securityContext = await this.createSecurityContext(
+        context.request,
+        context.cookies
+      );
+
       if (!securityContext || !securityContext.mfaVerified) {
         return new Response('MFA verification required', { status: 401 });
       }
 
       (context.request as any).securityContext = securityContext;
-      
+
       return await next();
     };
   }
 
   static requirePermission(permission: Permission) {
     return async (context: APIContext, next: () => Promise<Response>) => {
-      const securityContext = await this.createSecurityContext(context.request, context.cookies);
-      
+      const securityContext = await this.createSecurityContext(
+        context.request,
+        context.cookies
+      );
+
       if (!securityContext) {
         return new Response('Authentication required', { status: 401 });
       }
 
-      const hasPermission = await rbacService.hasPermission(securityContext.userId, permission);
-      
+      const hasPermission = await rbacService.hasPermission(
+        securityContext.userId,
+        permission
+      );
+
       if (!hasPermission) {
         await securityAuditLogger.logSecurityAction(
           securityContext.userId,
@@ -107,26 +125,29 @@ export class SecurityMiddleware {
           false,
           { required_permission: permission }
         );
-        
+
         return new Response('Insufficient permissions', { status: 403 });
       }
 
       (context.request as any).securityContext = securityContext;
-      
+
       return await next();
     };
   }
 
   static requireRole(role: UserRole) {
     return async (context: APIContext, next: () => Promise<Response>) => {
-      const securityContext = await this.createSecurityContext(context.request, context.cookies);
-      
+      const securityContext = await this.createSecurityContext(
+        context.request,
+        context.cookies
+      );
+
       if (!securityContext) {
         return new Response('Authentication required', { status: 401 });
       }
 
       const hasRole = await rbacService.hasRole(securityContext.userId, role);
-      
+
       if (!hasRole) {
         await securityAuditLogger.logSecurityAction(
           securityContext.userId,
@@ -137,20 +158,23 @@ export class SecurityMiddleware {
           false,
           { required_role: role }
         );
-        
+
         return new Response('Insufficient role privileges', { status: 403 });
       }
 
       (context.request as any).securityContext = securityContext;
-      
+
       return await next();
     };
   }
 
   static requireDataConsent(consentType: string) {
     return async (context: APIContext, next: () => Promise<Response>) => {
-      const securityContext = await this.createSecurityContext(context.request, context.cookies);
-      
+      const securityContext = await this.createSecurityContext(
+        context.request,
+        context.cookies
+      );
+
       if (!securityContext) {
         return new Response('Authentication required', { status: 401 });
       }
@@ -159,13 +183,13 @@ export class SecurityMiddleware {
         securityContext.userId,
         consentType as any
       );
-      
+
       if (!hasConsent) {
         return new Response('Data consent required', { status: 451 });
       }
 
       (context.request as any).securityContext = securityContext;
-      
+
       return await next();
     };
   }
@@ -178,11 +202,11 @@ export class SecurityMiddleware {
       const windowMs = windowMinutes * 60 * 1000;
 
       const current = this.RATE_LIMIT_MAP.get(key);
-      
+
       if (!current || now > current.resetTime) {
         this.RATE_LIMIT_MAP.set(key, {
           count: 1,
-          resetTime: now + windowMs
+          resetTime: now + windowMs,
         });
         return await next();
       }
@@ -195,12 +219,14 @@ export class SecurityMiddleware {
           ipAddress,
           `Rate limit exceeded: ${maxRequests} requests per ${windowMinutes} minutes`
         );
-        
-        return new Response('Rate limit exceeded', { 
+
+        return new Response('Rate limit exceeded', {
           status: 429,
           headers: {
-            'Retry-After': Math.ceil((current.resetTime - now) / 1000).toString()
-          }
+            'Retry-After': Math.ceil(
+              (current.resetTime - now) / 1000
+            ).toString(),
+          },
         });
       }
 
@@ -217,7 +243,7 @@ export class SecurityMiddleware {
     details?: Record<string, any>
   ): Promise<void> {
     const securityContext = (context.request as any).securityContext;
-    
+
     if (securityContext) {
       await securityAuditLogger.logSecurityAction(
         securityContext.userId,
@@ -232,15 +258,20 @@ export class SecurityMiddleware {
   }
 
   static async detectSuspiciousActivity(context: APIContext): Promise<boolean> {
-    const securityContext = await this.createSecurityContext(context.request, context.cookies);
-    
+    const securityContext = await this.createSecurityContext(
+      context.request,
+      context.cookies
+    );
+
     if (!securityContext) {
       return false;
     }
 
     // Check for suspicious sessions
-    const suspiciousSessions = await sessionManager.detectSuspiciousSessions(securityContext.userId);
-    
+    const suspiciousSessions = await sessionManager.detectSuspiciousSessions(
+      securityContext.userId
+    );
+
     if (suspiciousSessions.length > 0) {
       await securityAuditLogger.createSecurityEvent(
         'suspicious_activity' as any,
@@ -250,7 +281,7 @@ export class SecurityMiddleware {
         'Suspicious session activity detected',
         { suspicious_sessions_count: suspiciousSessions.length }
       );
-      
+
       return true;
     }
 
@@ -281,10 +312,10 @@ export class SecurityMiddleware {
   static async cleanup() {
     // Cleanup expired sessions
     await sessionManager.cleanupExpiredSessions();
-    
+
     // Delete expired data
     await dataProtectionService.deleteExpiredData();
-    
+
     // Cleanup rate limit map
     const now = Date.now();
     for (const [key, value] of this.RATE_LIMIT_MAP.entries()) {
@@ -301,11 +332,17 @@ export function getSecurityContext(request: Request): SecurityContext | null {
 }
 
 // Helper function to check permissions in API routes
-export async function checkPermission(userId: string, permission: Permission): Promise<boolean> {
+export async function checkPermission(
+  userId: string,
+  permission: Permission
+): Promise<boolean> {
   return await rbacService.hasPermission(userId, permission);
 }
 
 // Helper function to check role in API routes
-export async function checkRole(userId: string, role: UserRole): Promise<boolean> {
+export async function checkRole(
+  userId: string,
+  role: UserRole
+): Promise<boolean> {
   return await rbacService.hasRole(userId, role);
 }

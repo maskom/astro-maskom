@@ -8,7 +8,10 @@ export const GET: APIRoute = async ({ request }) => {
 
     if (!orderId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'order_id parameter is required' }),
+        JSON.stringify({
+          success: false,
+          error: 'order_id parameter is required',
+        }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -23,13 +26,15 @@ export const GET: APIRoute = async ({ request }) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Payment status error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to get payment status' 
+      JSON.stringify({
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to get payment status',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );

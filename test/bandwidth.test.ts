@@ -5,19 +5,20 @@ const mockSupabase = {
   from: () => ({
     select: () => ({
       eq: () => ({
-      order: () => ({
-        limit: () => Promise.resolve({ data: [], error: null })
-      })
-    })
-  }),
-  upsert: () => Promise.resolve({ data: {}, error: null }),
-  insert: () => Promise.resolve({ data: {}, error: null }),
-  update: () => Promise.resolve({ data: {}, error: null }),
-  delete: () => Promise.resolve({ error: null })
+        order: () => ({
+          limit: () => Promise.resolve({ data: [], error: null }),
+        }),
+      }),
+    }),
+    upsert: () => Promise.resolve({ data: {}, error: null }),
+    insert: () => Promise.resolve({ data: {}, error: null }),
+    update: () => Promise.resolve({ data: {}, error: null }),
+    delete: () => Promise.resolve({ error: null }),
   }),
   auth: {
-    getUser: () => Promise.resolve({ data: { user: { id: 'test-user' } }, error: null })
-  }
+    getUser: () =>
+      Promise.resolve({ data: { user: { id: 'test-user' } }, error: null }),
+  },
 };
 
 // Mock the environment
@@ -25,9 +26,9 @@ global.import = {
   meta: {
     env: {
       SUPABASE_URL: 'test-url',
-      SUPABASE_SERVICE_ROLE_KEY: 'test-key'
-    }
-  }
+      SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+    },
+  },
 };
 
 describe('Bandwidth Monitoring API', () => {
@@ -43,22 +44,25 @@ describe('Bandwidth Monitoring API', () => {
     it('should return bandwidth usage data for authenticated user', async () => {
       const mockRequest = {
         headers: {
-          get: (header) => header === 'authorization' ? 'Bearer test-token' : null
+          get: header =>
+            header === 'authorization' ? 'Bearer test-token' : null,
         },
-        url: 'http://localhost/api/bandwidth/usage'
+        url: 'http://localhost/api/bandwidth/usage',
       };
 
       // This would test the actual API endpoint
       // For now, we'll test the logic structure
-      expect(mockRequest.headers.get('authorization')).toBe('Bearer test-token');
+      expect(mockRequest.headers.get('authorization')).toBe(
+        'Bearer test-token'
+      );
     });
 
     it('should require authentication', async () => {
       const mockRequest = {
         headers: {
-          get: () => null
+          get: () => null,
         },
-        url: 'http://localhost/api/bandwidth/usage'
+        url: 'http://localhost/api/bandwidth/usage',
       };
 
       expect(mockRequest.headers.get('authorization')).toBeNull();
@@ -97,16 +101,20 @@ describe('Bandwidth Monitoring API', () => {
     it('should trigger notifications at correct thresholds', () => {
       const thresholds = [80, 90, 100];
       const usagePercentage = 85;
-      
-      const shouldTrigger = thresholds.some(threshold => usagePercentage >= threshold);
+
+      const shouldTrigger = thresholds.some(
+        threshold => usagePercentage >= threshold
+      );
       expect(shouldTrigger).toBe(true);
     });
 
     it('should not trigger notifications below threshold', () => {
       const thresholds = [80, 90, 100];
       const usagePercentage = 75;
-      
-      const shouldTrigger = thresholds.some(threshold => usagePercentage >= threshold);
+
+      const shouldTrigger = thresholds.some(
+        threshold => usagePercentage >= threshold
+      );
       expect(shouldTrigger).toBe(false);
     });
   });
@@ -133,12 +141,17 @@ describe('Bandwidth Monitoring API', () => {
     it('should calculate days remaining correctly', () => {
       const billingStart = new Date();
       billingStart.setDate(billingStart.getDate() - 15); // 15 days ago
-      const billingEnd = new Date(billingStart.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const billingEnd = new Date(
+        billingStart.getTime() + 30 * 24 * 60 * 60 * 1000
+      );
       const now = new Date();
-      
+
       const diffTime = billingEnd.getTime() - now.getTime();
-      const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-      
+      const daysRemaining = Math.max(
+        0,
+        Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      );
+
       expect(daysRemaining).toBeGreaterThan(0);
       expect(daysRemaining).toBeLessThanOrEqual(30);
     });
@@ -150,11 +163,14 @@ describe('Bandwidth Data Simulation', () => {
     const baseUsage = 2.5; // GB
     const variance = 1.0; // GB
     const weekendMultiplier = 1.3;
-    
+
     // Weekday usage
-    const weekdayUsage = Math.max(0.1, baseUsage + (Math.random() - 0.5) * variance);
+    const weekdayUsage = Math.max(
+      0.1,
+      baseUsage + (Math.random() - 0.5) * variance
+    );
     expect(weekdayUsage).toBeGreaterThan(0);
-    
+
     // Weekend usage
     const weekendUsage = Math.max(0.1, weekdayUsage * weekendMultiplier);
     expect(weekendUsage).toBeGreaterThan(weekdayUsage);
@@ -164,10 +180,10 @@ describe('Bandwidth Data Simulation', () => {
     const totalUsage = 3.0; // GB
     const downloadRatio = 0.8;
     const uploadRatio = 0.2;
-    
+
     const downloadGB = totalUsage * downloadRatio;
     const uploadGB = totalUsage * uploadRatio;
-    
+
     expect(downloadGB + uploadGB).toBe(totalUsage);
     expect(downloadGB).toBeGreaterThan(uploadGB);
   });

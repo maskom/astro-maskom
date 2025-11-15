@@ -12,14 +12,14 @@ export class RBACService {
       Permission.VIEW_DASHBOARD,
       Permission.MANAGE_ACCOUNT,
       Permission.VIEW_BILLING,
-      Permission.MANAGE_BILLING
+      Permission.MANAGE_BILLING,
     ],
     [UserRole.SUPPORT]: [
       Permission.VIEW_DASHBOARD,
       Permission.MANAGE_ACCOUNT,
       Permission.VIEW_BILLING,
       Permission.VIEW_CUSTOMERS,
-      Permission.VIEW_ANALYTICS
+      Permission.VIEW_ANALYTICS,
     ],
     [UserRole.ADMIN]: [
       Permission.VIEW_DASHBOARD,
@@ -31,19 +31,23 @@ export class RBACService {
       Permission.VIEW_ANALYTICS,
       Permission.MANAGE_SYSTEM,
       Permission.VIEW_SECURITY_LOGS,
-      Permission.DATA_EXPORT
+      Permission.DATA_EXPORT,
     ],
-    [UserRole.SUPER_ADMIN]: Object.values(Permission)
+    [UserRole.SUPER_ADMIN]: Object.values(Permission),
   };
 
-  async assignRole(userId: string, role: UserRole, assignedBy: string): Promise<boolean> {
+  async assignRole(
+    userId: string,
+    role: UserRole,
+    assignedBy: string
+  ): Promise<boolean> {
     try {
       const { error } = await this.supabase
         .from('user_security_profiles')
         .upsert({
           user_id: userId,
           role,
-          updated_at: new Date()
+          updated_at: new Date(),
         });
 
       if (error) {
@@ -52,15 +56,13 @@ export class RBACService {
       }
 
       // Log the role change
-      await this.supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: assignedBy,
-          action: 'role_change',
-          resource: `user:${userId}`,
-          details: { new_role: role, target_user: userId },
-          timestamp: new Date()
-        });
+      await this.supabase.from('security_audit_logs').insert({
+        user_id: assignedBy,
+        action: 'role_change',
+        resource: `user:${userId}`,
+        details: { new_role: role, target_user: userId },
+        timestamp: new Date(),
+      });
 
       return true;
     } catch (error) {
@@ -69,7 +71,11 @@ export class RBACService {
     }
   }
 
-  async grantPermission(userId: string, permission: Permission, grantedBy: string): Promise<boolean> {
+  async grantPermission(
+    userId: string,
+    permission: Permission,
+    grantedBy: string
+  ): Promise<boolean> {
     try {
       const { data: profile } = await this.supabase
         .from('user_security_profiles')
@@ -78,7 +84,7 @@ export class RBACService {
         .single();
 
       const currentPermissions = (profile?.permissions as Permission[]) || [];
-      
+
       if (currentPermissions.includes(permission)) {
         return true; // Permission already granted
       }
@@ -89,7 +95,7 @@ export class RBACService {
         .from('user_security_profiles')
         .update({
           permissions: updatedPermissions,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('user_id', userId);
 
@@ -99,15 +105,13 @@ export class RBACService {
       }
 
       // Log the permission grant
-      await this.supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: grantedBy,
-          action: 'permission_grant',
-          resource: `user:${userId}`,
-          details: { permission, target_user: userId },
-          timestamp: new Date()
-        });
+      await this.supabase.from('security_audit_logs').insert({
+        user_id: grantedBy,
+        action: 'permission_grant',
+        resource: `user:${userId}`,
+        details: { permission, target_user: userId },
+        timestamp: new Date(),
+      });
 
       return true;
     } catch (error) {
@@ -116,7 +120,11 @@ export class RBACService {
     }
   }
 
-  async revokePermission(userId: string, permission: Permission, revokedBy: string): Promise<boolean> {
+  async revokePermission(
+    userId: string,
+    permission: Permission,
+    revokedBy: string
+  ): Promise<boolean> {
     try {
       const { data: profile } = await this.supabase
         .from('user_security_profiles')
@@ -125,18 +133,20 @@ export class RBACService {
         .single();
 
       const currentPermissions = (profile?.permissions as Permission[]) || [];
-      
+
       if (!currentPermissions.includes(permission)) {
         return true; // Permission not present
       }
 
-      const updatedPermissions = currentPermissions.filter(p => p !== permission);
+      const updatedPermissions = currentPermissions.filter(
+        p => p !== permission
+      );
 
       const { error } = await this.supabase
         .from('user_security_profiles')
         .update({
           permissions: updatedPermissions,
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('user_id', userId);
 
@@ -146,15 +156,13 @@ export class RBACService {
       }
 
       // Log the permission revocation
-      await this.supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: revokedBy,
-          action: 'permission_revoke',
-          resource: `user:${userId}`,
-          details: { permission, target_user: userId },
-          timestamp: new Date()
-        });
+      await this.supabase.from('security_audit_logs').insert({
+        user_id: revokedBy,
+        action: 'permission_revoke',
+        resource: `user:${userId}`,
+        details: { permission, target_user: userId },
+        timestamp: new Date(),
+      });
 
       return true;
     } catch (error) {
@@ -163,21 +171,27 @@ export class RBACService {
     }
   }
 
-  async hasPermission(userId: string, permission: Permission): Promise<boolean> {
+  async hasPermission(
+    userId: string,
+    permission: Permission
+  ): Promise<boolean> {
     try {
       const profile = await this.getUserSecurityProfile(userId);
-      
+
       if (!profile) {
         return false;
       }
 
       // Check role-based permissions
       const rolePermissions = this.rolePermissions[profile.role] || [];
-      
+
       // Check explicit permissions
       const explicitPermissions = profile.permissions || [];
-      
-      return rolePermissions.includes(permission) || explicitPermissions.includes(permission);
+
+      return (
+        rolePermissions.includes(permission) ||
+        explicitPermissions.includes(permission)
+      );
     } catch (error) {
       console.error('Permission check error:', error);
       return false;
@@ -216,14 +230,14 @@ export class RBACService {
   async getUserPermissions(userId: string): Promise<Permission[]> {
     try {
       const profile = await this.getUserSecurityProfile(userId);
-      
+
       if (!profile) {
         return [];
       }
 
       const rolePermissions = this.rolePermissions[profile.role] || [];
       const explicitPermissions = profile.permissions || [];
-      
+
       // Combine and deduplicate permissions
       return [...new Set([...rolePermissions, ...explicitPermissions])];
     } catch (error) {
@@ -251,7 +265,9 @@ export class RBACService {
     }
   }
 
-  private async getUserSecurityProfile(userId: string): Promise<UserSecurityProfile | null> {
+  private async getUserSecurityProfile(
+    userId: string
+  ): Promise<UserSecurityProfile | null> {
     try {
       const { data: profile, error } = await this.supabase
         .from('user_security_profiles')

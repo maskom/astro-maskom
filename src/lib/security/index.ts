@@ -9,20 +9,20 @@ export { dataProtectionService } from './data-protection';
 export { sessionManager } from './session';
 
 // Security Middleware
-export { 
-  SecurityMiddleware, 
-  getSecurityContext, 
-  checkPermission, 
-  checkRole 
+export {
+  SecurityMiddleware,
+  getSecurityContext,
+  checkPermission,
+  checkRole,
 } from './middleware';
 
 // Security Configuration
-export { 
-  securityConfig, 
-  securityHeaders, 
-  isIPWhitelisted, 
-  isOriginTrusted, 
-  generateNonce 
+export {
+  securityConfig,
+  securityHeaders,
+  isIPWhitelisted,
+  isOriginTrusted,
+  generateNonce,
 } from './config';
 
 // Re-export commonly used enums and interfaces
@@ -33,7 +33,7 @@ export {
   RiskLevel,
   UserRole,
   Permission,
-  ConsentType
+  ConsentType,
 } from './types';
 
 export type {
@@ -42,5 +42,5 @@ export type {
   UserSecurityProfile,
   SessionSecurity,
   DataConsent,
-  SecurityContext
+  SecurityContext,
 } from './types';

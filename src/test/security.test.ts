@@ -4,7 +4,12 @@ import { mfaService } from '../../src/lib/security/mfa';
 import { rbacService } from '../../src/lib/security/rbac';
 import { dataProtectionService } from '../../src/lib/security/data-protection';
 import { sessionManager } from '../../src/lib/security/session';
-import { SecurityAction, UserRole, Permission, SecuritySeverity } from '../../src/lib/security/types';
+import {
+  SecurityAction,
+  UserRole,
+  Permission,
+  SecuritySeverity,
+} from '../../src/lib/security/types';
 
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({
@@ -19,9 +24,9 @@ vi.mock('@supabase/supabase-js', () => ({
       lt: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null })
-    }))
-  }))
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    })),
+  })),
 }));
 
 describe('Security Audit Logger', () => {
@@ -39,7 +44,14 @@ describe('Security Audit Logger', () => {
 
     // Since we're mocking, we'll just test that the method doesn't throw
     await expect(
-      securityAuditLogger.logSecurityAction(userId, action, resource, ipAddress, userAgent, success)
+      securityAuditLogger.logSecurityAction(
+        userId,
+        action,
+        resource,
+        ipAddress,
+        userAgent,
+        success
+      )
     ).resolves.not.toThrow();
   });
 
@@ -62,7 +74,13 @@ describe('Security Audit Logger', () => {
     const description = 'Test security event';
 
     await expect(
-      securityAuditLogger.createSecurityEvent(type, severity, userId, ipAddress, description)
+      securityAuditLogger.createSecurityEvent(
+        type,
+        severity,
+        userId,
+        ipAddress,
+        description
+      )
     ).resolves.not.toThrow();
   });
 });
@@ -87,11 +105,11 @@ describe('MFA Service', () => {
 
   it('should generate backup codes', () => {
     const backupCodes = mfaService.generateBackupCodes();
-    
+
     expect(backupCodes).toBeDefined();
     expect(Array.isArray(backupCodes)).toBe(true);
     expect(backupCodes).toHaveLength(10);
-    
+
     backupCodes.forEach(code => {
       expect(typeof code).toBe('string');
       expect(code.length).toBe(8);
@@ -103,7 +121,8 @@ describe('RBAC Service', () => {
   it('should have correct role permissions mapping', async () => {
     // Test that admin role has more permissions than customer
     const adminPermissions = await rbacService.getUserPermissions('admin-user');
-    const customerPermissions = await rbacService.getUserPermissions('customer-user');
+    const customerPermissions =
+      await rbacService.getUserPermissions('customer-user');
 
     // Since we're mocking, this will return empty arrays
     // In a real test, you'd set up test data
@@ -131,11 +150,11 @@ describe('RBAC Service', () => {
 describe('Data Protection Service', () => {
   it('should encrypt and decrypt sensitive data', () => {
     const originalData = 'sensitive information';
-    
+
     const encrypted = dataProtectionService.encryptSensitiveData(originalData);
     expect(encrypted).toBeDefined();
     expect(encrypted).not.toBe(originalData);
-    
+
     const decrypted = dataProtectionService.decryptSensitiveData(encrypted);
     expect(decrypted).toBe(originalData);
   });
@@ -143,7 +162,7 @@ describe('Data Protection Service', () => {
   it('should hash passwords', () => {
     const password = 'testPassword123';
     const hashedPassword = dataProtectionService.hashPassword(password);
-    
+
     expect(hashedPassword).toBeDefined();
     expect(hashedPassword).not.toBe(password);
     expect(hashedPassword).toContain(':');
@@ -152,11 +171,17 @@ describe('Data Protection Service', () => {
   it('should verify passwords', () => {
     const password = 'testPassword123';
     const hashedPassword = dataProtectionService.hashPassword(password);
-    
-    const isValid = dataProtectionService.verifyPassword(password, hashedPassword);
+
+    const isValid = dataProtectionService.verifyPassword(
+      password,
+      hashedPassword
+    );
     expect(isValid).toBe(true);
-    
-    const isInvalid = dataProtectionService.verifyPassword('wrongPassword', hashedPassword);
+
+    const isInvalid = dataProtectionService.verifyPassword(
+      'wrongPassword',
+      hashedPassword
+    );
     expect(isInvalid).toBe(false);
   });
 });
@@ -166,9 +191,13 @@ describe('Session Manager', () => {
     const userId = 'test-user';
     const ipAddress = '192.168.1.1';
     const userAgent = 'test-agent';
-    
-    const sessionId = await sessionManager.createSession(userId, ipAddress, userAgent);
-    
+
+    const sessionId = await sessionManager.createSession(
+      userId,
+      ipAddress,
+      userAgent
+    );
+
     // Since we're mocking, this might return null
     expect(typeof sessionId === 'string' || sessionId === null).toBe(true);
   });
@@ -176,16 +205,16 @@ describe('Session Manager', () => {
   it('should validate session', async () => {
     const sessionId = 'test-session-id';
     const ipAddress = '192.168.1.1';
-    
+
     const session = await sessionManager.validateSession(sessionId, ipAddress);
-    
+
     // Since we're mocking, this might return null
     expect(typeof session === 'object' || session === null).toBe(true);
   });
 
   it('should invalidate session', async () => {
     const sessionId = 'test-session-id';
-    
+
     const result = await sessionManager.invalidateSession(sessionId);
     expect(typeof result).toBe('boolean');
   });
@@ -209,17 +238,21 @@ describe('Security Integration', () => {
     // Test login logging
     await expect(
       securityAuditLogger.logSecurityAction(
-        userId, 
-        SecurityAction.LOGIN, 
-        'authentication', 
-        ipAddress, 
-        userAgent, 
+        userId,
+        SecurityAction.LOGIN,
+        'authentication',
+        ipAddress,
+        userAgent,
         true
       )
     ).resolves.not.toThrow();
 
     // Test session creation
-    const sessionId = await sessionManager.createSession(userId, ipAddress, userAgent);
+    const sessionId = await sessionManager.createSession(
+      userId,
+      ipAddress,
+      userAgent
+    );
     expect(typeof sessionId === 'string' || sessionId === null).toBe(true);
 
     // Test MFA secret generation

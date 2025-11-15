@@ -24,11 +24,17 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid authentication token' }),
+        JSON.stringify({
+          success: false,
+          error: 'Invalid authentication token',
+        }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -58,13 +64,15 @@ export const GET: APIRoute = async ({ request }) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Invoice details error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to get invoice details' 
+      JSON.stringify({
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to get invoice details',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );

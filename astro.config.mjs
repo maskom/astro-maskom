@@ -1,26 +1,23 @@
 // @ts-check
-import { defineConfig } from "astro/config";
-import icon from "astro-icon";
-import sitemap from "@astrojs/sitemap";
-import tailwindcss from "@tailwindcss/vite";
-import cloudflare from "@astrojs/cloudflare";
+import { defineConfig } from 'astro/config';
+import icon from 'astro-icon';
+import sitemap from '@astrojs/sitemap';
+import tailwindcss from '@tailwindcss/vite';
+import cloudflare from '@astrojs/cloudflare';
 
 // Astro configuration
 export default defineConfig({
-  site: "https://maskom.co.id/",
-  output: "server",
+  site: 'https://maskom.co.id/',
+  output: 'server',
   adapter: cloudflare({
-    mode: "advanced",
+    mode: 'advanced',
   }),
-  integrations: [
-    icon(),
-    sitemap(),
-  ],
+  integrations: [icon(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
 
   build: {
-    inlineStylesheets: "auto",
+    inlineStylesheets: 'auto',
   },
 });
