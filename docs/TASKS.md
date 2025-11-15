@@ -324,7 +324,95 @@ const whatsappNumber = import.meta.env.WHATSAPP_NUMBER;
 
 ---
 
+## 🔒 Priority 1 - Security & Code Quality (NEW)
+
+### Task 1.7: Implement Content Security Policy (Issue #111)
+**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-17
+
+#### Subtasks:
+- [ ] Create security middleware utility (`src/middleware/security.ts`)
+- [ ] Implement security headers: CSP, X-Frame-Options, X-Content-Type-Options
+- [ ] Update Astro middleware to apply security headers
+- [ ] Refactor Chatbot inline scripts to separate files
+- [ ] Test CSP implementation with browser security tools
+- [ ] Verify SecurityHeaders.com score A+ or better
+
+#### Technical Context:
+```typescript
+// Security headers to implement
+const securityHeaders = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'nonce-{random}';",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
+};
+```
+
+### Task 1.8: Remove Console Statements (Issue #108)
+**Estimated Time**: 4-6 hours | **Assignee**: Available | **Due**: 2025-11-17
+
+#### Subtasks:
+- [ ] Create structured logging utility (`src/lib/logger.ts`)
+- [ ] Replace console.error in `src/lib/status.ts` (7 locations)
+- [ ] Replace console.error in `src/pages/admin/incidents.astro` (2 locations)
+- [ ] Replace console.error in `src/pages/status.astro` (1 location)
+- [ ] Implement log levels: DEBUG, INFO, WARN, ERROR
+- [ ] Add structured logging with context and metadata
+
+#### Technical Context:
+- 10+ console statements need replacement
+- Need proper error tracking and debugging
+- Environment-based log level configuration
+
+### Task 1.9: Improve Error Handling (Issue #109)
+**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-18
+
+#### Subtasks:
+- [ ] Create error types (`src/types/errors.ts`)
+- [ ] Implement error handler utility (`src/lib/error-handler.ts`)
+- [ ] Update `src/pages/api/chat/completion.ts` error handling
+- [ ] Apply consistent error handling to all API routes
+- [ ] Add request ID tracking for debugging
+- [ ] Implement structured error responses with error codes
+
+#### Technical Context:
+```typescript
+// Error types to implement
+interface ApiError {
+  code: string;
+  message: string;
+  details?: any;
+  requestId?: string;
+}
+```
+
+## ⚡ Priority 2 - Performance Optimization (NEW)
+
+### Task 2.5: Optimize Bundle Size (Issue #110)
+**Estimated Time**: 8-12 hours | **Assignee**: Available | **Due**: 2025-11-20
+
+#### Subtasks:
+- [ ] Analyze current bundle composition with webpack-bundle-analyzer
+- [ ] Consolidate 5 duplicate package arrays in `src/data/packages.ts`
+- [ ] Implement route-based code splitting
+- [ ] Add lazy loading for heavy components (Chatbot, AdminPanel)
+- [ ] Configure bundle size budgets and monitoring
+- [ ] Target bundle size < 100KB gzipped
+
+#### Technical Context:
+- Current largest file: `src/data/packages.ts` (254 lines)
+- 5 duplicate package structures need consolidation
+- No code splitting currently implemented
+
+---
+
 ## 🆕 New Tasks Added (2025-11-15)
+
+### Security & Quality Improvements (NEW)
+- **Task 1.7**: Implement Content Security Policy (Issue #111) - 6-8 hours
+- **Task 1.8**: Remove Console Statements (Issue #108) - 4-6 hours
+- **Task 1.9**: Improve Error Handling (Issue #109) - 6-8 hours
+- **Task 2.5**: Optimize Bundle Size (Issue #110) - 8-12 hours
 
 ### Email System Implementation (Issue #87)
 - **Task 3.5**: Setup Email Service Provider Integration (Issue #88) - 4-6 hours
@@ -340,8 +428,16 @@ const whatsappNumber = import.meta.env.WHATSAPP_NUMBER;
 - **Task 1.5**: Add Security Scanning Workflow (Issue #94) - 3-4 hours
 - **Task 1.6**: Implement Deployment Pipeline (Issue #95) - 6-8 hours
 
+### Recently Completed (✅)
+- **Task 0.1**: Fix Security Vulnerabilities (Issue #71) - COMPLETED
+- **Task 0.2**: Fix Missing Dependencies (Issue #66) - COMPLETED
+- **PR #105**: Security Vulnerabilities Fix - MERGED
+- **PR #106**: Basic CI Pipeline - MERGED
+
 ---
 
 *Last Updated: 2025-11-15*
 *Next Review: 2025-11-22*
-*Total Tasks: 23 | Estimated Total Effort: 60-80 hours*
+*Total Tasks: 28 | Estimated Total Effort: 80-100 hours*
+*Active Issues: 24 | Active PRs: 1 | Recently Completed: 4*
+*Repository Health: 🟡 MEDIUM (Improving)*
