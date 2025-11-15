@@ -1,0 +1,425 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// This would normally be protected by admin middleware
+// For now, we'll assume the user has admin privileges
+---
+
+<Layout title="Admin - Bandwidth Monitoring">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Admin - Bandwidth Monitoring</h1>
+      <div class="flex space-x-3">
+        <button 
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          onclick="refreshData()"
+        >
+          Refresh Data
+        </button>
+        <a
+          href="/dashboard"
+          class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-600 mb-1">Total Users</div>
+        <div class="text-2xl font-bold text-gray-900" id="totalUsers">-</div>
+        <div class="text-xs text-gray-500">Active customers</div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-600 mb-1">System Load</div>
+        <div class="text-2xl font-bold text-blue-600" id="systemLoad">-</div>
+        <div class="text-xs text-gray-500">Overall usage</div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-600 mb-1">High Usage Users</div>
+        <div class="text-2xl font-bold text-orange-600" id="highUsageUsers">-</div>
+        <div class="text-xs text-gray-500">> 90% usage</div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-600 mb-1">Avg Usage</div>
+        <div class="text-2xl font-bold text-green-600" id="avgUsage">-</div>
+        <div class="text-xs text-gray-500">Per user</div>
+      </div>
+    </div>
+
+    <!-- High Usage Alerts -->
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6" id="highUsageAlert" style="display: none;">
+      <div class="flex items-center">
+        <div class="text-2xl mr-3">⚠️</div>
+        <div>
+          <h3 class="font-medium text-red-800">High Usage Alert</h3>
+          <p class="text-sm text-red-600" id="highUsageAlertText">Some users are approaching their data caps.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Data Caps Table -->
+    <div class="bg-white rounded-lg shadow-lg mb-6">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-800">User Data Caps</h2>
+          <div class="flex space-x-3">
+            <input 
+              type="text" 
+              placeholder="Search users..." 
+              class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              id="searchInput"
+              onkeyup="searchUsers()"
+            >
+            <button 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onclick="showAddUserModal()"
+            >
+              Add User Cap
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Cap</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Usage</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage %</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
+            <tr>
+              <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                Loading user data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="p-4 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalRecords">0</span> results
+          </div>
+          <div class="flex space-x-2">
+            <button 
+              class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
+              id="prevPage"
+              onclick="changePage(-1)"
+              disabled
+            >
+              Previous
+            </button>
+            <span class="px-3 py-1" id="currentPage">1</span>
+            <button 
+              class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
+              id="nextPage"
+              onclick="changePage(1)"
+              disabled
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Notifications -->
+    <div class="bg-white rounded-lg shadow-lg">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Recent Notifications</h2>
+      </div>
+      <div class="p-6">
+        <div id="notificationsList" class="space-y-3">
+          <div class="text-center text-gray-500">Loading notifications...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold mb-4">Add User Data Cap</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">User Email</label>
+          <input 
+            type="email" 
+            id="userEmail"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="user@example.com"
+          >
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Package ID</label>
+          <select 
+            id="packageId"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="home-a">Home Access - Paket A</option>
+            <option value="home-b">Home Access - Paket B</option>
+            <option value="home-c">Home Access - Paket C</option>
+            <option value="soho-pro">SOHO - Pro</option>
+            <option value="soho-business">SOHO - Business</option>
+            <option value="soho-enterprise">SOHO - Enterprise</option>
+            <option value="corporate-business">Corporate - Business</option>
+            <option value="corporate-enterprise">Corporate - Enterprise</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Cap (GB)</label>
+          <input 
+            type="number" 
+            id="monthlyCap"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="100"
+            min="1"
+          >
+        </div>
+      </div>
+      
+      <div class="flex space-x-3 mt-6">
+        <button 
+          class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          onclick="closeAddUserModal()"
+        >
+          Cancel
+        </button>
+        <button 
+          class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          onclick="addUserCap()"
+        >
+          Add User
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    let totalPages = 1;
+    let searchQuery = '';
+
+    async function loadMonitoringData() {
+      try {
+        const token = localStorage.getItem('supabase_token');
+        const response = await fetch(`/api/bandwidth/admin/monitoring?page=${currentPage}&limit=50&search=${searchQuery}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          updateStatistics(data.statistics);
+          updateUserTable(data.dataCaps);
+          updatePagination(data.pagination);
+          updateNotifications(data.recentNotifications);
+          updateHighUsageAlert(data.highUsageUsers);
+        } else {
+          console.error('Failed to load monitoring data');
+        }
+      } catch (error) {
+        console.error('Error loading monitoring data:', error);
+      }
+    }
+
+    function updateStatistics(stats) {
+      document.getElementById('totalUsers').textContent = stats.totalUsers.toLocaleString();
+      document.getElementById('systemLoad').textContent = `${stats.systemLoadPercentage}%`;
+      document.getElementById('highUsageUsers').textContent = stats.highUsageUsersCount.toLocaleString();
+      document.getElementById('avgUsage').textContent = `${stats.averageUsagePercentage}%`;
+    }
+
+    function updateUserTable(dataCaps) {
+      const tbody = document.getElementById('userTableBody');
+      
+      if (dataCaps.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = dataCaps.map(cap => {
+        const usagePercentage = (cap.current_usage_gb / cap.monthly_cap_gb) * 100;
+        const statusColor = usagePercentage >= 90 ? 'red' : usagePercentage >= 80 ? 'yellow' : 'green';
+        const statusText = usagePercentage >= 90 ? 'Critical' : usagePercentage >= 80 ? 'Warning' : 'Normal';
+        
+        return `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">${cap.user?.email || 'Unknown'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${cap.package_id}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${cap.monthly_cap_gb} GB</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${cap.current_usage_gb.toFixed(2)} GB</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="text-sm text-gray-900 mr-2">${usagePercentage.toFixed(1)}%</div>
+                <div class="w-16 bg-gray-200 rounded-full h-2">
+                  <div class="bg-${statusColor}-500 h-2 rounded-full" style="width: ${Math.min(usagePercentage, 100)}%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800">
+                ${statusText}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button class="text-indigo-600 hover:text-indigo-900 mr-3" onclick="viewUserDetails('${cap.user_id}')">View</button>
+              <button class="text-blue-600 hover:text-blue-900" onclick="editUserCap('${cap.id}')">Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updatePagination(pagination) {
+      currentPage = pagination.page;
+      totalPages = pagination.totalPages;
+      
+      document.getElementById('showingStart').textContent = ((currentPage - 1) * pagination.limit) + 1;
+      document.getElementById('showingEnd').textContent = Math.min(currentPage * pagination.limit, pagination.total);
+      document.getElementById('totalRecords').textContent = pagination.total;
+      document.getElementById('currentPage').textContent = currentPage;
+      
+      document.getElementById('prevPage').disabled = currentPage <= 1;
+      document.getElementById('nextPage').disabled = currentPage >= totalPages;
+    }
+
+    function updateNotifications(notifications) {
+      const container = document.getElementById('notificationsList');
+      
+      if (notifications.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500">No recent notifications</div>';
+        return;
+      }
+
+      container.innerHTML = notifications.slice(0, 10).map(notif => `
+        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+          <div class="text-2xl">${notif.threshold_percentage >= 90 ? '🔴' : notif.threshold_percentage >= 80 ? '🟡' : '🔵'}</div>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-gray-900">${notif.user?.email || 'Unknown User'}</div>
+            <div class="text-sm text-gray-600">${notif.message}</div>
+            <div class="text-xs text-gray-500 mt-1">${new Date(notif.sent_at).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateHighUsageAlert(highUsageUsers) {
+      const alertDiv = document.getElementById('highUsageAlert');
+      const alertText = document.getElementById('highUsageAlertText');
+      
+      if (highUsageUsers.length > 0) {
+        alertDiv.style.display = 'block';
+        alertText.textContent = `${highUsageUsers.length} user(s) are using more than 90% of their data cap.`;
+      } else {
+        alertDiv.style.display = 'none';
+      }
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      loadMonitoringData();
+    }
+
+    function searchUsers() {
+      searchQuery = document.getElementById('searchInput').value;
+      currentPage = 1;
+      loadMonitoringData();
+    }
+
+    function refreshData() {
+      loadMonitoringData();
+    }
+
+    function showAddUserModal() {
+      document.getElementById('addUserModal').style.display = 'flex';
+    }
+
+    function closeAddUserModal() {
+      document.getElementById('addUserModal').style.display = 'none';
+      // Clear form
+      document.getElementById('userEmail').value = '';
+      document.getElementById('packageId').selectedIndex = 0;
+      document.getElementById('monthlyCap').value = '';
+    }
+
+    async function addUserCap() {
+      const email = document.getElementById('userEmail').value;
+      const packageId = document.getElementById('packageId').value;
+      const monthlyCap = document.getElementById('monthlyCap').value;
+
+      if (!email || !monthlyCap) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('supabase_token');
+        const response = await fetch('/api/bandwidth/admin/monitoring', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId: email, // This would need to be converted to actual user ID
+            package_id: packageId,
+            monthly_cap_gb: parseInt(monthlyCap)
+          })
+        });
+
+        if (response.ok) {
+          alert('User data cap added successfully!');
+          closeAddUserModal();
+          loadMonitoringData();
+        } else {
+          const error = await response.json();
+          alert('Failed to add user cap: ' + error.error);
+        }
+      } catch (error) {
+        console.error('Error adding user cap:', error);
+        alert('An error occurred while adding user cap');
+      }
+    }
+
+    function viewUserDetails(userId) {
+      // Implementation for viewing user details
+      console.log('View user details:', userId);
+    }
+
+    function editUserCap(capId) {
+      // Implementation for editing user cap
+      console.log('Edit user cap:', capId);
+    }
+
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', loadMonitoringData);
+  </script>
+</Layout>
