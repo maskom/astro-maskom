@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock the environment
-global.import = {
+(global as any).import = {
   meta: {
     env: {
       SUPABASE_URL: 'test-url',
@@ -39,7 +39,7 @@ describe('Bandwidth Monitoring API', () => {
     it('should require authentication', async () => {
       const mockRequest = {
         headers: {
-          get: () => null,
+          get: (_name: string) => null,
         },
         url: 'http://localhost/api/bandwidth/usage',
       };

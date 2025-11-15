@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ url }) => {
       sanitizedParams[key] = sanitizeString(value);
     }
 
-    const statusData = await getStatusData(sanitizedParams);
+    const statusData = await getStatusData();
 
     return new Response(JSON.stringify(statusData), {
       headers: {

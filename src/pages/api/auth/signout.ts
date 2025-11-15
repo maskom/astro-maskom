@@ -29,7 +29,9 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
 
     return redirect('/signin');
   } catch (error) {
-    const sanitizedError = sanitizeString(error?.message || 'Sign out failed');
+    const sanitizedError = sanitizeString(
+      (error as any)?.message || 'Sign out failed'
+    );
     return new Response(sanitizedError, {
       status: 500,
       headers: { 'X-Content-Type-Options': 'nosniff' },

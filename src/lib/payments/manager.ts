@@ -8,7 +8,7 @@ import type {
 
 export class PaymentManager {
   private gateway: MidtransGateway;
-  private service: PaymentService;
+  public service: PaymentService;
 
   constructor(supabaseClient: any, config: PaymentGatewayConfig) {
     this.gateway = new MidtransGateway(config);
