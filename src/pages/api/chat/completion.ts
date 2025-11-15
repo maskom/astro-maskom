@@ -1,10 +1,23 @@
 import type { APIRoute } from "astro";
 import OpenAI from "openai";
 import { packages as hardcodedPackages } from "../../../data/packages";
+import { validateMessages, sanitizeResponse } from "../../../lib/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
-  const { messages } = await request.json();
+  try {
+    const body = await request.json();
+    const { messages } = body;
+    
+    // Validate and sanitize input
+    const sanitizedMessages = validateMessages(messages);
+    
+    if (sanitizedMessages.length === 0) {
+      return new Response(JSON.stringify({ error: 'Invalid messages format' }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
   
   // Create system message with context about packages
   const systemMessage = {
@@ -15,25 +28,27 @@ export const POST: APIRoute = async ({ request }) => {
   };
   
   // Combine system message with conversation history
-  const chatMessages = [systemMessage, ...messages];
+  const chatMessages = [systemMessage, ...sanitizedMessages];
   
-  try {
-    const openai = new OpenAI({
-      apiKey: import.meta.env.OPENAI_API_KEY,
-    });
-    
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: chatMessages,
-    });
-    
-    const response = completion.choices[0].message.content;
-    
-    return new Response(JSON.stringify({ response }), {
-      headers: { "Content-Type": "application/json" }
-    });
+  const openai = new OpenAI({
+    apiKey: import.meta.env.OPENAI_API_KEY,
+  });
+  
+  const completion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: chatMessages,
+  });
+  
+  const rawResponse = completion.choices[0].message.content || '';
+  const sanitizedResponse = sanitizeResponse(rawResponse);
+  
+  return new Response(JSON.stringify({ response: sanitizedResponse }), {
+    headers: { "Content-Type": "application/json" }
+  });
+  
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error?.message || 'Unknown error' }), {
+    console.error('Chat completion error:', error);
+    return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
