@@ -111,7 +111,7 @@ export const GET: APIRoute = async ({ request }) => {
 
     // Get users with high usage (>90% of cap)
     const highUsageUsers =
-      dataCaps?.filter(
+      (dataCaps as any[])?.filter(
         cap => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
       ) || [];
 

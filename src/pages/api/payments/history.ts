@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ request }) => {
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(token);
+    } = await supabase!.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(

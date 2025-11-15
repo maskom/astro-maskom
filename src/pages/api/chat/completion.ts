@@ -32,7 +32,13 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     // Combine system message with conversation history
-    const chatMessages = [systemMessage, ...sanitizedMessages];
+    const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      systemMessage as OpenAI.Chat.ChatCompletionMessageParam,
+      ...sanitizedMessages.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
+    ];
 
     const openai = new OpenAI({
       apiKey: import.meta.env.OPENAI_API_KEY,
