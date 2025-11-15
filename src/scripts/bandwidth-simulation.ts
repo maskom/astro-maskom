@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // Sample package configurations with their data caps
-const packageConfigs = {
+const packageConfigs: Record<
+  string,
+  { capGB: number; baseUsageGB: number; variance: number }
+> = {
   'home-a': { capGB: 50, baseUsageGB: 1.5, variance: 0.8 },
   'home-b': { capGB: 100, baseUsageGB: 3.2, variance: 1.5 },
   'home-c': { capGB: 200, baseUsageGB: 5.8, variance: 2.2 },
@@ -18,7 +21,7 @@ const packageConfigs = {
 };
 
 // Generate random usage data based on package
-function generateUsageData(packageId, days = 30) {
+function generateUsageData(packageId: string, days = 30) {
   const config = packageConfigs[packageId] || packageConfigs['home-a'];
   const data = [];
 

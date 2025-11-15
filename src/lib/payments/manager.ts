@@ -205,6 +205,10 @@ export class PaymentManager {
     return this.service.getInvoicesByUserId(userId, limit, offset);
   }
 
+  async getInvoiceById(invoiceId: string) {
+    return this.service.getInvoiceById(invoiceId);
+  }
+
   getClientConfig() {
     return this.gateway.getClientConfig();
   }
