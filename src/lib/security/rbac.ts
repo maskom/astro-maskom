@@ -265,7 +265,7 @@ export class RBACService {
     }
   }
 
-  private async getUserSecurityProfile(
+  public async getUserSecurityProfile(
     userId: string
   ): Promise<UserSecurityProfile | null> {
     try {

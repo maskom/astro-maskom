@@ -36,13 +36,13 @@ export const securityHeaders = {
   'X-Content-Security-Policy': "default-src 'self'",
 };
 
-export const ipWhitelist = [
+export const ipWhitelist: string[] = [
   // Add trusted IP addresses here
   // '192.168.1.0/24',
   // '10.0.0.0/8'
 ];
 
-export const trustedOrigins = [
+export const trustedOrigins: string[] = [
   'https://maskom-network.com',
   'https://www.maskom-network.com',
   'http://localhost:3000',

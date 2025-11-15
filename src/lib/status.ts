@@ -67,10 +67,10 @@ export const getStatusData = async (): Promise<StatusData> => {
 
     // First check if any services have outages or degraded status
     const hasServiceOutage = services.some(
-      service => service.status === 'outage'
+      (service: ServiceStatus) => service.status === 'outage'
     );
     const hasServiceDegraded = services.some(
-      service => service.status === 'degraded'
+      (service: ServiceStatus) => service.status === 'degraded'
     );
 
     // Then consider active incidents
@@ -125,7 +125,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return data?.uptime_percentage || 99.9;
+    return (data as any)?.uptime_percentage || 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -155,7 +155,7 @@ export const createIncident = async (
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-      ])
+      ] as any)
       .select()
       .single();
 
@@ -181,9 +181,15 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // Use any to bypass Supabase typing issues
+    const supabaseAny = supabase as any;
+    const updateData = {
+      ...(updates as any),
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await supabaseAny
       .from('incidents')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
