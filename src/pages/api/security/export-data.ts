@@ -36,7 +36,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Check data processing consent
     const hasConsent = await dataProtectionService.hasDataConsent(
       userId,
-      'data_processing' as any
+      'data_processing'
     );
 
     if (!hasConsent) {
@@ -92,12 +92,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 };
 
-function convertToCSV(data: Record<string, any>): string {
+function convertToCSV(data: Record<string, unknown>): string {
   const csvRows: string[] = [];
 
   // Helper function to flatten nested objects
-  const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
-    const flattened: Record<string, any> = {};
+  const flattenObject = (
+    obj: unknown,
+    prefix = ''
+  ): Record<string, unknown> => {
+    const flattened: Record<string, unknown> = {};
 
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
@@ -121,12 +124,12 @@ function convertToCSV(data: Record<string, any>): string {
   };
 
   // Flatten all data sections
-  const flattenedData: Record<string, any> = {};
+  const flattenedData: Record<string, unknown> = {};
 
   for (const section in data) {
     if (typeof data[section] === 'object' && data[section] !== null) {
       if (Array.isArray(data[section])) {
-        data[section].forEach((item: any, index: number) => {
+        data[section].forEach((item: unknown, index: number) => {
           const flattened = flattenObject(item, `${section}[${index}]`);
           Object.assign(flattenedData, flattened);
         });
