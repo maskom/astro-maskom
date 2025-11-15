@@ -80,6 +80,25 @@ npm run pages:dev
 4. Push ke branch (`git push origin feature/AmazingFeature`)
 5. Buka Pull Request
 
+Untuk panduan kontribusi lengkap, lihat [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+
+## 🔒 Keamanan
+
+Kami menganggap serius keamanan proyek ini. Jika Anda menemukan kerentanan keamanan:
+
+- 📧 **Email**: security@maskom.id
+- 🔐 **GitHub**: [Laporkan kerentanan secara privat](https://github.com/maskom/astro-maskom/security/advisories)
+
+Jangan membuka issue publik untuk masalah keamanan. Lihat [SECURITY.md](SECURITY.md) untuk informasi lengkap.
+
+## 📚 Dokumentasi
+
+- [Panduan Kontribusi](docs/CONTRIBUTING.md)
+- [Pengaturan Lingkungan](docs/ENVIRONMENT.md)
+- [Dokumentasi API](docs/API.md)
+- [Arsitektur Sistem](docs/ARCHITECTURE.md)
+- [Kebijakan Keamanan](SECURITY.md)
+
 ## Lisensi
 
 Proyek ini merupakan properti dari Maskom Indonesia.
