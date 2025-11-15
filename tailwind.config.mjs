@@ -1,4 +1,5 @@
-/** @type {import('tailwindcss').Config} */
+import { type Config } from 'tailwindcss';
+
 export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	theme: {
@@ -16,7 +17,6 @@ export default {
 					from: { height: 'var(--radix-accordion-content-height)' },
 					to: { height: 0 },
 				},
-				
 			},
 			animation: {
 				slideDown: 'slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1)',
@@ -28,4 +28,4 @@ export default {
 		},
 	},
 	plugins: [],
-}
+} satisfies Config;

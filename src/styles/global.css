@@ -4,16 +4,14 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/cal-sans/400.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   color-scheme: dark;
 }
 
 body {
-  @apply text-white;
+  color: white;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -2,7 +2,7 @@
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 import node from "@astrojs/node";
 
 // Astro configuration
@@ -13,10 +13,12 @@ export default defineConfig({
     mode: "standalone",
   }),
   integrations: [
-    tailwind(),
     icon(),
     sitemap(),
   ],
+  vite: {
+    plugins: [tailwindcss()],
+  },
 
   build: {
     inlineStylesheets: "auto",
