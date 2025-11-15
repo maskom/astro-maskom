@@ -20,7 +20,14 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build"
+    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
+    "deploy:staging": "npm run build && wrangler pages deploy ./dist --project-name=astro-maskom-staging",
+    "deploy:production": "npm run build && wrangler pages deploy ./dist --project-name=astro-maskom",
+    "deploy:preview": "npm run build && wrangler pages deploy ./dist --project-name=astro-maskom-preview",
+    "health:check": "tsx scripts/health-check.ts production",
+    "health:check:staging": "tsx scripts/health-check.ts staging",
+    "rollback": "tsx scripts/rollback.ts",
+    "rollback:list": "tsx scripts/rollback.ts list"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
