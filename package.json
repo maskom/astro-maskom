@@ -12,6 +12,7 @@
     "security:check": "npm audit && npm outdated"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.10",
     "@astrojs/node": "^9.5.0",
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/cal-sans": "^5.2.3",
