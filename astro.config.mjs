@@ -12,15 +12,12 @@ export default defineConfig({
   adapter: cloudflare({
     mode: "advanced",
   }),
-  integrations: [
-    icon(),
-    sitemap(),
-  ],
+  integrations: [icon(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
 
   build: {
-    inlineStylesheets: "auto",
+    inlineStylesheets: 'auto',
   },
 });

@@ -22,12 +22,12 @@ export const POST: APIRoute = async ({ request }) => {
   
   // Create system message with context about packages
   const systemMessage = {
-    role: "system",
+    role: 'system',
     content: `You are a helpful customer service assistant for Maskom Network. 
               Here is information about our packages: ${JSON.stringify(hardcodedPackages)}
-              Please use this information to answer customer questions accurately.`
+              Please use this information to answer customer questions accurately.`,
   };
-  
+
   // Combine system message with conversation history
   const chatMessages = [systemMessage, ...sanitizedMessages];
   

@@ -75,7 +75,7 @@ export const POST: APIRoute = async ({ request }) => {
         }
       });
     }
-    
+
     return new Response(JSON.stringify(newIncident), {
       headers: { 
         "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export const PUT: APIRoute = async ({ request }) => {
         }
       });
     }
-    
+
     return new Response(JSON.stringify(updatedIncident), {
       headers: { 
         "Content-Type": "application/json",

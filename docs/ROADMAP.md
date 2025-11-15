@@ -1,9 +1,11 @@
 # Astro Maskom Development Roadmap
 
 ## 🎯 Vision
+
 Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, keamanan terjamin, dan pengalaman pengguna terbaik.
 
 ## 📊 Current Status
+
 - **Version**: 1.0.0-alpha
 - **Health**: 🟢 Good (TypeScript errors resolved, builds passing)
 - **Technical Debt**: Low (Security improvements needed, code quality enhancements)
@@ -65,6 +67,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🏗️ Medium Term Roadmap (Week 3-4)
 
 ### **Priority 1 - Infrastructure & Quality**
+
 - [ ] **Implement CI/CD Pipeline** (Issue #75)
   - Create basic CI pipeline (Issue #93)
   - Add security scanning workflow (Issue #94)
@@ -87,6 +90,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Documentation & Compliance**
+
 - [ ] **Complete Documentation Suite**
   - Create Security Policy (Issue #96)
   - Add Code of Conduct (Issue #97)
@@ -102,6 +106,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Effort**: 6-8 hours
 
 ### **Priority 2 - Feature Development**
+
 - [ ] **Complete Network Status Page** (PR #70)
   - Review and merge network status implementation
   - Test real-time monitoring features
@@ -119,6 +124,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🎯 Long Term Roadmap (Month 2-3)
 
 ### **Priority 2 - Enhanced Features**
+
 - [ ] **Customer Portal Enhancement** (Issue #63)
   - Billing management system
   - Service usage tracking
@@ -159,6 +165,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 📈 Success Metrics
 
 ### **Technical Metrics**
+
 - [ ] 0 TypeScript errors
 - [ ] 0 security vulnerabilities
 - [ ] Build time < 30 seconds
@@ -166,6 +173,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - [ ] 100% test coverage for critical paths
 
 ### **Business Metrics**
+
 - [ ] Page load time < 2 seconds
 - [ ] 99.9% uptime
 - [ ] Customer support ticket resolution < 24 hours
@@ -184,11 +192,13 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 ## 🚨 Risk Mitigation
 
 ### **High Risk Items**
+
 1. **Security Vulnerabilities** - Addressed in Week 1
 2. **Technical Debt** - Ongoing with weekly refactoring
 3. **Team Capacity** - Prioritize critical over nice-to-have features
 
 ### **Contingency Plans**
+
 - **Security Issues**: Immediate patch and security advisory
 - **Build Failures**: Rollback strategy and hotfix process
 - **Feature Delays**: Reprioritize based on business impact
@@ -204,6 +214,7 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
 - #111: 🔒 Implement Content Security Policy (CSP) and Security Headers
 
 ### **Sub-issues for Complex Tasks**
+
 - #88: 📧 Setup Email Service Provider Integration (Sub-issue of #87)
 - #89: 📧 Create Transactional Email Templates (Sub-issue of #87)
 - #90: 📧 Implement Email Queue System (Sub-issue of #87)

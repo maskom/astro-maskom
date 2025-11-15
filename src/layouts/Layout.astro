@@ -1,10 +1,10 @@
 ---
-import { ClientRouter } from "astro:transitions";
-import { SEO } from "astro-seo";
-import Background from "../components/ui/Background.astro";
-import Footer from "../components/ui/Footer.astro";
-import Header from "../components/ui/Header.astro";
-import "../styles/global.css";
+import { ClientRouter } from 'astro:transitions';
+import { SEO } from 'astro-seo';
+import Background from '../components/ui/Background.astro';
+import Footer from '../components/ui/Footer.astro';
+import Header from '../components/ui/Header.astro';
+import '../styles/global.css';
 
 interface Props {
   title: string;
@@ -22,9 +22,9 @@ interface Props {
 const {
   title,
   description,
-  image = "/logo-maskom.svg",
-  lang = "id",
-  bgColor = "#0F1115",
+  image = '/logo-maskom.svg',
+  lang = 'id',
+  bgColor = '#0F1115',
   primaryBallColor,
   secondaryBallColor,
   gridColor,
@@ -32,18 +32,18 @@ const {
   vignetteColor,
 } = Astro.props;
 
-const pageTitle = title ?? "Maskom Network";
+const pageTitle = title ?? 'Maskom Network';
 const pageDescription =
   description ??
-  "Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.";
+  'Maskom Network adalah penyedia layanan internet terpercaya di Indonesia.';
 const site = Astro.site;
 const currentUrl = Astro.url;
 const canonicalUrl = site
   ? new URL(currentUrl.pathname, site).toString()
   : `${currentUrl.origin}${currentUrl.pathname}`;
-const ogImageMeta = image.endsWith(".svg")
-  ? { alt: pageTitle, type: "image/svg+xml" }
-  : { alt: pageTitle, width: 1200, height: 630, type: "image/jpeg" };
+const ogImageMeta = image.endsWith('.svg')
+  ? { alt: pageTitle, type: 'image/svg+xml' }
+  : { alt: pageTitle, width: 1200, height: 630, type: 'image/jpeg' };
 ---
 
 <!doctype html>
@@ -63,19 +63,19 @@ const ogImageMeta = image.endsWith(".svg")
       openGraph={{
         basic: {
           title: pageTitle,
-          type: "website",
+          type: 'website',
           image,
           url: canonicalUrl,
         },
         optional: {
-          locale: "id_ID",
-          siteName: "Maskom Network",
+          locale: 'id_ID',
+          siteName: 'Maskom Network',
           description: pageDescription,
         },
         image: ogImageMeta,
       }}
       twitter={{
-        card: "summary_large_image",
+        card: 'summary_large_image',
         title: pageTitle,
         description: pageDescription,
         image,
@@ -83,19 +83,19 @@ const ogImageMeta = image.endsWith(".svg")
       }}
       extend={{
         meta: [
-          { name: "theme-color", content: bgColor },
-          { name: "apple-mobile-web-app-capable", content: "yes" },
-          { name: "apple-mobile-web-app-status-bar-style", content: "black" },
-          { name: "author", content: "Maskom Network" },
+          { name: 'theme-color', content: bgColor },
+          { name: 'apple-mobile-web-app-capable', content: 'yes' },
+          { name: 'apple-mobile-web-app-status-bar-style', content: 'black' },
+          { name: 'author', content: 'Maskom Network' },
           {
-            name: "keywords",
-            content: "maskom, internet, jaringan, fiber, wifi",
+            name: 'keywords',
+            content: 'maskom, internet, jaringan, fiber, wifi',
           },
         ],
         link: [
-          { rel: "canonical", href: canonicalUrl },
-          { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-          { rel: "apple-touch-icon", href: "/favicon.svg" },
+          { rel: 'canonical', href: canonicalUrl },
+          { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+          { rel: 'apple-touch-icon', href: '/favicon.svg' },
         ],
       }}
     />

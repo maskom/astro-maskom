@@ -3,44 +3,110 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Maskom Indonesia - Kontak Kami">
-    <main class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10">Hubungi Maskom Indonesia</h1>
-        <section class="max-w-xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-            <p class="text-lg text-gray-700 dark:text-gray-300 mb-6 text-center">
-                Kami senang mendengar dari Anda. Silakan hubungi kami melalui formulir di bawah ini,
-                atau melalui informasi kontak yang tersedia.
-            </p>
+  <main class="container mx-auto px-4 py-8">
+    <h1
+      class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10"
+    >
+      Hubungi Maskom Indonesia
+    </h1>
+    <section
+      class="max-w-xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8"
+    >
+      <p class="text-lg text-gray-700 dark:text-gray-300 mb-6 text-center">
+        Kami senang mendengar dari Anda. Silakan hubungi kami melalui formulir
+        di bawah ini, atau melalui informasi kontak yang tersedia.
+      </p>
 
-            <form class="space-y-4" method="POST" action="https://formspree.io/f/YOUR_FORM_ID">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nama Lengkap</label>
-                    <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Nama Anda" required>
-                </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
-                    <input type="email" id="email" name="email" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="email@contoh.com" required>
-                </div>
-                <div>
-                    <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Subjek</label>
-                    <input type="text" id="subject" name="subject" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Subjek Pesan" required>
-                </div>
-                <div>
-                    <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Pesan</label>
-                    <textarea id="message" name="message" rows="5" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Tulis pesan Anda di sini..." required></textarea>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Kirim Pesan
-                    </button>
-                </div>
-            </form>
+      <form
+        class="space-y-4"
+        method="POST"
+        action="https://formspree.io/f/YOUR_FORM_ID"
+      >
+        <div>
+          <label
+            for="name"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >Nama Lengkap</label
+          >
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Nama Anda"
+            required
+          />
+        </div>
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >Email</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+            placeholder="email@contoh.com"
+            required
+          />
+        </div>
+        <div>
+          <label
+            for="subject"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >Subjek</label
+          >
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Subjek Pesan"
+            required
+          />
+        </div>
+        <div>
+          <label
+            for="message"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+            >Pesan</label
+          >
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Tulis pesan Anda di sini..."
+            required></textarea>
+        </div>
+        <div class="text-center">
+          <button
+            type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Kirim Pesan
+          </button>
+        </div>
+      </form>
 
-            <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
-                <p class="text-md text-gray-700 dark:text-gray-300">Atau hubungi kami langsung:</p>
-                <p class="text-lg font-semibold text-blue-600 dark:text-blue-400 mt-2">Telepon: (021) 1234 5678</p>
-                <p class="text-lg font-semibold text-blue-600 dark:text-blue-400">Email: info@maskomindonesia.com</p>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">Alamat: Jl. Contoh Raya No. 123, Jakarta</p>
-            </div>
-        </section>
-    </main>
+      <div
+        class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center"
+      >
+        <p class="text-md text-gray-700 dark:text-gray-300">
+          Atau hubungi kami langsung:
+        </p>
+        <p class="text-lg font-semibold text-blue-600 dark:text-blue-400 mt-2">
+          Telepon: (021) 1234 5678
+        </p>
+        <p class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+          Email: info@maskomindonesia.com
+        </p>
+        <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">
+          Alamat: Jl. Contoh Raya No. 123, Jakarta
+        </p>
+      </div>
+    </section>
+  </main>
 </Layout>

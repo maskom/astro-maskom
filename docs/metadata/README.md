@@ -1,26 +1,33 @@
 # Metadata Documentation
 
 ## Overview
+
 This directory contains metadata files used for GitHub automation, issue tracking, and project management.
 
 ## Files
 
 ### issue_meta.json
+
 Contains metadata for GitHub issues including:
+
 - Issue templates and categories
 - Automation rules and triggers
 - Label configurations
 - Priority mappings
 
 ### pr_meta.json
+
 Contains metadata for GitHub pull requests including:
+
 - PR templates and checklists
 - Review assignment rules
 - Merge criteria and requirements
 - Automated testing configurations
 
 ### metadata_sources.json
+
 Contains configuration for metadata sources including:
+
 - External data sources
 - API endpoints for metadata collection
 - Data transformation rules
@@ -29,21 +36,27 @@ Contains configuration for metadata sources including:
 ## Usage
 
 ### Issue Automation
+
 The metadata files are used by GitHub Actions workflows to:
+
 - Automatically categorize issues
 - Assign appropriate labels and priorities
 - Route issues to the right team members
 - Generate follow-up tasks
 
 ### PR Management
+
 PR metadata helps with:
+
 - Automated code review assignments
 - Quality gate enforcement
 - Merge conflict detection
 - Release preparation
 
 ### Analytics
+
 Metadata collection supports:
+
 - Issue resolution time tracking
 - PR merge rate analysis
 - Team performance metrics
@@ -52,7 +65,9 @@ Metadata collection supports:
 ## Configuration
 
 ### Adding New Labels
+
 Update `issue_meta.json` to include new label definitions:
+
 ```json
 {
   "labels": {
@@ -66,9 +81,11 @@ Update `issue_meta.json` to include new label definitions:
 ```
 
 ### Updating PR Templates
+
 Modify `pr_meta.json` to adjust PR requirements and checklists.
 
 ## Maintenance
+
 - Review metadata accuracy monthly
 - Update automation rules as processes evolve
 - Clean up obsolete metadata entries

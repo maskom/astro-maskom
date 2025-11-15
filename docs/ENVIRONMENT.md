@@ -5,12 +5,14 @@ This guide covers setting up the development environment for Astro Maskom, inclu
 ## 📋 Prerequisites
 
 ### System Requirements
+
 - **Node.js**: 18.0.0 or higher
 - **npm**: 8.0.0 or higher (or yarn 1.22.0+)
 - **Git**: 2.30.0 or higher
 - **OS**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 18.04+)
 
 ### Recommended Tools
+
 - **VS Code**: With Astro and TypeScript extensions
 - **Postman**: For API testing
 - **Supabase CLI**: For database management
@@ -18,22 +20,26 @@ This guide covers setting up the development environment for Astro Maskom, inclu
 ## 🚀 Quick Start
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/maskom/astro-maskom.git
 cd astro-maskom
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Environment Setup
+
 ```bash
 cp .env.example .env
 ```
 
 ### 4. Start Development Server
+
 ```bash
 npm run dev
 ```
@@ -45,6 +51,7 @@ Visit `http://localhost:4321` to see the application.
 Create a `.env` file in the root directory with the following variables:
 
 ### Required Variables
+
 ```env
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
@@ -63,6 +70,7 @@ MIDTRANS_MERCHANT_ID=your_merchant_id
 ```
 
 ### Optional Variables
+
 ```env
 # Analytics
 GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
@@ -80,11 +88,13 @@ LOG_LEVEL=debug
 ## 📊 Supabase Setup
 
 ### 1. Create Supabase Project
+
 1. Go to [supabase.com](https://supabase.com)
 2. Create a new project
 3. Note your project URL and API keys
 
 ### 2. Database Schema
+
 Run the following SQL in your Supabase SQL editor:
 
 ```sql
@@ -124,6 +134,7 @@ CREATE POLICY "Public can view packages" ON packages
 ```
 
 ### 3. Authentication Setup
+
 1. Go to Authentication > Settings
 2. Configure your site URL: `http://localhost:4321`
 3. Enable email/password authentication
@@ -134,12 +145,15 @@ CREATE POLICY "Public can view packages" ON packages
 For chatbot functionality:
 
 ### 1. Create OpenAI Account
+
 1. Go to [openai.com](https://openai.com)
 2. Create an account and add payment method
 3. Generate an API key
 
 ### 2. Configure API Key
+
 Add to your `.env` file:
+
 ```env
 OPENAI_API_KEY=sk-your-api-key-here
 OPENAI_ORG_ID=org-your-org-id-here
@@ -148,7 +162,9 @@ OPENAI_ORG_ID=org-your-org-id-here
 ## 🛠️ Development Tools
 
 ### VS Code Extensions
+
 Install these extensions for optimal development:
+
 - **Astro** - Astro language support
 - **TypeScript** - TypeScript support
 - **Tailwind CSS IntelliSense** - Tailwind class suggestions
@@ -156,20 +172,20 @@ Install these extensions for optimal development:
 - **Prettier** - Code formatting
 
 ### Git Hooks (Optional)
+
 Install husky for pre-commit hooks:
+
 ```bash
 npm install --save-dev husky lint-staged
 npx husky install
 ```
 
 Add to `package.json`:
+
 ```json
 {
   "lint-staged": {
-    "*.{js,ts,astro}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{js,ts,astro}": ["eslint --fix", "prettier --write"]
   }
 }
 ```
@@ -179,6 +195,7 @@ Add to `package.json`:
 ### Common Issues
 
 #### "Dependencies not installed"
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -191,15 +208,18 @@ npm install
 ```
 
 #### "Supabase connection failed"
+
 1. Verify your `.env` variables are correct
 2. Check Supabase project status
 3. Ensure API keys have proper permissions
 4. Test connection with curl:
+
 ```bash
 curl https://your-project.supabase.co/rest/v1/
 ```
 
 #### "TypeScript errors"
+
 ```bash
 # Check TypeScript version
 npx tsc --version
@@ -212,6 +232,7 @@ rm -rf .astro/
 ```
 
 #### "Port already in use"
+
 ```bash
 # Kill process on port 4321
 lsof -ti:4321 | xargs kill -9
@@ -223,19 +244,22 @@ npm run dev -- --port 3000
 ### Performance Issues
 
 #### Slow development server
+
 1. Increase Node.js memory limit:
+
 ```bash
 export NODE_OPTIONS="--max-old-space-size=4096"
 npm run dev
 ```
 
 2. Disable file watching for large folders:
-Add to `astro.config.mjs`:
+   Add to `astro.config.mjs`:
+
 ```javascript
 vite: {
   server: {
     watch: {
-      ignored: ['**/node_modules/**', '**/dist/**']
+      ignored: ['**/node_modules/**', '**/dist/**'];
     }
   }
 }
@@ -244,8 +268,10 @@ vite: {
 ## 📱 Mobile Development
 
 ### Testing on Mobile
+
 1. Ensure your mobile device is on the same network
 2. Find your local IP address:
+
 ```bash
 # macOS/Linux
 ifconfig | grep "inet "
@@ -255,6 +281,7 @@ ipconfig
 ```
 
 3. Start dev server with host binding:
+
 ```bash
 npm run dev -- --host
 ```
@@ -264,12 +291,15 @@ npm run dev -- --host
 ## 🚀 Deployment Preparation
 
 ### Environment-Specific Variables
+
 Create different `.env` files for each environment:
+
 - `.env.development` - Local development
 - `.env.staging` - Staging environment
 - `.env.production` - Production environment
 
 ### Build Verification
+
 ```bash
 # Test build process
 npm run build
@@ -289,4 +319,4 @@ npm run preview
 
 For additional help, create an issue in the repository or contact the development team.
 
-*Last Updated: 2025-11-14*
+_Last Updated: 2025-11-14_

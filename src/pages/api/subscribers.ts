@@ -30,15 +30,15 @@ export const GET: APIRoute = async ({ url }) => {
     }
     
     const supabase = getSupabaseClient();
-    
+
     // Fetch subscribers from database
     const { data: subscribers, error } = await supabase
       .from('subscribers')
       .select('*')
       .order('subscribed_at', { ascending: false });
-    
+
     if (error) throw error;
-    
+
     return new Response(JSON.stringify(subscribers || []), {
       headers: { 
         "Content-Type": "application/json",
@@ -82,20 +82,21 @@ export const POST: APIRoute = async ({ request }) => {
         }
       });
     }
-    
+
     const supabase = getSupabaseClient();
-    
+
     // Check if email already exists
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('subscribers')
       .select('id')
       .eq('email', sanitizedEmail)
       .single();
-    
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" error
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      // PGRST116 is "not found" error
       throw checkError;
     }
-    
+
     if (existingSubscriber) {
       return new Response(JSON.stringify({ error: "Email already subscribed" }), {
         status: 409,
@@ -105,29 +106,29 @@ export const POST: APIRoute = async ({ request }) => {
         }
       });
     }
-    
+
     // Insert new subscriber into database
     const newSubscriber = {
       email: sanitizedEmail,
       preferences: preferences || {
         incidents: true,
         maintenance: true,
-        statusChanges: true
+        statusChanges: true,
       },
       subscribed_at: new Date().toISOString(),
-      confirmed: false // Would be set to true after email confirmation
+      confirmed: false, // Would be set to true after email confirmation
     };
-    
+
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
-      .insert([newSubscriber])
+      .insert([newSubscriber] as any)
       .select()
       .single();
-    
+
     if (insertError) throw insertError;
-    
+
     // TODO: Send confirmation email (would require email service integration)
-    
+
     return new Response(JSON.stringify(insertedSubscriber), {
       headers: { 
         "Content-Type": "application/json",
