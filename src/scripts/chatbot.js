@@ -1,54 +1,24 @@
-class ChatbotManager {
-  messagesList;
-  chatInput;
-  chatForm;
-  sendButton;
-  loadingIndicator;
-  state;
-
-  constructor(initialMessages = []) {
-    this.messagesList = document.getElementById('messages-list');
-    this.chatInput = document.getElementById('chat-input');
-    this.chatForm = document.getElementById('chat-form');
-    this.sendButton = document.getElementById('send-button');
-    this.loadingIndicator = document.getElementById('loading-indicator');
-    
-    this.state = {
-      messages: [...initialMessages],
-      loading: false
-    };
-    
-    this.init();
-  }
-
-  init() {
-    if (this.chatForm) {
-      this.chatForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.sendMessage();
-      });
-    }
-    
-    this.renderMessages();
-  }
-
-  scrollToBottom() {
+export function initializeChatbot(initialMessages = []) {
+  let messages = [...initialMessages];
+  let loading = false;
+  
+  const messagesList = document.getElementById('messages-list');
+  const chatInput = document.getElementById('chat-input');
+  const chatForm = document.getElementById('chat-form');
+  const sendButton = document.getElementById('send-button');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  
+  const scrollToBottom = () => {
     const messagesEnd = document.getElementById('messages-end');
     if (messagesEnd) {
       messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
-  }
-
-  sanitizeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  renderMessages() {
-    if (this.messagesList) {
-      this.messagesList.innerHTML = ''; // Clear previous messages
-      this.state.messages.forEach(message => {
+  };
+  
+  const renderMessages = () => {
+    if (messagesList) {
+      messagesList.innerHTML = ''; // Clear previous messages
+      messages.forEach(message => {
         const messageContainer = document.createElement('div');
         messageContainer.className = `mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`;
 
@@ -60,34 +30,33 @@ class ChatbotManager {
         }`;
 
         // Sanitize message content to prevent XSS
-        messageBubble.textContent = this.sanitizeHTML(message.content);
+        messageBubble.textContent = message.content;
 
         messageContainer.appendChild(messageBubble);
-        this.messagesList.appendChild(messageContainer);
+        messagesList.appendChild(messageContainer);
       });
-      this.scrollToBottom();
+      scrollToBottom();
     }
-  }
-
-  async sendMessage() {
-    if (!this.chatInput) return;
-    const input = this.chatInput.value.trim();
-    if (!input || this.state.loading) return;
+  };
+  
+  const sendMessage = async () => {
+    if (!chatInput) return;
+    const input = sanitizeInput(chatInput.value.trim());
+    if (!input || loading) return;
     
     const userMessage = { role: 'user', content: input };
-    this.state.messages = [...this.state.messages, userMessage];
-    this.chatInput.value = '';
-    this.state.loading = true;
-    
-    if (this.sendButton) this.sendButton.disabled = true;
-    if (this.loadingIndicator) this.loadingIndicator.classList.remove('hidden');
-    this.renderMessages();
+    messages = [...messages, userMessage];
+    chatInput.value = '';
+    loading = true;
+    if (sendButton) sendButton.disabled = true;
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+    renderMessages();
     
     try {
       const response = await fetch('/api/chat/completion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: this.state.messages.slice(1) }),
+        body: JSON.stringify({ messages: messages.slice(1) }),
       });
       
       const data = await response.json();
@@ -96,26 +65,40 @@ class ChatbotManager {
         throw new Error(data.error);
       }
       
-      const assistantMessage = { role: 'assistant', content: data.response };
-      this.state.messages = [...this.state.messages, assistantMessage];
+      const assistantMessage = { role: 'assistant', content: sanitizeInput(data.response) };
+      messages = [...messages, assistantMessage];
     } catch (error) {
       const errorMessage = { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
       };
-      this.state.messages = [...this.state.messages, errorMessage];
+      messages = [...messages, errorMessage];
     } finally {
-      this.state.loading = false;
-      if (this.sendButton) this.sendButton.disabled = false;
-      if (this.loadingIndicator) this.loadingIndicator.classList.add('hidden');
-      this.renderMessages();
+      loading = false;
+      if (sendButton) sendButton.disabled = false;
+      if (loadingIndicator) loadingIndicator.classList.add('hidden');
+      renderMessages();
     }
+  };
+  
+  if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
   }
+  
+  // Initial render
+  renderMessages();
 }
 
-// Initialize chatbot when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Get initial messages from global variable or use empty array
-  const initialMessages = window.initialChatMessages || [];
-  new ChatbotManager(initialMessages);
-});
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  
+  // Basic HTML sanitization
+  return input
+    .replace(/[<>]/g, '') // Remove basic HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .trim();
+}

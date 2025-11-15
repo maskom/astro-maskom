@@ -1,24 +1,37 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
-import { sanitizeIncidentData, sanitizeText } from "../../lib/sanitization";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml } from "../../utils/sanitization";
 
 export const prerender = false;
 
 // GET endpoint to fetch all incidents
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const incidents = await getAllIncidents();
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeString(value);
+    }
+    
+    const incidents = await getAllIncidents(sanitizedParams);
     
     return new Response(JSON.stringify(incidents), {
       headers: { 
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -29,12 +42,20 @@ export const POST: APIRoute = async ({ request }) => {
     const rawData = await request.json();
     
     // Sanitize input data
-    const sanitizedData = sanitizeIncidentData(rawData);
+    const sanitizedData = sanitizeJsonInput(incidentData);
     
-    if (!sanitizedData || !sanitizedData.title || !sanitizedData.description || !sanitizedData.status) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+    // Validate required fields
+    const validation = validateRequiredFields(sanitizedData, ['title', 'description', 'status']);
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Missing required fields", 
+        missingFields: validation.missingFields 
+      }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -43,17 +64,27 @@ export const POST: APIRoute = async ({ request }) => {
     if (!newIncident) {
       return new Response(JSON.stringify({ error: "Failed to create incident" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     return new Response(JSON.stringify(newIncident), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -61,42 +92,54 @@ export const POST: APIRoute = async ({ request }) => {
 // PUT endpoint to update an existing incident
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const rawData = await request.json();
-    const { id } = rawData;
+    const requestData = await request.json();
+    const { id, ...updates } = requestData;
     
-    if (!id || typeof id !== 'string') {
-      return new Response(JSON.stringify({ error: "Missing incident ID" }), {
+    // Validate and sanitize input
+    const validation = validateRequestBody(requestData, ['id']);
+    
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Validation failed", 
+        details: validation.errors 
+      }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     // Sanitize update data
-    const sanitizedUpdates = sanitizeIncidentData(rawData);
-    
-    if (!sanitizedUpdates) {
-      return new Response(JSON.stringify({ error: "Invalid update data" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
+    const sanitizedUpdates = sanitizeJsonInput(updates);
     
     const updatedIncident = await updateIncident(id, sanitizedUpdates);
     
     if (!updatedIncident) {
       return new Response(JSON.stringify({ error: "Failed to update incident" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     return new Response(JSON.stringify(updatedIncident), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };

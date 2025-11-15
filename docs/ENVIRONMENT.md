@@ -48,16 +48,18 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# OpenAI Configuration (for chatbot)
-OPENAI_API_KEY=your-openai-api-key
-OPENAI_ORG_ID=your-openai-org-id
 
 # Site Configuration
 SITE_URL=http://localhost:4321
-SITE_NAME=Maskom Network
+NODE_ENV=development
+
+# Payment Gateway (Midtrans)
+MIDTRANS_SERVER_KEY=your_midtrans_server_key
+MIDTRANS_CLIENT_KEY=your_midtrans_client_key
+MIDTRANS_ENVIRONMENT=sandbox
+MIDTRANS_MERCHANT_ID=your_merchant_id
 ```
 
 ### Optional Variables

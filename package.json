@@ -12,12 +12,14 @@
     "security:check": "npm audit && npm outdated"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.10",
     "@astrojs/node": "^9.5.0",
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/cal-sans": "^5.2.3",
     "@fontsource/inter": "^5.2.8",
     "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/vite": "^4.1.17",
+    "@types/node": "^24.10.1",
     "astro": "^5.15.4",
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
