@@ -1,22 +1,12 @@
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+class ChatbotManager {
+  messagesList;
+  chatInput;
+  chatForm;
+  sendButton;
+  loadingIndicator;
+  state;
 
-interface ChatbotState {
-  messages: Message[];
-  loading: boolean;
-}
-
-export class ChatbotManager {
-  private messagesList: HTMLElement | null;
-  private chatInput: HTMLInputElement | null;
-  private chatForm: HTMLFormElement | null;
-  private sendButton: HTMLButtonElement | null;
-  private loadingIndicator: HTMLElement | null;
-  private state: ChatbotState;
-
-  constructor(initialMessages: Message[] = []) {
+  constructor(initialMessages = []) {
     this.messagesList = document.getElementById('messages-list');
     this.chatInput = document.getElementById('chat-input') as HTMLInputElement;
     this.chatForm = document.getElementById('chat-form') as HTMLFormElement;
@@ -31,7 +21,7 @@ export class ChatbotManager {
     this.init();
   }
 
-  private init(): void {
+  init() {
     if (this.chatForm) {
       this.chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -42,20 +32,20 @@ export class ChatbotManager {
     this.renderMessages();
   }
 
-  private scrollToBottom(): void {
+  scrollToBottom() {
     const messagesEnd = document.getElementById('messages-end');
     if (messagesEnd) {
       messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
   }
 
-  private sanitizeHTML(str: string): string {
+  sanitizeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
   }
 
-  private renderMessages(): void {
+  renderMessages() {
     if (this.messagesList) {
       this.messagesList.innerHTML = ''; // Clear previous messages
       this.state.messages.forEach(message => {
@@ -79,12 +69,12 @@ export class ChatbotManager {
     }
   }
 
-  private async sendMessage(): Promise<void> {
+  async sendMessage() {
     if (!this.chatInput) return;
     const input = this.chatInput.value.trim();
     if (!input || this.state.loading) return;
     
-    const userMessage = { role: 'user' as const, content: input };
+    const userMessage = { role: 'user', content: input };
     this.state.messages = [...this.state.messages, userMessage];
     this.chatInput.value = '';
     this.state.loading = true;
@@ -106,11 +96,11 @@ export class ChatbotManager {
         throw new Error(data.error);
       }
       
-      const assistantMessage = { role: 'assistant' as const, content: data.response };
+      const assistantMessage = { role: 'assistant', content: data.response };
       this.state.messages = [...this.state.messages, assistantMessage];
     } catch (error) {
       const errorMessage = { 
-        role: 'assistant' as const, 
+        role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
       };
       this.state.messages = [...this.state.messages, errorMessage];

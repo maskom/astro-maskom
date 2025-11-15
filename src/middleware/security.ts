@@ -1,10 +1,11 @@
-import crypto from 'crypto';
-
 /**
- * Generate a random nonce for CSP
+ * Generate a random nonce for CSP using Web Crypto API
  */
 export function generateNonce(): string {
-  return crypto.randomBytes(16).toString('base64');
+  // Use Web Crypto API which is available in Cloudflare Pages
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
 }
 
 /**
