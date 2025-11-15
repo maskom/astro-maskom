@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ request }) => {
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(token);
+    } = await supabase!.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const paymentManager = getPaymentManager();
-    const invoice = await paymentManager.service.getInvoiceById(invoiceId);
+    const invoice = await paymentManager.getInvoiceById(invoiceId);
 
     if (!invoice) {
       return new Response(

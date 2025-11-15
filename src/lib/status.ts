@@ -1,5 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { logger } from './logger';
+import type { Database } from './database.types';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -28,11 +29,11 @@ export interface StatusData {
 }
 
 // Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: SupabaseClient<Database> | null = null;
 
-export const createSupabaseClient = () => {
+export const createSupabaseClient = (): SupabaseClient<Database> => {
   if (!supabaseClient) {
-    supabaseClient = createClient(
+    supabaseClient = createClient<Database>(
       import.meta.env.SUPABASE_URL,
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
     );
@@ -66,15 +67,15 @@ export const getStatusData = async (): Promise<StatusData> => {
     let overall_status: 'operational' | 'degraded' | 'outage' = 'operational';
 
     // First check if any services have outages or degraded status
-    const hasServiceOutage = services.some(
-      service => service.status === 'outage'
-    );
-    const hasServiceDegraded = services.some(
-      service => service.status === 'degraded'
-    );
+    const hasServiceOutage =
+      (services as any[])?.some(service => service.status === 'outage') ||
+      false;
+    const hasServiceDegraded =
+      (services as any[])?.some(service => service.status === 'degraded') ||
+      false;
 
     // Then consider active incidents
-    const hasActiveIncidents = incidents.length > 0;
+    const hasActiveIncidents = (incidents?.length || 0) > 0;
 
     if (hasServiceOutage) {
       overall_status = 'outage';
@@ -125,7 +126,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return data?.uptime_percentage || 99.9;
+    return (data as any)?.uptime_percentage || 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -155,12 +156,12 @@ export const createIncident = async (
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-      ])
+      ] as any)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Incident;
   } catch (error) {
     logger.error(
       'Error creating incident',
@@ -181,15 +182,16 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    const updateData = { ...updates, updated_at: new Date().toISOString() };
+    const { data, error } = await (supabase as any)
       .from('incidents')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Incident;
   } catch (error) {
     logger.error(
       'Error updating incident',
@@ -213,7 +215,7 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as Incident[]) || [];
   } catch (error) {
     logger.error(
       'Error fetching incidents',

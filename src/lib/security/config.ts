@@ -36,7 +36,7 @@ export const securityHeaders = {
   'X-Content-Security-Policy': "default-src 'self'",
 };
 
-export const ipWhitelist = [
+export const ipWhitelist: string[] = [
   // Add trusted IP addresses here
   // '192.168.1.0/24',
   // '10.0.0.0/8'

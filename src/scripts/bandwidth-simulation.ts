@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // Sample package configurations with their data caps
@@ -18,8 +18,10 @@ const packageConfigs = {
 };
 
 // Generate random usage data based on package
-function generateUsageData(packageId, days = 30) {
-  const config = packageConfigs[packageId] || packageConfigs['home-a'];
+function generateUsageData(packageId: string, days = 30) {
+  const config =
+    packageConfigs[packageId as keyof typeof packageConfigs] ||
+    packageConfigs['home-a'];
   const data = [];
 
   for (let i = days - 1; i >= 0; i--) {
@@ -71,7 +73,8 @@ async function createSampleDataCaps() {
         continue;
       }
 
-      const config = packageConfigs[user.package_id];
+      const config =
+        packageConfigs[user.package_id as keyof typeof packageConfigs];
       const billingStart = new Date();
       billingStart.setDate(billingStart.getDate() - 15); // Mid-cycle start
 
@@ -144,7 +147,8 @@ async function createHighUsageScenarios() {
       return;
     }
 
-    const config = packageConfigs[highUsageUser.package_id];
+    const config =
+      packageConfigs[highUsageUser.package_id as keyof typeof packageConfigs];
     const billingStart = new Date();
     billingStart.setDate(billingStart.getDate() - 20); // Earlier in cycle
 
