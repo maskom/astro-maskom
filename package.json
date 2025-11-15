@@ -10,7 +10,10 @@
     "pages:dev": "wrangler pages dev ./dist",
     "security:audit": "npm audit --audit-level moderate",
     "security:check": "npm audit && npm outdated",
-    "simulate-bandwidth": "tsx src/scripts/bandwidth-simulation.ts"
+    "simulate-bandwidth": "tsx src/scripts/bandwidth-simulation.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
@@ -31,11 +34,15 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@vitest/ui": "^4.0.9",
     "axios": "^1.13.2",
     "form-data": "^4.0.4",
     "js-yaml": "^4.1.1",
+    "jsdom": "^27.2.0",
     "tsx": "^4.6.0",
     "undici": "^7.16.0",
+    "vitest": "^4.0.9",
     "wrangler": "^4.46.0"
   },
   "overrides": {

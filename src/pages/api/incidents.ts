@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
 import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeText } from "../../lib/sanitization";
+import { logger } from "../../lib/logger";
 
 export const prerender = false;
 
@@ -25,7 +26,11 @@ export const GET: APIRoute = async ({ url }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeText(error.message || 'Internal server error');
+    logger.apiError('Incidents GET error', error, {
+      action: 'getAllIncidents',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
@@ -78,7 +83,11 @@ export const POST: APIRoute = async ({ request }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeText(error.message || 'Internal server error');
+    logger.apiError('Incidents POST error', error, {
+      action: 'createIncident',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
@@ -133,7 +142,11 @@ export const PUT: APIRoute = async ({ request }) => {
       }
     });
   } catch (error) {
-    const sanitizedError = sanitizeText(error.message || 'Internal server error');
+    logger.apiError('Incidents PUT error', error, {
+      action: 'updateIncident',
+      endpoint: '/api/incidents'
+    });
+    const sanitizedError = sanitizeText(error instanceof Error ? error.message : 'Internal server error');
     return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
       headers: { 
