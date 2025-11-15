@@ -16,7 +16,7 @@ export interface PaymentTransaction {
   paymentMethod: PaymentMethod;
   createdAt: Date;
   updatedAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Invoice {
@@ -109,4 +109,47 @@ export interface WebhookNotification {
   signature_key: string;
   gross_amount: string;
   status_code: string;
+}
+
+// Database row interfaces
+export interface PaymentTransactionRow {
+  id: string;
+  order_id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'success' | 'failed' | 'cancelled' | 'refund';
+  payment_method: PaymentMethod;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface InvoiceRow {
+  id: string;
+  invoice_number: string;
+  user_id: string;
+  transaction_id: string;
+  amount: number;
+  tax: number;
+  total: number;
+  due_date: string;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  invoice_items?: InvoiceItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GatewayResponseData {
+  transaction_id?: string;
+  order_id: string;
+  status_code: string;
+  status_message: string;
+  payment_type?: string;
+  transaction_status: string;
+  fraud_status?: string;
+  redirect_url?: string;
+  token?: string;
+  approval_code?: string;
+  gross_amount: string;
 }
