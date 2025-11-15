@@ -196,7 +196,19 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: {
+    transaction_id?: string;
+    order_id: string;
+    status_code: string;
+    status_message: string;
+    payment_type?: string;
+    transaction_status: string;
+    fraud_status?: string;
+    redirect_url?: string;
+    token?: string;
+    approval_code?: string;
+    gross_amount: string;
+  }): PaymentResponse {
     return {
       transactionId: data.transaction_id || data.order_id,
       orderId: data.order_id,

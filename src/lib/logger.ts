@@ -10,7 +10,10 @@ export interface LogContext {
   userId?: string;
   service?: string;
   action?: string;
-  [key: string]: any;
+}
+
+export interface ExtendedLogContext extends LogContext {
+  [key: string]: unknown;
 }
 
 export interface LogEntry {
@@ -68,7 +71,7 @@ class Logger {
   private log(
     level: LogLevel,
     message: string,
-    context?: LogContext,
+    context?: ExtendedLogContext,
     error?: Error
   ): void {
     if (!this.shouldLog(level)) {
@@ -121,24 +124,28 @@ class Logger {
     }
   }
 
-  debug(message: string, context?: LogContext): void {
+  debug(message: string, context?: ExtendedLogContext): void {
     this.log(LogLevel.DEBUG, message, context);
   }
 
-  info(message: string, context?: LogContext): void {
+  info(message: string, context?: ExtendedLogContext): void {
     this.log(LogLevel.INFO, message, context);
   }
 
-  warn(message: string, context?: LogContext): void {
+  warn(message: string, context?: ExtendedLogContext): void {
     this.log(LogLevel.WARN, message, context);
   }
 
-  error(message: string, error?: Error, context?: LogContext): void {
+  error(message: string, error?: Error, context?: ExtendedLogContext): void {
     this.log(LogLevel.ERROR, message, context, error);
   }
 
   // Helper method for API errors
-  apiError(message: string, error: unknown, context?: LogContext): void {
+  apiError(
+    message: string,
+    error: unknown,
+    context?: ExtendedLogContext
+  ): void {
     const errorObj = error instanceof Error ? error : new Error(String(error));
     this.error(message, errorObj, context);
   }
@@ -152,14 +159,14 @@ export const logger = new Logger();
 
 // Export convenience functions
 export const log = {
-  debug: (message: string, context?: LogContext) =>
+  debug: (message: string, context?: ExtendedLogContext) =>
     logger.debug(message, context),
-  info: (message: string, context?: LogContext) =>
+  info: (message: string, context?: ExtendedLogContext) =>
     logger.info(message, context),
-  warn: (message: string, context?: LogContext) =>
+  warn: (message: string, context?: ExtendedLogContext) =>
     logger.warn(message, context),
-  error: (message: string, error?: Error, context?: LogContext) =>
+  error: (message: string, error?: Error, context?: ExtendedLogContext) =>
     logger.error(message, error, context),
-  apiError: (message: string, error: unknown, context?: LogContext) =>
+  apiError: (message: string, error: unknown, context?: ExtendedLogContext) =>
     logger.apiError(message, error, context),
 };
