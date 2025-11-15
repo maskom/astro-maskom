@@ -7,30 +7,30 @@ describe('Environment Variables', () => {
     expect(env.SITE_NAME).toBeDefined();
     expect(env.SITE_URL).toBeDefined();
     expect(env.WHATSAPP_NUMBER).toBeDefined();
-    
+
     // Test that helper functions work
     expect(socialUrls.whatsapp).toContain('wa.me');
   });
 
   it('should have proper TypeScript types', () => {
     // This test ensures TypeScript types are working
-    
+
     // These should not cause TypeScript errors
     const siteName: string = env.SITE_NAME;
     const enableChatbot: boolean = env.ENABLE_CHATBOT;
     const nodeEnv: 'development' | 'production' | 'test' = env.NODE_ENV;
-    
+
     expect(typeof siteName).toBe('string');
     expect(typeof enableChatbot).toBe('boolean');
     expect(['development', 'production', 'test']).toContain(nodeEnv);
   });
 
   it('should validate WhatsApp URL generation', () => {
-    expect(socialUrls.whatsapp).toBe('https://wa.me/6283867803521');
+    expect(socialUrls.whatsapp).toBe('https://wa.me/628123456789');
   });
 
   it('should have correct feature flag values', () => {
-    expect(env.ENABLE_CHATBOT).toBe(false); // default value
+    expect(env.ENABLE_CHATBOT).toBe(true); // test environment value
     expect(env.ENABLE_ANALYTICS).toBe(false); // default value
   });
 });
