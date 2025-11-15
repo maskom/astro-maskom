@@ -7,7 +7,7 @@ export interface SecurityAuditLog {
   user_agent: string;
   timestamp: Date;
   success: boolean;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   risk_level: RiskLevel;
 }
 
@@ -20,7 +20,7 @@ export interface SecurityEvent {
   description: string;
   timestamp: Date;
   resolved: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UserSecurityProfile {
@@ -86,6 +86,7 @@ export enum SecurityEventType {
   DATA_BREACH = 'data_breach',
   MALICIOUS_REQUEST = 'malicious_request',
   ANOMALOUS_BEHAVIOR = 'anomalous_behavior',
+  RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded',
 }
 
 export enum SecuritySeverity {

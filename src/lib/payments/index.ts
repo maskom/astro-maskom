@@ -24,6 +24,10 @@ export function getPaymentManager(): PaymentManager {
       throw new Error('Midtrans credentials are not configured');
     }
 
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
+
     paymentManager = new PaymentManager(supabase, config);
   }
 

@@ -1,5 +1,11 @@
 // Database type definitions for Supabase
 
+export interface NotificationPreferences {
+  incidents: boolean;
+  maintenance: boolean;
+  statusChanges: boolean;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -85,21 +91,21 @@ export interface Database {
         Row: {
           id: string;
           email: string;
-          preferences: any;
+          preferences: NotificationPreferences;
           subscribed_at: string;
           confirmed: boolean;
         };
         Insert: {
           id?: string;
           email: string;
-          preferences: any;
+          preferences: NotificationPreferences;
           subscribed_at?: string;
           confirmed?: boolean;
         };
         Update: {
           id?: string;
           email?: string;
-          preferences?: any;
+          preferences?: Partial<NotificationPreferences>;
           subscribed_at?: string;
           confirmed?: boolean;
         };
