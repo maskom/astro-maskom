@@ -6,6 +6,7 @@ import { dataProtectionService } from '../../src/lib/security/data-protection';
 import { sessionManager } from '../../src/lib/security/session';
 import {
   SecurityAction,
+  SecurityEventType,
   UserRole,
   Permission,
   SecuritySeverity,
@@ -67,7 +68,7 @@ describe('Security Audit Logger', () => {
   });
 
   it('should create security events', async () => {
-    const type = 'suspicious_activity' as any;
+    const type = SecurityEventType.SUSPICIOUS_ACTIVITY;
     const severity = SecuritySeverity.HIGH;
     const userId = 'test-user-id';
     const ipAddress = '192.168.1.1';

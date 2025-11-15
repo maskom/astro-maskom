@@ -1,0 +1,120 @@
+
+> maskom-network@0.0.1 lint
+> eslint . --ext .js,.jsx,.ts,.tsx,.astro
+
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/database.types.ts
+   88:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/logger.ts
+  13:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/payments/gateway.ts
+  199:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/payments/manager.ts
+  13:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/payments/service.ts
+    4:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+    6:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  235:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  250:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/payments/types.ts
+  19:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/sanitization.ts
+    9:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  139:9   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/security/audit.ts
+   23:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  204:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/security/data-protection.ts
+  243:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  245:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/security/middleware.ts
+   78:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  164:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  190:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  216:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  242:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  244:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  276:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  277:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  330:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/security/types.ts
+  10:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/lib/status.ts
+   71:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/bandwidth/admin/monitoring.ts
+   40:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  209:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  227:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/bandwidth/data-caps.ts
+  205:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/chat/completion.ts
+  37:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/invoices/download.ts
+  87:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  90:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/security/dashboard.ts
+  53:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  54:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/security/export-data.ts
+   39:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/pages/api/subscribers.ts
+  137:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/src/scripts/bandwidth-simulation.ts
+  4:3  warning  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  5:3  warning  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+
+/home/runner/work/astro-maskom/astro-maskom/src/test/security.test.ts
+  70:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/astro-maskom/astro-maskom/test/bandwidth.test.ts
+  4:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 69 problems (0 errors, 69 warnings)
+
