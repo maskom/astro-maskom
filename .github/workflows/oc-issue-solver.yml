@@ -2,7 +2,7 @@ name: oc - issue solver
 
 on:
   schedule:
-    - cron: '0/45 0 * * *'
+    - cron: '0/30 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -39,15 +39,35 @@ jobs:
         uses: step-security/harden-runner@v2
         with:
           egress-policy: audit
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+
+      - name: Check for open issues
+        id: check_issues
+        run: |
+          COUNT=$(gh issue list --state open --json number --jq 'length')
+          echo "Open issues: $COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "no_issues=true" >> $GITHUB_OUTPUT
+          else
+            echo "no_issues=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Skip – no issues found
+        if: steps.check_issues.outputs.no_issues == 'true'
+        run: echo "No open issues, skipping workflow."
+
       - name: Install OpenCode CLI
+        if: steps.check_issues.outputs.no_issues == 'false'
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
       - name: Run OpenCode1
+        if: steps.check_issues.outputs.no_issues == 'false'
         id: run_issue_solver
         timeout-minutes: 20
         run: |
