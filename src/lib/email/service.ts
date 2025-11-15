@@ -1,0 +1,173 @@
+import { EmailQueueService } from './queue';
+import type { SendEmailOptions } from './types';
+
+export class EmailService {
+  private queueService: EmailQueueService;
+
+  constructor(supabaseUrl: string, supabaseKey: string) {
+    this.queueService = new EmailQueueService(supabaseUrl, supabaseKey);
+  }
+
+  /**
+   * Send welcome email to new user
+   */
+  async sendWelcomeEmail(to: string, userName: string): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'welcome_email', {
+      user_name: userName,
+      signup_date: new Date().toLocaleDateString()
+    });
+  }
+
+  /**
+   * Send payment confirmation email
+   */
+  async sendPaymentConfirmation(to: string, orderData: {
+    orderId: string;
+    amount: number;
+    currency: string;
+    productName: string;
+  }): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'payment_confirmation', {
+      order_id: orderData.orderId,
+      amount: orderData.amount.toLocaleString(),
+      currency: orderData.currency,
+      product_name: orderData.productName,
+      payment_date: new Date().toLocaleDateString()
+    });
+  }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordReset(to: string, resetUrl: string, userName?: string): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'password_reset', {
+      reset_url: resetUrl,
+      user_name: userName || 'User',
+      expiry_hours: '24'
+    });
+  }
+
+  /**
+   * Send service status notification
+   */
+  async sendServiceNotification(to: string, subject: string, message: string, severity: 'info' | 'warning' | 'error' = 'info'): Promise<string> {
+    const priority = severity === 'error' ? 1 : severity === 'warning' ? 3 : 5;
+    
+    return this.queueService.addEmailToQueue({
+      to,
+      subject: `[${severity.toUpperCase()}] ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: ${severity === 'error' ? '#fee' : severity === 'warning' ? '#fff3cd' : '#d1ecf1'}; padding: 20px; border-radius: 5px;">
+            <h2 style="color: ${severity === 'error' ? '#721c24' : severity === 'warning' ? '#856404' : '#0c5460'}; margin: 0 0 10px 0;">
+              ${subject}
+            </h2>
+            <p style="color: ${severity === 'error' ? '#721c24' : severity === 'warning' ? '#856404' : '#0c5460'}; margin: 0;">
+              ${message}
+            </p>
+          </div>
+          <div style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+            <p style="margin: 0; color: #6c757d; font-size: 14px;">
+              This is an automated notification from Maskom Network. If you have any questions, please contact our support team.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `${subject}\n\n${message}\n\nThis is an automated notification from Maskom Network.`,
+      priority,
+      metadata: { severity, type: 'service_notification' }
+    });
+  }
+
+  /**
+   * Send billing reminder
+   */
+  async sendBillingReminder(to: string, invoiceData: {
+    invoiceNumber: string;
+    amount: number;
+    dueDate: string;
+    productName: string;
+  }): Promise<string> {
+    return this.queueService.addEmailToQueue({
+      to,
+      subject: `Billing Reminder - Invoice ${invoiceData.invoiceNumber}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Billing Reminder</h2>
+          <p>This is a friendly reminder that your invoice is due soon.</p>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin: 0 0 15px 0;">Invoice Details</h3>
+            <p><strong>Invoice Number:</strong> ${invoiceData.invoiceNumber}</p>
+            <p><strong>Amount:</strong> Rp ${invoiceData.amount.toLocaleString()}</p>
+            <p><strong>Due Date:</strong> ${invoiceData.dueDate}</p>
+            <p><strong>Service:</strong> ${invoiceData.productName}</p>
+          </div>
+          
+          <p>Please ensure payment is made by the due date to avoid service interruption.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.SITE_URL}/billing" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              View Invoice
+            </a>
+          </div>
+        </div>
+      `,
+      text: `
+Billing Reminder
+
+Invoice Number: ${invoiceData.invoiceNumber}
+Amount: Rp ${invoiceData.amount.toLocaleString()}
+Due Date: ${invoiceData.dueDate}
+Service: ${invoiceData.productName}
+
+Please ensure payment is made by the due date to avoid service interruption.
+
+View your invoice at: ${process.env.SITE_URL}/billing
+      `,
+      priority: 4,
+      metadata: { 
+        type: 'billing_reminder',
+        invoice_number: invoiceData.invoiceNumber 
+      }
+    });
+  }
+
+  /**
+   * Send custom email
+   */
+  async sendCustomEmail(options: SendEmailOptions): Promise<string> {
+    return this.queueService.addEmailToQueue(options);
+  }
+
+  /**
+   * Process email queue (should be called by cron job)
+   */
+  async processQueue(): Promise<{ processed: number; failed: number }> {
+    const settings = await this.queueService.getSettings();
+    const batchSizeSetting = settings.find(s => s.key === 'max_batch_size');
+    const batchSize = batchSizeSetting?.value || 10;
+
+    return this.queueService.processQueue(batchSize);
+  }
+
+  /**
+   * Get queue statistics
+   */
+  async getQueueStats() {
+    return this.queueService.getQueueStats();
+  }
+
+  /**
+   * Get queue service instance for advanced operations
+   */
+  getQueueService(): EmailQueueService {
+    return this.queueService;
+  }
+}
+
+// Export singleton instance
+export const emailService = new EmailService(
+  import.meta.env.SUPABASE_URL || '',
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
