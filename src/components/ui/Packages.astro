@@ -1,5 +1,5 @@
 ---
-import { packages, contactInfo } from '../../data/packages';
+import { packages } from '../../data/packages';
 ---
 
 <section id="paket" class="relative py-24">
@@ -29,7 +29,7 @@ import { packages, contactInfo } from '../../data/packages';
             <h3 class="text-2xl font-semibold text-white">{pkg.displayName}</h3>
             <p class="mt-3 text-sm text-white/70">{pkg.description}</p>
             <ul class="mt-6 space-y-3 text-sm text-white/80">
-              {pkg.highlights.map((item) => (
+              {pkg.highlights?.map((item) => (
                 <li class="flex items-start gap-3">
                   <span class="plan-bullet" aria-hidden="true"></span>
                   <span>{item}</span>

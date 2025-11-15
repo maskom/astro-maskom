@@ -7,18 +7,62 @@ interface Message {
 interface ChatbotProps {
   initialMessages?: Message[];
 }
+
+const { initialMessages = [] } = Astro.props;
 ---
 
-<script>
-  // Get initial messages from props or default to empty array
-  const initialMessages = Astro.props.initialMessages || [];
+<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden" id="chatbot">
+  <!-- Chat header -->
+  <div class="bg-indigo-600 text-white p-4">
+    <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
+  </div>
   
-  // State for messages and input
+  <!-- Messages container -->
+  <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="messages-container">
+    <div id="messages-list"></div>
+    <div id="loading-indicator" class="hidden text-left mb-4">
+      <div class="inline-block p-3 rounded-lg bg-white border border-gray-200 rounded-bl-none">
+        <div class="flex space-x-2">
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+        </div>
+      </div>
+    </div>
+    <div id="messages-end"></div>
+  </div>
+  
+  <!-- Input area -->
+  <div class="border-t border-gray-200 p-4 bg-white">
+    <form id="chat-form" class="flex space-x-2">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Type your message..."
+        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <button
+        type="submit"
+        id="send-button"
+        class="bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const initialMessages = JSON.parse('{JSON.stringify(Astro.props.initialMessages || [])}');
   let messages = [...initialMessages];
-  let input = '';
   let loading = false;
   
-  // Function to scroll to bottom of messages
+  const messagesList = document.getElementById('messages-list');
+  const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+  const chatForm = document.getElementById('chat-form');
+  const sendButton = document.getElementById('send-button') as HTMLButtonElement;
+  const loadingIndicator = document.getElementById('loading-indicator');
+  
   const scrollToBottom = () => {
     const messagesEnd = document.getElementById('messages-end');
     if (messagesEnd) {
@@ -26,23 +70,47 @@ interface ChatbotProps {
     }
   };
   
-  // Function to send message
+  const renderMessages = () => {
+    if (messagesList) {
+      messagesList.innerHTML = ''; // Clear previous messages
+      messages.forEach(message => {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = `mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`;
+
+        const messageBubble = document.createElement('div');
+        messageBubble.className = `inline-block p-3 rounded-lg max-w-[80%] ${
+          message.role === 'user'
+            ? 'bg-indigo-500 text-white rounded-br-none'
+            : 'bg-white border border-gray-200 rounded-bl-none'
+        }`;
+
+        messageBubble.textContent = message.content;
+
+        messageContainer.appendChild(messageBubble);
+        messagesList.appendChild(messageContainer);
+      });
+      scrollToBottom();
+    }
+  };
+  
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (!chatInput) return;
+    const input = chatInput.value.trim();
+    if (!input || loading) return;
     
-    // Add user message to chat
     const userMessage = { role: 'user', content: input };
     messages = [...messages, userMessage];
-    input = '';
+    chatInput.value = '';
     loading = true;
-    scrollToBottom();
+    if (sendButton) sendButton.disabled = true;
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+    renderMessages();
     
     try {
-      // Send request to chat API
       const response = await fetch('/api/chat/completion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: messages.slice(1) }), // Exclude system message
+        body: JSON.stringify({ messages: messages.slice(1) }),
       });
       
       const data = await response.json();
@@ -51,11 +119,9 @@ interface ChatbotProps {
         throw new Error(data.error);
       }
       
-      // Add assistant response to chat
       const assistantMessage = { role: 'assistant', content: data.response };
       messages = [...messages, assistantMessage];
     } catch (error) {
-      // Add error message to chat
       const errorMessage = { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
@@ -63,68 +129,19 @@ interface ChatbotProps {
       messages = [...messages, errorMessage];
     } finally {
       loading = false;
-      scrollToBottom();
+      if (sendButton) sendButton.disabled = false;
+      if (loadingIndicator) loadingIndicator.classList.add('hidden');
+      renderMessages();
     }
   };
+  
+  if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
+  }
+  
+  // Initial render
+  renderMessages();
 </script>
-
-<div class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden">
-  <!-- Chat header -->
-  <div class="bg-indigo-600 text-white p-4">
-    <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
-  </div>
-  
-  <!-- Messages container -->
-  <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
-    {messages.map((message) => (
-      <div class={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-        <div class={`inline-block p-3 rounded-lg max-w-[80%] ${
-          message.role === 'user' 
-            ? 'bg-indigo-500 text-white rounded-br-none' 
-            : 'bg-white border border-gray-200 rounded-bl-none'
-        }`}>
-          {message.content}
-        </div>
-      </div>
-    ))}
-    {loading && (
-      <div class="text-left mb-4">
-        <div class="inline-block p-3 rounded-lg bg-white border border-gray-200 rounded-bl-none">
-          <div class="flex space-x-2">
-            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
-          </div>
-        </div>
-      </div>
-    )}
-    <div id="messages-end"></div>
-  </div>
-  
-  <!-- Input area -->
-  <div class="border-t border-gray-200 p-4 bg-white">
-    <form 
-      onSubmit={(e) => {
-        e.preventDefault();
-        sendMessage();
-      }}
-      class="flex space-x-2"
-    >
-      <input
-        type="text"
-        value={input}
-        onInput={(e) => input = e.target.value}
-        placeholder="Type your message..."
-        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        disabled={loading}
-      />
-      <button
-        type="submit"
-        class="bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-        disabled={loading || !input.trim()}
-      >
-        Send
-      </button>
-    </form>
-  </div>
-</div>
