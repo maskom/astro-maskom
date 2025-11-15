@@ -205,7 +205,7 @@ export class SecurityAuditLogger {
   private calculateRiskLevel(
     action: SecurityAction,
     success: boolean,
-    details?: Record<string, any>
+    _details?: Record<string, any>
   ): RiskLevel {
     if (!success) {
       return 'medium' as RiskLevel;

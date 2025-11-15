@@ -9,9 +9,11 @@ const envSchema = z.object({
   // ===========================================
   // SUPABASE CONFIGURATION
   // ===========================================
-  SUPABASE_URL: z.string().url().min(1, "SUPABASE_URL is required"),
-  SUPABASE_ANON_KEY: z.string().min(1, "SUPABASE_ANON_KEY is required"),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "SUPABASE_SERVICE_ROLE_KEY is required"),
+  SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL is required'),
+  SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required'),
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
 
   // ===========================================
   // OPENAI CONFIGURATION (Optional)
@@ -22,20 +24,20 @@ const envSchema = z.object({
   // ===========================================
   // SITE CONFIGURATION
   // ===========================================
-  SITE_URL: z.string().url().min(1, "SITE_URL is required"),
-  SITE_NAME: z.string().min(1, "SITE_NAME is required"),
-  SITE_DESCRIPTION: z.string().min(1, "SITE_DESCRIPTION is required"),
-  SITE_AUTHOR: z.string().min(1, "SITE_AUTHOR is required"),
+  SITE_URL: z.string().url().min(1, 'SITE_URL is required'),
+  SITE_NAME: z.string().min(1, 'SITE_NAME is required'),
+  SITE_DESCRIPTION: z.string().min(1, 'SITE_DESCRIPTION is required'),
+  SITE_AUTHOR: z.string().min(1, 'SITE_AUTHOR is required'),
 
   // ===========================================
   // SOCIAL MEDIA & CONTACT
   // ===========================================
-  WHATSAPP_NUMBER: z.string().min(1, "WHATSAPP_NUMBER is required"),
-  FACEBOOK_URL: z.string().url().optional(),
-  TWITTER_URL: z.string().url().optional(),
-  INSTAGRAM_URL: z.string().url().optional(),
-  LINKEDIN_URL: z.string().url().optional(),
-  CONTACT_EMAIL: z.string().email().optional(),
+  WHATSAPP_NUMBER: z.string().min(1, 'WHATSAPP_NUMBER is required'),
+  FACEBOOK_URL: z.string().url().optional().or(z.literal('')),
+  TWITTER_URL: z.string().url().optional().or(z.literal('')),
+  INSTAGRAM_URL: z.string().url().optional().or(z.literal('')),
+  LINKEDIN_URL: z.string().url().optional().or(z.literal('')),
+  CONTACT_EMAIL: z.string().email().optional().or(z.literal('')),
   CONTACT_PHONE: z.string().optional(),
   CONTACT_ADDRESS: z.string().optional(),
 
@@ -43,18 +45,29 @@ const envSchema = z.object({
   // ANALYTICS & MONITORING
   // ===========================================
   GOOGLE_ANALYTICS_ID: z.string().optional(),
-  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: z.string().url().optional().or(z.literal('')),
 
   // ===========================================
   // DEVELOPMENT CONFIGURATION
   // ===========================================
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
   // Feature flags
-  ENABLE_CHATBOT: z.string().transform((val) => val === 'true').default('false'),
-  ENABLE_ANALYTICS: z.string().transform((val) => val === 'true').default('false'),
-  ENABLE_ERROR_REPORTING: z.string().transform((val) => val === 'true').default('false'),
+  ENABLE_CHATBOT: z
+    .string()
+    .transform(val => val === 'true')
+    .default('false'),
+  ENABLE_ANALYTICS: z
+    .string()
+    .transform(val => val === 'true')
+    .default('false'),
+  ENABLE_ERROR_REPORTING: z
+    .string()
+    .transform(val => val === 'true')
+    .default('false'),
 
   // ===========================================
   // PAYMENT GATEWAY (Future)
@@ -72,14 +85,17 @@ const envSchema = z.object({
   // ===========================================
   // SECURITY
   // ===========================================
-  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters").optional(),
+  JWT_SECRET: z
+    .string()
+    .min(32, 'JWT_SECRET must be at least 32 characters')
+    .optional(),
   JWT_EXPIRES_IN: z.string().default('24h'),
-  CORS_ORIGIN: z.string().url().optional(),
+  CORS_ORIGIN: z.string().url().optional().or(z.literal('')),
 
   // ===========================================
   // CACHE CONFIGURATION
   // ===========================================
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: z.string().url().optional().or(z.literal('')),
   REDIS_PASSWORD: z.string().optional(),
 
   // ===========================================
@@ -97,11 +113,13 @@ function validateEnv() {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errorMessages = error.errors.map(
-        (err) => `${err.path.join('.')}: ${err.message}`
+        err => `${err.path.join('.')}: ${err.message}`
       );
       console.error('❌ Environment validation failed:');
       console.error(errorMessages.join('\n'));
-      console.error('\nPlease check your .env file and ensure all required variables are set.');
+      console.error(
+        '\nPlease check your .env file and ensure all required variables are set.'
+      );
       process.exit(1);
     }
     throw error;

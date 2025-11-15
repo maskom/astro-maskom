@@ -32,7 +32,7 @@ export class DataProtectionService {
   decryptSensitiveData(encryptedData: string): string {
     try {
       const parts = encryptedData.split(':');
-      const iv = Buffer.from(parts[0], 'hex');
+      const _iv = Buffer.from(parts[0], 'hex');
       const encrypted = parts[1];
 
       const decipher = crypto.createDecipher('aes-256-cbc', this.encryptionKey);

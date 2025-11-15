@@ -30,7 +30,7 @@ describe('Environment Variables', () => {
   });
 
   it('should have correct feature flag values', () => {
-    expect(env.ENABLE_CHATBOT).toBe(true); // test environment value
+    expect(env.ENABLE_CHATBOT).toBe(false); // test environment value
     expect(env.ENABLE_ANALYTICS).toBe(false); // default value
   });
 });

@@ -1,6 +1,5 @@
-import type { APIRoute } from 'astro';
+import type { AstroCookies, APIContext } from 'astro';
 import { securityAuditLogger } from './audit';
-import { mfaService } from './mfa';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';
 import { dataProtectionService } from './data-protection';

@@ -3,7 +3,7 @@ import { PaymentService } from './service';
 import type {
   PaymentGatewayConfig,
   PaymentRequest,
-  PaymentResponse,
+  PaymentTransaction,
 } from './types';
 
 export class PaymentManager {

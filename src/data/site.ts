@@ -1,5 +1,3 @@
-import { env } from '../lib/env';
-
 // Only for Astro page
 export const siteConfig = {
   title: 'Ultimate Astro',

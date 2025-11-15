@@ -1,7 +1,7 @@
 import { getPaymentManager } from '../../../lib/payments';
 import type { APIRoute } from 'astro';
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ _request }) => {
   try {
     const paymentManager = getPaymentManager();
     const paymentMethods = await paymentManager.getPaymentMethods();

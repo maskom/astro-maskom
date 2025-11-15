@@ -1,5 +1,3 @@
-import { socialUrls } from '../lib/env';
-
 export interface BasePackage {
   id: string;
   name: string;

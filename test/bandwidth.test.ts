@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock Supabase client
-const mockSupabase = {
+const _mockSupabase = {
   from: () => ({
     select: () => ({
       eq: () => ({
