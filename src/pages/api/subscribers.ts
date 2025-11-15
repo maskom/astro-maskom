@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail, sanitizeString, validateRequestBody } from "../../lib/sanitization";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -17,8 +18,16 @@ const getSupabaseClient = () => {
 export const prerender = false;
 
 // GET endpoint to fetch subscribers
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeString(value);
+    }
+    
     const supabase = getSupabaseClient();
     
     // Fetch subscribers from database
@@ -32,13 +41,18 @@ export const GET: APIRoute = async () => {
     return new Response(JSON.stringify(subscribers || []), {
       headers: { 
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -46,13 +60,35 @@ export const GET: APIRoute = async () => {
 // POST endpoint to add a new subscriber
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email, preferences } = await request.json();
+    const requestData = await request.json();
     
-    // Validate email
-    if (!email || !email.includes('@')) {
+    // Validate and sanitize input
+    const validation = validateRequestBody(requestData, ['email']);
+    
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Validation failed", 
+        details: validation.errors 
+      }), {
+        status: 400,
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
+      });
+    }
+    
+    const { email, preferences } = validation.sanitized;
+    
+    // Additional email validation
+    const sanitizedEmail = sanitizeEmail(email);
+    if (!sanitizedEmail) {
       return new Response(JSON.stringify({ error: "Valid email is required" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -62,7 +98,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('subscribers')
       .select('id')
-      .eq('email', email)
+      .eq('email', sanitizedEmail)
       .single();
     
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" error
@@ -72,13 +108,16 @@ export const POST: APIRoute = async ({ request }) => {
     if (existingSubscriber) {
       return new Response(JSON.stringify({ error: "Email already subscribed" }), {
         status: 409,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
     // Insert new subscriber into database
     const newSubscriber = {
-      email,
+      email: sanitizedEmail,
       preferences: preferences || {
         incidents: true,
         maintenance: true,
@@ -99,12 +138,19 @@ export const POST: APIRoute = async ({ request }) => {
     // TODO: Send confirmation email (would require email service integration)
     
     return new Response(JSON.stringify(insertedSubscriber), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
