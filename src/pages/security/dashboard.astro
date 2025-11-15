@@ -1,0 +1,427 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { securityConfig } from '../../lib/security/config';
+---
+
+<Layout title="Security Dashboard - Maskom Network">
+  <div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Security Dashboard</h1>
+        <p class="mt-2 text-gray-600">Monitor and manage your account security</p>
+      </div>
+
+      <!-- Security Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">MFA Status</p>
+              <p class="text-2xl font-semibold text-gray-900" id="mfa-status">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Active Sessions</p>
+              <p class="text-2xl font-semibold text-gray-900" id="active-sessions">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Security Events</p>
+              <p class="text-2xl font-semibold text-gray-900" id="security-events">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Failed Logins</p>
+              <p class="text-2xl font-semibold text-gray-900" id="failed-logins">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MFA Setup Section -->
+      <div class="bg-white rounded-lg shadow mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Multi-Factor Authentication</h2>
+        </div>
+        <div class="p-6">
+          <div id="mfa-section">
+            <p class="text-gray-600">Loading MFA status...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Sessions Section -->
+      <div class="bg-white rounded-lg shadow mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Active Sessions</h2>
+        </div>
+        <div class="p-6">
+          <div id="sessions-section">
+            <p class="text-gray-600">Loading active sessions...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Security Events -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Recent Security Events</h2>
+        </div>
+        <div class="p-6">
+          <div id="events-section">
+            <p class="text-gray-600">Loading security events...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Security Dashboard JavaScript
+    class SecurityDashboard {
+      constructor() {
+        this.loadSecurityData();
+        this.setupEventListeners();
+      }
+
+      async loadSecurityData() {
+        try {
+          const response = await fetch('/api/security/dashboard');
+          
+          if (!response.ok) {
+            throw new Error('Failed to load security data');
+          }
+
+          const data = await response.json();
+          this.updateSecurityStats(data.stats);
+          this.updateMFASection(data.stats.mfaEnabled);
+          this.updateSessionsSection(data.userSessions);
+          this.updateEventsSection(data.events);
+        } catch (error) {
+          console.error('Error loading security data:', error);
+          this.showError('Failed to load security data');
+        }
+      }
+
+      updateSecurityStats(stats) {
+        document.getElementById('mfa-status').textContent = stats.mfaEnabled ? 'Enabled' : 'Disabled';
+        document.getElementById('active-sessions').textContent = stats.activeSessions;
+        document.getElementById('security-events').textContent = stats.criticalEvents;
+        document.getElementById('failed-logins').textContent = stats.failedLogins;
+      }
+
+      updateMFASection(mfaEnabled) {
+        const mfaSection = document.getElementById('mfa-section');
+        
+        if (mfaEnabled) {
+          mfaSection.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-green-700 font-medium">MFA is enabled</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">Your account is protected with multi-factor authentication.</p>
+              </div>
+              <button onclick="dashboard.disableMFA()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                Disable MFA
+              </button>
+            </div>
+          `;
+        } else {
+          mfaSection.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center">
+                  <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                  <span class="text-yellow-700 font-medium">MFA is disabled</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">Enable MFA to add an extra layer of security to your account.</p>
+              </div>
+              <button onclick="dashboard.setupMFA()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                Enable MFA
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      updateSessionsSection(sessions) {
+        const sessionsSection = document.getElementById('sessions-section');
+        
+        if (sessions.length === 0) {
+          sessionsSection.innerHTML = '<p class="text-gray-600">No active sessions found.</p>';
+          return;
+        }
+
+        const sessionsHTML = sessions.map(session => `
+          <div class="border border-gray-200 rounded-lg p-4 mb-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-900">IP Address: ${session.ip_address}</p>
+                <p class="text-sm text-gray-600">Last Activity: ${new Date(session.last_activity).toLocaleString()}</p>
+                <p class="text-sm text-gray-600">Created: ${new Date(session.created_at).toLocaleString()}</p>
+                <p class="text-sm text-gray-600">User Agent: ${session.user_agent.substring(0, 100)}...</p>
+              </div>
+              <button onclick="dashboard.invalidateSession('${session.session_id}')" class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors text-sm">
+                Revoke
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        sessionsSection.innerHTML = sessionsHTML;
+      }
+
+      updateEventsSection(events) {
+        const eventsSection = document.getElementById('events-section');
+        
+        if (events.length === 0) {
+          eventsSection.innerHTML = '<p class="text-gray-600">No recent security events.</p>';
+          return;
+        }
+
+        const eventsHTML = events.slice(0, 10).map(event => {
+          const severityColor = {
+            low: 'text-gray-600',
+            medium: 'text-yellow-600',
+            high: 'text-orange-600',
+            critical: 'text-red-600'
+          }[event.severity];
+
+          return `
+            <div class="border border-gray-200 rounded-lg p-4 mb-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-gray-900">${event.type.replace('_', ' ').toUpperCase()}</p>
+                  <p class="text-sm text-gray-600">${event.description}</p>
+                  <p class="text-sm text-gray-600">Time: ${new Date(event.timestamp).toLocaleString()}</p>
+                  <p class="text-sm text-gray-600">IP: ${event.ip_address}</p>
+                </div>
+                <span class="text-sm font-medium ${severityColor}">${event.severity.toUpperCase()}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        eventsSection.innerHTML = eventsHTML;
+      }
+
+      setupEventListeners() {
+        // Add any additional event listeners here
+      }
+
+      async setupMFA() {
+        try {
+          const response = await fetch('/api/auth/mfa', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: 'user@example.com' // Get from user context
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to setup MFA');
+          }
+
+          const data = await response.json();
+          this.showMFAModal(data);
+        } catch (error) {
+          console.error('Error setting up MFA:', error);
+          alert('Failed to setup MFA. Please try again.');
+        }
+      }
+
+      async disableMFA() {
+        if (!confirm('Are you sure you want to disable MFA? This will make your account less secure.')) {
+          return;
+        }
+
+        const verificationCode = prompt('Please enter your current verification code to disable MFA:');
+        
+        if (!verificationCode) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/auth/mfa', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ verificationCode })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to disable MFA');
+          }
+
+          alert('MFA disabled successfully');
+          this.loadSecurityData();
+        } catch (error) {
+          console.error('Error disabling MFA:', error);
+          alert('Failed to disable MFA. Please check your verification code and try again.');
+        }
+      }
+
+      async invalidateSession(sessionId) {
+        if (!confirm('Are you sure you want to revoke this session?')) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/auth/session/${sessionId}`, {
+            method: 'DELETE'
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to invalidate session');
+          }
+
+          alert('Session revoked successfully');
+          this.loadSecurityData();
+        } catch (error) {
+          console.error('Error invalidating session:', error);
+          alert('Failed to revoke session. Please try again.');
+        }
+      }
+
+      showMFAModal(data) {
+        // Create modal for MFA setup
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+          <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Setup Multi-Factor Authentication</h3>
+            <p class="text-gray-600 mb-4">Scan this QR code with your authenticator app:</p>
+            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+              <p class="text-sm text-gray-600 text-center">QR Code would be displayed here</p>
+              <p class="text-xs text-gray-500 text-center mt-2">${data.qrCodeUrl}</p>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Or enter this secret manually:</p>
+            <div class="bg-gray-100 p-2 rounded mb-4">
+              <code class="text-sm">${data.secret}</code>
+            </div>
+            <input type="text" id="verification-code" placeholder="Enter verification code" class="w-full border border-gray-300 rounded-md px-3 py-2 mb-4">
+            <div class="flex space-x-4">
+              <button onclick="dashboard.verifyMFA('${data.secret}')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                Verify and Enable
+              </button>
+              <button onclick="dashboard.closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+      }
+
+      async verifyMFA(secret) {
+        const verificationCode = document.getElementById('verification-code').value;
+        
+        if (!verificationCode) {
+          alert('Please enter the verification code');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/auth/mfa', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              secret,
+              verificationCode
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to verify MFA');
+          }
+
+          const data = await response.json();
+          
+          if (data.backupCodes) {
+            alert(`MFA enabled successfully! Your backup codes are:\n${data.backupCodes.join('\n')}\n\nSave these codes in a safe place.`);
+          }
+          
+          this.closeModal();
+          this.loadSecurityData();
+        } catch (error) {
+          console.error('Error verifying MFA:', error);
+          alert('Failed to verify MFA. Please check your verification code and try again.');
+        }
+      }
+
+      closeModal() {
+        const modal = document.querySelector('.fixed.inset-0');
+        if (modal) {
+          modal.remove();
+        }
+      }
+
+      showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+        errorDiv.textContent = message;
+        
+        const container = document.querySelector('.max-w-7xl');
+        container.insertBefore(errorDiv, container.firstChild);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+      }
+    }
+
+    // Initialize dashboard
+    const dashboard = new SecurityDashboard();
+  </script>
+</Layout>
