@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml } from "../../utils/sanitization";
 
 export const prerender = false;
 
@@ -27,15 +28,22 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const incidentData = await request.json();
     
+    // Sanitize input data
+    const sanitizedData = sanitizeJsonInput(incidentData);
+    
     // Validate required fields
-    if (!incidentData.title || !incidentData.description || !incidentData.status) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+    const validation = validateRequiredFields(sanitizedData, ['title', 'description', 'status']);
+    if (!validation.isValid) {
+      return new Response(JSON.stringify({ 
+        error: "Missing required fields", 
+        missingFields: validation.missingFields 
+      }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
     
-    const newIncident = await createIncident(incidentData);
+    const newIncident = await createIncident(sanitizedData);
     
     if (!newIncident) {
       return new Response(JSON.stringify({ error: "Failed to create incident" }), {
@@ -58,7 +66,8 @@ export const POST: APIRoute = async ({ request }) => {
 // PUT endpoint to update an existing incident
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const { id, ...updates } = await request.json();
+    const requestData = await request.json();
+    const { id, ...updates } = requestData;
     
     if (!id) {
       return new Response(JSON.stringify({ error: "Missing incident ID" }), {
@@ -67,7 +76,10 @@ export const PUT: APIRoute = async ({ request }) => {
       });
     }
     
-    const updatedIncident = await updateIncident(id, updates);
+    // Sanitize update data
+    const sanitizedUpdates = sanitizeJsonInput(updates);
+    
+    const updatedIncident = await updateIncident(id, sanitizedUpdates);
     
     if (!updatedIncident) {
       return new Response(JSON.stringify({ error: "Failed to update incident" }), {

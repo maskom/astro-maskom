@@ -9,7 +9,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     const email = sanitizeInput(formData.get("email")?.toString());
     const password = formData.get("password")?.toString(); // Don't sanitize password
 
-  if (!email || !password) {
+  // Validate and sanitize email
+  const sanitizedEmail = sanitizeEmail(email || "");
+  
+  if (!sanitizedEmail || !password) {
     return new Response("Email and password are required", { status: 400 });
   }
 
@@ -25,7 +28,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   );
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: sanitizedEmail,
     password,
   });
 

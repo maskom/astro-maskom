@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail, sanitizeJsonInput } from "../../utils/sanitization";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -46,10 +47,15 @@ export const GET: APIRoute = async () => {
 // POST endpoint to add a new subscriber
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email, preferences } = await request.json();
+    const requestData = await request.json();
     
-    // Validate email
-    if (!email || !email.includes('@')) {
+    // Sanitize input data
+    const sanitizedData = sanitizeJsonInput(requestData);
+    const { email, preferences } = sanitizedData;
+    
+    // Validate and sanitize email
+    const sanitizedEmail = sanitizeEmail(email);
+    if (!sanitizedEmail) {
       return new Response(JSON.stringify({ error: "Valid email is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
@@ -62,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { data: existingSubscriber, error: checkError } = await supabase
       .from('subscribers')
       .select('id')
-      .eq('email', email)
+      .eq('email', sanitizedEmail)
       .single();
     
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" error
@@ -78,7 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
     
     // Insert new subscriber into database
     const newSubscriber = {
-      email,
+      email: sanitizedEmail,
       preferences: preferences || {
         incidents: true,
         maintenance: true,
