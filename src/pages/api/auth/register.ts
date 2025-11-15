@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeEmail, validateLength } from "../../../lib/sanitization";
 
 export const prerender = false;
 export const POST: APIRoute = async ({ request, redirect }) => {
@@ -11,13 +12,19 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     return new Response("Email and password are required", { status: 400 });
   }
 
+  // Sanitize and validate inputs
+  const sanitizedEmail = sanitizeEmail(email);
+  if (!sanitizedEmail || !validateLength(password, 8, 128)) {
+    return new Response("Invalid email or password format", { status: 400 });
+  }
+
   const supabase = createClient(
     import.meta.env.SUPABASE_URL,
     import.meta.env.SUPABASE_ANON_KEY,
   );
 
   const { error } = await supabase.auth.signUp({
-    email,
+    email: sanitizedEmail,
     password,
   });
 
