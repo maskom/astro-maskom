@@ -75,6 +75,7 @@ export enum SecurityAction {
   DATA_DELETE = 'data_delete',
   ADMIN_ACTION = 'admin_action',
   SECURITY_BREACH = 'security_breach',
+  UNAUTHORIZED_ACCESS = 'unauthorized_access',
 }
 
 export enum SecurityEventType {
@@ -143,4 +144,15 @@ export interface SecurityConfig {
   enable_ip_whitelist: boolean;
   enable_rate_limiting: boolean;
   rate_limit_requests_per_minute: number;
+}
+
+export interface SecurityContext {
+  userId: string;
+  sessionId: string;
+  ipAddress: string;
+  userAgent: string;
+  isAuthenticated: boolean;
+  mfaVerified: boolean;
+  role: UserRole | null;
+  permissions: Permission[];
 }

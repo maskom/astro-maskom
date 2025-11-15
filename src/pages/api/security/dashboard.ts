@@ -2,10 +2,7 @@ import type { APIRoute } from 'astro';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { rbacService } from '../../../lib/security/rbac';
 import { sessionManager } from '../../../lib/security/session';
-import {
-  SecurityMiddleware,
-  getSecurityContext,
-} from '../../../lib/security/middleware';
+import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { Permission, SecuritySeverity } from '../../../lib/security/types';
 
 export const prerender = false;

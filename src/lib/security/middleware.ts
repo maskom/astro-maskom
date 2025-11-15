@@ -1,10 +1,9 @@
-import type { APIRoute } from 'astro';
+import type { APIContext, AstroCookies } from 'astro';
 import { securityAuditLogger } from './audit';
-import { mfaService } from './mfa';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';
 import { dataProtectionService } from './data-protection';
-import type { SecurityAction, Permission, UserRole } from './types';
+import { SecurityAction, type Permission, type UserRole } from './types';
 
 export interface SecurityContext {
   userId: string;

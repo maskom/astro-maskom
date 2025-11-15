@@ -1,4 +1,5 @@
 import type { SecurityConfig } from './types';
+import { UserRole } from './types';
 
 export const securityConfig: SecurityConfig = {
   max_failed_attempts: 5,
@@ -6,7 +7,7 @@ export const securityConfig: SecurityConfig = {
   session_timeout_minutes: 30,
   password_min_length: 8,
   password_require_special_chars: true,
-  mfa_required_for_roles: ['admin', 'super_admin'],
+  mfa_required_for_roles: [UserRole.ADMIN, UserRole.SUPER_ADMIN],
   audit_log_retention_days: 365,
   data_retention_days: 2555, // 7 years for GDPR compliance
   enable_ip_whitelist: false,
@@ -56,7 +57,7 @@ export function isIPWhitelisted(ip: string): boolean {
   return ipWhitelist.some(allowedIP => {
     if (allowedIP.includes('/')) {
       // CIDR notation check (simplified)
-      const [network, prefix] = allowedIP.split('/');
+      const [network] = allowedIP.split('/');
       return ip.startsWith(network);
     }
     return ip === allowedIP;

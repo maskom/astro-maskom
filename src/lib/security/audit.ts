@@ -1,6 +1,5 @@
-import type {
-  SecurityAuditLog,
-  SecurityEvent,
+import type { SecurityAuditLog, SecurityEvent } from './types';
+import {
   SecurityAction,
   SecurityEventType,
   SecuritySeverity,
@@ -202,7 +201,7 @@ export class SecurityAuditLogger {
   private calculateRiskLevel(
     action: SecurityAction,
     success: boolean,
-    details?: Record<string, any>
+    _details?: Record<string, any>
   ): RiskLevel {
     if (!success) {
       return RiskLevel.MEDIUM;

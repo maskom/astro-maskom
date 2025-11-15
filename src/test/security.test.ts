@@ -100,7 +100,7 @@ describe('MFA Service', () => {
     expect(secret).toBeDefined();
     expect(qrCodeUrl).toBeDefined();
     expect(qrCodeUrl).toContain('otpauth://totp');
-    expect(qrCodeUrl).toContain(userEmail);
+    expect(qrCodeUrl).toContain(encodeURIComponent(userEmail));
   });
 
   it('should generate backup codes', () => {

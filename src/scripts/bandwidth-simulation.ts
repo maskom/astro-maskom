@@ -63,8 +63,7 @@ async function createSampleDataCaps() {
   for (const user of sampleUsers) {
     try {
       // Get user ID from email (this would normally come from your auth system)
-      const { data: authUser, error: userError } =
-        await supabase.auth.admin.listUsers();
+      const { data: authUser } = await supabase.auth.admin.listUsers();
       const targetUser = authUser.users.find(u => u.email === user.email);
 
       if (!targetUser) {
@@ -77,7 +76,7 @@ async function createSampleDataCaps() {
       billingStart.setDate(billingStart.getDate() - 15); // Mid-cycle start
 
       // Create data cap
-      const { data: dataCap, error: capError } = await supabase
+      const { error: capError } = await supabase
         .from('data_caps')
         .upsert({
           user_id: targetUser.id,
@@ -135,8 +134,7 @@ async function createHighUsageScenarios() {
 
   try {
     // Get user ID
-    const { data: authUser, error: userError } =
-      await supabase.auth.admin.listUsers();
+    const { data: authUser } = await supabase.auth.admin.listUsers();
     const targetUser = authUser.users.find(
       u => u.email === highUsageUser.email
     );
@@ -151,7 +149,7 @@ async function createHighUsageScenarios() {
     billingStart.setDate(billingStart.getDate() - 20); // Earlier in cycle
 
     // Create data cap
-    const { data: dataCap, error: capError } = await supabase
+    const { error: capError } = await supabase
       .from('data_caps')
       .upsert({
         user_id: targetUser.id,

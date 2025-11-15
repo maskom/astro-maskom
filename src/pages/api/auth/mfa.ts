@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
 import { mfaService } from '../../../lib/security/mfa';
-import {
-  SecurityMiddleware,
-  getSecurityContext,
-} from '../../../lib/security/middleware';
+import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
 
