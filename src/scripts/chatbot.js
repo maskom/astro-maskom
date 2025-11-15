@@ -1,26 +1,19 @@
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+/**
+ * Chatbot Manager - Handles chat functionality with security
+ */
 
-interface ChatbotState {
-  messages: Message[];
-  loading: boolean;
-}
-
-export class ChatbotManager {
-  private messagesList: HTMLElement | null;
-  private chatInput: HTMLInputElement | null;
-  private chatForm: HTMLFormElement | null;
-  private sendButton: HTMLButtonElement | null;
-  private loadingIndicator: HTMLElement | null;
-  private state: ChatbotState;
-
-  constructor(initialMessages: Message[] = []) {
+class ChatbotManager {
+  constructor(initialMessages = []) {
     this.messagesList = document.getElementById('messages-list');
-    this.chatInput = document.getElementById('chat-input') as HTMLInputElement;
-    this.chatForm = document.getElementById('chat-form') as HTMLFormElement;
-    this.sendButton = document.getElementById('send-button') as HTMLButtonElement;
+    this.chatInput = document.getElementById('chat-input');
+    this.chatForm = document.getElementById('chat-form');
+    this.sendButton = document.getElementById('send-button');
+    this.loadingIndicator = document.getElementById('loading-indicator');
+    
+    this.messagesList = document.getElementById('messages-list');
+    this.chatInput = document.getElementById('chat-input');
+    this.chatForm = document.getElementById('chat-form');
+    this.sendButton = document.getElementById('send-button');
     this.loadingIndicator = document.getElementById('loading-indicator');
     
     this.state = {
@@ -31,7 +24,7 @@ export class ChatbotManager {
     this.init();
   }
 
-  private init(): void {
+  init() {
     if (this.chatForm) {
       this.chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -42,14 +35,14 @@ export class ChatbotManager {
     this.renderMessages();
   }
 
-  private scrollToBottom(): void {
+  scrollToBottom() {
     const messagesEnd = document.getElementById('messages-end');
     if (messagesEnd) {
       messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
   }
 
-  private renderMessages(): void {
+  renderMessages() {
     if (this.messagesList) {
       this.messagesList.innerHTML = ''; // Clear previous messages
       this.state.messages.forEach(message => {
@@ -73,18 +66,18 @@ export class ChatbotManager {
     }
   }
 
-  private sanitizeHtml(input: string): string {
+  sanitizeHtml(input) {
     const div = document.createElement('div');
     div.textContent = input;
     return div.innerHTML;
   }
 
-  private async sendMessage(): Promise<void> {
+  async sendMessage() {
     if (!this.chatInput) return;
     const input = this.chatInput.value.trim();
     if (!input || this.state.loading) return;
     
-    const userMessage = { role: 'user' as const, content: input };
+    const userMessage = { role: 'user', content: input };
     this.state.messages = [...this.state.messages, userMessage];
     this.chatInput.value = '';
     this.state.loading = true;
@@ -106,11 +99,11 @@ export class ChatbotManager {
         throw new Error(data.error);
       }
       
-      const assistantMessage = { role: 'assistant' as const, content: data.response };
+      const assistantMessage = { role: 'assistant', content: data.response };
       this.state.messages = [...this.state.messages, assistantMessage];
     } catch (error) {
       const errorMessage = { 
-        role: 'assistant' as const, 
+        role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
       };
       this.state.messages = [...this.state.messages, errorMessage];
@@ -126,6 +119,6 @@ export class ChatbotManager {
 // Initialize chatbot when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Get initial messages from global variable if available
-  const initialMessages = (window as any).chatbotInitialMessages || [];
+  const initialMessages = window.chatbotInitialMessages || [];
   new ChatbotManager(initialMessages);
 });
