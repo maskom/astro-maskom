@@ -1,0 +1,123 @@
+---
+import EmailLayout from './EmailLayout.astro';
+import EmailButton from './EmailButton.astro';
+import EmailCard from './EmailCard.astro';
+
+export interface Props {
+  userName: string;
+  userEmail: string;
+  language?: 'id' | 'en';
+  activationLink?: string;
+  packageName?: string;
+}
+
+const { userName, userEmail, language = 'id', activationLink, packageName } = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    subject: 'Selamat Datang di Maskom Network!',
+    previewText: 'Terima kasih telah bergabung dengan Maskom Network. Mari mulai perjalanan internet Anda.',
+    greeting: 'Halo {name},',
+    welcomeMessage: 'Selamat datang di Maskom Network! Kami sangat senang Anda bergabung dengan kami.',
+    accountCreated: 'Akun Anda telah berhasil dibuat dengan email {email}.',
+    nextSteps: 'Langkah Selanjutnya:',
+    step1: 'Aktifkan akun Anda dengan mengklik tombol di bawah',
+    step2: 'Layanan internet akan segera diaktifkan',
+    step3: 'Nikmati internet cepat dan andal',
+    activateButton: 'Aktifkan Akun',
+    loginButton: 'Masuk ke Akun',
+    packageInfo: 'Paket Layanan:',
+    supportMessage: 'Jika Anda memiliki pertanyaan atau membutuhkan bantuan, jangan ragu untuk menghubungi tim dukungan kami.',
+    contactInfo: 'Kami siap membantu Anda 24/7.',
+    thankYou: 'Terima kasih telah memilih Maskom Network.',
+    teamSignature: 'Tim Maskom Network'
+  },
+  en: {
+    subject: 'Welcome to Maskom Network!',
+    previewText: 'Thank you for joining Maskom Network. Let\'s start your internet journey.',
+    greeting: 'Hello {name},',
+    welcomeMessage: 'Welcome to Maskom Network! We\'re excited to have you join us.',
+    accountCreated: 'Your account has been successfully created with email {email}.',
+    nextSteps: 'Next Steps:',
+    step1: 'Activate your account by clicking the button below',
+    step2: 'Your internet service will be activated shortly',
+    step3: 'Enjoy fast and reliable internet',
+    activateButton: 'Activate Account',
+    loginButton: 'Login to Account',
+    packageInfo: 'Service Package:',
+    supportMessage: 'If you have any questions or need assistance, don\'t hesitate to contact our support team.',
+    contactInfo: 'We\'re here to help you 24/7.',
+    thankYou: 'Thank you for choosing Maskom Network.',
+    teamSignature: 'The Maskom Network Team'
+  }
+};
+
+const t = translations[language];
+const greeting = t.greeting.replace('{name}', userName);
+const accountCreated = t.accountCreated.replace('{email}', userEmail);
+---
+
+<EmailLayout subject={t.subject} previewText={t.previewText} language={language}>
+  
+  <!-- Greeting -->
+  <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #111827; line-height: 1.3;">
+    {greeting}
+  </h1>
+  
+  <!-- Welcome message -->
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.welcomeMessage}
+  </p>
+  
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {accountCreated}
+  </p>
+  
+  <!-- Package info -->
+  {packageName && (
+    <EmailCard title={t.packageInfo}>
+      <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+        <strong>{packageName}</strong>
+      </p>
+    </EmailCard>
+  )}
+  
+  <!-- Next steps -->
+  <h2 style="margin: 32px 0 16px 0; font-size: 20px; font-weight: 600; color: #111827; line-height: 1.3;">
+    {t.nextSteps}
+  </h2>
+  
+  <ol style="margin: 0 0 24px 0; padding-left: 20px; font-size: 16px; color: #374151; line-height: 1.6;">
+    <li style="margin-bottom: 8px;">{t.step1}</li>
+    <li style="margin-bottom: 8px;">{t.step2}</li>
+    <li>{t.step3}</li>
+  </ol>
+  
+  <!-- Action button -->
+  {activationLink ? (
+    <EmailButton href={activationLink} text={t.activateButton} />
+  ) : (
+    <EmailButton href="https://maskom.co.id/signin" text={t.loginButton} />
+  )}
+  
+  <!-- Support message -->
+  <div style="margin-top: 32px; padding: 20px; background-color: #F0F9FF; border-left: 4px solid #3B82F6; border-radius: 4px;">
+    <p style="margin: 0 0 8px 0; font-size: 16px; color: #1E40AF; font-weight: 600; line-height: 1.5;">
+      💡 {t.supportMessage}
+    </p>
+    <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+      {t.contactInfo}
+    </p>
+  </div>
+  
+  <!-- Closing -->
+  <p style="margin: 32px 0 16px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.thankYou}
+  </p>
+  
+  <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    <strong>{t.teamSignature}</strong>
+  </p>
+  
+</EmailLayout>

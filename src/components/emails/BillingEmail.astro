@@ -1,0 +1,318 @@
+---
+import EmailLayout from './EmailLayout.astro';
+import EmailButton from './EmailButton.astro';
+import EmailCard from './EmailCard.astro';
+
+export interface Props {
+  userName: string;
+  invoiceNumber: string;
+  packageName: string;
+  amount: string;
+  dueDate: string;
+  billingPeriod: string;
+  paymentMethods: Array<{
+    name: string;
+    instructions: string;
+  }>;
+  type: 'invoice' | 'reminder' | 'overdue' | 'success';
+  language?: 'id' | 'en';
+  paymentLink?: string;
+  lateFee?: string;
+}
+
+const { 
+  userName, 
+  invoiceNumber, 
+  packageName, 
+  amount, 
+  dueDate, 
+  billingPeriod, 
+  paymentMethods,
+  type,
+  language = 'id',
+  paymentLink,
+  lateFee
+} = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    invoice: {
+      subject: 'Invoice Maskom Network - #{invoice}',
+      previewText: 'Invoice bulanan Anda telah tersedia. Lakukan pembayaran sebelum {dueDate}.',
+      greeting: 'Halo {name},',
+      message: 'Invoice bulanan Anda untuk layanan Maskom Network telah tersedia.',
+      title: 'Invoice #{invoice}',
+      urgent: ''
+    },
+    reminder: {
+      subject: 'Pengingat Pembayaran - Invoice #{invoice}',
+      previewText: 'Pengingat pembayaran invoice Anda. Jatuh tempo pada {dueDate}.',
+      greeting: 'Halo {name},',
+      message: 'Ini adalah pengingat bahwa invoice Anda akan jatuh tempo dalam 3 hari.',
+      title: 'Pengingat Pembayaran - Invoice #{invoice}',
+      urgent: '⏰ Pengingat Pembayaran'
+    },
+    overdue: {
+      subject: 'PENTING: Invoice Terlambat - #{invoice}',
+      previewText: 'Invoice Anda terlambat. Segera lakukan pembayaran untuk menghindari pemutusan layanan.',
+      greeting: 'Halo {name},',
+      message: 'Invoice Anda telah terlambat. Segera lakukan pembayaran untuk menghindari pemutusan layanan.',
+      title: 'Invoice Terlambat - #{invoice}',
+      urgent: '🚨 PENTING: Invoice Terlambat'
+    },
+    success: {
+      subject: 'Konfirmasi Pembayaran - Invoice #{invoice}',
+      previewText: 'Terima kasih! Pembayaran Anda telah diterima.',
+      greeting: 'Halo {name},',
+      message: 'Terima kasih! Pembayaran Anda telah berhasil diterima.',
+      title: 'Konfirmasi Pembayaran - Invoice #{invoice}',
+      urgent: '✅ Pembayaran Berhasil'
+    }
+  },
+  en: {
+    invoice: {
+      subject: 'Maskom Network Invoice - #{invoice}',
+      previewText: 'Your monthly invoice is available. Make payment before {dueDate}.',
+      greeting: 'Hello {name},',
+      message: 'Your monthly invoice for Maskom Network service is now available.',
+      title: 'Invoice #{invoice}',
+      urgent: ''
+    },
+    reminder: {
+      subject: 'Payment Reminder - Invoice #{invoice}',
+      previewText: 'Payment reminder for your invoice. Due on {dueDate}.',
+      greeting: 'Hello {name},',
+      message: 'This is a reminder that your invoice is due in 3 days.',
+      title: 'Payment Reminder - Invoice #{invoice}',
+      urgent: '⏰ Payment Reminder'
+    },
+    overdue: {
+      subject: 'IMPORTANT: Overdue Invoice - #{invoice}',
+      previewText: 'Your invoice is overdue. Make payment immediately to avoid service interruption.',
+      greeting: 'Hello {name},',
+      message: 'Your invoice is overdue. Please make payment immediately to avoid service interruption.',
+      title: 'Overdue Invoice - #{invoice}',
+      urgent: '🚨 IMPORTANT: Overdue Invoice'
+    },
+    success: {
+      subject: 'Payment Confirmation - Invoice #{invoice}',
+      previewText: 'Thank you! Your payment has been received.',
+      greeting: 'Hello {name},',
+      message: 'Thank you! Your payment has been successfully received.',
+      title: 'Payment Confirmation - Invoice #{invoice}',
+      urgent: '✅ Payment Successful'
+    }
+  }
+};
+
+const commonTranslations = {
+  id: {
+    invoiceNumber: 'Nomor Invoice:',
+    billingPeriod: 'Periode Tagihan:',
+    packageName: 'Paket Layanan:',
+    amount: 'Jumlah:',
+    dueDate: 'Jatuh Tempo:',
+    status: 'Status:',
+    paid: 'Dibayar',
+    unpaid: 'Belum Dibayar',
+    overdue: 'Terlambat',
+    paymentMethods: 'Metode Pembayaran:',
+    payNowButton: 'Bayar Sekarang',
+    viewInvoiceButton: 'Lihat Invoice',
+    lateFee: 'Denda Keterlambatan:',
+    serviceInterruption: 'Pemutusan layanan akan dilakukan pada:',
+    thankYou: 'Terima kasih atas pembayaran Anda.',
+    contactSupport: 'Jika Anda memiliki pertanyaan, hubungi tim dukungan kami.',
+    teamSignature: 'Tim Billing Maskom Network'
+  },
+  en: {
+    invoiceNumber: 'Invoice Number:',
+    billingPeriod: 'Billing Period:',
+    packageName: 'Service Package:',
+    amount: 'Amount:',
+    dueDate: 'Due Date:',
+    status: 'Status:',
+    paid: 'Paid',
+    unpaid: 'Unpaid',
+    overdue: 'Overdue',
+    paymentMethods: 'Payment Methods:',
+    payNowButton: 'Pay Now',
+    viewInvoiceButton: 'View Invoice',
+    lateFee: 'Late Fee:',
+    serviceInterruption: 'Service interruption will occur on:',
+    thankYou: 'Thank you for your payment.',
+    contactSupport: 'If you have any questions, please contact our support team.',
+    teamSignature: 'The Maskom Network Billing Team'
+  }
+};
+
+const t = translations[language][type];
+const ct = commonTranslations[language];
+const greeting = t.greeting.replace('{name}', userName);
+const subject = t.subject.replace('{invoice}', invoiceNumber);
+const previewText = t.previewText.replace('{dueDate}', dueDate);
+
+// Status and colors
+const getStatusInfo = () => {
+  switch (type) {
+    case 'success':
+      return { status: ct.paid, color: '#10B981' };
+    case 'overdue':
+      return { status: ct.overdue, color: '#EF4444' };
+    default:
+      return { status: ct.unpaid, color: '#F59E0B' };
+  }
+};
+
+const statusInfo = getStatusInfo();
+---
+
+<EmailLayout subject={subject} previewText={previewText} language={language}>
+  
+  <!-- Urgent notice for overdue/reminder -->
+  {t.urgent && (
+    <div style="margin-bottom: 24px; padding: 16px; background-color: {type === 'overdue' ? '#FEE2E2' : '#FEF3C7'}; border-left: 4px solid {type === 'overdue' ? '#EF4444' : '#F59E0B'}; border-radius: 4px;">
+      <p style="margin: 0; font-size: 16px; color: {type === 'overdue' ? '#991B1B' : '#92400E'}; font-weight: 600; line-height: 1.5;">
+        {t.urgent}
+      </p>
+    </div>
+  )}
+  
+  <!-- Greeting -->
+  <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #111827; line-height: 1.3;">
+    {greeting}
+  </h1>
+  
+  <!-- Message -->
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {t.message}
+  </p>
+  
+  <!-- Invoice Details -->
+  <EmailCard title={t.title}>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 140px;" valign="top">
+          {ct.invoiceNumber}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {invoiceNumber}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {ct.billingPeriod}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {billingPeriod}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {ct.packageName}
+        </td>
+        <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+          {packageName}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+          {ct.amount}
+        </td>
+        <td style="padding: 8px 0; font-size: 18px; color: #374151; font-weight: 700;" valign="top">
+          {amount}
+        </td>
+      </tr>
+      {type !== 'success' && (
+        <>
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+              {ct.dueDate}
+            </td>
+            <td style="padding: 8px 0; font-size: 16px; color: {type === 'overdue' ? '#EF4444' : '#374151'};" valign="top">
+              {dueDate}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+              {ct.status}
+            </td>
+            <td style="padding: 8px 0; font-size: 16px; font-weight: 600;" valign="top">
+              <span style="color: {statusInfo.color};">{statusInfo.status}</span>
+            </td>
+          </tr>
+        </>
+      )}
+      {lateFee && type === 'overdue' && (
+        <tr>
+          <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+            {ct.lateFee}
+          </td>
+          <td style="padding: 8px 0; font-size: 16px; color: #EF4444;" valign="top">
+            {lateFee}
+          </td>
+        </tr>
+      )}
+    </table>
+  </EmailCard>
+  
+  <!-- Payment Methods (for unpaid invoices) -->
+  {type !== 'success' && (
+    <EmailCard title={ct.paymentMethods}>
+      {paymentMethods.map((method, index) => (
+        <div style={`margin-bottom: ${index < paymentMethods.length - 1 ? '16px' : '0'};`}>
+          <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #111827;">
+            {method.name}
+          </h4>
+          <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+            {method.instructions}
+          </p>
+        </div>
+      ))}
+    </EmailCard>
+  )}
+  
+  <!-- Action buttons -->
+  {type !== 'success' && paymentLink && (
+    <EmailButton href={paymentLink} text={ct.payNowButton} color={type === 'overdue' ? 'danger' : 'primary'} />
+  )}
+  
+  <EmailButton href={`https://maskom.co.id/invoices/${invoiceNumber}`} text={ct.viewInvoiceButton} color="secondary" />
+  
+  <!-- Service interruption warning (for overdue) -->
+  {type === 'overdue' && (
+    <div style="margin-top: 24px; padding: 16px; background-color: #FEE2E2; border-left: 4px solid #EF4444; border-radius: 4px;">
+      <p style="margin: 0 0 8px 0; font-size: 16px; color: #991B1B; font-weight: 600; line-height: 1.5;">
+        ⚠️ {ct.serviceInterruption}
+      </p>
+      <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+        {new Date(dueDate).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}
+      </p>
+    </div>
+  )}
+  
+  <!-- Support message -->
+  <div style="margin-top: 32px; padding: 20px; background-color: #F0F9FF; border-left: 4px solid #3B82F6; border-radius: 4px;">
+    <p style="margin: 0; font-size: 16px; color: #1E40AF; line-height: 1.5;">
+      {type === 'success' ? ct.thankYou : ct.contactSupport}
+    </p>
+    <p style="margin: 8px 0 0 0; font-size: 14px; color: #374151; line-height: 1.5;">
+      Email: billing@maskom.co.id | Phone: +62 21 1234 5678
+    </p>
+  </div>
+  
+  <!-- Closing -->
+  <p style="margin: 32px 0 16px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {type === 'success' ? ct.thankYou : 'Terima kasih telah menggunakan layanan Maskom Network.'}
+  </p>
+  
+  <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    <strong>{ct.teamSignature}</strong>
+  </p>
+  
+</EmailLayout>

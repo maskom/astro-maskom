@@ -1,0 +1,144 @@
+---
+export interface Props {
+  subject: string;
+  previewText?: string;
+  language?: 'id' | 'en';
+}
+
+const { subject, previewText, language = 'id' } = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    maskomNetwork: 'Maskom Network',
+    tagline: 'Internet Cepat & Andal',
+    unsubscribe: 'Berhenti berlangganan',
+    contactUs: 'Hubungi Kami',
+    address: 'Alamat',
+    viewInBrowser: 'Lihat di Browser'
+  },
+  en: {
+    maskomNetwork: 'Maskom Network',
+    tagline: 'Fast & Reliable Internet',
+    unsubscribe: 'Unsubscribe',
+    contactUs: 'Contact Us',
+    address: 'Address',
+    viewInBrowser: 'View in Browser'
+  }
+};
+
+const t = translations[language];
+---
+
+<!DOCTYPE html>
+<html lang={language}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>{subject}</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    /* Reset styles */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    
+    /* Mobile styles */
+    @media screen and (max-width: 600px) {
+      .wrapper { width: 100% !important; max-width: 100% !important; }
+      .mobile-padding { padding: 20px !important; }
+      .mobile-center { text-align: center !important; }
+      .mobile-full { width: 100% !important; }
+      .mobile-hide { display: none !important; }
+      .mobile-font-size { font-size: 16px !important; }
+    }
+    
+    /* Base styles */
+    .wrapper { max-width: 600px; margin: 0 auto; }
+    .button { display: inline-block; padding: 12px 24px; background-color: #3B82F6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; }
+    .button:hover { background-color: #2563EB; }
+    .text-primary { color: #3B82F6; }
+    .text-secondary { color: #6B7280; }
+    .bg-primary { background-color: #3B82F6; }
+    .bg-secondary { background-color: #F3F4F6; }
+    .border-color { border-color: #E5E7EB; }
+  </style>
+</head>
+<body style="margin: 0 !important; padding: 0 !important; background-color: #F9FAFB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+  
+  <!-- Preview text -->
+  <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    {previewText || subject}
+  </div>
+  
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td align="center" style="background-color: #F9FAFB; padding: 20px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" class="wrapper">
+          <tr>
+            <td align="center" valign="top" style="padding: 20px;">
+              
+              <!-- Header -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <img src="https://maskom.co.id/logo-maskom.svg" alt="Maskom Network" width="180" style="display: block; width: 180px; max-width: 100%; height: auto;">
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: #6B7280; font-weight: 500;">{t.tagline}</p>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Main content -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <tr>
+                  <td align="left" valign="top" style="padding: 40px 30px;" class="mobile-padding">
+                    <slot />
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Footer -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 30px 20px 20px; border-top: 1px solid #E5E7EB;">
+                    <p style="margin: 0 0 16px 0; font-size: 12px; color: #6B7280; line-height: 1.5;">
+                      © 2025 {t.maskomNetwork}. All rights reserved.
+                    </p>
+                    <p style="margin: 0 0 16px 0; font-size: 12px; color: #6B7280; line-height: 1.5;">
+                      {t.address}: Jl. Contoh No. 123, Jakarta, Indonesia 12345
+                    </p>
+                    <p style="margin: 0 0 16px 0; font-size: 12px; color: #6B7280; line-height: 1.5;">
+                      Email: info@maskom.co.id | Phone: +62 21 1234 5678
+                    </p>
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="center" style="padding: 10px 0;">
+                          <a href="#" style="color: #6B7280; text-decoration: none; font-size: 12px; margin: 0 8px;">{t.unsubscribe}</a>
+                          <span style="color: #D1D5DB;">•</span>
+                          <a href="#" style="color: #6B7280; text-decoration: none; font-size: 12px; margin: 0 8px;">{t.contactUs}</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  
+</body>
+</html>

@@ -1,0 +1,220 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const title = 'Email Templates Preview';
+const description = 'Preview and test email templates for Maskom Network';
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+          Email Templates Preview
+        </h1>
+        <p class="text-lg text-gray-600">
+          Preview and test all email templates for Maskom Network
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Template Controls</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div>
+            <label for="templateType" class="block text-sm font-medium text-gray-700 mb-2">
+              Template Type
+            </label>
+            <select id="templateType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="welcome">Welcome Email</option>
+              <option value="installation">Installation Confirmation</option>
+              <option value="billing">Billing Notification</option>
+              <option value="password-reset">Password Reset</option>
+              <option value="status-update">Status Update</option>
+              <option value="appointment">Appointment Confirmation</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">
+              Language
+            </label>
+            <select id="language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="id">Bahasa Indonesia</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="billingType" class="block text-sm font-medium text-gray-700 mb-2">
+              Billing Type (for billing template)
+            </label>
+            <select id="billingType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="invoice">Invoice</option>
+              <option value="reminder">Payment Reminder</option>
+              <option value="overdue">Overdue Notice</option>
+              <option value="success">Payment Success</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4">
+          <button id="loadPreview" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            Load Preview
+          </button>
+          <button id="openInNewTab" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+            Open in New Tab
+          </button>
+          <button id="downloadHtml" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+            Download HTML
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Email Preview</h2>
+          <div id="loadingIndicator" class="hidden">
+            <span class="text-blue-600">Loading...</span>
+          </div>
+        </div>
+        
+        <div id="previewContainer" class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="bg-gray-100 p-4 text-center text-gray-500">
+            Select a template and click "Load Preview" to see the email
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+        <h2 class="text-xl font-semibold mb-4">API Endpoints</h2>
+        
+        <div class="space-y-4">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="font-semibold mb-2">Preview Template</h3>
+            <code class="block bg-gray-100 p-2 rounded text-sm">
+              GET /api/email/preview?type=welcome&language=id&preview=true
+            </code>
+            <p class="text-sm text-gray-600 mt-2">
+              Returns HTML preview of the specified template with sample data
+            </p>
+          </div>
+          
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="font-semibold mb-2">Render Template with Custom Data</h3>
+            <code class="block bg-gray-100 p-2 rounded text-sm">
+              POST /api/email/preview
+            </code>
+            <pre class="bg-gray-100 p-2 rounded text-sm mt-2">
+{
+  "templateType": "welcome",
+  "language": "id",
+  "data": {
+    "userName": "John Doe",
+    "userEmail": "john@example.com"
+  }
+}</pre>
+          </div>
+          
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="font-semibold mb-2">List Available Templates</h3>
+            <code class="block bg-gray-100 p-2 rounded text-sm">
+              GET /api/email/templates
+            </code>
+            <p class="text-sm text-gray-600 mt-2">
+              Returns list of all available templates with sample data
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  let currentTemplate = '';
+  let currentLanguage = 'id';
+
+  async function loadPreview(openInNewTab = false) {
+    const templateType = document.getElementById('templateType').value;
+    const language = document.getElementById('language').value;
+    const billingType = document.getElementById('billingType').value;
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const previewContainer = document.getElementById('previewContainer');
+
+    loadingIndicator.classList.remove('hidden');
+    previewContainer.innerHTML = '<div class="bg-gray-100 p-8 text-center text-gray-500">Loading preview...</div>';
+
+    try {
+      let url = `/api/email/preview?type=${templateType}&language=${language}&preview=true`;
+      
+      // Add billing type parameter for billing template
+      if (templateType === 'billing') {
+        url += `&billingType=${billingType}`;
+      }
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const html = await response.text();
+      
+      if (openInNewTab) {
+        const newWindow = window.open();
+        newWindow.document.write(html);
+        newWindow.document.close();
+      } else {
+        previewContainer.innerHTML = `<div class="bg-white">${html}</div>`;
+      }
+
+      currentTemplate = templateType;
+      currentLanguage = language;
+    } catch (error) {
+      console.error('Error loading preview:', error);
+      previewContainer.innerHTML = `
+        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+          <p class="text-red-600">Error loading preview: ${error.message}</p>
+        </div>
+      `;
+    } finally {
+      loadingIndicator.classList.add('hidden');
+    }
+  }
+
+  function downloadHtml() {
+    if (!currentTemplate) {
+      alert('Please load a preview first');
+      return;
+    }
+
+    const previewContainer = document.getElementById('previewContainer');
+    const htmlContent = previewContainer.querySelector('div > div')?.innerHTML || '';
+    
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentTemplate}-${currentLanguage}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Event listeners
+  document.getElementById('loadPreview').addEventListener('click', () => loadPreview(false));
+  document.getElementById('openInNewTab').addEventListener('click', () => loadPreview(true));
+  document.getElementById('downloadHtml').addEventListener('click', downloadHtml);
+
+  // Load default preview on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPreview(false);
+  });
+
+  // Auto-reload when template type or language changes
+  document.getElementById('templateType').addEventListener('change', () => loadPreview(false));
+  document.getElementById('language').addEventListener('change', () => loadPreview(false));
+  document.getElementById('billingType').addEventListener('change', () => loadPreview(false));
+</script>
