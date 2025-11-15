@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
+import { sanitizeSubscriberData, sanitizeEmail } from "../../lib/sanitization";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -46,15 +47,19 @@ export const GET: APIRoute = async () => {
 // POST endpoint to add a new subscriber
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email, preferences } = await request.json();
+    const rawData = await request.json();
     
-    // Validate email
-    if (!email || !email.includes('@')) {
+    // Sanitize input data
+    const sanitizedData = sanitizeSubscriberData(rawData);
+    
+    if (!sanitizedData || !sanitizedData.email) {
       return new Response(JSON.stringify({ error: "Valid email is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
+    
+    const { email, preferences } = sanitizedData;
     
     const supabase = getSupabaseClient();
     

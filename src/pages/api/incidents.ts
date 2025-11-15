@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
+import { sanitizeIncidentData, sanitizeText } from "../../lib/sanitization";
 
 export const prerender = false;
 
@@ -25,17 +26,19 @@ export const GET: APIRoute = async () => {
 // POST endpoint to create a new incident
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const incidentData = await request.json();
+    const rawData = await request.json();
     
-    // Validate required fields
-    if (!incidentData.title || !incidentData.description || !incidentData.status) {
+    // Sanitize input data
+    const sanitizedData = sanitizeIncidentData(rawData);
+    
+    if (!sanitizedData || !sanitizedData.title || !sanitizedData.description || !sanitizedData.status) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
     
-    const newIncident = await createIncident(incidentData);
+    const newIncident = await createIncident(sanitizedData);
     
     if (!newIncident) {
       return new Response(JSON.stringify({ error: "Failed to create incident" }), {
@@ -58,16 +61,27 @@ export const POST: APIRoute = async ({ request }) => {
 // PUT endpoint to update an existing incident
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const { id, ...updates } = await request.json();
+    const rawData = await request.json();
+    const { id } = rawData;
     
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return new Response(JSON.stringify({ error: "Missing incident ID" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
     
-    const updatedIncident = await updateIncident(id, updates);
+    // Sanitize update data
+    const sanitizedUpdates = sanitizeIncidentData(rawData);
+    
+    if (!sanitizedUpdates) {
+      return new Response(JSON.stringify({ error: "Invalid update data" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    
+    const updatedIncident = await updateIncident(id, sanitizedUpdates);
     
     if (!updatedIncident) {
       return new Response(JSON.stringify({ error: "Failed to update incident" }), {
