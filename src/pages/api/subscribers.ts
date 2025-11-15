@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
-import { sanitizeEmail, sanitizeJsonInput, sanitizeText } from "../../utils/sanitization";
+import { sanitizeEmail, sanitizeJsonInput, sanitizeText } from "../../lib/sanitization";
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient> | null = null;

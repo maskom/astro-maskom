@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createIncident, getAllIncidents, updateIncident } from "../../lib/status";
-import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeText } from "../../utils/sanitization";
+import { sanitizeJsonInput, validateRequiredFields, escapeHtml, sanitizeText } from "../../lib/sanitization";
 
 export const prerender = false;
 

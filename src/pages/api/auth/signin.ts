@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
-import { sanitizeInput } from "../../../lib/sanitization";
+import { sanitizeInput, sanitizeEmail } from "../../../lib/sanitization";
 import { securityAuditLogger } from "../../../lib/security/audit";
 import { sessionManager } from "../../../lib/security/session";
 import { mfaService } from "../../../lib/security/mfa";
