@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
+import type { Database } from './database.types';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -28,11 +29,11 @@ export interface StatusData {
 }
 
 // Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
 export const createSupabaseClient = () => {
   if (!supabaseClient) {
-    supabaseClient = createClient(
+    supabaseClient = createClient<Database>(
       import.meta.env.SUPABASE_URL,
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
     );
@@ -67,10 +68,10 @@ export const getStatusData = async (): Promise<StatusData> => {
 
     // First check if any services have outages or degraded status
     const hasServiceOutage = services.some(
-      service => service.status === 'outage'
+      (service: any) => service.status === 'outage'
     );
     const hasServiceDegraded = services.some(
-      service => service.status === 'degraded'
+      (service: any) => service.status === 'degraded'
     );
 
     // Then consider active incidents
@@ -125,7 +126,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return data?.uptime_percentage || 99.9;
+    return (data as any)?.uptime_percentage || 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -155,7 +156,7 @@ export const createIncident = async (
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-      ])
+      ] as any)
       .select()
       .single();
 
@@ -178,7 +179,7 @@ export const updateIncident = async (
   id: string,
   updates: Partial<Incident>
 ): Promise<Incident | null> => {
-  const supabase = createSupabaseClient();
+  const supabase = createSupabaseClient() as any;
 
   try {
     const { data, error } = await supabase

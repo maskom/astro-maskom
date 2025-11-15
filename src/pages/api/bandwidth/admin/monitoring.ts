@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../../../../lib/database.types';
 
-const supabase = createClient(
+const supabase = createClient<Database>(
   import.meta.env.SUPABASE_URL,
   import.meta.env.SUPABASE_SERVICE_ROLE_KEY
 );
@@ -36,7 +37,7 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -52,18 +53,13 @@ export const GET: APIRoute = async ({ request }) => {
     // Get all data caps with user information
     let query = supabase
       .from('data_caps')
-      .select(
-        `
-        *,
-        user:auth.users(email, raw_user_meta_data)
-      `
-      )
+      .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (search) {
-      query = query.ilike('user.email', `%${search}%`);
+      query = query.ilike('user_id', `%${search}%`);
     }
 
     const { data: dataCaps, error: capsError } = await query;
@@ -103,28 +99,22 @@ export const GET: APIRoute = async ({ request }) => {
 
     const totalUsers = stats?.length || 0;
     const totalCapacityGB =
-      stats?.reduce((sum, cap) => sum + cap.monthly_cap_gb, 0) || 0;
+      stats?.reduce((sum, cap: any) => sum + cap.monthly_cap_gb, 0) || 0;
     const totalUsageGB =
-      stats?.reduce((sum, cap) => sum + cap.current_usage_gb, 0) || 0;
+      stats?.reduce((sum, cap: any) => sum + cap.current_usage_gb, 0) || 0;
     const averageUsagePercentage =
       totalCapacityGB > 0 ? (totalUsageGB / totalCapacityGB) * 100 : 0;
 
     // Get users with high usage (>90% of cap)
     const highUsageUsers =
       dataCaps?.filter(
-        cap => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
+        (cap: any) => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
       ) || [];
 
     // Get recent notifications
     const { data: recentNotifications, error: notifError } = await supabase
       .from('usage_notifications')
-      .select(
-        `
-        *,
-        user:auth.users(email),
-        data_cap:data_caps(package_id, monthly_cap_gb)
-      `
-      )
+      .select('*')
       .order('sent_at', { ascending: false })
       .limit(20);
 
@@ -216,7 +206,7 @@ export const POST: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -234,7 +224,7 @@ export const POST: APIRoute = async ({ request }) => {
           billing_cycle_start || new Date().toISOString().split('T')[0],
         notification_thresholds: [80, 90, 100],
         is_active: true,
-      })
+      } as any)
       .select()
       .single();
 

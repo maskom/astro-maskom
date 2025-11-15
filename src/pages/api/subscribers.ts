@@ -6,13 +6,14 @@ import {
   sanitizeText,
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
+import type { Database } from '../../lib/database.types';
 
 // Singleton Supabase client for server-side operations
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
 const getSupabaseClient = () => {
   if (!supabaseClient) {
-    supabaseClient = createClient(
+    supabaseClient = createClient<Database>(
       import.meta.env.SUPABASE_URL,
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for server-side operations
     );
@@ -133,7 +134,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
-      .insert([newSubscriber])
+      .insert([newSubscriber] as any)
       .select()
       .single();
 
