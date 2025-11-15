@@ -38,3 +38,6 @@ export function sanitizeResponse(response: string): string {
   
   return sanitizeInput(response);
 }
+
+// Alias for sanitizeInput to maintain backward compatibility
+export const sanitizeString = sanitizeInput;

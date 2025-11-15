@@ -18,8 +18,16 @@ const getSupabaseClient = () => {
 export const prerender = false;
 
 // GET endpoint to fetch subscribers
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
+    // Sanitize query parameters
+    const searchParams = new URL(url).searchParams;
+    const sanitizedParams: Record<string, string> = {};
+    
+    for (const [key, value] of searchParams.entries()) {
+      sanitizedParams[key] = sanitizeString(value);
+    }
+    
     const supabase = getSupabaseClient();
     
     // Fetch subscribers from database
@@ -33,13 +41,18 @@ export const GET: APIRoute = async () => {
     return new Response(JSON.stringify(subscribers || []), {
       headers: { 
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
@@ -58,7 +71,10 @@ export const POST: APIRoute = async ({ request }) => {
     if (!sanitizedEmail) {
       return new Response(JSON.stringify({ error: "Valid email is required" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -78,7 +94,10 @@ export const POST: APIRoute = async ({ request }) => {
     if (existingSubscriber) {
       return new Response(JSON.stringify({ error: "Email already subscribed" }), {
         status: 409,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
     
@@ -105,12 +124,19 @@ export const POST: APIRoute = async ({ request }) => {
     // TODO: Send confirmation email (would require email service integration)
     
     return new Response(JSON.stringify(insertedSubscriber), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const sanitizedError = sanitizeString(error.message || 'Internal server error');
+    return new Response(JSON.stringify({ error: sanitizedError }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };

@@ -50,7 +50,10 @@ export const POST: APIRoute = async ({ request }) => {
     console.error('Chat completion error:', error);
     return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
 };
