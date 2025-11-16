@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "pages:dev": "wrangler pages dev ./dist",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy dist",
     "security:audit": "npm audit --audit-level moderate",
     "security:audit:critical": "npm audit --audit-level critical",
     "security:audit:full": "npm audit --audit-level low",
