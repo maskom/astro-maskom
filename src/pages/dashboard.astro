@@ -5,6 +5,10 @@ import Notifications from '../components/bandwidth/Notifications.astro';
 import DataCapManagement from '../components/bandwidth/DataCapManagement.astro';
 import OutageNotifications from '../components/notifications/OutageNotifications.astro';
 import NotificationPreferences from '../components/notifications/NotificationPreferences.astro';
+import AccountManagement from '../components/dashboard/AccountManagement.astro';
+import BillingPayments from '../components/dashboard/BillingPayments.astro';
+import ServiceManagement from '../components/dashboard/ServiceManagement.astro';
+import SupportIntegration from '../components/dashboard/SupportIntegration.astro';
 import { getMainPackages } from '../data/packages.ts';
 
 const packages = getMainPackages();
@@ -87,9 +91,9 @@ if (session) {
 ---
 
 <Layout title="Dashboard">
-  <div class="max-w-6xl mx-auto p-6">
+  <div class="max-w-7xl mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <h1 class="text-3xl font-bold text-gray-900">Customer Portal</h1>
       <div class="flex items-center space-x-4">
         {
           (unreadCount + outageUnreadCount) > 0 && (
@@ -127,44 +131,80 @@ if (session) {
       class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 mb-6 text-white"
     >
       <h2 class="text-2xl font-bold mb-2">
-        Selamat Datang di Dashboard Maskom!
+        Selamat Datang di Customer Portal Maskom!
       </h2>
       <p class="opacity-90">
-        Pantau penggunaan bandwidth Anda dan kelola kuota data dengan mudah.
+        Kelola akun, layanan, tagihan, dan dapatkan dukungan semua dalam satu tempat.
       </p>
     </div>
 
-    <!-- Bandwidth Monitoring Section -->
-    <div class="space-y-6">
-      <BandwidthChart data={bandwidthData} dataCap={dataCap} />
+    <!-- Navigation Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8">
+        <button class="py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+          Overview
+        </button>
+        <button class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Account
+        </button>
+        <button class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Billing
+        </button>
+        <button class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Services
+        </button>
+        <button class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Support
+        </button>
+      </nav>
+    </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DataCapManagement dataCap={dataCap} availablePackages={packages} />
-        <Notifications
-          notifications={notifications}
-          unreadCount={unreadCount}
-        />
+    <!-- Main Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column - Account & Billing -->
+      <div class="space-y-6">
+        <AccountManagement />
+        <BillingPayments />
       </div>
 
-      <!-- Outage Notifications Section -->
-      <OutageNotifications 
-        notifications={outageNotifications} 
-        unreadCount={outageUnreadCount} 
-      />
+      <!-- Middle Column - Services & Bandwidth -->
+      <div class="space-y-6">
+        <ServiceManagement />
+        <BandwidthChart data={bandwidthData} dataCap={dataCap} />
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DataCapManagement dataCap={dataCap} availablePackages={packages} />
+          <Notifications
+            notifications={notifications}
+            unreadCount={unreadCount}
+          />
+        </div>
+      </div>
 
-      <!-- Notification Preferences -->
-      <NotificationPreferences preferences={notificationPreferences} />
+      <!-- Right Column - Support & Notifications -->
+      <div class="space-y-6">
+        <SupportIntegration />
+        
+        <!-- Outage Notifications Section -->
+        <OutageNotifications 
+          notifications={outageNotifications} 
+          unreadCount={outageUnreadCount} 
+        />
+
+        <!-- Notification Preferences -->
+        <NotificationPreferences preferences={notificationPreferences} />
+      </div>
     </div>
 
     <!-- Quick Actions -->
     <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <a
           href="/layanan"
-          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center"
         >
-          <div class="text-blue-600 mb-2">
+          <div class="text-blue-600 mb-2 mx-auto w-8 h-8">
             <svg
               class="w-8 h-8"
               fill="none"
@@ -179,15 +219,14 @@ if (session) {
               ></path>
             </svg>
           </div>
-          <h4 class="font-medium text-gray-800">Layanan</h4>
-          <p class="text-sm text-gray-600">Lihat semua layanan kami</p>
+          <h4 class="font-medium text-gray-800 text-sm">Services</h4>
         </a>
 
         <a
           href="/billing/history"
-          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center"
         >
-          <div class="text-blue-600 mb-2">
+          <div class="text-blue-600 mb-2 mx-auto w-8 h-8">
             <svg
               class="w-8 h-8"
               fill="none"
@@ -202,15 +241,14 @@ if (session) {
               ></path>
             </svg>
           </div>
-          <h4 class="font-medium text-gray-800">Tagihan</h4>
-          <p class="text-sm text-gray-600">Kelola tagihan dan pembayaran</p>
+          <h4 class="font-medium text-gray-800 text-sm">Billing</h4>
         </a>
 
         <a
-          href="/kontak"
-          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          href="/support"
+          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center"
         >
-          <div class="text-blue-600 mb-2">
+          <div class="text-blue-600 mb-2 mx-auto w-8 h-8">
             <svg
               class="w-8 h-8"
               fill="none"
@@ -221,12 +259,39 @@ if (session) {
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
               ></path>
             </svg>
           </div>
-          <h4 class="font-medium text-gray-800">Dukungan</h4>
-          <p class="text-sm text-gray-600">Hubungi tim dukungan kami</p>
+          <h4 class="font-medium text-gray-800 text-sm">Support</h4>
+        </a>
+
+        <a
+          href="/account/settings"
+          class="block p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center"
+        >
+          <div class="text-blue-600 mb-2 mx-auto w-8 h-8">
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+            </svg>
+          </div>
+          <h4 class="font-medium text-gray-800 text-sm">Settings</h4>
         </a>
       </div>
     </div>
