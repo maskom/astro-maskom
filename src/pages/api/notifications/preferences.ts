@@ -80,7 +80,7 @@ export const PUT: APIRoute = async ({ request }) => {
       'timezone',
     ];
 
-    const updates: Record<string, any> = {};
+    const updates: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(body)) {
       if (validFields.includes(key)) {
@@ -95,21 +95,23 @@ export const PUT: APIRoute = async ({ request }) => {
     // Validate specific fields
     if (
       updates.minimum_severity &&
-      !['low', 'medium', 'high', 'critical'].includes(updates.minimum_severity)
+      !['low', 'medium', 'high', 'critical'].includes(
+        updates.minimum_severity as string
+      )
     ) {
       return new Response('Invalid minimum_severity value', { status: 400 });
     }
 
     if (
       updates.phone_number &&
-      !/^\+?[\d\s\-()]+$/.test(updates.phone_number)
+      !/^\+?[\d\s\-()]+$/.test(updates.phone_number as string)
     ) {
       return new Response('Invalid phone number format', { status: 400 });
     }
 
     if (
       updates.quiet_hours_start &&
-      !/^\d{2}:\d{2}$/.test(updates.quiet_hours_start)
+      !/^\d{2}:\d{2}$/.test(updates.quiet_hours_start as string)
     ) {
       return new Response('Invalid quiet_hours_start format (use HH:MM)', {
         status: 400,
@@ -118,7 +120,7 @@ export const PUT: APIRoute = async ({ request }) => {
 
     if (
       updates.quiet_hours_end &&
-      !/^\d{2}:\d{2}$/.test(updates.quiet_hours_end)
+      !/^\d{2}:\d{2}$/.test(updates.quiet_hours_end as string)
     ) {
       return new Response('Invalid quiet_hours_end format (use HH:MM)', {
         status: 400,

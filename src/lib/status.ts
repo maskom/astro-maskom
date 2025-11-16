@@ -69,10 +69,10 @@ export const getStatusData = async (): Promise<StatusData> => {
 
     // First check if any services have outages or degraded status
     const hasServiceOutage = services.some(
-      (service: any) => service.status === 'outage'
+      (service: { status: string }) => service.status === 'outage'
     );
     const hasServiceDegraded = services.some(
-      (service: any) => service.status === 'degraded'
+      (service: { status: string }) => service.status === 'degraded'
     );
 
     // Then consider active incidents
@@ -127,7 +127,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return (data as any)?.uptime_percentage || 99.9;
+    return (data as { uptime_percentage?: number })?.uptime_percentage || 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -157,7 +157,7 @@ export const createIncident = async (
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-      ] as any)
+      ])
       .select()
       .single();
 
@@ -168,7 +168,11 @@ export const createIncident = async (
       await outageNotificationService.createOutageEvent({
         title: incident.title,
         description: incident.description,
-        status: incident.status as any,
+        status: incident.status as
+          | 'investigating'
+          | 'identified'
+          | 'monitoring'
+          | 'resolved',
         severity: 'medium', // Default severity, could be determined from incident type
         affected_services: incident.affected_services,
         affected_regions: [], // Could be determined from service coverage
@@ -194,12 +198,15 @@ export const updateIncident = async (
   id: string,
   updates: Partial<Incident>
 ): Promise<Incident | null> => {
-  const supabase = createSupabaseClient() as any;
+  const supabase = createSupabaseClient();
 
   try {
     const { data, error } = await supabase
       .from('incidents')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      } as Partial<Incident>)
       .eq('id', id)
       .select()
       .single();
@@ -211,7 +218,7 @@ export const updateIncident = async (
       const activeOutageEvents =
         await outageNotificationService.getActiveOutageEvents();
       for (const event of activeOutageEvents) {
-        if (event.title === data.title) {
+        if (event.title === (data as { title: string }).title) {
           await outageNotificationService.updateOutageEvent(event.id, {
             status: 'resolved',
             actual_resolution: new Date().toISOString(),

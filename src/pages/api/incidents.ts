@@ -4,6 +4,7 @@ import {
   getAllIncidents,
   updateIncident,
 } from '../../lib/status';
+import type { Incident } from '../../lib/status';
 import {
   sanitizeJsonInput,
   validateRequiredFields,
@@ -60,11 +61,10 @@ export const POST: APIRoute = async ({ request }) => {
     const sanitizedData = sanitizeJsonInput(rawData);
 
     // Validate required fields
-    const validation = validateRequiredFields(sanitizedData, [
-      'title',
-      'description',
-      'status',
-    ]);
+    const validation = validateRequiredFields(
+      sanitizedData as Record<string, unknown>,
+      ['title', 'description', 'status']
+    );
     if (!validation.isValid) {
       return new Response(
         JSON.stringify({
@@ -81,7 +81,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const newIncident = await createIncident(sanitizedData);
+    const newIncident = await createIncident(
+      sanitizedData as Omit<Incident, 'id' | 'created_at' | 'updated_at'>
+    );
 
     if (!newIncident) {
       return new Response(
@@ -148,7 +150,10 @@ export const PUT: APIRoute = async ({ request }) => {
     // Sanitize update data
     const sanitizedUpdates = sanitizeJsonInput(updates);
 
-    const updatedIncident = await updateIncident(id, sanitizedUpdates);
+    const updatedIncident = await updateIncident(
+      id,
+      sanitizedUpdates as Partial<Incident>
+    );
 
     if (!updatedIncident) {
       return new Response(

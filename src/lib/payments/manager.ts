@@ -1,16 +1,18 @@
+import { SupabaseClient } from '@supabase/supabase-js';
 import { MidtransGateway } from './gateway';
 import { PaymentService } from './service';
 import type {
   PaymentGatewayConfig,
   PaymentRequest,
   PaymentTransaction,
+  WebhookNotification,
 } from './types';
 
 export class PaymentManager {
   private gateway: MidtransGateway;
   private service: PaymentService;
 
-  constructor(supabaseClient: any, config: PaymentGatewayConfig) {
+  constructor(supabaseClient: SupabaseClient, config: PaymentGatewayConfig) {
     this.gateway = new MidtransGateway(config);
     this.service = new PaymentService(supabaseClient);
   }
@@ -54,7 +56,7 @@ export class PaymentManager {
     }
   }
 
-  async handleWebhook(notification: any) {
+  async handleWebhook(notification: WebhookNotification) {
     try {
       const isValid = this.gateway.verifyWebhookSignature(notification);
       if (!isValid) {

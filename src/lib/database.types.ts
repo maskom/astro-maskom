@@ -1,5 +1,21 @@
 // Database type definitions for Supabase
 
+export interface SubscriberPreferences {
+  emailNotifications?: boolean;
+  smsNotifications?: boolean;
+  inAppNotifications?: boolean;
+  pushNotifications?: boolean;
+  outageNotifications?: boolean;
+  maintenanceNotifications?: boolean;
+  billingNotifications?: boolean;
+  marketingNotifications?: boolean;
+  minimumSeverity?: 'low' | 'medium' | 'high' | 'critical';
+  quietHoursStart?: string | null;
+  quietHoursEnd?: string | null;
+  timezone?: string;
+  phoneNumber?: string | null;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -85,21 +101,21 @@ export interface Database {
         Row: {
           id: string;
           email: string;
-          preferences: any;
+          preferences: SubscriberPreferences;
           subscribed_at: string;
           confirmed: boolean;
         };
         Insert: {
           id?: string;
           email: string;
-          preferences: any;
+          preferences: SubscriberPreferences;
           subscribed_at?: string;
           confirmed?: boolean;
         };
         Update: {
           id?: string;
           email?: string;
-          preferences?: any;
+          preferences?: SubscriberPreferences;
           subscribed_at?: string;
           confirmed?: boolean;
         };

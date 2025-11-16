@@ -1,9 +1,15 @@
-import type { PaymentTransaction, Invoice } from './types';
+import { SupabaseClient } from '@supabase/supabase-js';
+import type {
+  PaymentTransaction,
+  Invoice,
+  PaymentMethod,
+  InvoiceItem,
+} from './types';
 
 export class PaymentService {
-  private supabase: any;
+  private supabase: SupabaseClient;
 
-  constructor(supabaseClient: any) {
+  constructor(supabaseClient: SupabaseClient) {
     this.supabase = supabaseClient;
   }
 
@@ -32,7 +38,7 @@ export class PaymentService {
   async updateTransactionStatus(
     transactionId: string,
     status: PaymentTransaction['status'],
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
@@ -232,35 +238,37 @@ export class PaymentService {
     }
   }
 
-  private transformTransactionData(data: any): PaymentTransaction {
+  private transformTransactionData(
+    data: Record<string, unknown>
+  ): PaymentTransaction {
     return {
-      id: data.id,
-      orderId: data.order_id,
-      userId: data.user_id,
-      amount: data.amount,
-      currency: data.currency,
-      status: data.status,
-      paymentMethod: data.payment_method,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
-      metadata: data.metadata,
+      id: data.id as string,
+      orderId: data.order_id as string,
+      userId: data.user_id as string,
+      amount: data.amount as number,
+      currency: data.currency as string,
+      status: data.status as PaymentTransaction['status'],
+      paymentMethod: data.payment_method as PaymentMethod,
+      createdAt: new Date(data.created_at as string),
+      updatedAt: new Date(data.updated_at as string),
+      metadata: data.metadata as Record<string, unknown>,
     };
   }
 
-  private transformInvoiceData(data: any): Invoice {
+  private transformInvoiceData(data: Record<string, unknown>): Invoice {
     return {
-      id: data.id,
-      invoiceNumber: data.invoice_number,
-      userId: data.user_id,
-      transactionId: data.transaction_id,
-      amount: data.amount,
-      tax: data.tax,
-      total: data.total,
-      dueDate: new Date(data.due_date),
-      status: data.status,
-      items: data.invoice_items || [],
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      id: data.id as string,
+      invoiceNumber: data.invoice_number as string,
+      userId: data.user_id as string,
+      transactionId: data.transaction_id as string,
+      amount: data.amount as number,
+      tax: data.tax as number,
+      total: data.total as number,
+      dueDate: new Date(data.due_date as string),
+      status: data.status as Invoice['status'],
+      items: (data.invoice_items as InvoiceItem[]) || [],
+      createdAt: new Date(data.created_at as string),
+      updatedAt: new Date(data.updated_at as string),
     };
   }
 }
