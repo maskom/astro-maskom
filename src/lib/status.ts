@@ -118,7 +118,8 @@ export const getUptimePercentage = async (
   try {
     // This is a simplified implementation
     // In a real system, you would have a history table tracking service status over time
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('service_uptime')
       .select('uptime_percentage')
       .eq('service_id', serviceId)
@@ -149,6 +150,7 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('incidents')
       .insert({
@@ -195,6 +197,7 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -237,7 +240,8 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .select('*')
       .order('created_at', { ascending: false });

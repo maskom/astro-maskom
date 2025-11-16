@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Supabase client before importing the service
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     from: vi.fn(),
@@ -39,9 +41,11 @@ describe('OutageNotificationService', () => {
       rpc: vi.fn(),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockCreateClient.mockReturnValue(mockClient as any);
 
     // Replace the supabase client on the service instance
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (outageNotificationService as any).supabase = mockClient;
   });
 
@@ -78,6 +82,7 @@ describe('OutageNotificationService', () => {
 
       // Mock the notification trigger
       vi.spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotificationService as any,
         'triggerOutageNotifications'
       ).mockResolvedValue(undefined);
@@ -343,8 +348,11 @@ describe('OutageNotificationService', () => {
 
       // Access private method through type assertion
       const renderTemplate = (
-        outageNotificationService as any
-      ).renderTemplate.bind(outageNotificationService);
+        (outageNotificationService as any).renderTemplate as (
+          template: string,
+          variables: Record<string, unknown>
+        ) => string
+      ).bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe(
@@ -360,8 +368,11 @@ describe('OutageNotificationService', () => {
       };
 
       const renderTemplate = (
-        outageNotificationService as any
-      ).renderTemplate.bind(outageNotificationService);
+        (outageNotificationService as any).renderTemplate as (
+          template: string,
+          variables: Record<string, unknown>
+        ) => string
+      ).bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe('Hello John, you have {{count}} new notifications.');
