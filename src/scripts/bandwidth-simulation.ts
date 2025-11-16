@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { log, generateRequestId } from '../lib/logger';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -76,7 +77,11 @@ async function createSampleDataCaps() {
       const targetUser = authUser.users.find(u => u.email === user.email);
 
       if (!targetUser) {
-        console.log(`User ${user.email} not found, skipping...`);
+        log.info(`User ${user.email} not found, skipping...`, {
+          module: 'bandwidth-simulation',
+          operation: 'createSampleDataCaps',
+          email: user.email,
+        });
         continue;
       }
 
@@ -99,11 +104,22 @@ async function createSampleDataCaps() {
         .single();
 
       if (capError) {
-        console.error(`Error creating data cap for ${user.email}:`, capError);
+        log.error(`Error creating data cap for ${user.email}`, capError, {
+          module: 'bandwidth-simulation',
+          operation: 'createSampleDataCaps',
+          email: user.email,
+          packageId: user.package_id,
+        });
         continue;
       }
 
-      console.log(`Created data cap for ${user.email}: ${config.capGB}GB`);
+      log.info(`Created data cap for ${user.email}`, {
+        module: 'bandwidth-simulation',
+        operation: 'createSampleDataCaps',
+        email: user.email,
+        capGB: config.capGB,
+        packageId: user.package_id,
+      });
 
       // Generate and insert usage data
       const usageData = generateUsageData(user.package_id);
@@ -118,18 +134,36 @@ async function createSampleDataCaps() {
           });
 
         if (usageError) {
-          console.error(
-            `Error inserting usage data for ${user.email}:`,
-            usageError
+          log.error(
+            `Error inserting usage data for ${user.email}`,
+            usageError,
+            {
+              module: 'bandwidth-simulation',
+              operation: 'createSampleDataCaps',
+              email: user.email,
+              packageId: user.package_id,
+            }
           );
         }
       }
-
-      console.log(
-        `Generated ${usageData.length} days of usage data for ${user.email}`
-      );
+      log.info(`Generated usage data for ${user.email}`, {
+        module: 'bandwidth-simulation',
+        operation: 'createSampleDataCaps',
+        email: user.email,
+        daysGenerated: usageData.length,
+        packageId: user.package_id,
+      });
     } catch (error) {
-      console.error(`Error processing user ${user.email}:`, error);
+      log.error(
+        `Error processing user ${user.email}`,
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'bandwidth-simulation',
+          operation: 'createSampleDataCaps',
+          email: user.email,
+          packageId: user.package_id,
+        }
+      );
     }
   }
 }
@@ -149,7 +183,11 @@ async function createHighUsageScenarios() {
     );
 
     if (!targetUser) {
-      console.log(`High usage user ${highUsageUser.email} not found`);
+      log.info(`High usage user ${highUsageUser.email} not found`, {
+        module: 'bandwidth-simulation',
+        operation: 'createHighUsageScenarios',
+        email: highUsageUser.email,
+      });
       return;
     }
 
@@ -172,7 +210,12 @@ async function createHighUsageScenarios() {
       .single();
 
     if (capError) {
-      console.error(`Error creating high usage data cap:`, capError);
+      log.error(`Error creating high usage data cap`, capError, {
+        module: 'bandwidth-simulation',
+        operation: 'createHighUsageScenarios',
+        email: highUsageUser.email,
+        packageId: highUsageUser.package_id,
+      });
       return;
     }
 
@@ -199,28 +242,61 @@ async function createHighUsageScenarios() {
         });
 
       if (usageError) {
-        console.error(`Error inserting high usage data:`, usageError);
+        log.error(`Error inserting high usage data`, usageError, {
+          module: 'bandwidth-simulation',
+          operation: 'createHighUsageScenarios',
+          email: highUsageUser.email,
+          packageId: highUsageUser.package_id,
+        });
       }
     }
 
-    console.log(
-      `Created high usage scenario for ${highUsageUser.email} (${targetUsageGB.toFixed(2)}GB used)`
-    );
+    log.info(`Created high usage scenario for ${highUsageUser.email}`, {
+      module: 'bandwidth-simulation',
+      operation: 'createHighUsageScenarios',
+      email: highUsageUser.email,
+      packageId: highUsageUser.package_id,
+      targetUsageGB: targetUsageGB.toFixed(2),
+      days: days,
+    });
   } catch (error) {
-    console.error(`Error creating high usage scenario:`, error);
+    log.error(
+      `Error creating high usage scenario`,
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'bandwidth-simulation',
+        operation: 'createHighUsageScenarios',
+        email: highUsageUser.email,
+        packageId: highUsageUser.package_id,
+      }
+    );
   }
 }
 
 // Main execution
 async function main() {
-  console.log('Starting bandwidth data simulation...');
+  const requestId = generateRequestId();
+  const scriptLogger = log.child({
+    module: 'bandwidth-simulation',
+    requestId,
+  });
+
+  scriptLogger.info('Starting bandwidth data simulation...');
 
   try {
     await createSampleDataCaps();
     await createHighUsageScenarios();
-    console.log('Bandwidth data simulation completed successfully!');
+    scriptLogger.info('Bandwidth data simulation completed successfully!', {
+      requestId,
+    });
   } catch (error) {
-    console.error('Simulation failed:', error);
+    scriptLogger.error(
+      'Simulation failed',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        requestId,
+      }
+    );
   }
 }
 
