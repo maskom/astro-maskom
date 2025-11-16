@@ -366,11 +366,182 @@ const whatsappNumber = import.meta.env.WHATSAPP_NUMBER;
 
 ---
 
-## 🔒 Priority 1 - Security & Code Quality (NEW)
+## 🔧 Priority 1 - Code Quality & Type Safety (UPDATED)
 
-### Task 1.7: Implement Content Security Policy (Issue #111)
+### Task 1.7: Fix TypeScript Type Safety Issues (Issues #167, #163, #159)
 
-**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-17
+**Estimated Time**: 12-16 hours | **Assignee**: Available | **Due**: 2025-11-18
+
+#### Subtasks:
+
+**Part A: Security & Payment Modules (4-6 hours)**
+
+- [ ] Replace `any` types in `src/lib/security/*.ts` (17 warnings)
+  - `src/lib/security/audit.ts` (3 warnings)
+  - `src/lib/security/middleware.ts` (10 warnings)
+  - `src/lib/security/types.ts` (2 warnings)
+  - `src/lib/security/data-protection.ts` (2 warnings)
+- [ ] Replace `any` types in `src/lib/payments/*.ts` (9 warnings)
+  - `src/lib/payments/gateway.ts` (1 warning)
+  - `src/lib/payments/manager.ts` (2 warnings)
+  - `src/lib/payments/service.ts` (5 warnings)
+  - `src/lib/payments/types.ts` (1 warning)
+
+**Part B: API Endpoints & Utilities (4-6 hours)**
+
+- [ ] Replace `any` types in `src/pages/api/*.ts` (15 warnings)
+  - `src/pages/api/bandwidth/admin/monitoring.ts` (5 warnings)
+  - `src/pages/api/security/export-data.ts` (6 warnings)
+  - Other API endpoints (4 warnings)
+- [ ] Replace `any` types in utility files
+  - `src/lib/database.types.ts` (3 warnings)
+  - `src/lib/logger.ts` (1 warning)
+  - `src/lib/sanitization.ts` (7 warnings)
+  - `src/lib/status.ts` (5 warnings)
+
+**Part C: Fix Non-Null Assertions (2-4 hours)**
+
+- [ ] Fix non-null assertions in `src/scripts/bandwidth-simulation.ts` (2 warnings)
+- [ ] Add proper null checks and error handling
+- [ ] Test bandwidth simulation functionality
+
+#### Technical Context:
+
+- **Total**: 69 `any` type warnings + 2 non-null assertion warnings
+- **Priority**: Security and payment modules first (critical functionality)
+- **Approach**: Create proper TypeScript interfaces for common data structures
+- **Testing**: Run `npm run lint` after each module to verify progress
+
+### Task 1.8: Consolidate Duplicate Package Data (Issue #169)
+
+**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-19
+
+#### Subtasks:
+
+**Part A: Design Unified Structure (2-3 hours)**
+
+- [ ] Analyze current 5 package structures in `src/data/packages.ts`
+- [ ] Design unified `Package` interface with category metadata
+- [ ] Create filtering functions for different package types
+- [ ] Add TypeScript validation for package data integrity
+
+**Part B: Data Consolidation (2-3 hours)**
+
+- [ ] Merge all package data into single structure
+- [ ] Add category field: 'overview' | 'home' | 'soho' | 'corporate' | 'landing'
+- [ ] Preserve all existing data and features
+- [ ] Add helper functions: `getPackagesByCategory()`, `getPackageById()`
+
+**Part C: Component Updates (2 hours)**
+
+- [ ] Update `PackageHomeAccess.astro` to use filtered data
+- [ ] Update `PackageSoho.astro` to use filtered data
+- [ ] Update `PackageCorporate.astro` to use filtered data
+- [ ] Update `Packages.astro` to use overview data
+- [ ] Test all package-related pages and components
+
+#### Technical Context:
+
+```typescript
+// Proposed unified structure
+interface Package {
+  id: string;
+  name: string;
+  displayName?: string;
+  description: string;
+  price: string;
+  features: string[];
+  category: 'overview' | 'home' | 'soho' | 'corporate' | 'landing';
+  badge?: string;
+  highlights?: string[];
+  accent?: string;
+  glow?: string;
+  featured?: boolean;
+  ctaText: string;
+  ctaLink: string;
+}
+```
+
+### Task 1.9: Replace Console Statements (Issue #170)
+
+**Estimated Time**: 4-6 hours | **Assignee**: Available | **Due**: 2025-11-19
+
+#### Subtasks:
+
+**Part A: Enhance Logger Utility (1-2 hours)**
+
+- [ ] Review and enhance `src/lib/logger.ts`
+- [ ] Add log levels: DEBUG, INFO, WARN, ERROR
+- [ ] Add structured logging with context metadata
+- [ ] Add environment-based log filtering
+- [ ] Add request ID tracking capabilities
+
+**Part B: Replace Console Statements (2-3 hours)**
+
+- [ ] Replace 13 console statements in `src/scripts/bandwidth-simulation.ts`
+- [ ] Replace 2 console.error in `src/pages/api/bandwidth/admin/monitoring.ts`
+- [ ] Replace 2 console.error in `src/pages/api/bandwidth/usage.ts`
+- [ ] Replace 2 console.error in `src/pages/api/bandwidth/notifications.ts`
+- [ ] Add proper error context and request IDs to API logs
+
+**Part C: Testing & Validation (1 hour)**
+
+- [ ] Test logging in development environment
+- [ ] Verify log levels work correctly
+- [ ] Test structured logging output format
+- [ ] Update development documentation
+
+#### Technical Context:
+
+- **Current**: 20+ console.log/error statements without structure
+- **Target**: Structured logging with levels, context, and request tracking
+- **Environment**: Verbose in development, minimal in production
+
+### Task 1.10: Standardize Error Handling (Issue #171)
+
+**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-20
+
+#### Subtasks:
+
+**Part A: Create Error Infrastructure (2-3 hours)**
+
+- [ ] Create error types in `src/types/errors.ts`
+- [ ] Implement error handler utility in `src/lib/error-handler.ts`
+- [ ] Create error handling middleware for API routes
+- [ ] Add request ID generation and tracking
+
+**Part B: Update API Endpoints (3-4 hours)**
+
+- [ ] Update authentication endpoints (`/api/auth/*`)
+- [ ] Update payment endpoints (`/api/payments/*`)
+- [ ] Update bandwidth endpoints (`/api/bandwidth/*`)
+- [ ] Update chat endpoint (`/api/chat/completion`)
+- [ ] Update security endpoints (`/api/security/*`)
+
+**Part C: Error Pages & Testing (1 hour)**
+
+- [ ] Create user-friendly error pages for common scenarios
+- [ ] Test error responses and status codes
+- [ ] Verify request tracking works correctly
+
+#### Technical Context:
+
+```typescript
+// Target error response format
+interface ErrorResponse {
+  error: {
+    code: string;
+    message: string;
+    details?: Record<string, unknown>;
+    requestId: string;
+    timestamp: string;
+  };
+}
+```
+
+### Task 1.11: Implement Content Security Policy (Issue #111)
+
+**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-20
 
 #### Subtasks:
 
@@ -380,63 +551,6 @@ const whatsappNumber = import.meta.env.WHATSAPP_NUMBER;
 - [ ] Refactor Chatbot inline scripts to separate files
 - [ ] Test CSP implementation with browser security tools
 - [ ] Verify SecurityHeaders.com score A+ or better
-
-#### Technical Context:
-
-```typescript
-// Security headers to implement
-const securityHeaders = {
-  'Content-Security-Policy':
-    "default-src 'self'; script-src 'self' 'nonce-{random}';",
-  'X-Frame-Options': 'DENY',
-  'X-Content-Type-Options': 'nosniff',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-};
-```
-
-### Task 1.8: Remove Console Statements (Issue #108)
-
-**Estimated Time**: 4-6 hours | **Assignee**: Available | **Due**: 2025-11-17
-
-#### Subtasks:
-
-- [ ] Create structured logging utility (`src/lib/logger.ts`)
-- [ ] Replace console.error in `src/lib/status.ts` (7 locations)
-- [ ] Replace console.error in `src/pages/admin/incidents.astro` (2 locations)
-- [ ] Replace console.error in `src/pages/status.astro` (1 location)
-- [ ] Implement log levels: DEBUG, INFO, WARN, ERROR
-- [ ] Add structured logging with context and metadata
-
-#### Technical Context:
-
-- 10+ console statements need replacement
-- Need proper error tracking and debugging
-- Environment-based log level configuration
-
-### Task 1.9: Improve Error Handling (Issue #109)
-
-**Estimated Time**: 6-8 hours | **Assignee**: Available | **Due**: 2025-11-18
-
-#### Subtasks:
-
-- [ ] Create error types (`src/types/errors.ts`)
-- [ ] Implement error handler utility (`src/lib/error-handler.ts`)
-- [ ] Update `src/pages/api/chat/completion.ts` error handling
-- [ ] Apply consistent error handling to all API routes
-- [ ] Add request ID tracking for debugging
-- [ ] Implement structured error responses with error codes
-
-#### Technical Context:
-
-```typescript
-// Error types to implement
-interface ApiError {
-  code: string;
-  message: string;
-  details?: any;
-  requestId?: string;
-}
-```
 
 ## ⚡ Priority 2 - Performance Optimization (NEW)
 
@@ -461,14 +575,21 @@ interface ApiError {
 
 ---
 
-## 🆕 New Tasks Added (2025-11-15)
+## 🆕 New Tasks Added (2025-11-16)
 
-### Security & Quality Improvements (NEW)
+### Code Quality & Type Safety Improvements (NEW)
 
-- **Task 1.7**: Implement Content Security Policy (Issue #111) - 6-8 hours
-- **Task 1.8**: Remove Console Statements (Issue #108) - 4-6 hours
-- **Task 1.9**: Improve Error Handling (Issue #109) - 6-8 hours
+- **Task 1.7**: Fix TypeScript Type Safety Issues (Issues #167, #163, #159) - 12-16 hours
+- **Task 1.8**: Consolidate Duplicate Package Data (Issue #169) - 6-8 hours
+- **Task 1.9**: Replace Console Statements (Issue #170) - 4-6 hours
+- **Task 1.10**: Standardize Error Handling (Issue #171) - 6-8 hours
+- **Task 1.11**: Implement Content Security Policy (Issue #111) - 6-8 hours
+
+### Previously Created Tasks (UPDATED)
+
 - **Task 2.5**: Optimize Bundle Size (Issue #110) - 8-12 hours
+- **Task 1.8**: Remove Console Statements (Issue #108) - SUPERSEDED by Task 1.9
+- **Task 1.9**: Improve Error Handling (Issue #109) - SUPERSEDED by Task 1.10
 
 ### Email System Implementation (Issue #87)
 
@@ -496,8 +617,9 @@ interface ApiError {
 
 ---
 
-_Last Updated: 2025-11-15_
-_Next Review: 2025-11-22_
-_Total Tasks: 28 | Estimated Total Effort: 80-100 hours_
-_Active Issues: 29 | Active PRs: 3 | Recently Completed: 5_
-_Repository Health: 🟢 GOOD (Stable)_
+_Last Updated: 2025-11-16_
+_Next Review: 2025-11-23_
+_Total Tasks: 31 | Estimated Total Effort: 90-120 hours_
+_Active Issues: 32 | Active PRs: 6 | Recently Completed: 5_
+_Repository Health: 🟡 MEDIUM (Improving)_
+_New Tasks: 3 (TypeScript, package consolidation, logging, error handling)_
