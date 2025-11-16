@@ -56,9 +56,13 @@ jobs:
 
       - name: Install Cloudflare & Supabase CLI
         run: |
-          npm install -g wrangler @supabase/cli
+          # Install Cloudflare Wrangler
+          npm install -g wrangler
           wrangler --version
+          # Install Supabase CLI (paket resminya: "supabase")
+          npm install -g supabase
           supabase --version
+          # Pastikan gh ada, kalau tidak ya sudah (tidak nge-fail)
           gh --version || true
 
       - name: Install OpenCode CLI
