@@ -41,11 +41,9 @@ describe('OutageNotificationService', () => {
       rpc: vi.fn(),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockCreateClient.mockReturnValue(mockClient as any);
 
     // Replace the supabase client on the service instance
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (outageNotificationService as any).supabase = mockClient;
   });
 
@@ -82,7 +80,6 @@ describe('OutageNotificationService', () => {
 
       // Mock the notification trigger
       vi.spyOn(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotificationService as any,
         'triggerOutageNotifications'
       ).mockResolvedValue(undefined);

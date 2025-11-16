@@ -58,7 +58,6 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // Check if user owns this invoice
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((invoice as any).userId !== user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Access denied' }),
@@ -89,7 +88,6 @@ export const GET: APIRoute = async ({ request }) => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function generateInvoiceHTML(invoice: any): string {
   const itemsHTML = invoice.items
     .map(
@@ -104,7 +102,6 @@ function generateInvoiceHTML(invoice: any): string {
     )
     .join('');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return `
     <!DOCTYPE html>
     <html lang="en">
