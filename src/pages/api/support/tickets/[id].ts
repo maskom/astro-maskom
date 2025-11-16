@@ -1,4 +1,5 @@
 import { supabase } from '../../../../lib/supabase.ts';
+import { logger } from '../../../../lib/logger.ts';
 import {
   authenticateRequest,
   createErrorResponse,

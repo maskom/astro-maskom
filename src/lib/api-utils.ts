@@ -56,7 +56,10 @@ export function createSuccessResponse<T>(
   message?: string,
   status: number = 200
 ) {
-  const response: any = { success: true, data };
+  const response: { success: true; data: T; message?: string } = {
+    success: true,
+    data,
+  };
   if (message) {
     response.message = message;
   }
