@@ -3,7 +3,11 @@ import { dataProtectionService } from '../../../lib/security/data-protection';
 import { rbacService } from '../../../lib/security/rbac';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
-import { Permission, SecurityAction } from '../../../lib/security/types';
+import {
+  Permission,
+  SecurityAction,
+  ConsentType,
+} from '../../../lib/security/types';
 
 export const prerender = false;
 
@@ -36,7 +40,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Check data processing consent
     const hasConsent = await dataProtectionService.hasDataConsent(
       userId,
-      'data_processing'
+      ConsentType.DATA_PROCESSING
     );
 
     if (!hasConsent) {
@@ -55,7 +59,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     let filename: string;
 
     if (format === 'csv') {
-      responseContent = convertToCSV(userData as Record<string, unknown>);
+      responseContent = convertToCSV(
+        userData as unknown as Record<string, unknown>
+      );
       contentType = 'text/csv';
       filename = `user_data_${userId}_${new Date().toISOString().split('T')[0]}.csv`;
     } else {
@@ -102,8 +108,8 @@ function convertToCSV(data: Record<string, unknown>): string {
   ): Record<string, unknown> => {
     const flattened: Record<string, unknown> = {};
 
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+    for (const key in obj as Record<string, unknown>) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const newKey = prefix ? `${prefix}.${key}` : key;
         const objValue = (obj as Record<string, unknown>)[key];
 

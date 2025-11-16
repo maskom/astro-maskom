@@ -49,7 +49,7 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -223,7 +223,7 @@ export const POST: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -231,7 +231,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create or update data cap for user
-    const { data, error: upsertError } = await supabase
+    const { data, error: upsertError } = await (supabase as any)
       .from('data_caps')
       .upsert({
         user_id: userId,

@@ -3,7 +3,11 @@ import { securityAuditLogger } from '../../../lib/security/audit';
 import { rbacService } from '../../../lib/security/rbac';
 import { sessionManager } from '../../../lib/security/session';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
-import { Permission, SecuritySeverity } from '../../../lib/security/types';
+import {
+  Permission,
+  SecuritySeverity,
+  UserRole,
+} from '../../../lib/security/types';
 
 export const prerender = false;
 
@@ -51,7 +55,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
     // Get user sessions if admin
     let userSessions: unknown[] = [];
-    if (await rbacService.hasRole(securityContext.userId, 'admin')) {
+    if (await rbacService.hasRole(securityContext.userId, UserRole.ADMIN)) {
       if (userId) {
         userSessions = await sessionManager.getUserActiveSessions(userId);
       }

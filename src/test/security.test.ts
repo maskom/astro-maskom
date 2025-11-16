@@ -9,6 +9,7 @@ import {
   UserRole,
   Permission,
   SecuritySeverity,
+  SecurityEventType,
 } from '../../src/lib/security/types';
 
 // Mock Supabase client
@@ -67,7 +68,7 @@ describe('Security Audit Logger', () => {
   });
 
   it('should create security events', async () => {
-    const type: string = 'suspicious_activity';
+    const type = SecurityEventType.SUSPICIOUS_ACTIVITY;
     const severity = SecuritySeverity.HIGH;
     const userId = 'test-user-id';
     const ipAddress = '192.168.1.1';

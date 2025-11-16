@@ -82,7 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { email, preferences } = sanitizedData;
 
     // Validate and sanitize email
-    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedEmail = sanitizeEmail(email as string);
     if (!sanitizedEmail) {
       return new Response(
         JSON.stringify({ error: 'Valid email is required' }),
@@ -135,9 +135,11 @@ export const POST: APIRoute = async ({ request }) => {
       confirmed: false, // Would be set to true after email confirmation
     };
 
-    const { data: insertedSubscriber, error: insertError } = await supabase
+    const { data: insertedSubscriber, error: insertError } = await (
+      supabase as any
+    )
       .from('subscribers')
-      .insert([newSubscriber])
+      .insert(newSubscriber)
       .select()
       .single();
 

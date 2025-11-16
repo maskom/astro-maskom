@@ -1,6 +1,7 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { supabase } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
+import type { Invoice } from '../../../lib/payments/types';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -44,7 +45,8 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const paymentManager = getPaymentManager();
-    const invoice = await paymentManager.getInvoiceById(invoiceId);
+    const invoice: Invoice | null =
+      await paymentManager.getInvoiceById(invoiceId);
 
     if (!invoice) {
       return new Response(
@@ -54,7 +56,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // Check if user owns this invoice
-    if (invoice.userId !== user.id) {
+    if ((invoice as any).userId !== user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Access denied' }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -151,13 +153,13 @@ function generateInvoiceHTML(invoice: {
           <div class="info-section">
             <h3>Invoice</h3>
             <p><strong>Number:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>Date:</strong> ${invoice.createdAt.toLocaleDateString('id-ID')}</p>
+            <p><strong>Date:</strong> ${(invoice as any).createdAt.toLocaleDateString('id-ID')}</p>
             <p><strong>Due Date:</strong> ${invoice.dueDate.toLocaleDateString('id-ID')}</p>
             <p><strong>Status:</strong> <span class="status ${invoice.status}">${invoice.status}</span></p>
           </div>
           <div class="info-section" style="text-align: right;">
             <h3>Bill To</h3>
-            <p>Customer ID: ${invoice.userId}</p>
+            <p>Customer ID: ${(invoice as any).userId}</p>
             <p>Payment Method: Online Payment</p>
           </div>
         </div>
