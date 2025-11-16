@@ -1,12 +1,12 @@
 name = "astro-maskom"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace for sessions
 [[kv_namespaces]]
 binding = "SESSION"
-id = "SESSION_kv_namespace"
-preview_id = "SESSION_preview_kv_namespace"
+id = "e2109995612b4daea45cb0731ad33b85"
+preview_id = "22d230f583864a3c9e7182de57b6bbe0"
 
 # Environment variables for the application
 [vars]
