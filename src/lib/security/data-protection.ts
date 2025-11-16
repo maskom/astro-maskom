@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import type { DataConsent, ConsentType } from './types';
+import type { DataConsent, ConsentType, UserDataExport } from './types';
 
 export class DataProtectionService {
   private supabase = createClient(
@@ -240,9 +240,19 @@ export class DataProtectionService {
     }
   }
 
-  async exportUserData(userId: string): Promise<Record<string, any> | null> {
+  async exportUserData(userId: string): Promise<UserDataExport | null> {
     try {
-      const userData: Record<string, any> = {};
+      const userData: UserDataExport = {
+        user_id: userId,
+        email: '',
+        profile: {},
+        subscriptions: [],
+        payments: [],
+        security_logs: [],
+        consent_records: [],
+        created_at: new Date().toISOString(),
+        exported_at: new Date().toISOString(),
+      };
 
       // Get user profile
       const { data: profile } = await this.supabase
