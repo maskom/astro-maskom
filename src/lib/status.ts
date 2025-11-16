@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
 import { outageNotificationService } from './notifications/outage-service';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
 // Define types for our status data
@@ -69,10 +70,10 @@ export const getStatusData = async (): Promise<StatusData> => {
 
     // First check if any services have outages or degraded status
     const hasServiceOutage = services.some(
-      (service: any) => service.status === 'outage'
+      (service: ServiceStatus) => service.status === 'outage'
     );
     const hasServiceDegraded = services.some(
-      (service: any) => service.status === 'degraded'
+      (service: ServiceStatus) => service.status === 'degraded'
     );
 
     // Then consider active incidents
@@ -127,7 +128,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return (data as any)?.uptime_percentage || 99.9;
+    return data?.uptime_percentage ?? 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -157,7 +158,7 @@ export const createIncident = async (
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-      ] as any)
+      ])
       .select()
       .single();
 
@@ -168,7 +169,11 @@ export const createIncident = async (
       await outageNotificationService.createOutageEvent({
         title: incident.title,
         description: incident.description,
-        status: incident.status as any,
+        status: incident.status as
+          | 'investigating'
+          | 'identified'
+          | 'monitoring'
+          | 'resolved',
         severity: 'medium', // Default severity, could be determined from incident type
         affected_services: incident.affected_services,
         affected_regions: [], // Could be determined from service coverage
@@ -194,7 +199,7 @@ export const updateIncident = async (
   id: string,
   updates: Partial<Incident>
 ): Promise<Incident | null> => {
-  const supabase = createSupabaseClient() as any;
+  const supabase = createClient() as SupabaseClient<Database>;
 
   try {
     const { data, error } = await supabase
