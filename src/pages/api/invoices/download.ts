@@ -1,5 +1,5 @@
 import { getPaymentManager } from '../../../lib/payments';
-import { supabase } from '../../../lib/supabase';
+import { createServerClient } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
 import type { Invoice } from '../../../lib/payments/types';
 
@@ -27,16 +27,13 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
+    const supabase = createServerClient();
     const {
       data: { user },
       error: authError,
-    } = await (supabase?.auth.getUser(token) ||
-      Promise.resolve({
-        data: { user: null },
-        error: new Error('Supabase not available'),
-      }));
+    } = await supabase.auth.getUser(token);
 
-    if (authError || !user || !supabase) {
+    if (authError || !user) {
       return new Response(
         JSON.stringify({
           success: false,
