@@ -5,7 +5,9 @@ import Notifications from '../components/bandwidth/Notifications.astro';
 import DataCapManagement from '../components/bandwidth/DataCapManagement.astro';
 import OutageNotifications from '../components/notifications/OutageNotifications.astro';
 import NotificationPreferences from '../components/notifications/NotificationPreferences.astro';
-import { packages } from '../data/packages.ts';
+import { getMainPackages } from '../data/packages.ts';
+
+const packages = getMainPackages();
 import { createClient } from '@supabase/supabase-js';
 import { outageNotificationService } from '../lib/notifications/outage-service';
 

@@ -1,3 +1,8 @@
+// Package categories for different use cases
+export type PackageCategory = 'home' | 'soho' | 'corporate' | 'landing';
+export type PackageType = 'main' | 'detailed' | 'landing';
+
+// Base package interface with all common properties
 export interface BasePackage {
   id: string;
   name: string;
@@ -6,8 +11,11 @@ export interface BasePackage {
   features: string[];
   ctaText: string;
   ctaLink: string;
+  category: PackageCategory;
+  type: PackageType;
 }
 
+// Enhanced package interface for main showcase packages
 export interface Package extends BasePackage {
   displayName?: string;
   badge?: string;
@@ -15,14 +23,18 @@ export interface Package extends BasePackage {
   accent?: string;
   glow?: string;
   featured?: boolean;
+  popular?: boolean;
 }
 
+// Contact information
 export const contactInfo = {
   whatsapp: 'https://wa.me/6283867803521',
   contactLink: '#contact',
 } as const;
 
-export const packages: Package[] = [
+// Unified package data - single source of truth
+export const allPackages: Package[] = [
+  // Main showcase packages (type: 'main')
   {
     id: 'home-access',
     name: 'Home Access',
@@ -38,9 +50,17 @@ export const packages: Package[] = [
     accent: '#6366f1',
     glow: 'rgba(99,102,241,0.75)',
     price: 'Mulai dari Rp 200.000/bulan',
-    features: [],
+    features: [
+      'Kecepatan hingga 50 Mbps',
+      'Unlimited Kuota',
+      'Dukungan Teknis 24/7',
+      'Instalasi Gratis',
+    ],
     ctaText: 'Konsultasi via WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'home',
+    type: 'main',
+    featured: false,
   },
   {
     id: 'soho',
@@ -56,11 +76,18 @@ export const packages: Package[] = [
     ],
     accent: '#0ea5e9',
     glow: 'rgba(14,165,233,0.75)',
-    featured: true,
     price: 'Mulai dari Rp 750.000/bulan',
-    features: [],
+    features: [
+      'Kecepatan hingga 200 Mbps',
+      'Jaminan Bandwidth',
+      'IP Publik Statis',
+      'SLA 99.5%',
+    ],
     ctaText: 'Konsultasi via WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'soho',
+    type: 'main',
+    featured: true,
   },
   {
     id: 'corporate',
@@ -77,13 +104,20 @@ export const packages: Package[] = [
     accent: '#06b6d4',
     glow: 'rgba(6,182,212,0.75)',
     price: 'Mulai dari Rp 2.500.000/bulan',
-    features: [],
+    features: [
+      'Kecepatan hingga 1 Gbps',
+      'SLA 99.9%',
+      'Managed Service',
+      'Dedicated Infrastructure',
+    ],
     ctaText: 'Konsultasi via WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'corporate',
+    type: 'main',
+    featured: false,
   },
-];
 
-export const homeAccessPackages: Package[] = [
+  // Detailed home packages (type: 'detailed')
   {
     id: 'home-a',
     name: 'Paket A',
@@ -97,6 +131,8 @@ export const homeAccessPackages: Package[] = [
     ],
     ctaText: 'Chat WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'home',
+    type: 'detailed',
   },
   {
     id: 'home-b',
@@ -111,6 +147,8 @@ export const homeAccessPackages: Package[] = [
     ],
     ctaText: 'Chat WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'home',
+    type: 'detailed',
   },
   {
     id: 'home-c',
@@ -125,10 +163,11 @@ export const homeAccessPackages: Package[] = [
     ],
     ctaText: 'Chat WhatsApp',
     ctaLink: contactInfo.whatsapp,
+    category: 'home',
+    type: 'detailed',
   },
-];
 
-export const sohoPackages: Package[] = [
+  // Detailed SOHO packages (type: 'detailed')
   {
     id: 'soho-pro',
     name: 'Paket Pro',
@@ -142,6 +181,8 @@ export const sohoPackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'soho',
+    type: 'detailed',
   },
   {
     id: 'soho-business',
@@ -149,9 +190,15 @@ export const sohoPackages: Package[] = [
     description:
       'Deskripsi singkat paket Business untuk SOHO. Solusi lengkap untuk bisnis menengah.',
     price: 'Rp 1.500.000',
-    features: ['Kecepatan hingga 200 Mbps', 'SLA 99.5%', 'Dedicated Support'],
+    features: [
+      'Kecepatan hingga 200 Mbps',
+      'SLA 99.5%',
+      'Dedicated Support',
+    ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'soho',
+    type: 'detailed',
   },
   {
     id: 'soho-enterprise',
@@ -159,13 +206,18 @@ export const sohoPackages: Package[] = [
     description:
       'Deskripsi singkat paket Enterprise untuk SOHO. Performa maksimal untuk bisnis besar.',
     price: 'Rp 3.000.000',
-    features: ['Kecepatan hingga 500 Mbps', 'SLA 99.9%', 'Managed Service'],
+    features: [
+      'Kecepatan hingga 500 Mbps',
+      'SLA 99.9%',
+      'Managed Service',
+    ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'soho',
+    type: 'detailed',
   },
-];
 
-export const corporatePackages: Package[] = [
+  // Detailed corporate packages (type: 'detailed')
   {
     id: 'corporate-business',
     name: 'Paket Business',
@@ -179,6 +231,8 @@ export const corporatePackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'corporate',
+    type: 'detailed',
   },
   {
     id: 'corporate-enterprise',
@@ -193,6 +247,8 @@ export const corporatePackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'corporate',
+    type: 'detailed',
   },
   {
     id: 'corporate-custom',
@@ -207,10 +263,11 @@ export const corporatePackages: Package[] = [
     ],
     ctaText: 'Konsultasi',
     ctaLink: contactInfo.contactLink,
+    category: 'corporate',
+    type: 'detailed',
   },
-];
 
-export const landingPackages: Package[] = [
+  // Landing page packages (type: 'landing')
   {
     id: 'home-basic',
     name: 'Paket Rumah Basic',
@@ -224,6 +281,8 @@ export const landingPackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'landing',
+    type: 'landing',
   },
   {
     id: 'home-premium',
@@ -239,6 +298,9 @@ export const landingPackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'landing',
+    type: 'landing',
+    popular: true,
   },
   {
     id: 'business-enterprise',
@@ -254,5 +316,76 @@ export const landingPackages: Package[] = [
     ],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
+    category: 'landing',
+    type: 'landing',
   },
 ];
+
+// Utility functions for package filtering and sorting
+export function getPackagesByCategory(category: PackageCategory): Package[] {
+  return allPackages.filter(pkg => pkg.category === category);
+}
+
+export function getPackagesByType(type: PackageType): Package[] {
+  return allPackages.filter(pkg => pkg.type === type);
+}
+
+export function getMainPackages(): Package[] {
+  return getPackagesByType('main');
+}
+
+export function getHomePackages(): Package[] {
+  return getPackagesByCategory('home').filter(pkg => pkg.type === 'detailed');
+}
+
+export function getSohoPackages(): Package[] {
+  return getPackagesByCategory('soho').filter(pkg => pkg.type === 'detailed');
+}
+
+export function getCorporatePackages(): Package[] {
+  return getPackagesByCategory('corporate').filter(pkg => pkg.type === 'detailed');
+}
+
+export function getLandingPackages(): Package[] {
+  return getPackagesByType('landing');
+}
+
+export function getFeaturedPackages(): Package[] {
+  return allPackages.filter(pkg => pkg.featured);
+}
+
+export function getPopularPackages(): Package[] {
+  return allPackages.filter(pkg => pkg.popular);
+}
+
+export function getPackageById(id: string): Package | undefined {
+  return allPackages.find(pkg => pkg.id === id);
+}
+
+// Legacy exports for backward compatibility
+export const packages = getMainPackages();
+export const homeAccessPackages = getHomePackages();
+export const sohoPackages = getSohoPackages();
+export const corporatePackages = getCorporatePackages();
+export const landingPackages = getLandingPackages();
+
+// Validation functions
+export function validatePackage(pkg: any): pkg is Package {
+  return (
+    typeof pkg === 'object' &&
+    pkg !== null &&
+    typeof pkg.id === 'string' &&
+    typeof pkg.name === 'string' &&
+    typeof pkg.description === 'string' &&
+    typeof pkg.price === 'string' &&
+    Array.isArray(pkg.features) &&
+    typeof pkg.ctaText === 'string' &&
+    typeof pkg.ctaLink === 'string' &&
+    ['home', 'soho', 'corporate', 'landing'].includes(pkg.category) &&
+    ['main', 'detailed', 'landing'].includes(pkg.type)
+  );
+}
+
+export function validatePackages(pkgList: any[]): pkgList is Package[] {
+  return Array.isArray(pkgList) && pkgList.every(validatePackage);
+}
