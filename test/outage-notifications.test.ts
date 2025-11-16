@@ -1,19 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { outageNotificationService } from '../src/lib/notifications/outage-service';
-import { createClient } from '@supabase/supabase-js';
 
-// Mock Supabase client
+// Mock Supabase client before importing the service
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     from: vi.fn(() => ({
-      insert: vi.fn(),
-      select: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      eq: vi.fn(),
-      in: vi.fn(),
-      order: vi.fn(),
-      limit: vi.fn(),
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
       single: vi.fn(),
     })),
     rpc: vi.fn(),
@@ -29,9 +27,32 @@ vi.mock('../src/lib/logger', () => ({
   },
 }));
 
+// Import after mocking
+import { outageNotificationService } from '../src/lib/notifications/outage-service';
+import { createClient } from '@supabase/supabase-js';
+
 describe('OutageNotificationService', () => {
+  let mockSupabase: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Get the mocked supabase client
+    mockSupabase = createClient('', '');
+
+    // Reset all mock implementations
+    mockSupabase.from.mockReturnValue({
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+    });
+    mockSupabase.rpc.mockReset();
   });
 
   describe('createOutageEvent', () => {
@@ -53,14 +74,13 @@ describe('OutageNotificationService', () => {
         updated_at: new Date().toISOString(),
       };
 
-      const mockSupabase = createClient('', '');
       const mockInsert = vi.fn().mockReturnThis();
       const mockSelect = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: mockCreatedEvent, error: null });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         insert: mockInsert,
         select: mockSelect,
         single: mockSingle,
@@ -92,14 +112,13 @@ describe('OutageNotificationService', () => {
         created_by: 'test-user',
       };
 
-      const mockSupabase = createClient('', '');
       const mockInsert = vi.fn().mockReturnThis();
       const mockSelect = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: null, error: new Error('Database error') });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         insert: mockInsert,
         select: mockSelect,
         single: mockSingle,
@@ -131,14 +150,13 @@ describe('OutageNotificationService', () => {
         updated_at: new Date().toISOString(),
       };
 
-      const mockSupabase = createClient('', '');
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: mockPreferences, error: null });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         select: mockSelect,
         eq: mockEq,
         single: mockSingle,
@@ -155,14 +173,13 @@ describe('OutageNotificationService', () => {
     });
 
     it('should create default preferences if none exist', async () => {
-      const mockSupabase = createClient('', '');
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: null, error: { code: 'PGRST116' } });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         select: mockSelect,
         eq: mockEq,
         single: mockSingle,
@@ -222,14 +239,13 @@ describe('OutageNotificationService', () => {
         },
       ];
 
-      const mockSupabase = createClient('', '');
       const mockSelect = vi.fn().mockReturnThis();
       const mockIn = vi.fn().mockReturnThis();
       const mockOrder = vi
         .fn()
         .mockResolvedValue({ data: mockActiveEvents, error: null });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         select: mockSelect,
         in: mockIn,
         order: mockOrder,
@@ -250,12 +266,11 @@ describe('OutageNotificationService', () => {
     });
 
     it('should return empty array if no active events', async () => {
-      const mockSupabase = createClient('', '');
       const mockSelect = vi.fn().mockReturnThis();
       const mockIn = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: null, error: null });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         select: mockSelect,
         in: mockIn,
         order: mockOrder,
@@ -291,7 +306,6 @@ describe('OutageNotificationService', () => {
         updated_at: new Date().toISOString(),
       };
 
-      const mockSupabase = createClient('', '');
       const mockUpdate = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
       const mockSelect = vi.fn().mockReturnThis();
@@ -299,7 +313,7 @@ describe('OutageNotificationService', () => {
         .fn()
         .mockResolvedValue({ data: mockUpdatedPrefs, error: null });
 
-      (mockSupabase.from as any).mockReturnValue({
+      mockSupabase.from.mockReturnValue({
         update: mockUpdate,
         eq: mockEq,
         select: mockSelect,
