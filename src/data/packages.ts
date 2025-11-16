@@ -190,11 +190,7 @@ export const allPackages: Package[] = [
     description:
       'Deskripsi singkat paket Business untuk SOHO. Solusi lengkap untuk bisnis menengah.',
     price: 'Rp 1.500.000',
-    features: [
-      'Kecepatan hingga 200 Mbps',
-      'SLA 99.5%',
-      'Dedicated Support',
-    ],
+    features: ['Kecepatan hingga 200 Mbps', 'SLA 99.5%', 'Dedicated Support'],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
     category: 'soho',
@@ -206,11 +202,7 @@ export const allPackages: Package[] = [
     description:
       'Deskripsi singkat paket Enterprise untuk SOHO. Performa maksimal untuk bisnis besar.',
     price: 'Rp 3.000.000',
-    features: [
-      'Kecepatan hingga 500 Mbps',
-      'SLA 99.9%',
-      'Managed Service',
-    ],
+    features: ['Kecepatan hingga 500 Mbps', 'SLA 99.9%', 'Managed Service'],
     ctaText: 'Pilih Paket',
     ctaLink: contactInfo.contactLink,
     category: 'soho',
@@ -343,7 +335,9 @@ export function getSohoPackages(): Package[] {
 }
 
 export function getCorporatePackages(): Package[] {
-  return getPackagesByCategory('corporate').filter(pkg => pkg.type === 'detailed');
+  return getPackagesByCategory('corporate').filter(
+    pkg => pkg.type === 'detailed'
+  );
 }
 
 export function getLandingPackages(): Package[] {
@@ -370,22 +364,27 @@ export const corporatePackages = getCorporatePackages();
 export const landingPackages = getLandingPackages();
 
 // Validation functions
-export function validatePackage(pkg: any): pkg is Package {
+export function validatePackage(pkg: unknown): pkg is Package {
+  if (!pkg || typeof pkg !== 'object') {
+    return false;
+  }
+
+  const obj = pkg as Record<string, unknown>;
   return (
-    typeof pkg === 'object' &&
-    pkg !== null &&
-    typeof pkg.id === 'string' &&
-    typeof pkg.name === 'string' &&
-    typeof pkg.description === 'string' &&
-    typeof pkg.price === 'string' &&
-    Array.isArray(pkg.features) &&
-    typeof pkg.ctaText === 'string' &&
-    typeof pkg.ctaLink === 'string' &&
-    ['home', 'soho', 'corporate', 'landing'].includes(pkg.category) &&
-    ['main', 'detailed', 'landing'].includes(pkg.type)
+    typeof obj.id === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.description === 'string' &&
+    typeof obj.price === 'string' &&
+    Array.isArray(obj.features) &&
+    typeof obj.ctaText === 'string' &&
+    typeof obj.ctaLink === 'string' &&
+    typeof obj.category === 'string' &&
+    typeof obj.type === 'string' &&
+    ['home', 'soho', 'corporate', 'landing'].includes(obj.category) &&
+    ['main', 'detailed', 'landing'].includes(obj.type)
   );
 }
 
-export function validatePackages(pkgList: any[]): pkgList is Package[] {
+export function validatePackages(pkgList: unknown[]): pkgList is Package[] {
   return Array.isArray(pkgList) && pkgList.every(validatePackage);
 }
