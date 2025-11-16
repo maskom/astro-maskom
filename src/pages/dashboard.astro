@@ -3,8 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import BandwidthChart from '../components/bandwidth/BandwidthChart.astro';
 import Notifications from '../components/bandwidth/Notifications.astro';
 import DataCapManagement from '../components/bandwidth/DataCapManagement.astro';
+import OutageNotifications from '../components/notifications/OutageNotifications.astro';
+import NotificationPreferences from '../components/notifications/NotificationPreferences.astro';
 import { packages } from '../data/packages.ts';
 import { createClient } from '@supabase/supabase-js';
+import { outageNotificationService } from '../lib/notifications/outage-service';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
@@ -18,6 +21,9 @@ let bandwidthData = [];
 let dataCap = null;
 let notifications = [];
 let unreadCount = 0;
+let outageNotifications = [];
+let outageUnreadCount = 0;
+let notificationPreferences = null;
 
 if (session) {
   try {
@@ -39,8 +45,41 @@ if (session) {
       unreadCount =
         usageData.notifications?.filter(n => !n.is_read).length || 0;
     }
+
+    // Get outage notifications
+    const outageResponse = await fetch(
+      `${Astro.site.origin}/api/notifications`,
+      {
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      }
+    );
+
+    if (outageResponse.ok) {
+      const outageData = await outageResponse.json();
+      outageNotifications = outageData.notifications || [];
+      // For now, we'll consider all outage notifications as unread
+      // In a real implementation, you'd track read status
+      outageUnreadCount = outageNotifications.length;
+    }
+
+    // Get notification preferences
+    const prefsResponse = await fetch(
+      `${Astro.site.origin}/api/notifications/preferences`,
+      {
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      }
+    );
+
+    if (prefsResponse.ok) {
+      const prefsData = await prefsResponse.json();
+      notificationPreferences = prefsData.preferences;
+    }
   } catch (error) {
-    console.error('Error fetching bandwidth data:', error);
+    console.error('Error fetching dashboard data:', error);
   }
 }
 ---
@@ -51,7 +90,7 @@ if (session) {
       <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
       <div class="flex items-center space-x-4">
         {
-          unreadCount > 0 && (
+          (unreadCount + outageUnreadCount) > 0 && (
             <div class="relative">
               <svg
                 class="w-6 h-6 text-gray-600"
@@ -67,7 +106,7 @@ if (session) {
                 />
               </svg>
               <span class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full">
-                {unreadCount}
+                {unreadCount + outageUnreadCount}
               </span>
             </div>
           )
@@ -104,6 +143,15 @@ if (session) {
           unreadCount={unreadCount}
         />
       </div>
+
+      <!-- Outage Notifications Section -->
+      <OutageNotifications 
+        notifications={outageNotifications} 
+        unreadCount={outageUnreadCount} 
+      />
+
+      <!-- Notification Preferences -->
+      <NotificationPreferences preferences={notificationPreferences} />
     </div>
 
     <!-- Quick Actions -->

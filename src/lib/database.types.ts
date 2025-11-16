@@ -223,6 +223,232 @@ export interface Database {
           created_at?: string;
         };
       };
+      outage_events: {
+        Row: {
+          id: string;
+          title: string;
+          description: string;
+          status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          severity: 'low' | 'medium' | 'high' | 'critical';
+          affected_services: string[];
+          affected_regions: string[];
+          estimated_resolution: string | null;
+          actual_resolution: string | null;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+          resolved_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description: string;
+          status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          severity: 'low' | 'medium' | 'high' | 'critical';
+          affected_services?: string[];
+          affected_regions?: string[];
+          estimated_resolution?: string | null;
+          actual_resolution?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          resolved_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string;
+          status?: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          severity?: 'low' | 'medium' | 'high' | 'critical';
+          affected_services?: string[];
+          affected_regions?: string[];
+          estimated_resolution?: string | null;
+          actual_resolution?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          resolved_by?: string | null;
+        };
+      };
+      outage_notifications: {
+        Row: {
+          id: string;
+          outage_event_id: string;
+          user_id: string;
+          notification_type: 'email' | 'sms' | 'in_app' | 'push';
+          status: 'pending' | 'sent' | 'delivered' | 'failed';
+          recipient: string;
+          message_content: string;
+          sent_at: string | null;
+          delivered_at: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          outage_event_id: string;
+          user_id: string;
+          notification_type: 'email' | 'sms' | 'in_app' | 'push';
+          status: 'pending' | 'sent' | 'delivered' | 'failed';
+          recipient: string;
+          message_content: string;
+          sent_at?: string | null;
+          delivered_at?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          outage_event_id?: string;
+          user_id?: string;
+          notification_type?: 'email' | 'sms' | 'in_app' | 'push';
+          status?: 'pending' | 'sent' | 'delivered' | 'failed';
+          recipient?: string;
+          message_content?: string;
+          sent_at?: string | null;
+          delivered_at?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+        };
+      };
+      customer_notification_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          email_notifications: boolean;
+          sms_notifications: boolean;
+          in_app_notifications: boolean;
+          push_notifications: boolean;
+          phone_number: string | null;
+          outage_notifications: boolean;
+          maintenance_notifications: boolean;
+          billing_notifications: boolean;
+          marketing_notifications: boolean;
+          minimum_severity: 'low' | 'medium' | 'high' | 'critical';
+          quiet_hours_start: string | null;
+          quiet_hours_end: string | null;
+          timezone: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          in_app_notifications?: boolean;
+          push_notifications?: boolean;
+          phone_number?: string | null;
+          outage_notifications?: boolean;
+          maintenance_notifications?: boolean;
+          billing_notifications?: boolean;
+          marketing_notifications?: boolean;
+          minimum_severity?: 'low' | 'medium' | 'high' | 'critical';
+          quiet_hours_start?: string | null;
+          quiet_hours_end?: string | null;
+          timezone?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          in_app_notifications?: boolean;
+          push_notifications?: boolean;
+          phone_number?: string | null;
+          outage_notifications?: boolean;
+          maintenance_notifications?: boolean;
+          billing_notifications?: boolean;
+          marketing_notifications?: boolean;
+          minimum_severity?: 'low' | 'medium' | 'high' | 'critical';
+          quiet_hours_start?: string | null;
+          quiet_hours_end?: string | null;
+          timezone?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      notification_templates: {
+        Row: {
+          id: string;
+          name: string;
+          type:
+            | 'outage_started'
+            | 'outage_updated'
+            | 'outage_resolved'
+            | 'maintenance_scheduled';
+          channel: 'email' | 'sms' | 'in_app' | 'push';
+          subject_template: string | null;
+          message_template: string;
+          variables: string[];
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          type:
+            | 'outage_started'
+            | 'outage_updated'
+            | 'outage_resolved'
+            | 'maintenance_scheduled';
+          channel: 'email' | 'sms' | 'in_app' | 'push';
+          subject_template?: string | null;
+          message_template: string;
+          variables?: string[];
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          type?:
+            | 'outage_started'
+            | 'outage_updated'
+            | 'outage_resolved'
+            | 'maintenance_scheduled';
+          channel?: 'email' | 'sms' | 'in_app' | 'push';
+          subject_template?: string | null;
+          message_template?: string;
+          variables?: string[];
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      notification_rate_limits: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          notification_type: string;
+          last_sent_at: string;
+          count_sent: number;
+          window_start: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          notification_type: string;
+          last_sent_at?: string;
+          count_sent?: number;
+          window_start?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          notification_type?: string;
+          last_sent_at?: string;
+          count_sent?: number;
+          window_start?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

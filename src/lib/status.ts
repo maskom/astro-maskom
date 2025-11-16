@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
+import { outageNotificationService } from './notifications/outage-service';
 import type { Database } from './database.types';
 
 // Define types for our status data
@@ -161,6 +162,20 @@ export const createIncident = async (
       .single();
 
     if (error) throw error;
+
+    // Create corresponding outage event if this is a new incident
+    if (data && incident.status !== 'resolved') {
+      await outageNotificationService.createOutageEvent({
+        title: incident.title,
+        description: incident.description,
+        status: incident.status as any,
+        severity: 'medium', // Default severity, could be determined from incident type
+        affected_services: incident.affected_services,
+        affected_regions: [], // Could be determined from service coverage
+        created_by: 'system', // Would come from auth context
+      });
+    }
+
     return data;
   } catch (error) {
     logger.error(
@@ -190,6 +205,22 @@ export const updateIncident = async (
       .single();
 
     if (error) throw error;
+
+    // If incident status changed to resolved, resolve corresponding outage events
+    if (data && updates.status === 'resolved') {
+      const activeOutageEvents =
+        await outageNotificationService.getActiveOutageEvents();
+      for (const event of activeOutageEvents) {
+        if (event.title === data.title) {
+          await outageNotificationService.updateOutageEvent(event.id, {
+            status: 'resolved',
+            actual_resolution: new Date().toISOString(),
+            resolved_by: 'system', // Would come from auth context
+          });
+        }
+      }
+    }
+
     return data;
   } catch (error) {
     logger.error(
