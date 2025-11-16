@@ -16,7 +16,52 @@ export interface PaymentTransaction {
   paymentMethod: PaymentMethod;
   createdAt: Date;
   updatedAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
+}
+
+export interface GatewayResponseData {
+  transaction_id?: string;
+  order_id?: string;
+  status_code: string;
+  status_message: string;
+  payment_type?: string;
+  transaction_status: string;
+  fraud_status?: string;
+  redirect_url?: string;
+  token?: string;
+  approval_code?: string;
+  gross_amount: string;
+  [key: string]: unknown;
+}
+
+export interface TransactionRowData {
+  id: string;
+  order_id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  status: PaymentTransaction['status'];
+  payment_method: PaymentMethod;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface InvoiceRowData {
+  id: string;
+  invoice_number: string;
+  user_id: string;
+  transaction_id: string;
+  amount: number;
+  tax: number;
+  total: number;
+  due_date: string;
+  status: Invoice['status'];
+  items: InvoiceItem[];
+  created_at: string;
+  updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface Invoice {

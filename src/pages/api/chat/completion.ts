@@ -1,7 +1,11 @@
 import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
 import { packages as hardcodedPackages } from '../../../data/packages';
-import { validateMessages, sanitizeResponse } from '../../../lib/sanitization';
+import {
+  validateMessages,
+  sanitizeResponse,
+  type SanitizableMessage,
+} from '../../../lib/sanitization';
 import { logger } from '../../../lib/logger';
 
 export const prerender = false;
@@ -34,7 +38,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Combine system message with conversation history
     const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: 'system', content: systemMessage.content },
-      ...sanitizedMessages.map((msg: any) => ({
+      ...sanitizedMessages.map((msg: SanitizableMessage) => ({
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
       })),

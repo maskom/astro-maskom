@@ -134,7 +134,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
-      .insert([newSubscriber] as any)
+      .insert(newSubscriber)
       .select()
       .single();
 

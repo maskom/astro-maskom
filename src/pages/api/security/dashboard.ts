@@ -5,6 +5,17 @@ import { sessionManager } from '../../../lib/security/session';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { Permission, SecuritySeverity } from '../../../lib/security/types';
 
+interface UserSession {
+  id: string;
+  userId: string;
+  createdAt: string;
+  lastActivity: string;
+  ipAddress: string;
+  userAgent: string;
+  isActive: boolean;
+  [key: string]: unknown;
+}
+
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
@@ -50,8 +61,8 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     );
 
     // Get user sessions if admin
-    let userSessions: any[] = [];
-    if (await rbacService.hasRole(securityContext.userId, 'admin' as any)) {
+    let userSessions: UserSession[] = [];
+    if (await rbacService.hasRole(securityContext.userId, 'admin')) {
       if (userId) {
         userSessions = await sessionManager.getUserActiveSessions(userId);
       }
