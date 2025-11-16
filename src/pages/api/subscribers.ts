@@ -6,7 +6,7 @@ import {
   sanitizeText,
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
-import type { Database } from '../../lib/database.types';
+import type { Database, SubscriberPreferences } from '../../lib/database.types';
 
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
@@ -76,7 +76,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Sanitize input data
     const sanitizedData = sanitizeJsonInput(requestData);
-    const { email, preferences } = sanitizedData;
+    const { email, preferences } = sanitizedData as {
+      email: string;
+      preferences: SubscriberPreferences;
+    };
 
     // Validate and sanitize email
     const sanitizedEmail = sanitizeEmail(email);
@@ -134,7 +137,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
-      .insert([newSubscriber] as any)
+      .insert([
+        newSubscriber,
+      ] as Database['public']['Tables']['subscribers']['Insert'][])
       .select()
       .single();
 
