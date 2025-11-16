@@ -85,14 +85,14 @@ export interface Database {
         Row: {
           id: string;
           email: string;
-          preferences: any;
+          preferences: Record<string, unknown>;
           subscribed_at: string;
           confirmed: boolean;
         };
         Insert: {
           id?: string;
           email: string;
-          preferences: any;
+          preferences: Record<string, unknown>;
           subscribed_at?: string;
           confirmed?: boolean;
         };

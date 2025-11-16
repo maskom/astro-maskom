@@ -6,7 +6,7 @@
 /**
  * Basic input sanitization - removes potentially dangerous characters
  */
-export function sanitizeInput(input: any): string {
+export function sanitizeInput(input: unknown): string {
   if (typeof input !== 'string') return '';
 
   return input
@@ -64,7 +64,7 @@ export function sanitizeText(text: string): string {
 /**
  * Sanitize message objects for chat applications
  */
-export function sanitizeMessage(message: any): {
+export function sanitizeMessage(message: unknown): {
   role: string;
   content: string;
 } {
@@ -73,8 +73,8 @@ export function sanitizeMessage(message: any): {
   }
 
   return {
-    role: sanitizeInput(message.role) || 'user',
-    content: sanitizeInput(message.content) || '',
+    role: sanitizeInput((message as any).role) || 'user',
+    content: sanitizeInput((message as any).content) || '',
   };
 }
 
@@ -82,7 +82,7 @@ export function sanitizeMessage(message: any): {
  * Validate and sanitize an array of messages
  */
 export function validateMessages(
-  messages: any[]
+  messages: unknown[]
 ): { role: string; content: string }[] {
   if (!Array.isArray(messages)) {
     return [];
@@ -121,7 +121,7 @@ export function sanitizeJsonInput(data: any): any {
   }
 
   if (typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const sanitizedKey = sanitizeInput(key);
       sanitized[sanitizedKey] = sanitizeJsonInput(value);
@@ -136,7 +136,7 @@ export function sanitizeJsonInput(data: any): any {
  * Validate that required fields are present in an object
  */
 export function validateRequiredFields(
-  data: any,
+  data: unknown,
   requiredFields: string[]
 ): { isValid: boolean; missingFields: string[] } {
   if (!data || typeof data !== 'object') {
@@ -146,14 +146,15 @@ export function validateRequiredFields(
     };
   }
 
+  const dataObj = data as Record<string, unknown>;
   const missingFields: string[] = [];
 
   for (const field of requiredFields) {
     if (
-      !(field in data) ||
-      data[field] === null ||
-      data[field] === undefined ||
-      data[field] === ''
+      !(field in dataObj) ||
+      dataObj[field] === null ||
+      dataObj[field] === undefined ||
+      dataObj[field] === ''
     ) {
       missingFields.push(field);
     }

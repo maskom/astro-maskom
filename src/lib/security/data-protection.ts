@@ -240,9 +240,11 @@ export class DataProtectionService {
     }
   }
 
-  async exportUserData(userId: string): Promise<Record<string, any> | null> {
+  async exportUserData(
+    userId: string
+  ): Promise<Record<string, unknown> | null> {
     try {
-      const userData: Record<string, any> = {};
+      const userData: Record<string, unknown> = {};
 
       // Get user profile
       const { data: profile } = await this.supabase
