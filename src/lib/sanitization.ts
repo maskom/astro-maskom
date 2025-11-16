@@ -125,7 +125,7 @@ export function sanitizeResponse(response: string): string {
  */
 export function sanitizeJsonInput(data: unknown): SanitizableData {
   if (data === null || data === undefined) {
-    return data;
+    return data as SanitizableData;
   }
 
   if (typeof data === 'string') {
@@ -145,7 +145,7 @@ export function sanitizeJsonInput(data: unknown): SanitizableData {
     return sanitized as SanitizableData;
   }
 
-  return data;
+  return data as SanitizableData;
 }
 
 /**
