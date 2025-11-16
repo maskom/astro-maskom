@@ -39,6 +39,9 @@ jobs:
       GIT_COMMITTER_EMAIL: pr_handler@jasaweb.co.id
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Supabase envs yang juga dipakai di Cloudflare Pages
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       
     steps:
       - name: Harden runner
@@ -50,6 +53,11 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+
+      - name: Install DevOps CLIs (wrangler & supabase)
+        run: |
+          npm install -g wrangler supabase
+          echo "$(npm bin -g)" >> $GITHUB_PATH
 
       - name: Install OpenCode CLI
         run: |
@@ -67,7 +75,26 @@ jobs:
             - The Git identity configured for this workflow (user email: pr_handler@jasaweb.co.id).
             - The GitHub token in GH_TOKEN.
             - Cloudflare credentials from CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN.
-            - Optional Supabase-related secrets if they exist (for example SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_PASSWORD).
+            - Supabase-related secrets from the environment, in particular:
+              - SUPABASE_URL
+              - SUPABASE_KEY (the public/anon key used by client code)
+              - And any other Supabase secrets that may exist (for example SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_PASSWORD).
+
+            These variables (especially SUPABASE_URL and SUPABASE_KEY) are also used in the Cloudflare Pages environment and must remain the canonical names for Supabase configuration across the project.
+
+            Tooling and CLI usage
+            ---------------------
+            You are running inside a GitHub Actions runner that has access to:
+            - The `wrangler` CLI for Cloudflare.
+            - The `supabase` CLI for Supabase.
+            - The `gh` CLI for GitHub, and direct HTTP access to the GitHub REST and GraphQL APIs using GH_TOKEN.
+
+            You must:
+            - Prefer using these CLIs to inspect and modify real state (deployments, migrations, PRs, issues) rather than only editing files.
+            - Before changing deployment-related configuration, run the appropriate CLI commands to understand the current state.
+            - After making changes, run the relevant build/test/deploy commands via CLI to validate them.
+            - Treat `wrangler` and `supabase` CLI as the canonical way to deploy to Cloudflare and run Supabase migrations, where applicable.
+            - When interacting with GitHub programmatically, use `gh` or direct REST/GraphQL HTTP calls authenticated with GH_TOKEN.
 
             Your primary focus is:
             - Managing and improving deployments on Cloudflare (Workers, Pages, DNS, KV, R2, D1, or whatever this repo actually uses).
@@ -162,6 +189,7 @@ jobs:
                - Ensure Supabase environment variables are read from environment (never hard-coded).
                - Ensure there is a single, clear way to create and reuse the Supabase client.
                - Avoid duplicating client instances unnecessarily in hot paths.
+               - Keep using the canonical environment variable names SUPABASE_URL and SUPABASE_KEY in application code and deployment environments (including Cloudflare Pages).
 
             3. Migrations and schema:
                - If migrations are already used, ensure they are consistent and non-destructive.
@@ -268,4 +296,4 @@ jobs:
           PROMPT
           )" \
             --model iflowcn/glm-4.6 \
-            --share false \
+            --share false
