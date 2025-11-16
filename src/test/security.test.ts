@@ -67,7 +67,7 @@ describe('Security Audit Logger', () => {
   });
 
   it('should create security events', async () => {
-    const type = 'suspicious_activity' as any;
+    const type: string = 'suspicious_activity';
     const severity = SecuritySeverity.HIGH;
     const userId = 'test-user-id';
     const ipAddress = '192.168.1.1';

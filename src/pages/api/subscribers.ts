@@ -75,7 +75,10 @@ export const POST: APIRoute = async ({ request }) => {
     const requestData = await request.json();
 
     // Sanitize input data
-    const sanitizedData = sanitizeJsonInput(requestData);
+    const sanitizedData = sanitizeJsonInput(requestData) as Record<
+      string,
+      unknown
+    >;
     const { email, preferences } = sanitizedData;
 
     // Validate and sanitize email
@@ -134,7 +137,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
-      .insert([newSubscriber] as any)
+      .insert([newSubscriber])
       .select()
       .single();
 

@@ -50,8 +50,8 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     );
 
     // Get user sessions if admin
-    let userSessions: any[] = [];
-    if (await rbacService.hasRole(securityContext.userId, 'admin' as any)) {
+    let userSessions: unknown[] = [];
+    if (await rbacService.hasRole(securityContext.userId, 'admin')) {
       if (userId) {
         userSessions = await sessionManager.getUserActiveSessions(userId);
       }

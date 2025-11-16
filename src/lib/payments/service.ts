@@ -1,9 +1,43 @@
-import type { PaymentTransaction, Invoice } from './types';
+import type {
+  PaymentTransaction,
+  Invoice,
+  PaymentTransactionMetadata,
+} from './types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+// Database row interfaces
+interface PaymentTransactionRow {
+  id: string;
+  order_id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  status: PaymentTransaction['status'];
+  payment_method: PaymentTransaction['paymentMethod'];
+  created_at: string;
+  updated_at: string;
+  metadata?: PaymentTransactionMetadata;
+}
+
+interface InvoiceRow {
+  id: string;
+  invoice_number: string;
+  user_id: string;
+  transaction_id: string;
+  amount: number;
+  tax: number;
+  total: number;
+  due_date: string;
+  status: Invoice['status'];
+  created_at: string;
+  updated_at: string;
+  invoice_items?: Invoice['items'];
+}
 
 export class PaymentService {
-  private supabase: any;
+  private supabase: SupabaseClient;
 
-  constructor(supabaseClient: any) {
+  constructor(supabaseClient: SupabaseClient) {
     this.supabase = supabaseClient;
   }
 
@@ -32,7 +66,7 @@ export class PaymentService {
   async updateTransactionStatus(
     transactionId: string,
     status: PaymentTransaction['status'],
-    metadata?: Record<string, any>
+    metadata?: PaymentTransactionMetadata
   ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
@@ -232,7 +266,9 @@ export class PaymentService {
     }
   }
 
-  private transformTransactionData(data: any): PaymentTransaction {
+  private transformTransactionData(
+    data: PaymentTransactionRow
+  ): PaymentTransaction {
     return {
       id: data.id,
       orderId: data.order_id,
@@ -247,7 +283,7 @@ export class PaymentService {
     };
   }
 
-  private transformInvoiceData(data: any): Invoice {
+  private transformInvoiceData(data: InvoiceRow): Invoice {
     return {
       id: data.id,
       invoiceNumber: data.invoice_number,

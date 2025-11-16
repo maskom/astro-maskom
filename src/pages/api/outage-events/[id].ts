@@ -39,7 +39,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
     }
 
     // Sanitize input
-    const updates: Record<string, any> = {};
+    const updates: Record<string, string | string[] | null> = {};
 
     if (body.title !== undefined) {
       updates.title = sanitizeString(body.title);

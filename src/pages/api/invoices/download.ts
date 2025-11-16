@@ -84,10 +84,23 @@ export const GET: APIRoute = async ({ request }) => {
   }
 };
 
-function generateInvoiceHTML(invoice: any): string {
+function generateInvoiceHTML(invoice: {
+  invoiceNumber: string;
+  dueDate: Date;
+  amount: number;
+  tax: number;
+  total: number;
+  status: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
+}): string {
   const itemsHTML = invoice.items
     .map(
-      (item: any) => `
+      item => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.description}</td>
       <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb;">${item.quantity}</td>

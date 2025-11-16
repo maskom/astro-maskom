@@ -3,10 +3,30 @@
  * This module combines functionality from the previous duplicate sanitization files
  */
 
+// Interface for message objects
+export interface ChatMessage {
+  role: string;
+  content: string;
+}
+
+// Interface for JSON data
+export type SanitizableData =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | SanitizableObject
+  | SanitizableData[];
+
+interface SanitizableObject {
+  [key: string]: SanitizableData;
+}
+
 /**
  * Basic input sanitization - removes potentially dangerous characters
  */
-export function sanitizeInput(input: any): string {
+export function sanitizeInput(input: unknown): string {
   if (typeof input !== 'string') return '';
 
   return input
@@ -64,26 +84,22 @@ export function sanitizeText(text: string): string {
 /**
  * Sanitize message objects for chat applications
  */
-export function sanitizeMessage(message: any): {
-  role: string;
-  content: string;
-} {
+export function sanitizeMessage(message: unknown): ChatMessage {
   if (!message || typeof message !== 'object') {
     return { role: 'user', content: '' };
   }
 
+  const msg = message as Record<string, unknown>;
   return {
-    role: sanitizeInput(message.role) || 'user',
-    content: sanitizeInput(message.content) || '',
+    role: sanitizeInput(String(msg.role)) || 'user',
+    content: sanitizeInput(String(msg.content)) || '',
   };
 }
 
 /**
  * Validate and sanitize an array of messages
  */
-export function validateMessages(
-  messages: any[]
-): { role: string; content: string }[] {
+export function validateMessages(messages: unknown[]): ChatMessage[] {
   if (!Array.isArray(messages)) {
     return [];
   }
@@ -107,7 +123,7 @@ export function sanitizeResponse(response: string): string {
 /**
  * Recursively sanitize JSON input data
  */
-export function sanitizeJsonInput(data: any): any {
+export function sanitizeJsonInput(data: unknown): SanitizableData {
   if (data === null || data === undefined) {
     return data;
   }
@@ -120,13 +136,13 @@ export function sanitizeJsonInput(data: any): any {
     return data.map(item => sanitizeJsonInput(item));
   }
 
-  if (typeof data === 'object') {
-    const sanitized: any = {};
+  if (typeof data === 'object' && data !== null) {
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const sanitizedKey = sanitizeInput(key);
       sanitized[sanitizedKey] = sanitizeJsonInput(value);
     }
-    return sanitized;
+    return sanitized as SanitizableData;
   }
 
   return data;
@@ -136,24 +152,25 @@ export function sanitizeJsonInput(data: any): any {
  * Validate that required fields are present in an object
  */
 export function validateRequiredFields(
-  data: any,
+  data: unknown,
   requiredFields: string[]
 ): { isValid: boolean; missingFields: string[] } {
-  if (!data || typeof data !== 'object') {
+  if (!data || typeof data !== 'object' || data === null) {
     return {
       isValid: false,
       missingFields: requiredFields,
     };
   }
 
+  const obj = data as Record<string, unknown>;
   const missingFields: string[] = [];
 
   for (const field of requiredFields) {
     if (
-      !(field in data) ||
-      data[field] === null ||
-      data[field] === undefined ||
-      data[field] === ''
+      !(field in obj) ||
+      obj[field] === null ||
+      obj[field] === undefined ||
+      obj[field] === ''
     ) {
       missingFields.push(field);
     }
