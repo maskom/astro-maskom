@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   opencode:
-    name: opencode - issue solver
+    name: oc cf-supabase
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -54,18 +54,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install DevOps CLIs (wrangler & supabase)
-        run: |
-          npm install -g wrangler supabase
-          echo "$(npm bin -g)" >> $GITHUB_PATH
-
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
 
       - name: Run cf-supabase
-        id: run_issue_solver
+        id: run_cf-supabase
         timeout-minutes: 20
         run: |
           opencode run "$(cat <<'PROMPT'
