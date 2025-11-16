@@ -54,17 +54,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install Cloudflare & Supabase CLI
-        run: |
-          # Install Cloudflare Wrangler
-          npm install -g wrangler
-          wrangler --version
-          # Install Supabase CLI (paket resminya: "supabase")
-          npm install -g supabase
-          supabase --version
-          # Pastikan gh ada, kalau tidak ya sudah (tidak nge-fail)
-          gh --version || true
-
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
@@ -72,13 +61,11 @@ jobs:
 
       - name: Run cf-supabase
         id: run_cf-supabase
-        timeout-minutes: 20
+        timeout-minutes: 40
         run: |
           opencode run "$(cat <<'PROMPT'
             You are an autonomous DevOps Specialist for this repository.
-
             You operate using:
-            - The Git identity configured for this workflow (user email: pr_handler@jasaweb.co.id).
             - The GitHub token in GH_TOKEN.
             - Cloudflare credentials from CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN.
             - Supabase-related secrets from the environment, in particular:
