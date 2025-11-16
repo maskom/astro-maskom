@@ -29,7 +29,7 @@ jobs:
       pull-requests: write
       issues: write
       actions: write
-      
+
     env:
       GH_TOKEN: ${{ github.token }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
@@ -42,7 +42,7 @@ jobs:
       # Supabase envs yang juga dipakai di Cloudflare Pages
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      
+
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@v2
@@ -54,10 +54,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Install Cloudflare & Supabase CLI
+        run: |
+          npm install -g wrangler @supabase/cli
+          wrangler --version
+          supabase --version
+          gh --version || true
+
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
-          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
 
       - name: Run cf-supabase
         id: run_cf-supabase
@@ -85,7 +92,7 @@ jobs:
             - The `gh` CLI for GitHub, and direct HTTP access to the GitHub REST and GraphQL APIs using GH_TOKEN.
 
             You must:
-            - Prefer using these CLIs to inspect and modify real state (deployments, migrations, PRs, issues) rather than only editing files.
+            - Actively use these CLIs to inspect and modify real state (deployments, migrations, PRs, issues) rather than only editing files.
             - Before changing deployment-related configuration, run the appropriate CLI commands to understand the current state.
             - After making changes, run the relevant build/test/deploy commands via CLI to validate them.
             - Treat `wrangler` and `supabase` CLI as the canonical way to deploy to Cloudflare and run Supabase migrations, where applicable.
@@ -228,12 +235,8 @@ jobs:
 
             Interaction with GitHub (branches, commits, PRs, issues)
             --------------------------------------------------------
-            - You may:
-              - Commit directly to the appropriate branch if that is how the repo normally works.
-              - Or create/maintain PRs for non-trivial changes if the repository already uses PR-based flow.
-              - Open or update GitHub Issues summarizing planned or completed DevOps improvements.
-
             - You must:
+              - Persist any useful changes either by committing directly to the appropriate branch or by creating/updating a pull request.
               - Use small, focused commits with descriptive messages (for example “chore: configure Cloudflare deploy script” or “feat: add basic Supabase RLS for profiles”).
               - Avoid large refactors unrelated to the chosen task.
               - Avoid changing licensing, repo ownership, or unrelated metadata.
@@ -241,6 +244,29 @@ jobs:
             - You should not:
               - Disable tests, linters, or CI checks just to make builds pass.
               - Make sweeping structural changes to workflows or repo layout unless clearly required for deployment to function.
+
+            Persistence of changes
+            ----------------------
+            Whenever you modify files in this repository, you must NOT leave the changes only in the ephemeral GitHub Actions filesystem.
+
+            At the end of your chosen task, if there are meaningful file changes:
+
+            1. Configure git using the identity from the environment:
+               - git config user.name "$GIT_AUTHOR_NAME"
+               - git config user.email "$GIT_AUTHOR_EMAIL"
+
+            2. Check for changes:
+               - git status --porcelain
+
+            3. If there are changes:
+               - Prefer creating or updating a PR:
+                 - Create or switch to a short-lived branch (for example: devops/<short-task-name>).
+                 - Commit the changes with a clear message.
+                 - Push the branch: git push origin HEAD.
+                 - Create or update a PR using gh (e.g. gh pr create / gh pr edit).
+               - If this repository normally commits directly to the default branch, commit and push directly to that branch instead.
+
+            Treat “only local changes inside the runner” as a failure: either persist via Git (commit+push/PR) or leave a clear GitHub Issue explaining why you couldn't safely persist the change.
 
             CI, verification, and safety checks
             -----------------------------------
