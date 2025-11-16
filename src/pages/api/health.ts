@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const GET: APIRoute = async ({ request }) => {
-  const url = new URL(request.url);
+export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
 
   // Basic health checks
