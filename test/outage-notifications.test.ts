@@ -21,14 +21,29 @@ vi.mock('../src/lib/logger', () => ({
 import { outageNotificationService } from '../src/lib/notifications/outage-service';
 import { createClient } from '@supabase/supabase-js';
 
+// Get the mock functions
+const mockCreateClient = vi.mocked(createClient);
+
 describe('OutageNotificationService', () => {
+  let mockClient: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Create fresh mock client for each test
+    mockClient = {
+      from: vi.fn(),
+      rpc: vi.fn(),
+    };
+
+    mockCreateClient.mockReturnValue(mockClient);
+
+    // Replace the supabase client on the service instance
+    (outageNotificationService as any).supabase = mockClient;
   });
 
   describe('createOutageEvent', () => {
     it('should create a new outage event successfully', async () => {
-      const mockClient = createClient('', '');
       const mockEventData = {
         title: 'Test Outage',
         description: 'Test description',
@@ -46,13 +61,15 @@ describe('OutageNotificationService', () => {
         updated_at: new Date().toISOString(),
       };
 
+      const mockInsert = vi.fn().mockReturnThis();
+      const mockSelect = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: mockCreatedEvent, error: null });
 
       mockClient.from.mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
+        insert: mockInsert,
+        select: mockSelect,
         single: mockSingle,
       });
 
@@ -66,12 +83,12 @@ describe('OutageNotificationService', () => {
         await outageNotificationService.createOutageEvent(mockEventData);
 
       expect(result).toEqual(mockCreatedEvent);
-      expect(mockClient.from).toHaveBeenCalledWith('outage_events');
+      expect(mockInsert).toHaveBeenCalledWith([mockEventData]);
+      expect(mockSelect).toHaveBeenCalled();
       expect(mockSingle).toHaveBeenCalled();
     });
 
     it('should return null if database error occurs', async () => {
-      const mockClient = createClient('', '');
       const mockEventData = {
         title: 'Test Outage',
         description: 'Test description',
@@ -82,13 +99,15 @@ describe('OutageNotificationService', () => {
         created_by: 'test-user',
       };
 
+      const mockInsert = vi.fn().mockReturnThis();
+      const mockSelect = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: null, error: new Error('Database error') });
 
       mockClient.from.mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
+        insert: mockInsert,
+        select: mockSelect,
         single: mockSingle,
       });
 
@@ -101,7 +120,6 @@ describe('OutageNotificationService', () => {
 
   describe('getUserNotificationPreferences', () => {
     it('should return user preferences if they exist', async () => {
-      const mockClient = createClient('', '');
       const mockPreferences = {
         id: 'prefs-id',
         user_id: 'test-user',
@@ -109,23 +127,28 @@ describe('OutageNotificationService', () => {
         sms_notifications: false,
         in_app_notifications: true,
         push_notifications: false,
+        phone_number: null,
         outage_notifications: true,
         maintenance_notifications: true,
         billing_notifications: true,
         marketing_notifications: false,
         minimum_severity: 'medium' as const,
+        quiet_hours_start: null,
+        quiet_hours_end: null,
         timezone: 'UTC',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
+      const mockSelect = vi.fn().mockReturnThis();
+      const mockEq = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: mockPreferences, error: null });
 
       mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
+        select: mockSelect,
+        eq: mockEq,
         single: mockSingle,
       });
 
@@ -135,13 +158,11 @@ describe('OutageNotificationService', () => {
         );
 
       expect(result).toEqual(mockPreferences);
-      expect(mockClient.from).toHaveBeenCalledWith(
-        'customer_notification_preferences'
-      );
+      expect(mockSelect).toHaveBeenCalledWith('*');
+      expect(mockEq).toHaveBeenCalledWith('user_id', 'test-user');
     });
 
     it('should create default preferences if none exist', async () => {
-      const mockClient = createClient('', '');
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: null, error: { code: 'PGRST116' } });
@@ -160,15 +181,15 @@ describe('OutageNotificationService', () => {
         sms_notifications: false,
         in_app_notifications: true,
         push_notifications: false,
+        phone_number: null,
         outage_notifications: true,
         maintenance_notifications: true,
         billing_notifications: true,
         marketing_notifications: false,
         minimum_severity: 'medium' as const,
-        timezone: 'UTC',
-        phone_number: null,
         quiet_hours_start: null,
         quiet_hours_end: null,
+        timezone: 'UTC',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -192,7 +213,6 @@ describe('OutageNotificationService', () => {
 
   describe('getActiveOutageEvents', () => {
     it('should return active outage events', async () => {
-      const mockClient = createClient('', '');
       const mockActiveEvents = [
         {
           id: 'event-1',
@@ -210,26 +230,41 @@ describe('OutageNotificationService', () => {
         },
       ];
 
+      const mockSelect = vi.fn().mockReturnThis();
+      const mockIn = vi.fn().mockReturnThis();
+      const mockOrder = vi
+        .fn()
+        .mockResolvedValue({ data: mockActiveEvents, error: null });
+
       mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        in: vi.fn().mockReturnThis(),
-        order: vi
-          .fn()
-          .mockResolvedValue({ data: mockActiveEvents, error: null }),
+        select: mockSelect,
+        in: mockIn,
+        order: mockOrder,
       });
 
       const result = await outageNotificationService.getActiveOutageEvents();
 
       expect(result).toEqual(mockActiveEvents);
-      expect(mockClient.from).toHaveBeenCalledWith('outage_events');
+      expect(mockSelect).toHaveBeenCalledWith('*');
+      expect(mockIn).toHaveBeenCalledWith('status', [
+        'investigating',
+        'identified',
+        'monitoring',
+      ]);
+      expect(mockOrder).toHaveBeenCalledWith('created_at', {
+        ascending: false,
+      });
     });
 
     it('should return empty array if no active events', async () => {
-      const mockClient = createClient('', '');
+      const mockSelect = vi.fn().mockReturnThis();
+      const mockIn = vi.fn().mockReturnThis();
+      const mockOrder = vi.fn().mockResolvedValue({ data: null, error: null });
+
       mockClient.from.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        in: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: null, error: null }),
+        select: mockSelect,
+        in: mockIn,
+        order: mockOrder,
       });
 
       const result = await outageNotificationService.getActiveOutageEvents();
@@ -240,7 +275,6 @@ describe('OutageNotificationService', () => {
 
   describe('updateUserNotificationPreferences', () => {
     it('should update user notification preferences successfully', async () => {
-      const mockClient = createClient('', '');
       const updates = {
         email_notifications: false,
         minimum_severity: 'high' as const,
@@ -263,14 +297,17 @@ describe('OutageNotificationService', () => {
         updated_at: new Date().toISOString(),
       };
 
+      const mockUpdate = vi.fn().mockReturnThis();
+      const mockEq = vi.fn().mockReturnThis();
+      const mockSelect = vi.fn().mockReturnThis();
       const mockSingle = vi
         .fn()
         .mockResolvedValue({ data: mockUpdatedPrefs, error: null });
 
       mockClient.from.mockReturnValue({
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
+        update: mockUpdate,
+        eq: mockEq,
+        select: mockSelect,
         single: mockSingle,
       });
 
@@ -281,9 +318,13 @@ describe('OutageNotificationService', () => {
         );
 
       expect(result).toEqual(mockUpdatedPrefs);
-      expect(mockClient.from).toHaveBeenCalledWith(
-        'customer_notification_preferences'
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...updates,
+          updated_at: expect.any(String),
+        })
       );
+      expect(mockEq).toHaveBeenCalledWith('user_id', 'test-user');
     });
   });
 

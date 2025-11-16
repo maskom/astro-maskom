@@ -2,47 +2,43 @@ import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
 import type { Database } from '../database.types';
 
-// Re-export types from database for clarity
+// Use database types directly
 export type OutageEvent = Database['public']['Tables']['outage_events']['Row'];
 export type OutageNotification =
   Database['public']['Tables']['outage_notifications']['Row'];
 export type CustomerNotificationPreferences =
   Database['public']['Tables']['customer_notification_preferences']['Row'];
-export type NotificationTemplate =
-  Database['public']['Tables']['notification_templates']['Row'];
 
-// Helper types for insert/update operations
-export type OutageEventInsert =
-  Database['public']['Tables']['outage_events']['Insert'];
-export type OutageEventUpdate =
-  Database['public']['Tables']['outage_events']['Update'];
-export type OutageNotificationInsert =
-  Database['public']['Tables']['outage_notifications']['Insert'];
-export type OutageNotificationUpdate =
-  Database['public']['Tables']['outage_notifications']['Update'];
-export type CustomerNotificationPreferencesInsert =
-  Database['public']['Tables']['customer_notification_preferences']['Insert'];
-export type CustomerNotificationPreferencesUpdate =
-  Database['public']['Tables']['customer_notification_preferences']['Update'];
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  type:
+    | 'outage_started'
+    | 'outage_updated'
+    | 'outage_resolved'
+    | 'maintenance_scheduled';
+  channel: 'email' | 'sms' | 'in_app' | 'push';
+  subject_template?: string;
+  message_template: string;
+  variables: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 class OutageNotificationService {
-  private supabase: ReturnType<typeof createClient<Database>>;
-
-  constructor() {
-    this.supabase = createClient<Database>(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-  }
+  private supabase = createClient(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
   // Create a new outage event
   async createOutageEvent(
-    eventData: OutageEventInsert
+    eventData: Database['public']['Tables']['outage_events']['Insert']
   ): Promise<OutageEvent | null> {
     try {
       const { data, error } = await this.supabase
         .from('outage_events')
-        // @ts-expect-error - TypeScript infers never types for Supabase operations
         .insert([eventData])
         .select()
         .single();
@@ -50,12 +46,9 @@ class OutageNotificationService {
       if (error) throw error;
 
       // Trigger notifications for the new outage
-      await this.triggerOutageNotifications(
-        (data as OutageEvent).id,
-        'outage_started'
-      );
+      await this.triggerOutageNotifications(data.id, 'outage_started');
 
-      return data as OutageEvent;
+      return data;
     } catch (error) {
       logger.error('Error creating outage event', error as Error, {
         action: 'createOutageEvent',
@@ -68,16 +61,12 @@ class OutageNotificationService {
   // Update an existing outage event
   async updateOutageEvent(
     id: string,
-    updates: OutageEventUpdate
+    updates: Database['public']['Tables']['outage_events']['Update']
   ): Promise<OutageEvent | null> {
     try {
       const { data, error } = await this.supabase
         .from('outage_events')
-        // @ts-expect-error - TypeScript infers never types for Supabase operations
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
         .single();
@@ -87,7 +76,7 @@ class OutageNotificationService {
       // Trigger notifications for the update
       await this.triggerOutageNotifications(id, 'outage_updated');
 
-      return data as OutageEvent;
+      return data;
     } catch (error) {
       logger.error('Error updating outage event', error as Error, {
         action: 'updateOutageEvent',
@@ -175,7 +164,7 @@ class OutageNotificationService {
     userId: string
   ): Promise<CustomerNotificationPreferences | null> {
     try {
-      const defaultPrefs: CustomerNotificationPreferencesInsert = {
+      const defaultPrefs = {
         user_id: userId,
         email_notifications: true,
         sms_notifications: false,
@@ -185,19 +174,18 @@ class OutageNotificationService {
         maintenance_notifications: true,
         billing_notifications: true,
         marketing_notifications: false,
-        minimum_severity: 'medium',
+        minimum_severity: 'medium' as const,
         timezone: 'UTC',
       };
 
       const { data, error } = await this.supabase
         .from('customer_notification_preferences')
-        // @ts-expect-error - TypeScript infers never types for Supabase operations
-        .insert([defaultPrefs])
+        .insert(defaultPrefs)
         .select()
         .single();
 
       if (error) throw error;
-      return data as CustomerNotificationPreferences;
+      return data;
     } catch (error) {
       logger.error(
         'Error creating default notification preferences',
@@ -214,22 +202,18 @@ class OutageNotificationService {
   // Update user notification preferences
   async updateUserNotificationPreferences(
     userId: string,
-    preferences: CustomerNotificationPreferencesUpdate
+    preferences: Database['public']['Tables']['customer_notification_preferences']['Update']
   ): Promise<CustomerNotificationPreferences | null> {
     try {
       const { data, error } = await this.supabase
         .from('customer_notification_preferences')
-        // @ts-expect-error - TypeScript infers never types for Supabase operations
-        .update({
-          ...(preferences as any),
-          updated_at: new Date().toISOString(),
-        } as any)
+        .update({ ...preferences, updated_at: new Date().toISOString() })
         .eq('user_id', userId)
         .select()
         .single();
 
       if (error) throw error;
-      return data as CustomerNotificationPreferences;
+      return data;
     } catch (error) {
       logger.error(
         'Error updating user notification preferences',
@@ -291,28 +275,17 @@ class OutageNotificationService {
 
       // Get affected users
       const { data: affectedUsers, error: usersError } =
-        await this.supabase.rpc(
-          // @ts-expect-error - TypeScript infers never types for Supabase operations
-          'get_affected_users_for_outage',
-          // @ts-expect-error - TypeScript infers never types for Supabase operations
-          {
-            outage_regions: (outageEvent as any).affected_regions,
-            outage_services: (outageEvent as any).affected_services,
-          }
-        );
+        await this.supabase.rpc('get_affected_users_for_outage', {
+          outage_regions: outageEvent.affected_regions,
+          outage_services: outageEvent.affected_services,
+        });
 
       if (usersError) {
         throw usersError;
       }
 
-      // Process each user - type the response as any since RPC function isn't typed
-      const users =
-        (affectedUsers as Array<{
-          user_id: string;
-          email: string;
-          phone?: string;
-        }>) || [];
-      for (const user of users) {
+      // Process each user
+      for (const user of affectedUsers || []) {
         await this.processUserNotification(user, outageEvent, notificationType);
       }
     } catch (error) {
@@ -460,20 +433,17 @@ class OutageNotificationService {
       const recipient = channel === 'email' ? user.email : user.phone || '';
 
       // Create notification record
-      const notificationData: OutageNotificationInsert = {
-        outage_event_id: outageEvent.id,
-        user_id: user.user_id,
-        notification_type: channel,
-        status: 'pending',
-        recipient,
-        message_content: messageContent,
-      };
-
       const { data: notification, error: notificationError } =
         await this.supabase
           .from('outage_notifications')
-          // @ts-expect-error - TypeScript infers never types for Supabase operations
-          .insert([notificationData])
+          .insert({
+            outage_event_id: outageEvent.id,
+            user_id: user.user_id,
+            notification_type: channel,
+            status: 'pending',
+            recipient,
+            message_content: messageContent,
+          })
           .select()
           .single();
 
@@ -484,7 +454,7 @@ class OutageNotificationService {
       // Send the notification based on channel
       if (notification) {
         await this.deliverNotification(
-          notification as OutageNotification,
+          notification,
           template.subject_template,
           variables
         );
@@ -537,18 +507,18 @@ class OutageNotificationService {
       }
 
       // Update notification status
-      const updateData: OutageNotificationUpdate = {
-        status: success ? 'sent' : 'failed',
-        sent_at: new Date().toISOString(),
-      };
+      const updateData: Database['public']['Tables']['outage_notifications']['Update'] =
+        {
+          status: success ? 'sent' : 'failed',
+          sent_at: new Date().toISOString(),
+        };
 
       if (!success) {
-        (updateData as any).error_message = errorMessage || 'Unknown error';
+        updateData.error_message = errorMessage || 'Unknown error';
       }
 
       await this.supabase
         .from('outage_notifications')
-        // @ts-expect-error - TypeScript infers never types for Supabase operations
         .update(updateData)
         .eq('id', notification.id);
     } catch (error) {
@@ -615,11 +585,14 @@ class OutageNotificationService {
 
   // Mark notification as read
   async markNotificationAsRead(
-    _notificationId: string,
-    _userId: string
+    notificationId: string,
+    userId: string
   ): Promise<boolean> {
     // In a real implementation, you'd add an is_read field and update it
     // For now, we'll just return success
+    console.log(
+      `Marking notification ${notificationId} as read for user ${userId}`
+    );
     return true;
   }
 }
