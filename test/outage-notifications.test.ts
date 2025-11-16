@@ -199,6 +199,9 @@ describe('OutageNotificationService', () => {
         marketing_notifications: false,
         minimum_severity: 'medium' as const,
         timezone: 'UTC',
+        phone_number: null,
+        quiet_hours_start: null,
+        quiet_hours_end: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
