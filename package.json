@@ -25,7 +25,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-"ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
+    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
     "deploy:verify": "tsx scripts/verify-deployment.ts"
   },
   "dependencies": {
@@ -37,10 +37,10 @@
     "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/vite": "^4.1.17",
     "@types/node": "^24.10.1",
-    "astro": "^5.15.4",
+    "astro": "^5.15.8",
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
-    "chart.js": "^4.4.0",
+    "chart.js": "^4.5.1",
     "openai": "^6.9.0",
     "supabase": "^2.58.5",
     "tailwindcss": "^4.1.17",
