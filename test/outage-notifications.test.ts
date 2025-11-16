@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Supabase client before importing the service
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     from: vi.fn(),
@@ -343,8 +345,11 @@ describe('OutageNotificationService', () => {
 
       // Access private method through type assertion
       const renderTemplate = (
-        outageNotificationService as any
-      ).renderTemplate.bind(outageNotificationService);
+        (outageNotificationService as any).renderTemplate as (
+          template: string,
+          variables: Record<string, unknown>
+        ) => string
+      ).bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe(
@@ -360,8 +365,11 @@ describe('OutageNotificationService', () => {
       };
 
       const renderTemplate = (
-        outageNotificationService as any
-      ).renderTemplate.bind(outageNotificationService);
+        (outageNotificationService as any).renderTemplate as (
+          template: string,
+          variables: Record<string, unknown>
+        ) => string
+      ).bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe('Hello John, you have {{count}} new notifications.');

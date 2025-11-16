@@ -12,21 +12,34 @@ import {
   SecurityEventType,
 } from '../../src/lib/security/types';
 
-// Mock Supabase client
+// Mock Supabase client with proper method chaining
+const createMockQueryBuilder = () => {
+  const queryBuilder = {
+    eq: vi.fn().mockReturnThis(),
+    gt: vi.fn().mockReturnThis(),
+    gte: vi.fn().mockReturnThis(),
+    lt: vi.fn().mockReturnThis(),
+    lte: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
+  };
+
+  return {
+    insert: vi.fn().mockReturnValue({
+      ...queryBuilder,
+      select: vi.fn().mockReturnValue(queryBuilder),
+    }),
+    select: vi.fn().mockReturnValue(queryBuilder),
+    update: vi.fn().mockReturnValue(queryBuilder),
+    delete: vi.fn().mockReturnValue(queryBuilder),
+    ...queryBuilder,
+  };
+};
+
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      select: vi.fn().mockResolvedValue({ data: [], error: null }),
-      update: vi.fn().mockResolvedValue({ error: null }),
-      delete: vi.fn().mockResolvedValue({ error: null }),
-      eq: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    })),
+    from: vi.fn(() => createMockQueryBuilder()),
   })),
 }));
 

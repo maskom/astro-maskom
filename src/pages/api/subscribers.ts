@@ -8,6 +8,8 @@ import {
 import { logger } from '../../lib/logger';
 import type { Database } from '../../lib/database.types';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // Singleton Supabase client for server-side operations
 let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
