@@ -10,4 +10,16 @@ preview_id = "22d230f583864a3c9e7182de57b6bbe0"
 
 # Environment variables for the application
 [vars]
-# Add any environment variables here
+# Supabase configuration (canonical names for Cloudflare Pages)
+SUPABASE_URL = ""
+SUPABASE_KEY = ""
+SUPABASE_SERVICE_ROLE_KEY = ""
+
+# Other environment variables
+OPENAI_API_KEY = ""
+MIDTRANS_SERVER_KEY = ""
+MIDTRANS_CLIENT_KEY = ""
+MIDTRANS_ENVIRONMENT = "sandbox"
+MIDTRANS_MERCHANT_ID = ""
+ENCRYPTION_PASSWORD = ""
+LOG_LEVEL = "info"
