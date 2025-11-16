@@ -1,10 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-);
+import { createServiceClient } from '../../../lib/supabase';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -17,6 +12,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,
@@ -122,6 +118,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,
@@ -189,6 +186,7 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,

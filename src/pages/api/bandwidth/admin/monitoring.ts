@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../../../../lib/database.types';
+import { createServiceClient } from '../../../../lib/supabase';
 import { log, generateRequestId } from '../../../../lib/logger';
 
 // Interface for data cap statistics
@@ -14,11 +13,6 @@ interface DataCapWithUsage {
   monthly_cap_gb: number;
   current_usage_gb: number;
 }
-
-const supabase = createClient<Database>(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 export const GET: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
@@ -39,6 +33,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,
@@ -229,6 +224,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,

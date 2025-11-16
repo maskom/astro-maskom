@@ -1,27 +1,13 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServiceClient } from '../../lib/supabase';
 import {
   sanitizeEmail,
   sanitizeJsonInput,
   sanitizeText,
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
-import type { Database } from '../../lib/database.types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-// Singleton Supabase client for server-side operations
-let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
-
-const getSupabaseClient = () => {
-  if (!supabaseClient) {
-    supabaseClient = createClient<Database>(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for server-side operations
-    );
-  }
-  return supabaseClient;
-};
 
 export const prerender = false;
 
@@ -36,7 +22,7 @@ export const GET: APIRoute = async ({ url }) => {
       sanitizedParams[key] = sanitizeText(value);
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createServiceClient();
 
     // Fetch subscribers from database
     const { data: subscribers, error } = await supabase
@@ -98,7 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createServiceClient();
 
     // Check if email already exists
     const { data: existingSubscriber, error: checkError } = await supabase

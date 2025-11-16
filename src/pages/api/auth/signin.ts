@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '../../../lib/supabase';
 import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { sessionManager } from '../../../lib/security/session';
@@ -34,10 +34,7 @@ export const POST: APIRoute = withApiMiddleware(
       throw ErrorFactory.missingRequiredField('password');
     }
 
-    const supabase = createClient(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_KEY
-    );
+    const supabase = createServerClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: sanitizedEmail,

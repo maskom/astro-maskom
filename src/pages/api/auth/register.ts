@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '../../../lib/supabase';
 import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
@@ -24,10 +24,7 @@ export const POST: APIRoute = withApiMiddleware(
     }
     Validation.minLength(password, 8, 'password');
 
-    const supabase = createClient(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_KEY
-    );
+    const supabase = createServerClient();
 
     const { error } = await supabase.auth.signUp({
       email: sanitizedEmail,
