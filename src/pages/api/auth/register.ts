@@ -1,10 +1,12 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
+import { withApiMiddleware } from '../../../lib/middleware/api';
+import { ErrorFactory, Validation } from '../../../lib/errors';
 
 export const prerender = false;
-export const POST: APIRoute = async ({ request, redirect }) => {
-  try {
+export const POST: APIRoute = withApiMiddleware(
+  async ({ request, redirect }) => {
     const formData = await request.formData();
     const email = sanitizeInput(formData.get('email')?.toString());
     const password = formData.get('password')?.toString(); // Don't sanitize password
@@ -12,22 +14,15 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     // Validate and sanitize email
     const sanitizedEmail = sanitizeEmail(email || '');
 
-    if (!sanitizedEmail || !password) {
-      return new Response('Email and password are required', { status: 400 });
-    }
+    // Validate required fields
+    Validation.required(sanitizedEmail, 'email');
+    Validation.required(password, 'password');
+    Validation.email(sanitizedEmail);
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return new Response('Invalid email format', { status: 400 });
+    if (!password) {
+      throw ErrorFactory.missingRequiredField('password');
     }
-
-    // Basic password validation
-    if (password.length < 8) {
-      return new Response('Password must be at least 8 characters', {
-        status: 400,
-      });
-    }
+    Validation.minLength(password, 8, 'password');
 
     const supabase = createClient(
       import.meta.env.SUPABASE_URL,
@@ -40,14 +35,11 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     });
 
     if (error) {
-      return new Response('Registration failed', { status: 400 });
+      throw ErrorFactory.validationFailed(
+        'Registration failed: ' + error.message
+      );
     }
 
     return redirect('/signin');
-  } catch (error) {
-    console.error('Register error:', error);
-    return new Response('An error occurred during registration', {
-      status: 500,
-    });
   }
-};
+);

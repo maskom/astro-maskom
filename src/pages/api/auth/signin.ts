@@ -4,12 +4,13 @@ import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { sessionManager } from '../../../lib/security/session';
 import { mfaService } from '../../../lib/security/mfa';
-
+import { withApiMiddleware, setUserContext } from '../../../lib/middleware/api';
+import { ErrorFactory, Validation } from '../../../lib/errors';
 import { SecurityAction } from '../../../lib/security/types';
 
 export const prerender = false;
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  try {
+export const POST: APIRoute = withApiMiddleware(
+  async ({ request, cookies, redirect }) => {
     const formData = await request.formData();
     const email = sanitizeInput(formData.get('email')?.toString());
     const password = formData.get('password')?.toString(); // Don't sanitize password
@@ -24,14 +25,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     // Validate and sanitize email
     const sanitizedEmail = sanitizeEmail(email || '');
 
-    if (!sanitizedEmail || !password) {
-      return new Response('Email and password are required', { status: 400 });
-    }
+    // Validate required fields
+    Validation.required(sanitizedEmail, 'email');
+    Validation.required(password, 'password');
+    Validation.email(sanitizedEmail);
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return new Response('Invalid email format', { status: 400 });
+    if (!password) {
+      throw ErrorFactory.missingRequiredField('password');
     }
 
     const supabase = createClient(
@@ -53,7 +53,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         error.message
       );
 
-      return new Response('Invalid credentials', { status: 401 });
+      throw ErrorFactory.invalidCredentials();
     }
 
     const user = data.user;
@@ -71,7 +71,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     );
 
     if (!sessionId) {
-      return new Response('Failed to create session', { status: 500 });
+      throw ErrorFactory.internalError('Failed to create session');
     }
 
     // Set session cookie
@@ -96,6 +96,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       sameSite: 'strict',
     });
 
+    // Set user context for logging
+    setUserContext(request, user.id);
+
     // Log successful login
     await securityAuditLogger.logSecurityAction(
       user.id,
@@ -113,8 +116,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     }
 
     return redirect('/dashboard');
-  } catch (error) {
-    console.error('Signin error:', error);
-    return new Response('An error occurred during sign in', { status: 500 });
   }
-};
+);
