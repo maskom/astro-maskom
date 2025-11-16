@@ -8,14 +8,35 @@ export const supabase =
 
 // Server-side Supabase instance for API routes
 export function createServerClient() {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY || import.meta.env.SUPABASE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    console.warn(
-      'Missing Supabase environment variables. Please check SUPABASE_URL and SUPABASE_KEY.'
+    throw new Error(
+      'Missing Supabase configuration: SUPABASE_URL and SUPABASE_KEY must be set'
     );
   }
 
-  return createClient(supabaseUrl || '', supabaseKey || '');
+  return createClient(supabaseUrl, supabaseKey);
+}
+
+// Server-side Supabase client with service role for admin operations
+export function createServiceClient() {
+  const supabaseUrl = process.env.SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error(
+      'Missing Supabase service configuration: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set'
+    );
+  }
+
+  return createClient(supabaseUrl, serviceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
