@@ -10,7 +10,14 @@ export interface LogContext {
   userId?: string;
   service?: string;
   action?: string;
-  [key: string]: any;
+  timestamp?: string;
+  ip?: string;
+  userAgent?: string;
+  method?: string;
+  url?: string;
+  statusCode?: number;
+  duration?: number;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface LogEntry {

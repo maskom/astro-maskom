@@ -4,13 +4,15 @@ import type {
   PaymentGatewayConfig,
   PaymentRequest,
   PaymentTransaction,
+  WebhookNotification,
 } from './types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export class PaymentManager {
   private gateway: MidtransGateway;
   private service: PaymentService;
 
-  constructor(supabaseClient: any, config: PaymentGatewayConfig) {
+  constructor(supabaseClient: SupabaseClient, config: PaymentGatewayConfig) {
     this.gateway = new MidtransGateway(config);
     this.service = new PaymentService(supabaseClient);
   }
@@ -39,7 +41,7 @@ export class PaymentManager {
         transaction.id,
         this.mapMidtransStatus(paymentResponse.transactionStatus),
         {
-          gatewayResponse: paymentResponse,
+          gatewayResponse: JSON.stringify(paymentResponse),
           paymentType: paymentResponse.paymentType,
         }
       );
@@ -54,7 +56,7 @@ export class PaymentManager {
     }
   }
 
-  async handleWebhook(notification: any) {
+  async handleWebhook(notification: WebhookNotification) {
     try {
       const isValid = this.gateway.verifyWebhookSignature(notification);
       if (!isValid) {
@@ -71,7 +73,7 @@ export class PaymentManager {
       const newStatus = this.mapMidtransStatus(notification.transaction_status);
 
       await this.service.updateTransactionStatus(transaction.id, newStatus, {
-        webhookNotification: notification,
+        webhookNotification: JSON.stringify(notification),
         fraudStatus: notification.fraud_status,
       });
 
@@ -140,7 +142,7 @@ export class PaymentManager {
             transaction.id,
             newStatus,
             {
-              gatewayResponse: paymentResponse,
+              gatewayResponse: JSON.stringify(paymentResponse),
             }
           );
         }
@@ -163,7 +165,7 @@ export class PaymentManager {
           transaction.id,
           'cancelled',
           {
-            gatewayResponse: paymentResponse,
+            gatewayResponse: JSON.stringify(paymentResponse),
           }
         );
       }
@@ -185,7 +187,7 @@ export class PaymentManager {
 
       if (transaction) {
         await this.service.updateTransactionStatus(transaction.id, 'refund', {
-          gatewayResponse: paymentResponse,
+          gatewayResponse: JSON.stringify(paymentResponse),
           refundAmount: amount,
         });
       }

@@ -80,7 +80,7 @@ export const PUT: APIRoute = async ({ request }) => {
       'timezone',
     ];
 
-    const updates: Record<string, any> = {};
+    const updates: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(body)) {
       if (validFields.includes(key)) {

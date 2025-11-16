@@ -36,7 +36,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Check data processing consent
     const hasConsent = await dataProtectionService.hasDataConsent(
       userId,
-      'data_processing' as any
+      'data_processing'
     );
 
     if (!hasConsent) {
@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     let filename: string;
 
     if (format === 'csv') {
-      responseContent = convertToCSV(userData);
+      responseContent = convertToCSV(userData as Record<string, unknown>);
       contentType = 'text/csv';
       filename = `user_data_${userId}_${new Date().toISOString().split('T')[0]}.csv`;
     } else {
@@ -92,27 +92,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 };
 
-function convertToCSV(data: Record<string, any>): string {
+function convertToCSV(data: Record<string, unknown>): string {
   const csvRows: string[] = [];
 
   // Helper function to flatten nested objects
-  const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
-    const flattened: Record<string, any> = {};
+  const flattenObject = (
+    obj: unknown,
+    prefix = ''
+  ): Record<string, unknown> => {
+    const flattened: Record<string, unknown> = {};
 
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = prefix ? `${prefix}.${key}` : key;
+        const objValue = (obj as Record<string, unknown>)[key];
 
         if (
-          typeof obj[key] === 'object' &&
-          obj[key] !== null &&
-          !Array.isArray(obj[key])
+          typeof objValue === 'object' &&
+          objValue !== null &&
+          !Array.isArray(objValue)
         ) {
-          Object.assign(flattened, flattenObject(obj[key], newKey));
-        } else if (Array.isArray(obj[key])) {
-          flattened[newKey] = JSON.stringify(obj[key]);
+          Object.assign(flattened, flattenObject(objValue, newKey));
+        } else if (Array.isArray(objValue)) {
+          flattened[newKey] = JSON.stringify(objValue);
         } else {
-          flattened[newKey] = obj[key];
+          flattened[newKey] = objValue;
         }
       }
     }
@@ -121,21 +125,22 @@ function convertToCSV(data: Record<string, any>): string {
   };
 
   // Flatten all data sections
-  const flattenedData: Record<string, any> = {};
+  const flattenedData: Record<string, unknown> = {};
 
   for (const section in data) {
-    if (typeof data[section] === 'object' && data[section] !== null) {
-      if (Array.isArray(data[section])) {
-        data[section].forEach((item: any, index: number) => {
+    const sectionData = (data as Record<string, unknown>)[section];
+    if (typeof sectionData === 'object' && sectionData !== null) {
+      if (Array.isArray(sectionData)) {
+        sectionData.forEach((item: unknown, index: number) => {
           const flattened = flattenObject(item, `${section}[${index}]`);
           Object.assign(flattenedData, flattened);
         });
       } else {
-        const flattened = flattenObject(data[section], section);
+        const flattened = flattenObject(sectionData, section);
         Object.assign(flattenedData, flattened);
       }
     } else {
-      flattenedData[section] = data[section];
+      flattenedData[section] = sectionData;
     }
   }
 

@@ -202,7 +202,10 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     // Update data cap
-    const updateData: any = {};
+    const updateData: {
+      monthly_cap_gb?: number;
+      notification_thresholds?: number[];
+    } = {};
     if (monthly_cap_gb) updateData.monthly_cap_gb = monthly_cap_gb;
     if (notification_thresholds)
       updateData.notification_thresholds = notification_thresholds;
