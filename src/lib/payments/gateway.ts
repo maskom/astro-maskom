@@ -196,19 +196,26 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: unknown): PaymentResponse {
     return {
-      transactionId: data.transaction_id || data.order_id,
-      orderId: data.order_id,
-      statusCode: data.status_code,
-      statusMessage: data.status_message,
-      paymentType: data.payment_type,
-      transactionStatus: data.transaction_status,
-      fraudStatus: data.fraud_status,
-      redirectUrl: data.redirect_url,
-      token: data.token,
-      approvalCode: data.approval_code,
-      grossAmount: parseInt(data.gross_amount),
+      transactionId:
+        (data as { transaction_id?: string; order_id?: string })
+          .transaction_id ||
+        (data as { order_id?: string }).order_id ||
+        '',
+      orderId: (data as { order_id?: string }).order_id || '',
+      statusCode: (data as { status_code?: string }).status_code || '',
+      statusMessage: (data as { status_message?: string }).status_message || '',
+      paymentType: (data as { payment_type?: string }).payment_type,
+      transactionStatus:
+        (data as { transaction_status?: string }).transaction_status || '',
+      fraudStatus: (data as { fraud_status?: string }).fraud_status,
+      redirectUrl: (data as { redirect_url?: string }).redirect_url,
+      token: (data as { token?: string }).token,
+      approvalCode: (data as { approval_code?: string }).approval_code,
+      grossAmount: parseInt(
+        (data as { gross_amount?: string }).gross_amount || '0'
+      ),
     };
   }
 
