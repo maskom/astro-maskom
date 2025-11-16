@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
 
     const supabase = createClient(
       import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_ANON_KEY
+      import.meta.env.SUPABASE_KEY
     );
 
     const { error } = await supabase.auth.signOut();

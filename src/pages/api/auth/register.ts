@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
     const supabase = createClient(
       import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_ANON_KEY
+      import.meta.env.SUPABASE_KEY
     );
 
     const { error } = await supabase.auth.signUp({
