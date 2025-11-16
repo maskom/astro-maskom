@@ -181,7 +181,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       securityContext.ipAddress,
       securityContext.userAgent,
       true,
-      { changes, target_user: targetUserId }
+      { changes: JSON.stringify(changes), target_user: targetUserId }
     );
 
     return new Response(

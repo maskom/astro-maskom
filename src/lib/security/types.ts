@@ -7,7 +7,7 @@ export interface SecurityAuditLog {
   user_agent: string;
   timestamp: Date;
   success: boolean;
-  details?: Record<string, any>;
+  details?: AuditDetails;
   risk_level: RiskLevel;
 }
 
@@ -20,7 +20,7 @@ export interface SecurityEvent {
   description: string;
   timestamp: Date;
   resolved: boolean;
-  metadata?: Record<string, any>;
+  metadata?: EventMetadata;
 }
 
 export interface UserSecurityProfile {
@@ -155,4 +155,43 @@ export interface SecurityContext {
   mfaVerified: boolean;
   role: UserRole | null;
   permissions: Permission[];
+}
+
+// Dynamic data structures with proper typing
+export interface AuditDetails {
+  [key: string]: string | number | boolean | null | undefined;
+  required_permission?: Permission;
+  resource_id?: string;
+  old_value?: string | number;
+  new_value?: string | number;
+  reason?: string;
+}
+
+export interface EventMetadata {
+  [key: string]: string | number | boolean | null | undefined;
+  source?: string;
+  detection_method?: string;
+  confidence_score?: number;
+  related_user_id?: string;
+  session_id?: string;
+}
+
+export interface UserDataExport {
+  user_id: string;
+  email: string;
+  profile: Record<string, unknown>;
+  security_profile?: Record<string, unknown>;
+  data_consents?: Array<Record<string, unknown>>;
+  billing_history?: Array<Record<string, unknown>>;
+  subscriptions: Array<Record<string, unknown>>;
+  payments: Array<Record<string, unknown>>;
+  security_logs: Array<Record<string, unknown>>;
+  consent_records: Array<Record<string, unknown>>;
+  created_at: string;
+  exported_at: string;
+}
+
+// Extended Request interface for security context
+export interface SecurityRequest extends Request {
+  securityContext?: SecurityContext;
 }
