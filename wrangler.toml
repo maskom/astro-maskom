@@ -1,6 +1,14 @@
 name = "astro-maskom"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# Cloudflare Pages configuration
+[env.production]
+name = "astro-maskom"
+
+[env.preview]
+name = "astro-maskom-preview"
 
 # KV namespace for sessions
 [[kv_namespaces]]

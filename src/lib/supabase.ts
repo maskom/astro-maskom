@@ -8,8 +8,14 @@ export const supabase =
 
 // Server-side Supabase instance for API routes
 export function createServerClient() {
-  return createClient(
-    process.env.SUPABASE_URL || '',
-    process.env.SUPABASE_KEY || ''
-  );
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn(
+      'Missing Supabase environment variables. Please check SUPABASE_URL and SUPABASE_KEY.'
+    );
+  }
+
+  return createClient(supabaseUrl || '', supabaseKey || '');
 }
