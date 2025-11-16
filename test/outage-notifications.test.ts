@@ -32,7 +32,12 @@ import { outageNotificationService } from '../src/lib/notifications/outage-servi
 import { createClient } from '@supabase/supabase-js';
 
 describe('OutageNotificationService', () => {
-  let mockSupabase: any;
+  let mockSupabase: {
+    from: vi.MockedFunction<unknown>;
+    auth: {
+      getUser: vi.MockedFunction<unknown>;
+    };
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -88,7 +93,9 @@ describe('OutageNotificationService', () => {
 
       // Mock the notification trigger
       vi.spyOn(
-        outageNotificationService as any,
+        outageNotificationService as unknown as {
+          triggerOutageNotifications: () => Promise<void>;
+        },
         'triggerOutageNotifications'
       ).mockResolvedValue(undefined);
 
@@ -349,7 +356,12 @@ describe('OutageNotificationService', () => {
 
       // Access private method through type assertion
       const renderTemplate = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
       ).renderTemplate.bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
@@ -366,7 +378,12 @@ describe('OutageNotificationService', () => {
       };
 
       const renderTemplate = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
       ).renderTemplate.bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
@@ -385,7 +402,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            type: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
       const result = await shouldNotify(prefs, 'critical', 'email');
 
@@ -400,7 +423,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            type: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Low severity should not notify
@@ -421,7 +450,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            type: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Email should work

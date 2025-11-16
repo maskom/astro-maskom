@@ -6,7 +6,7 @@
 /**
  * Basic input sanitization - removes potentially dangerous characters
  */
-export function sanitizeInput(input: any): string {
+export function sanitizeInput(input: unknown): string {
   if (typeof input !== 'string') return '';
 
   return input
@@ -64,7 +64,7 @@ export function sanitizeText(text: string): string {
 /**
  * Sanitize message objects for chat applications
  */
-export function sanitizeMessage(message: any): {
+export function sanitizeMessage(message: unknown): {
   role: string;
   content: string;
 } {
@@ -82,7 +82,7 @@ export function sanitizeMessage(message: any): {
  * Validate and sanitize an array of messages
  */
 export function validateMessages(
-  messages: any[]
+  messages: unknown[]
 ): { role: string; content: string }[] {
   if (!Array.isArray(messages)) {
     return [];
@@ -107,7 +107,7 @@ export function sanitizeResponse(response: string): string {
 /**
  * Recursively sanitize JSON input data
  */
-export function sanitizeJsonInput(data: any): any {
+export function sanitizeJsonInput(data: unknown): unknown {
   if (data === null || data === undefined) {
     return data;
   }
@@ -121,7 +121,7 @@ export function sanitizeJsonInput(data: any): any {
   }
 
   if (typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const sanitizedKey = sanitizeInput(key);
       sanitized[sanitizedKey] = sanitizeJsonInput(value);
@@ -136,7 +136,7 @@ export function sanitizeJsonInput(data: any): any {
  * Validate that required fields are present in an object
  */
 export function validateRequiredFields(
-  data: any,
+  data: unknown,
   requiredFields: string[]
 ): { isValid: boolean; missingFields: string[] } {
   if (!data || typeof data !== 'object') {

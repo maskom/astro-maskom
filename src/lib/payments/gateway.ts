@@ -3,6 +3,7 @@ import type {
   PaymentGatewayConfig,
   PaymentRequest,
   PaymentResponse,
+  GatewayResponseData,
   WebhookNotification,
 } from './types';
 
@@ -196,7 +197,7 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: GatewayResponseData): PaymentResponse {
     return {
       transactionId: data.transaction_id || data.order_id,
       orderId: data.order_id,

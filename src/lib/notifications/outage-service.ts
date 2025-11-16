@@ -633,21 +633,12 @@ class OutageNotificationService {
 
   // Mark notification as read
   async markNotificationAsRead(
-    notificationId: string,
-    userId: string
+    _notificationId: string,
+    _userId: string
   ): Promise<boolean> {
-    try {
-      // In a real implementation, you'd add an is_read field and update it
-      // For now, we'll just return success
-      return true;
-    } catch (error) {
-      logger.error('Error marking notification as read', error as Error, {
-        action: 'markNotificationAsRead',
-        notificationId,
-        userId,
-      });
-      return false;
-    }
+    // In a real implementation, you'd add an is_read field and update it
+    // For now, we'll just return success
+    return true;
   }
 }
 
