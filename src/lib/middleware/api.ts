@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { generateRequestId } from '../logger';
-import type { ErrorResponse } from '../errors';
+import type { ErrorResponse, ErrorDetails } from '../errors';
 import { ErrorFactory, ErrorCode } from '../errors';
 
 export interface RequestContext {
@@ -79,7 +79,7 @@ export function createErrorResponse(
       error: {
         code: errorObj.code as ErrorCode,
         message: errorObj.message,
-        details: errorObj.details,
+        details: errorObj.details as ErrorDetails | undefined,
         requestId: requestId || errorObj.requestId,
         timestamp: new Date().toISOString(),
       },
