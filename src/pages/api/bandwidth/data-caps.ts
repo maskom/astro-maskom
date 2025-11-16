@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../../../lib/database.types';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
@@ -202,7 +203,12 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     // Update data cap
-    const updateData: any = {};
+    const updateData: Partial<
+      Pick<
+        Database['public']['Tables']['data_caps']['Row'],
+        'monthly_cap_gb' | 'notification_thresholds'
+      >
+    > = {};
     if (monthly_cap_gb) updateData.monthly_cap_gb = monthly_cap_gb;
     if (notification_thresholds)
       updateData.notification_thresholds = notification_thresholds;

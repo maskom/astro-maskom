@@ -24,8 +24,14 @@ import { createClient } from '@supabase/supabase-js';
 // Get the mock functions
 const mockCreateClient = vi.mocked(createClient);
 
+// Mock Supabase client interface
+interface MockSupabaseClient {
+  from: ReturnType<typeof vi.fn>;
+  rpc: ReturnType<typeof vi.fn>;
+}
+
 describe('OutageNotificationService', () => {
-  let mockClient: any;
+  let mockClient: MockSupabaseClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,7 +45,8 @@ describe('OutageNotificationService', () => {
     mockCreateClient.mockReturnValue(mockClient);
 
     // Replace the supabase client on the service instance
-    (outageNotificationService as any).supabase = mockClient;
+    (outageNotificationService as { supabase: MockSupabaseClient }).supabase =
+      mockClient;
   });
 
   describe('createOutageEvent', () => {
@@ -75,7 +82,9 @@ describe('OutageNotificationService', () => {
 
       // Mock the notification trigger
       vi.spyOn(
-        outageNotificationService as any,
+        outageNotificationService as {
+          triggerOutageNotifications: () => Promise<void>;
+        },
         'triggerOutageNotifications'
       ).mockResolvedValue(undefined);
 
@@ -340,7 +349,12 @@ describe('OutageNotificationService', () => {
 
       // Access private method through type assertion
       const renderTemplate = (
-        outageNotificationService as any
+        outageNotificationService as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
       ).renderTemplate.bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
@@ -357,7 +371,12 @@ describe('OutageNotificationService', () => {
       };
 
       const renderTemplate = (
-        outageNotificationService as any
+        outageNotificationService as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
       ).renderTemplate.bind(outageNotificationService);
       const result = renderTemplate(template, variables);
 
@@ -376,7 +395,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
       const result = await shouldNotify(prefs, 'critical', 'email');
 
@@ -391,7 +416,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Low severity should not notify
@@ -412,7 +443,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Email should work
