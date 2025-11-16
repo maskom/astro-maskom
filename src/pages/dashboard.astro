@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import BandwidthChart from '../components/bandwidth/BandwidthChart.astro';
 import Notifications from '../components/bandwidth/Notifications.astro';
 import DataCapManagement from '../components/bandwidth/DataCapManagement.astro';
+import QualityDashboard from '../components/bandwidth/QualityDashboard.astro';
+import PerformanceReports from '../components/bandwidth/PerformanceReports.astro';
 import { packages } from '../data/packages.ts';
 import { createClient } from '@supabase/supabase-js';
 
@@ -18,9 +20,14 @@ let bandwidthData = [];
 let dataCap = null;
 let notifications = [];
 let unreadCount = 0;
+let user = null;
 
 if (session) {
   try {
+    // Get user info
+    const { data: { user: userData } } = await supabase.auth.getUser(session);
+    user = userData;
+
     // Get bandwidth usage
     const usageResponse = await fetch(
       `${Astro.site.origin}/api/bandwidth/usage`,
@@ -40,7 +47,7 @@ if (session) {
         usageData.notifications?.filter(n => !n.is_read).length || 0;
     }
   } catch (error) {
-    console.error('Error fetching bandwidth data:', error);
+    console.error('Error fetching dashboard data:', error);
   }
 }
 ---
@@ -104,6 +111,12 @@ if (session) {
           unreadCount={unreadCount}
         />
       </div>
+
+      <!-- Network Quality Section -->
+      {user && <QualityDashboard userId={user.id} />}
+
+      <!-- Performance Reports Section -->
+      {user && <PerformanceReports userId={user.id} />}
     </div>
 
     <!-- Quick Actions -->

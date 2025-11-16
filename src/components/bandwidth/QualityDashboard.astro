@@ -1,0 +1,539 @@
+---
+interface QualityMetrics {
+  avgLatency: number;
+  avgPacketLoss: number;
+  avgUptime: number;
+  avgDownloadSpeed: number;
+  avgUploadSpeed: number;
+  qualityScore: number;
+  totalMeasurements: number;
+}
+
+interface QualityAlert {
+  id: string;
+  alert_type: string;
+  severity: string;
+  title: string;
+  message: string;
+  detected_at: string;
+  status: string;
+}
+
+interface QualityDashboardProps {
+  userId: string;
+}
+
+const { userId } = Astro.props;
+
+// Function to get quality color based on score
+function getQualityColor(score: number): string {
+  if (score >= 90) return 'text-green-600';
+  if (score >= 80) return 'text-yellow-600';
+  if (score >= 70) return 'text-orange-600';
+  return 'text-red-600';
+}
+
+// Function to get quality background color
+function getQualityBgColor(score: number): string {
+  if (score >= 90) return 'bg-green-50';
+  if (score >= 80) return 'bg-yellow-50';
+  if (score >= 70) return 'bg-orange-50';
+  return 'bg-red-50';
+}
+
+// Function to get severity color
+function getSeverityColor(severity: string): string {
+  switch (severity) {
+    case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+    case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+}
+
+// Function to format uptime percentage
+function formatUptime(uptime: number): string {
+  return uptime.toFixed(2) + '%';
+}
+
+// Function to get status icon
+function getStatusIcon(status: string): string {
+  switch (status) {
+    case 'active': return '🔴';
+    case 'acknowledged': return '🟡';
+    case 'resolved': return '🟢';
+    default: return '⚪';
+  }
+}
+---
+
+<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">Kualitas Jaringan</h2>
+    <div class="flex items-center space-x-4">
+      <button 
+        id="runQualityTest"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+        onclick="runQualityTest()"
+      >
+        🧪 Jalankan Tes Kualitas
+      </button>
+      <div class="text-sm text-gray-600">
+        <span class="font-medium">Terakhir diperbarui:</span>
+        <span id="lastUpdated">Memuat...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quality Score Overview -->
+  <div id="qualityOverview" class="mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Overall Quality Score -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+        <div class="text-sm text-blue-600 font-medium mb-2">Skor Kualitas Keseluruhan</div>
+        <div class="text-3xl font-bold text-blue-800" id="overallQualityScore">-</div>
+        <div class="text-xs text-blue-600 mt-1">Skor 0-100</div>
+        <div class="mt-2">
+          <div class="w-full bg-blue-200 rounded-full h-2">
+            <div 
+              id="qualityScoreBar"
+              class="bg-blue-600 h-2 rounded-full transition-all duration-500"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latency -->
+      <div class="bg-green-50 rounded-lg p-4">
+        <div class="text-sm text-green-600 font-medium">Latensi Rata-rata</div>
+        <div class="text-2xl font-bold text-green-800" id="avgLatency">-</div>
+        <div class="text-xs text-green-600 mt-1">milidetik</div>
+        <div class="text-xs text-green-500 mt-2" id="latencyStatus">Memuat...</div>
+      </div>
+
+      <!-- Packet Loss -->
+      <div class="bg-yellow-50 rounded-lg p-4">
+        <div class="text-sm text-yellow-600 font-medium">Packet Loss</div>
+        <div class="text-2xl font-bold text-yellow-800" id="avgPacketLoss">-</div>
+        <div class="text-xs text-yellow-600 mt-1">persentase</div>
+        <div class="text-xs text-yellow-500 mt-2" id="packetLossStatus">Memuat...</div>
+      </div>
+
+      <!-- Uptime -->
+      <div class="bg-purple-50 rounded-lg p-4">
+        <div class="text-sm text-purple-600 font-medium">Uptime</div>
+        <div class="text-2xl font-bold text-purple-800" id="avgUptime">-</div>
+        <div class="text-xs text-purple-600 mt-1">persentase</div>
+        <div class="text-xs text-purple-500 mt-2" id="uptimeStatus">Memuat...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speed Metrics -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-gray-50 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-gray-700 mb-3">Kecepatan Unduh</h3>
+      <div class="flex items-center justify-between">
+        <div class="text-2xl font-bold text-gray-800" id="downloadSpeed">-</div>
+        <div class="text-sm text-gray-600">Mbps</div>
+      </div>
+      <div class="mt-2 text-xs text-gray-500">Kecepatan rata-rata 30 hari</div>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-4">
+      <h3 class="text-sm font-medium text-gray-700 mb-3">Kecepatan Unggah</h3>
+      <div class="flex items-center justify-between">
+        <div class="text-2xl font-bold text-gray-800" id="uploadSpeed">-</div>
+        <div class="text-sm text-gray-600">Mbps</div>
+      </div>
+      <div class="mt-2 text-xs text-gray-500">Kecepatan rata-rata 30 hari</div>
+    </div>
+  </div>
+
+  <!-- Quality Alerts -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-sm font-medium text-gray-700">Notifikasi Kualitas</h3>
+      <button 
+        class="text-sm text-blue-600 hover:text-blue-800"
+        onclick="refreshAlerts()"
+      >
+        🔄 Refresh
+      </button>
+    </div>
+    <div id="qualityAlerts" class="space-y-2">
+      <div class="text-center text-gray-500 py-4">
+        <div class="text-sm">Memuat notifikasi...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Trends Chart -->
+  <div class="bg-gray-50 rounded-lg p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-sm font-medium text-gray-700">Tren Performa 30 Hari</h3>
+      <select 
+        id="trendMetric"
+        class="text-sm border border-gray-300 rounded px-2 py-1"
+        onchange="updateTrendChart()"
+      >
+        <option value="qualityScore">Skor Kualitas</option>
+        <option value="avgLatency">Latensi</option>
+        <option value="avgPacketLoss">Packet Loss</option>
+        <option value="avgDownloadSpeed">Kecepatan Unduh</option>
+      </select>
+    </div>
+    <div class="h-64 relative">
+      <div id="trendChart" class="h-full flex items-center justify-center text-gray-500">
+        <div class="text-center">
+          <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <p>Memuat data tren...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+    <div class="text-gray-700">Menjalankan tes kualitas...</div>
+  </div>
+</div>
+
+<script>
+  let authToken = '';
+  let currentData = null;
+  let trendData = [];
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get auth token from localStorage or session
+    authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    if (authToken) {
+      loadQualityData();
+      loadAlerts();
+      loadTrendData();
+    }
+  });
+
+  // Load quality metrics summary
+  async function loadQualityData() {
+    try {
+      const response = await fetch('/api/quality/metrics?summary=true&days=30', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        currentData = data;
+        updateQualityDisplay(data);
+        updateLastUpdated();
+      } else {
+        console.error('Failed to load quality data');
+        showError('Gagal memuat data kualitas');
+      }
+    } catch (error) {
+      console.error('Error loading quality data:', error);
+      showError('Terjadi kesalahan saat memuat data kualitas');
+    }
+  }
+
+  // Load quality alerts
+  async function loadAlerts() {
+    try {
+      const response = await fetch('/api/quality/alerts?status=active', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const alerts = await response.json();
+        updateAlertsDisplay(alerts);
+      } else {
+        console.error('Failed to load alerts');
+      }
+    } catch (error) {
+      console.error('Error loading alerts:', error);
+    }
+  }
+
+  // Load trend data
+  async function loadTrendData() {
+    try {
+      const response = await fetch('/api/quality/metrics?trends=true&months=1', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        trendData = data;
+        updateTrendChart();
+      } else {
+        console.error('Failed to load trend data');
+      }
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+    }
+  }
+
+  // Update quality display
+  function updateQualityDisplay(data) {
+    // Update overall quality score
+    const qualityScore = data.qualityScore || 0;
+    document.getElementById('overallQualityScore').textContent = qualityScore.toFixed(1);
+    document.getElementById('qualityScoreBar').style.width = `${Math.min(qualityScore, 100)}%`;
+
+    // Update latency
+    document.getElementById('avgLatency').textContent = data.avgLatency?.toFixed(1) || '-';
+    const latencyStatus = data.avgLatency < 30 ? '🟢 Sangat Baik' : 
+                         data.avgLatency < 50 ? '🟡 Baik' : 
+                         data.avgLatency < 100 ? '🟠 Sedang' : '🔴 Perlu Perhatian';
+    document.getElementById('latencyStatus').textContent = latencyStatus;
+
+    // Update packet loss
+    document.getElementById('avgPacketLoss').textContent = data.avgPacketLoss?.toFixed(2) || '-';
+    const packetLossStatus = data.avgPacketLoss < 0.1 ? '🟢 Sangat Baik' : 
+                            data.avgPacketLoss < 0.5 ? '🟡 Baik' : 
+                            data.avgPacketLoss < 1.0 ? '🟠 Sedang' : '🔴 Perlu Perhatian';
+    document.getElementById('packetLossStatus').textContent = packetLossStatus;
+
+    // Update uptime
+    document.getElementById('avgUptime').textContent = data.avgUptime?.toFixed(2) || '-';
+    const uptimeStatus = data.avgUptime >= 99.9 ? '🟢 Sangat Baik' : 
+                        data.avgUptime >= 99.5 ? '🟡 Baik' : 
+                        data.avgUptime >= 99.0 ? '🟠 Sedang' : '🔴 Perlu Perhatian';
+    document.getElementById('uptimeStatus').textContent = uptimeStatus;
+
+    // Update speeds
+    document.getElementById('downloadSpeed').textContent = data.avgDownloadSpeed?.toFixed(1) || '-';
+    document.getElementById('uploadSpeed').textContent = data.avgUploadSpeed?.toFixed(1) || '-';
+  }
+
+  // Update alerts display
+  function updateAlertsDisplay(alerts) {
+    const alertsContainer = document.getElementById('qualityAlerts');
+    
+    if (!alerts || alerts.length === 0) {
+      alertsContainer.innerHTML = `
+        <div class="text-center text-gray-500 py-4">
+          <div class="text-sm">✅ Tidak ada notifikasi aktif</div>
+        </div>
+      `;
+      return;
+    }
+
+    alertsContainer.innerHTML = alerts.map(alert => `
+      <div class="border rounded-lg p-3 ${getSeverityColor(alert.severity)}">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start space-x-3">
+            <span class="text-lg">${getStatusIcon(alert.status)}</span>
+            <div class="flex-1">
+              <div class="font-medium text-sm">${alert.title}</div>
+              <div class="text-xs mt-1 opacity-75">${alert.message}</div>
+              <div class="text-xs mt-2 opacity-60">
+                ${new Date(alert.detected_at).toLocaleString('id-ID')}
+              </div>
+            </div>
+          </div>
+          ${alert.status === 'active' ? `
+            <button 
+              class="text-xs px-2 py-1 bg-white bg-opacity-50 rounded hover:bg-opacity-70 transition-colors"
+              onclick="acknowledgeAlert('${alert.id}')"
+            >
+              Acknowledge
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Update trend chart
+  function updateTrendChart() {
+    const metric = document.getElementById('trendMetric').value;
+    const chartContainer = document.getElementById('trendChart');
+    
+    if (!trendData || trendData.length === 0) {
+      chartContainer.innerHTML = `
+        <div class="text-center text-gray-500">
+          <p>Belum ada data tren tersedia</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Simple bar chart implementation
+    const maxValue = Math.max(...trendData.map(d => d[metric] || 0));
+    const chartHTML = `
+      <div class="h-full flex items-end space-x-1 px-2">
+        ${trendData.slice(-30).map((point, index) => {
+          const value = point[metric] || 0;
+          const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+          const displayValue = metric.includes('Speed') ? value.toFixed(1) : 
+                              metric.includes('Latency') ? value.toFixed(1) : 
+                              value.toFixed(2);
+          
+          return `
+            <div
+              class="flex-1 bg-blue-500 hover:bg-blue-600 transition-colors relative group"
+              style="height: ${height}%; min-height: 2px;"
+              title="${point.date}: ${displayValue}"
+            >
+              <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div>${point.date}</div>
+                <div>${displayValue}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    
+    chartContainer.innerHTML = chartHTML;
+  }
+
+  // Run quality test
+  async function runQualityTest() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const testButton = document.getElementById('runQualityTest');
+    
+    try {
+      loadingOverlay.classList.remove('hidden');
+      testButton.disabled = true;
+      testButton.textContent = '⏳ Menguji...';
+
+      // Get user's package (simplified - in real app, this would come from user profile)
+      const packageId = 'standard'; // Default package
+
+      const response = await fetch('/api/quality/realtime', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ package_id: packageId })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Refresh data after test
+        await loadQualityData();
+        await loadAlerts();
+        
+        // Show success message
+        showSuccess('Tes kualitas berhasil diselesaikan!');
+      } else {
+        throw new Error('Test failed');
+      }
+    } catch (error) {
+      console.error('Error running quality test:', error);
+      showError('Gagal menjalankan tes kualitas. Silakan coba lagi.');
+    } finally {
+      loadingOverlay.classList.add('hidden');
+      testButton.disabled = false;
+      testButton.textContent = '🧪 Jalankan Tes Kualitas';
+    }
+  }
+
+  // Acknowledge alert
+  async function acknowledgeAlert(alertId) {
+    try {
+      const response = await fetch('/api/quality/alerts', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          alert_id: alertId,
+          action: 'acknowledge'
+        })
+      });
+
+      if (response.ok) {
+        await loadAlerts();
+        showSuccess('Notifikasi telah di-acknowledge');
+      } else {
+        throw new Error('Failed to acknowledge alert');
+      }
+    } catch (error) {
+      console.error('Error acknowledging alert:', error);
+      showError('Gagal meng-acknowledge notifikasi');
+    }
+  }
+
+  // Refresh alerts
+  async function refreshAlerts() {
+    await loadAlerts();
+    showSuccess('Notifikasi diperbarui');
+  }
+
+  // Update last updated time
+  function updateLastUpdated() {
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent = now.toLocaleTimeString('id-ID');
+  }
+
+  // Utility functions
+  function getSeverityColor(severity) {
+    switch (severity) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  }
+
+  function getStatusIcon(status) {
+    switch (status) {
+      case 'active': return '🔴';
+      case 'acknowledged': return '🟡';
+      case 'resolved': return '🟢';
+      default: return '⚪';
+    }
+  }
+
+  function showSuccess(message) {
+    // Simple success notification (in real app, use a proper notification system)
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  function showError(message) {
+    // Simple error notification (in real app, use a proper notification system)
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Auto-refresh data every 5 minutes
+  setInterval(() => {
+    if (authToken) {
+      loadQualityData();
+      loadAlerts();
+    }
+  }, 5 * 60 * 1000);
+</script>
