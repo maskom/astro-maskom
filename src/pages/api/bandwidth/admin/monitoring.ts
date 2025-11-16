@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../../../lib/database.types';
+import { log, generateRequestId } from '../../../../lib/logger';
 
 // Interface for data cap statistics
 interface DataCapStats {
@@ -20,6 +21,14 @@ const supabase = createClient<Database>(
 );
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-admin-monitoring',
+    method: 'GET',
+    url: request.url,
+  });
+
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -170,7 +179,14 @@ export const GET: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Admin monitoring API error:', error);
+    apiLogger.error(
+      'Admin monitoring API error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'GET',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -179,6 +195,14 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-admin-monitoring',
+    method: 'POST',
+    url: request.url,
+  });
+
   try {
     const body = await request.json();
     const { userId, package_id, monthly_cap_gb, billing_cycle_start } = body;
@@ -263,7 +287,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Admin monitoring POST error:', error);
+    apiLogger.error(
+      'Admin monitoring POST error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'POST',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

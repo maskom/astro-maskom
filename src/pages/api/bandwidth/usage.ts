@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import { log, generateRequestId } from '../../../lib/logger';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
@@ -7,6 +8,14 @@ const supabase = createClient(
 );
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-usage',
+    method: 'GET',
+    url: request.url,
+  });
+
   try {
     const url = new URL(request.url);
     const days = parseInt(url.searchParams.get('days') || '30');
@@ -195,7 +204,14 @@ export const GET: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Bandwidth usage API error:', error);
+    apiLogger.error(
+      'Bandwidth usage API error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'GET',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -204,6 +220,14 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-usage',
+    method: 'POST',
+    url: request.url,
+  });
+
   try {
     const body = await request.json();
     const { download_bytes, upload_bytes, usage_date, package_id } = body;
@@ -270,7 +294,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Bandwidth usage POST error:', error);
+    apiLogger.error(
+      'Bandwidth usage POST error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'POST',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

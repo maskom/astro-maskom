@@ -17,6 +17,8 @@ export interface LogContext {
   url?: string;
   statusCode?: number;
   duration?: number;
+  module?: string;
+  operation?: string;
   [key: string]: string | number | boolean | undefined;
 }
 
@@ -30,6 +32,11 @@ export interface LogEntry {
     message: string;
     stack?: string;
   };
+}
+
+// Generate unique request ID
+export function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 class Logger {
@@ -149,6 +156,29 @@ class Logger {
     const errorObj = error instanceof Error ? error : new Error(String(error));
     this.error(message, errorObj, context);
   }
+
+  // Create a child logger with predefined context
+  child(context: LogContext): {
+    debug: (message: string, additionalContext?: LogContext) => void;
+    info: (message: string, additionalContext?: LogContext) => void;
+    warn: (message: string, additionalContext?: LogContext) => void;
+    error: (
+      message: string,
+      error?: Error,
+      additionalContext?: LogContext
+    ) => void;
+  } {
+    return {
+      debug: (message: string, additionalContext?: LogContext) =>
+        this.debug(message, { ...context, ...additionalContext }),
+      info: (message: string, additionalContext?: LogContext) =>
+        this.info(message, { ...context, ...additionalContext }),
+      warn: (message: string, additionalContext?: LogContext) =>
+        this.warn(message, { ...context, ...additionalContext }),
+      error: (message: string, error?: Error, additionalContext?: LogContext) =>
+        this.error(message, error, { ...context, ...additionalContext }),
+    };
+  }
 }
 
 // Export Logger class for testing
@@ -169,4 +199,5 @@ export const log = {
     logger.error(message, error, context),
   apiError: (message: string, error: unknown, context?: LogContext) =>
     logger.apiError(message, error, context),
+  child: (context: LogContext) => logger.child(context),
 };

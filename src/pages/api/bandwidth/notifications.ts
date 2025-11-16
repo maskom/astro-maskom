@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import { log, generateRequestId } from '../../../lib/logger';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
@@ -7,6 +8,14 @@ const supabase = createClient(
 );
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-notifications',
+    method: 'GET',
+    url: request.url,
+  });
+
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -78,7 +87,14 @@ export const GET: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Notifications API error:', error);
+    apiLogger.error(
+      'Notifications API error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'GET',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -87,6 +103,14 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const PUT: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-notifications',
+    method: 'PUT',
+    url: request.url,
+  });
+
   try {
     const body = await request.json();
     const { notificationIds, markAsRead } = body;
@@ -148,7 +172,14 @@ export const PUT: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Notifications PUT error:', error);
+    apiLogger.error(
+      'Notifications PUT error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'PUT',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -157,6 +188,14 @@ export const PUT: APIRoute = async ({ request }) => {
 };
 
 export const DELETE: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-notifications',
+    method: 'DELETE',
+    url: request.url,
+  });
+
   try {
     const body = await request.json();
     const { notificationIds } = body;
@@ -216,7 +255,14 @@ export const DELETE: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Notifications DELETE error:', error);
+    apiLogger.error(
+      'Notifications DELETE error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'DELETE',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
