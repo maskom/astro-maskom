@@ -1,5 +1,22 @@
 // Database type definitions for Supabase
 
+// Type for subscriber preferences JSON field
+export interface SubscriberPreferences {
+  email?: boolean;
+  sms?: boolean;
+  in_app?: boolean;
+  push?: boolean;
+  outage_notifications?: boolean;
+  maintenance_notifications?: boolean;
+  billing_notifications?: boolean;
+  marketing_notifications?: boolean;
+  minimum_severity?: 'low' | 'medium' | 'high' | 'critical';
+  quiet_hours_start?: string | null;
+  quiet_hours_end?: string | null;
+  timezone?: string;
+  [key: string]: unknown;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -85,21 +102,21 @@ export interface Database {
         Row: {
           id: string;
           email: string;
-          preferences: any;
+          preferences: SubscriberPreferences;
           subscribed_at: string;
           confirmed: boolean;
         };
         Insert: {
           id?: string;
           email: string;
-          preferences: any;
+          preferences: SubscriberPreferences;
           subscribed_at?: string;
           confirmed?: boolean;
         };
         Update: {
           id?: string;
           email?: string;
-          preferences?: any;
+          preferences?: SubscriberPreferences;
           subscribed_at?: string;
           confirmed?: boolean;
         };
