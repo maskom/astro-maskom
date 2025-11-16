@@ -1,21 +1,63 @@
 import type { APIRoute } from 'astro';
+import { createServerClient } from '../../lib/supabase';
 
-export const GET: APIRoute = async ({ request }) => {
-  const url = new URL(request.url);
+export const GET: APIRoute = async ({}) => {
   const timestamp = new Date().toISOString();
+  const startTime = Date.now();
 
-  // Basic health checks
+  // Initialize health checks
   const checks = {
-    status: 'healthy',
+    status: 'healthy' as 'healthy' | 'degraded',
     timestamp,
     uptime: process.uptime(),
     environment: import.meta.env.MODE,
     version: process.env.npm_package_version || '0.0.1',
+    responseTime: 0,
     services: {
-      supabase: 'configured',
-      cloudflare: 'active',
+      supabase: {
+        status: 'unknown' as 'unknown' | 'healthy' | 'error',
+        latency: 0,
+        error: null as string | null,
+      },
+      cloudflare: {
+        status: 'active' as string,
+        features: ['pages', 'kv', 'functions'] as string[],
+      },
     },
   };
+
+  try {
+    // Test Supabase connectivity
+    const supabase = createServerClient();
+    const supabaseStart = Date.now();
+
+    const { error } = await supabase
+      .from('security_audit_logs')
+      .select('count')
+      .limit(1);
+
+    const supabaseLatency = Date.now() - supabaseStart;
+
+    if (error) {
+      checks.services.supabase.status = 'error';
+      checks.services.supabase.error = error.message;
+      checks.status = 'degraded';
+    } else {
+      checks.services.supabase.status = 'healthy';
+      checks.services.supabase.latency = supabaseLatency;
+    }
+  } catch (error) {
+    checks.services.supabase.status = 'error';
+    checks.services.supabase.error =
+      error instanceof Error ? error.message : 'Unknown error';
+    checks.status = 'degraded';
+  }
+
+  // Calculate total response time
+  checks.responseTime = Date.now() - startTime;
+
+  // Determine HTTP status based on overall health
+  const httpStatus = checks.status === 'healthy' ? 200 : 503;
 
   // Add CORS headers for monitoring tools
   const headers = new Headers({
@@ -27,7 +69,7 @@ export const GET: APIRoute = async ({ request }) => {
   });
 
   return new Response(JSON.stringify(checks, null, 2), {
-    status: 200,
+    status: httpStatus,
     headers,
   });
 };
