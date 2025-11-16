@@ -32,7 +32,7 @@ export class PaymentService {
   async updateTransactionStatus(
     transactionId: string,
     status: PaymentTransaction['status'],
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
