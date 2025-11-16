@@ -379,7 +379,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
       const result = await shouldNotify(prefs, 'critical', 'email');
 
@@ -394,7 +400,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Low severity should not notify
@@ -415,7 +427,13 @@ describe('OutageNotificationService', () => {
       };
 
       const shouldNotify = (
-        outageNotificationService as any
+        outageNotificationService as unknown as {
+          shouldNotifyUser: (
+            prefs: Record<string, unknown>,
+            severity: string,
+            channel: string
+          ) => Promise<boolean>;
+        }
       ).shouldNotifyUser.bind(outageNotificationService);
 
       // Email should work
