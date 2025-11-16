@@ -7,6 +7,20 @@ const supabase = createClient<Database>(
   import.meta.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+interface DataCap {
+  id: string;
+  user_id: string;
+  package_id: string;
+  monthly_cap_gb: number;
+  current_usage_gb: number;
+  billing_cycle_start: string;
+  is_active: boolean;
+  notification_thresholds: number[];
+  last_notified_at: Record<string, string>;
+  created_at: string;
+  updated_at: string;
+}
+
 export const GET: APIRoute = async ({ request }) => {
   try {
     const authHeader = request.headers.get('authorization');
@@ -37,7 +51,7 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if ((profile as any)?.role !== 'admin') {
+    if ((profile as { role?: string })?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -99,16 +113,16 @@ export const GET: APIRoute = async ({ request }) => {
 
     const totalUsers = stats?.length || 0;
     const totalCapacityGB =
-      stats?.reduce((sum, cap: any) => sum + cap.monthly_cap_gb, 0) || 0;
+      stats?.reduce((sum, cap: DataCap) => sum + cap.monthly_cap_gb, 0) || 0;
     const totalUsageGB =
-      stats?.reduce((sum, cap: any) => sum + cap.current_usage_gb, 0) || 0;
+      stats?.reduce((sum, cap: DataCap) => sum + cap.current_usage_gb, 0) || 0;
     const averageUsagePercentage =
       totalCapacityGB > 0 ? (totalUsageGB / totalCapacityGB) * 100 : 0;
 
     // Get users with high usage (>90% of cap)
     const highUsageUsers =
       dataCaps?.filter(
-        (cap: any) => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
+        (cap: DataCap) => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
       ) || [];
 
     // Get recent notifications
@@ -206,7 +220,7 @@ export const POST: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if ((profile as any)?.role !== 'admin') {
+    if ((profile as { role?: string })?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -224,7 +238,7 @@ export const POST: APIRoute = async ({ request }) => {
           billing_cycle_start || new Date().toISOString().split('T')[0],
         notification_thresholds: [80, 90, 100],
         is_active: true,
-      } as any)
+      })
       .select()
       .single();
 

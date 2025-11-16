@@ -1,9 +1,16 @@
-import type { PaymentTransaction, Invoice } from './types';
+import { createClient } from '@supabase/supabase-js';
+import type {
+  PaymentTransaction,
+  Invoice,
+  DatabaseTransactionData,
+  DatabaseInvoiceData,
+} from './types';
+import type { Database } from '../database.types';
 
 export class PaymentService {
-  private supabase: any;
+  private supabase: ReturnType<typeof createClient<Database>>;
 
-  constructor(supabaseClient: any) {
+  constructor(supabaseClient: ReturnType<typeof createClient<Database>>) {
     this.supabase = supabaseClient;
   }
 
@@ -32,7 +39,7 @@ export class PaymentService {
   async updateTransactionStatus(
     transactionId: string,
     status: PaymentTransaction['status'],
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<PaymentTransaction> {
     try {
       const { data, error } = await this.supabase
@@ -232,7 +239,9 @@ export class PaymentService {
     }
   }
 
-  private transformTransactionData(data: any): PaymentTransaction {
+  private transformTransactionData(
+    data: DatabaseTransactionData
+  ): PaymentTransaction {
     return {
       id: data.id,
       orderId: data.order_id,
@@ -247,7 +256,7 @@ export class PaymentService {
     };
   }
 
-  private transformInvoiceData(data: any): Invoice {
+  private transformInvoiceData(data: DatabaseInvoiceData): Invoice {
     return {
       id: data.id,
       invoiceNumber: data.invoice_number,
