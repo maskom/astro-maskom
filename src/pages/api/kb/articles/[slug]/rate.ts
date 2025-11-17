@@ -13,7 +13,7 @@ interface Context {
 // POST /api/kb/articles/[slug]/rate - Rate an article
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, params, cookies }) => {
-    const { slug } = params as Context;
+    const slug = params?.slug;
     const body = await request.json();
     const { rating, feedback, helpful } = body;
 
@@ -91,7 +91,7 @@ export const POST: APIRoute = withApiMiddleware(
 
 // GET /api/kb/articles/[slug]/ratings - Get article ratings
 export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
-  const { slug } = params as Context;
+  const slug = params?.slug;
 
   // Validate required fields
   Validation.required(slug, 'slug');

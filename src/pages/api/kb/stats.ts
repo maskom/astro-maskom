@@ -27,7 +27,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     // Include popular articles if requested
     if (includePopular) {
       const popularArticles = await knowledgeBaseService.getPopularArticles(10);
-      response.data.popular_articles = popularArticles;
+      (response.data as any).popular_articles = popularArticles;
     }
 
     // Include recent articles if requested
@@ -37,7 +37,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
         sort_by: 'published_at',
         sort_order: 'desc',
       });
-      response.data.recent_articles = recentArticles;
+      (response.data as any).recent_articles = recentArticles;
     }
 
     return new Response(JSON.stringify(response), {

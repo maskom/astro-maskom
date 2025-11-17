@@ -11,7 +11,7 @@ interface Context {
 
 // GET /api/kb/articles/[slug] - Get single article
 export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
-  const { slug } = params as Context;
+  const slug = params?.slug;
 
   // Validate required fields
   Validation.required(slug, 'slug');
@@ -52,7 +52,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
 
 // PUT /api/kb/articles/[slug] - Update article (requires support/admin role)
 export const PUT: APIRoute = withApiMiddleware(async ({ request, params }) => {
-  const { slug } = params as Context;
+  const slug = params?.slug;
   const body = await request.json();
   const {
     title,
@@ -162,7 +162,7 @@ export const PUT: APIRoute = withApiMiddleware(async ({ request, params }) => {
 
 // DELETE /api/kb/articles/[slug] - Delete article (requires admin role)
 export const DELETE: APIRoute = withApiMiddleware(async ({ params }) => {
-  const { slug } = params as Context;
+  const slug = params?.slug;
 
   // Validate required fields
   Validation.required(slug, 'slug');

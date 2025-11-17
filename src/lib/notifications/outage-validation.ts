@@ -156,6 +156,7 @@ export class OutageValidation {
     // Validate quiet hours format
     if (
       preferences.quiet_hours_start &&
+      preferences.quiet_hours_start.trim() &&
       !this.isValidTimeFormat(preferences.quiet_hours_start)
     ) {
       errors.push('Quiet hours start must be in HH:MM format');
@@ -163,6 +164,7 @@ export class OutageValidation {
 
     if (
       preferences.quiet_hours_end &&
+      preferences.quiet_hours_end.trim() &&
       !this.isValidTimeFormat(preferences.quiet_hours_end)
     ) {
       errors.push('Quiet hours end must be in HH:MM format');

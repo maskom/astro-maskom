@@ -2,6 +2,18 @@ import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
 import type { Database } from '../types';
 
+// Helper function to properly format error for logging
+function formatErrorForLogging(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+  return { message: String(error) };
+}
+
 // Use database types directly
 export type KBCategory = Database['public']['Tables']['kb_categories']['Row'];
 export type KBArticle = Database['public']['Tables']['kb_articles']['Row'];
@@ -99,7 +111,10 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      logger.error('Failed to fetch knowledge base categories', { error });
+      logger.error(
+        'Failed to fetch knowledge base categories',
+        error instanceof Error ? error : new Error(String(error))
+      );
       throw error;
     }
   }
@@ -115,7 +130,11 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to fetch category by slug', { slug, error });
+      logger.error(
+        'Failed to fetch category by slug',
+        error instanceof Error ? error : new Error(String(error)),
+        { slug }
+      );
       throw error;
     }
   }
@@ -131,7 +150,11 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to create category', { category, error });
+      logger.error(
+        'Failed to create category',
+        error instanceof Error ? error : new Error(String(error)),
+        { category }
+      );
       throw error;
     }
   }
@@ -151,7 +174,11 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to update category', { id, updates, error });
+      logger.error('Failed to update category', {
+        id,
+        updates,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -208,9 +235,21 @@ class KnowledgeBaseService {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data || [];
+
+      // Type guard to ensure data is the correct type
+      if (
+        !data ||
+        (Array.isArray(data) && data.length > 0 && 'error' in data[0])
+      ) {
+        throw new Error('Parser error in query results');
+      }
+
+      return (data as ArticleWithCategory[]) || [];
     } catch (error) {
-      logger.error('Failed to fetch articles', { options, error });
+      logger.error('Failed to fetch articles', {
+        options,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -235,14 +274,22 @@ class KnowledgeBaseService {
 
       if (error) throw error;
 
+      // Type guard to ensure data is the correct type
+      if (data && 'error' in data) {
+        throw new Error('Parser error in article query result');
+      }
+
       // Increment view count if requested
       if (incrementViews && data) {
         await this.incrementViewCount(data.id);
       }
 
-      return data;
+      return data as ArticleWithCategory | null;
     } catch (error) {
-      logger.error('Failed to fetch article by slug', { slug, error });
+      logger.error('Failed to fetch article by slug', {
+        slug,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -262,9 +309,18 @@ class KnowledgeBaseService {
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Type guard to ensure data is the correct type
+      if (data && 'error' in data) {
+        throw new Error('Parser error in article query result');
+      }
+
+      return data as ArticleWithCategory | null;
     } catch (error) {
-      logger.error('Failed to fetch article by id', { id, error });
+      logger.error('Failed to fetch article by id', {
+        id,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -280,7 +336,10 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to create article', { article, error });
+      logger.error('Failed to create article', {
+        article,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -300,7 +359,11 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to update article', { id, updates, error });
+      logger.error('Failed to update article', {
+        id,
+        updates,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -314,7 +377,10 @@ class KnowledgeBaseService {
 
       if (error) throw error;
     } catch (error) {
-      logger.error('Failed to delete article', { id, error });
+      logger.error('Failed to delete article', {
+        id,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -327,7 +393,10 @@ class KnowledgeBaseService {
 
       if (error) throw error;
     } catch (error) {
-      logger.error('Failed to increment view count', { articleId, error });
+      logger.error('Failed to increment view count', {
+        articleId,
+        error: formatErrorForLogging(error),
+      });
       // Don't throw error for view count updates
     }
   }
@@ -354,7 +423,10 @@ class KnowledgeBaseService {
         total: data?.length || 0,
       };
     } catch (error) {
-      logger.error('Failed to search articles', { options, error });
+      logger.error('Failed to search articles', {
+        options,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -379,9 +451,24 @@ class KnowledgeBaseService {
         .limit(limit);
 
       if (error) throw error;
-      return data || [];
+
+      // Transform the data to match PopularArticle interface
+      const transformedData = (data || []).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        slug: item.slug,
+        view_count: item.view_count,
+        helpful_count: item.helpful_count,
+        published_at: item.published_at,
+        category_name: item.category?.name || 'Unknown',
+      }));
+
+      return transformedData;
     } catch (error) {
-      logger.error('Failed to fetch popular articles', { limit, error });
+      logger.error('Failed to fetch popular articles', {
+        limit,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -406,7 +493,7 @@ class KnowledgeBaseService {
         `
         )
         .eq('status', 'published')
-        .eq('category_id', currentArticle.category_id)
+        .eq('category_id', currentArticle.category.id)
         .neq('id', articleId)
         .order('view_count', { ascending: false })
         .limit(limit);
@@ -414,7 +501,10 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      logger.error('Failed to fetch related articles', { articleId, error });
+      logger.error('Failed to fetch related articles', {
+        articleId,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -431,7 +521,10 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Failed to rate article', { rating, error });
+      logger.error('Failed to rate article', {
+        rating,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -447,7 +540,10 @@ class KnowledgeBaseService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      logger.error('Failed to fetch article ratings', { articleId, error });
+      logger.error('Failed to fetch article ratings', {
+        articleId,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -467,7 +563,11 @@ class KnowledgeBaseService {
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
       return data;
     } catch (error) {
-      logger.error('Failed to fetch user rating', { articleId, userId, error });
+      logger.error('Failed to fetch user rating', {
+        articleId,
+        userId,
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -477,7 +577,7 @@ class KnowledgeBaseService {
     try {
       const { data: articles, error: articlesError } = await this.supabase
         .from('kb_articles')
-        .select('view_count, helpful_count, created_at, published_at')
+        .select('view_count, helpful_count, created_at, published_at, featured')
         .eq('status', 'published');
 
       if (articlesError) throw articlesError;
@@ -530,7 +630,9 @@ class KnowledgeBaseService {
         recent_articles: recentArticles,
       };
     } catch (error) {
-      logger.error('Failed to fetch knowledge base stats', { error });
+      logger.error('Failed to fetch knowledge base stats', {
+        error: formatErrorForLogging(error),
+      });
       throw error;
     }
   }
@@ -558,7 +660,11 @@ class KnowledgeBaseService {
 
       if (error) throw error;
     } catch (error) {
-      logger.error('Failed to log search', { query, resultsCount, error });
+      logger.error('Failed to log search', {
+        query,
+        resultsCount,
+        error: formatErrorForLogging(error),
+      });
       // Don't throw error for logging
     }
   }

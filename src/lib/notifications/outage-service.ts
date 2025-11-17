@@ -40,7 +40,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'createOutageEvent',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -85,7 +85,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateOutageEvent',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -172,7 +172,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateUserNotificationPreferences',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -300,7 +300,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'createNotificationTemplate',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -334,7 +334,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateNotificationTemplate',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
