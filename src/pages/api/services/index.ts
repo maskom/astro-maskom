@@ -20,7 +20,7 @@ export async function GET({ request }: APIContext) {
     }
 
     // Get customer subscriptions
-    const { data: subscriptions, error: subscriptionsError } = await supabase
+    const { data: subscriptions, error: subscriptionsError } = await supabase!
       .from('customer_subscriptions')
       .select(
         `
@@ -48,7 +48,7 @@ export async function GET({ request }: APIContext) {
         sub => sub.status === 'active'
       );
       if (activeSubscription) {
-        const { data: usage, error: usageError } = await supabase
+        const { data: usage, error: usageError } = await supabase!
           .from('usage_monitoring')
           .select('*')
           .eq('user_id', user.id)
@@ -68,7 +68,7 @@ export async function GET({ request }: APIContext) {
     }
 
     // Get service requests
-    const { data: serviceRequests, error: requestsError } = await supabase
+    const { data: serviceRequests, error: requestsError } = await supabase!
       .from('service_requests')
       .select('*')
       .eq('user_id', user.id)
@@ -124,7 +124,7 @@ export async function POST({ request }: APIContext) {
       );
     }
 
-    const { data: serviceRequest, error: requestError } = await supabase
+    const { data: serviceRequest, error: requestError } = await supabase!
       .from('service_requests')
       .insert({
         user_id: user.id,

@@ -33,7 +33,7 @@ export async function POST({ request, params }: APIContext) {
     }
 
     // Verify ticket ownership
-    const { data: ticket, error: ticketError } = await supabase
+    const { data: ticket, error: ticketError } = await supabase!
       .from('support_tickets')
       .select('*')
       .eq('id', ticketId)
@@ -45,7 +45,7 @@ export async function POST({ request, params }: APIContext) {
     }
 
     // Create message
-    const { data: ticketMessage, error: messageError } = await supabase
+    const { data: ticketMessage, error: messageError } = await supabase!
       .from('ticket_messages')
       .insert({
         ticket_id: ticketId,
@@ -105,7 +105,7 @@ export async function GET({ request, params }: APIContext) {
     }
 
     // Verify ticket ownership and get details
-    const { data: ticket, error: ticketError } = await supabase
+    const { data: ticket, error: ticketError } = await supabase!
       .from('support_tickets')
       .select('*')
       .eq('id', ticketId)
@@ -117,7 +117,7 @@ export async function GET({ request, params }: APIContext) {
     }
 
     // Get all messages for this ticket
-    const { data: messages, error: messagesError } = await supabase
+    const { data: messages, error: messagesError } = await supabase!
       .from('ticket_messages')
       .select('*')
       .eq('ticket_id', ticketId)
