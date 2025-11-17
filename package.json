@@ -26,7 +26,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
-    "deploy:verify": "tsx scripts/verify-deployment.ts"
+    "deploy:verify": "node scripts/verify-deployment.js"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
