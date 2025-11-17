@@ -147,8 +147,25 @@ describe('LoyaltyService', () => {
 
   describe('addPoints', () => {
     it('should successfully add points', async () => {
-      // Mock the RPC call to return success
-      vi.mocked(supabase.rpc).mockResolvedValueOnce({
+      // Clear any existing mocks and set up fresh mock for this test
+      vi.clearAllMocks();
+
+      // Mock getSettings to avoid database calls
+      vi.spyOn(loyaltyService, 'getSettings').mockResolvedValue({
+        points_per_payment: 100,
+        points_per_100k_spent: 10,
+        points_per_month_tenure: 25,
+        referral_base_points: 500,
+        birthday_bonus_points: 200,
+        anniversary_bonus_points: 500,
+        points_expiry_months: 24,
+        min_redemption_points: 100,
+        max_redemption_percent: 50,
+      });
+
+      // Mock the RPC call to return success (no error)
+      const mockRpc = vi.mocked(supabase.rpc);
+      mockRpc.mockResolvedValueOnce({
         data: null,
         error: null,
       });
@@ -162,6 +179,10 @@ describe('LoyaltyService', () => {
       );
 
       expect(result).toBe(true);
+      expect(mockRpc).toHaveBeenCalledWith(
+        'add_loyalty_points',
+        expect.any(Object)
+      );
     });
 
     it('should return false on error', async () => {
@@ -295,8 +316,8 @@ describe('LoyaltyService', () => {
       );
 
       const points = await loyaltyService.calculatePaymentPoints(
-        'user-id',
-        500000
+        500000,
+        'user-id'
       );
 
       // Base: 100 + Spending: (500000/100000)*10 = 50 = 150
@@ -310,8 +331,8 @@ describe('LoyaltyService', () => {
       );
 
       const points = await loyaltyService.calculatePaymentPoints(
-        'user-id',
-        100000
+        100000,
+        'user-id'
       );
 
       expect(points).toBe(0);
