@@ -115,9 +115,11 @@ const isActivePath = (path: string) => {
     if (!button || !menu) return;
     button.addEventListener('click', () => {
       menu.classList.toggle('hidden');
-      document.body.style.overflow = menu.classList.contains('hidden')
-        ? ''
-        : 'hidden';
+      if (menu.classList.contains('hidden')) {
+        document.body.classList.remove('overflow-hidden');
+      } else {
+        document.body.classList.add('overflow-hidden');
+      }
     });
   });
 </script>

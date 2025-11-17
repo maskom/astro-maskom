@@ -35,15 +35,9 @@ const nonce = crypto
       >
         <div class="flex space-x-2">
           <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-          <div
-            class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-            style="animation-delay: 0.2s;"
-          >
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-200">
           </div>
-          <div
-            class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-            style="animation-delay: 0.4s;"
-          >
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-400">
           </div>
         </div>
       </div>
@@ -70,6 +64,16 @@ const nonce = crypto
     </form>
   </div>
 </div>
+
+<style>
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+</style>
 
 <script type="module" nonce={nonce}>
   import { initializeChatbot } from '../../scripts/chatbot.js';

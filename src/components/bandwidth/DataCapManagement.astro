@@ -223,11 +223,15 @@ const daysRemaining = getDaysRemaining();
   let selectedPackageId = null;
 
   function showUpgradeModal() {
-    document.getElementById('upgradeModal').style.display = 'flex';
+    const modal = document.getElementById('upgradeModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
   }
 
   function closeUpgradeModal() {
-    document.getElementById('upgradeModal').style.display = 'none';
+    const modal = document.getElementById('upgradeModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
     selectedPackageId = null;
   }
 

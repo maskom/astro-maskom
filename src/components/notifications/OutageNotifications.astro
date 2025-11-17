@@ -277,7 +277,7 @@ function getChannelIcon(channel: string): string {
         const badge = document.querySelector('.bg-red-500.text-white.text-xs.rounded-full');
         if (badge) {
           badge.textContent = '0';
-          badge.style.display = 'none';
+          badge.classList.add('hidden');
         }
       }
     } catch (error) {
@@ -305,8 +305,7 @@ function getChannelIcon(channel: string): string {
       if (response.ok) {
         const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
         if (element) {
-          element.style.opacity = '0';
-          element.style.transform = 'translateX(100%)';
+          element.classList.add('opacity-0', 'translate-x-full');
           setTimeout(() => element.remove(), 300);
         }
       }

@@ -58,9 +58,8 @@ import Layout from '../../layouts/Layout.astro';
 
     <!-- High Usage Alerts -->
     <div
-      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 hidden"
       id="highUsageAlert"
-      style="display: none;"
     >
       <div class="flex items-center">
         <div class="text-2xl mr-3">⚠️</div>
@@ -344,7 +343,7 @@ import Layout from '../../layouts/Layout.astro';
               <div class="flex items-center">
                 <div class="text-sm text-gray-900 mr-2">${usagePercentage.toFixed(1)}%</div>
                 <div class="w-16 bg-gray-200 rounded-full h-2">
-                  <div class="bg-${statusColor}-500 h-2 rounded-full" style="width: ${Math.min(usagePercentage, 100)}%"></div>
+                  <div class="bg-${statusColor}-500 h-2 rounded-full admin-usage-bar" style="--admin-usage-width: ${Math.min(usagePercentage, 100)}%;"></div>
                 </div>
               </div>
             </td>
@@ -411,10 +410,10 @@ import Layout from '../../layouts/Layout.astro';
       const alertText = document.getElementById('highUsageAlertText');
 
       if (highUsageUsers.length > 0) {
-        alertDiv.style.display = 'block';
+        alertDiv.classList.remove('hidden');
         alertText.textContent = `${highUsageUsers.length} user(s) are using more than 90% of their data cap.`;
       } else {
-        alertDiv.style.display = 'none';
+        alertDiv.classList.add('hidden');
       }
     }
 
@@ -434,11 +433,13 @@ import Layout from '../../layouts/Layout.astro';
     }
 
     function showAddUserModal() {
-      document.getElementById('addUserModal').style.display = 'flex';
+      document.getElementById('addUserModal').classList.remove('hidden');
+      document.getElementById('addUserModal').classList.add('flex');
     }
 
     function closeAddUserModal() {
-      document.getElementById('addUserModal').style.display = 'none';
+      document.getElementById('addUserModal').classList.add('hidden');
+      document.getElementById('addUserModal').classList.remove('flex');
       // Clear form
       document.getElementById('userEmail').value = '';
       document.getElementById('packageId').selectedIndex = 0;
@@ -498,3 +499,9 @@ import Layout from '../../layouts/Layout.astro';
     document.addEventListener('DOMContentLoaded', loadMonitoringData);
   </script>
 </Layout>
+
+<style>
+  .admin-usage-bar {
+    width: var(--admin-usage-width, 0%);
+  }
+</style>
