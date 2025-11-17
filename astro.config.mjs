@@ -16,6 +16,17 @@ export default defineConfig({
     ssr: {
       external: ['node:crypto'],
     },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // Suppress empty chunk warnings for Astro components
+          if (warning.code === 'EMPTY_BUNDLE') {
+            return;
+          }
+          warn(warning);
+        },
+      },
+    },
   },
 
   build: {
