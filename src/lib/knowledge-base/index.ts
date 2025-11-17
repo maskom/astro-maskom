@@ -18,6 +18,19 @@ export type KBArticleInsert =
   Database['public']['Tables']['kb_articles']['Insert'];
 export type KBRatingInsert =
   Database['public']['Tables']['kb_ratings']['Insert'];
+
+// Interface for popular articles query result with joined category
+interface PopularArticleQueryResult {
+  id: string;
+  title: string;
+  slug: string;
+  view_count: number;
+  helpful_count: number;
+  published_at: string;
+  category: {
+    name: string;
+  } | null;
+}
 export type KBSearchLogInsert =
   Database['public']['Tables']['kb_search_logs']['Insert'];
 
@@ -230,7 +243,9 @@ class KnowledgeBaseService {
       }
 
       // Type guard to check if data has parser errors
-      const hasParserError = (item: any): item is { error: true } & string =>
+      const hasParserError = (
+        item: unknown
+      ): item is { error: true } & string =>
         typeof item === 'object' && item !== null && 'error' in item;
 
       if (Array.isArray(data) && data.some(hasParserError)) {
@@ -275,7 +290,7 @@ class KnowledgeBaseService {
 
       // Increment view count if requested
       if (incrementViews && data && 'id' in data) {
-        await this.incrementViewCount((data as any).id);
+        await this.incrementViewCount((data as { id: string }).id);
       }
 
       return data as ArticleWithCategory | null;
@@ -453,15 +468,17 @@ class KnowledgeBaseService {
       if (error) throw error;
 
       // Transform the data to match PopularArticle interface
-      const transformedData = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        slug: item.slug,
-        view_count: item.view_count,
-        helpful_count: item.helpful_count,
-        published_at: item.published_at,
-        category_name: item.category?.name || 'Unknown',
-      }));
+      const transformedData = (data || []).map(
+        (item: PopularArticleQueryResult) => ({
+          id: item.id,
+          title: item.title,
+          slug: item.slug,
+          view_count: item.view_count,
+          helpful_count: item.helpful_count,
+          published_at: item.published_at,
+          category_name: item.category?.name || 'Unknown',
+        })
+      );
 
       return transformedData;
     } catch (error) {

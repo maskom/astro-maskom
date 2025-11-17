@@ -284,7 +284,15 @@ class OutageNotificationService {
   }
 
   // Create notification template
-  async createNotificationTemplate(templateData: any) {
+  async createNotificationTemplate(templateData: {
+    name: string;
+    type: string;
+    channel: string;
+    subject_template?: string;
+    message_template: string;
+    variables?: string[];
+    is_active?: boolean;
+  }) {
     try {
       // Validate template data
       const validation =
@@ -318,7 +326,18 @@ class OutageNotificationService {
   }
 
   // Update notification template
-  async updateNotificationTemplate(templateId: string, updateData: any) {
+  async updateNotificationTemplate(
+    templateId: string,
+    updateData: {
+      name?: string;
+      type?: string;
+      channel?: string;
+      subject_template?: string;
+      message_template?: string;
+      variables?: string[];
+      is_active?: boolean;
+    }
+  ) {
     try {
       // Validate update data
       const validation =
