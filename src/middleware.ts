@@ -35,6 +35,5 @@ export const onRequest = async ({ request, locals }, next) => {
 
   // Add performance and monitoring headers
   response.headers.set('Server-Timing', 'cloudflare;desc=cdn');
-
   return response;
 };
