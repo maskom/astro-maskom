@@ -26,7 +26,7 @@ export async function GET({ request }: APIContext) {
     const offset = (page - 1) * limit;
 
     // Get outstanding invoices
-    let invoicesQuery = supabase!
+    let invoicesQuery = supabase
       .from('invoices')
       .select(
         `
@@ -65,7 +65,7 @@ export async function GET({ request }: APIContext) {
       .reduce((sum, invoice) => sum + Number(invoice.total), 0);
 
     // Get payment methods
-    const { data: paymentMethods, error: methodsError } = await supabase!
+    const { data: paymentMethods, error: methodsError } = await supabase
       .from('payment_methods')
       .select('*')
       .eq('user_id', user.id)
@@ -121,7 +121,7 @@ export async function POST({ request }: APIContext) {
       return createErrorResponse('Missing required payment method fields', 400);
     }
 
-    const { data: paymentMethod, error: methodError } = await supabase!
+    const { data: paymentMethod, error: methodError } = await supabase
       .from('payment_methods')
       .insert({
         user_id: user.id,
