@@ -172,7 +172,7 @@ export const createIncident = async (
         severity: 'medium', // Default severity, could be determined from incident type
         affected_services: incident.affected_services,
         affected_regions: [], // Could be determined from service coverage
-        created_at: new Date().toISOString(), // Current timestamp
+        created_by: undefined, // Would be set to current user ID
       });
     }
 

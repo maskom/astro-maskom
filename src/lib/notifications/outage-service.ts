@@ -251,15 +251,10 @@ class OutageNotificationService {
     try {
       const updates: Database['public']['Tables']['outage_events']['Update'] = {
         status: 'resolved',
-        updated_at: new Date().toISOString(),
       };
 
       if (resolutionData?.actual_resolution) {
         updates.actual_resolution = resolutionData.actual_resolution;
-      }
-
-      if (resolutionData?.resolution_notes) {
-        updates.resolution_notes = resolutionData.resolution_notes;
       }
 
       const data = await outageDatabase.updateOutageEvent(id, updates);

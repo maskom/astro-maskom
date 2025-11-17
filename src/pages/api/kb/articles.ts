@@ -135,6 +135,12 @@ export const POST: APIRoute = withApiMiddleware(
         category_id: categoryId,
         author_id: 'current-user-id', // Would get from session
         status,
+        featured: false,
+        sort_order: 0,
+        view_count: 0,
+        helpful_count: 0,
+        not_helpful_count: 0,
+        search_rank: 0,
         tags: tags || [],
         difficulty_level: difficultyLevel || 'beginner',
         video_url: videoUrl || null,

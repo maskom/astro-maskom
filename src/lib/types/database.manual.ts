@@ -1,6 +1,84 @@
 // Manual database type extensions and custom types
 // These types complement the auto-generated database types
 
+// Outage notification types (from migration 20251116_outage_notifications.sql)
+export interface OutageEvent {
+  id: string;
+  title: string;
+  description: string;
+  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  affected_services: string[];
+  affected_regions: string[];
+  estimated_resolution?: string;
+  actual_resolution?: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  resolved_by?: string;
+}
+
+export interface OutageNotification {
+  id: string;
+  outage_event_id: string;
+  user_id: string;
+  notification_type: 'email' | 'sms' | 'in_app' | 'push';
+  status: 'pending' | 'sent' | 'delivered' | 'failed';
+  recipient: string;
+  message_content: string;
+  sent_at?: string;
+  delivered_at?: string;
+  error_message?: string;
+  created_at: string;
+}
+
+export interface CustomerNotificationPreferences {
+  id: string;
+  user_id: string;
+  email_notifications: boolean;
+  sms_notifications: boolean;
+  in_app_notifications: boolean;
+  push_notifications: boolean;
+  phone_number?: string;
+  outage_notifications: boolean;
+  maintenance_notifications: boolean;
+  billing_notifications: boolean;
+  marketing_notifications: boolean;
+  minimum_severity: 'low' | 'medium' | 'high' | 'critical';
+  quiet_hours_start?: string;
+  quiet_hours_end?: string;
+  timezone: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  type:
+    | 'outage_started'
+    | 'outage_updated'
+    | 'outage_resolved'
+    | 'maintenance_scheduled';
+  channel: 'email' | 'sms' | 'in_app' | 'push';
+  subject_template?: string;
+  message_template: string;
+  variables: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationRateLimit {
+  id: string;
+  user_id?: string;
+  notification_type: string;
+  last_sent_at: string;
+  count_sent: number;
+  window_start: string;
+  created_at: string;
+}
+
 // Main Database interface
 export interface Database {
   public: {
@@ -59,6 +137,42 @@ export interface Database {
         Row: KbAttachment;
         Insert: Omit<KbAttachment, 'id' | 'created_at'>;
         Update: Partial<Omit<KbAttachment, 'id' | 'created_at'>>;
+      };
+      // Outage notification tables
+      outage_events: {
+        Row: OutageEvent;
+        Insert: Omit<OutageEvent, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<OutageEvent, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      outage_notifications: {
+        Row: OutageNotification;
+        Insert: Omit<OutageNotification, 'id' | 'created_at'>;
+        Update: Partial<Omit<OutageNotification, 'id' | 'created_at'>>;
+      };
+      customer_notification_preferences: {
+        Row: CustomerNotificationPreferences;
+        Insert: Omit<
+          CustomerNotificationPreferences,
+          'id' | 'created_at' | 'updated_at'
+        >;
+        Update: Partial<
+          Omit<
+            CustomerNotificationPreferences,
+            'id' | 'created_at' | 'updated_at'
+          >
+        >;
+      };
+      notification_templates: {
+        Row: NotificationTemplate;
+        Insert: Omit<NotificationTemplate, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<
+          Omit<NotificationTemplate, 'id' | 'created_at' | 'updated_at'>
+        >;
+      };
+      notification_rate_limits: {
+        Row: NotificationRateLimit;
+        Insert: Omit<NotificationRateLimit, 'id' | 'created_at'>;
+        Update: Partial<Omit<NotificationRateLimit, 'id' | 'created_at'>>;
       };
       // Add other tables as needed
     };
