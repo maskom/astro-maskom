@@ -5,6 +5,12 @@ export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
   const startTime = Date.now();
 
+  // Check required environment variables
+  const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_KEY'];
+  const missingEnvVars = requiredEnvVars.filter(
+    envVar => !import.meta.env[envVar]
+  );
+
   // Initialize health checks
   const checks = {
     status: 'healthy' as 'healthy' | 'degraded',
@@ -13,6 +19,11 @@ export const GET: APIRoute = async () => {
     environment: import.meta.env.MODE,
     version: process.env.npm_package_version || '0.0.1',
     responseTime: 0,
+    env_check: {
+      status: missingEnvVars.length === 0 ? 'healthy' : 'error',
+      required_vars: requiredEnvVars,
+      missing_vars: missingEnvVars,
+    },
     services: {
       supabase: {
         status: 'unknown' as 'unknown' | 'healthy' | 'error',
@@ -53,6 +64,11 @@ export const GET: APIRoute = async () => {
     } else {
       checks.services.supabase.status = 'healthy';
       checks.services.supabase.latency = supabaseLatency;
+    }
+
+    // Update overall status if environment check failed
+    if (checks.env_check.status === 'error') {
+      checks.status = 'degraded';
     }
   } catch (error) {
     // In development, Supabase might not be running - don't mark as degraded
