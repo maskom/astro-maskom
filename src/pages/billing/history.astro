@@ -265,5 +265,9 @@ if (user.data.user) {
           alert('Unable to check payment status. Please try again.');
         });
     }
+
+    // Ensure functions are available globally
+    window.viewReceipt = viewReceipt;
+    window.checkStatus = checkStatus;
   </script>
 </Layout>
