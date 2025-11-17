@@ -1,5 +1,4 @@
 import { vi } from 'vitest';
-import { Request } from '@astrojs/node';
 
 // Mock Supabase client
 export function createMockSupabase() {
