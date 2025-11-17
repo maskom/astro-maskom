@@ -1,4 +1,3 @@
-import { defineMiddleware } from 'astro:middleware';
 import { getSecurityHeaders, generateNonce } from './middleware/security';
 
 export const onRequest = async ({ request, locals }, next) => {
