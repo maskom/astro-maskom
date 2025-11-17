@@ -1,0 +1,306 @@
+---
+import { knowledgeBaseService } from '../../lib/knowledge-base';
+import type { KBCategory, ArticleWithCategory } from '../../lib/knowledge-base';
+
+export interface Props {
+  categorySlug?: string;
+  showSearch?: boolean;
+  showCategories?: boolean;
+  limit?: number;
+}
+
+const { categorySlug, showSearch = true, showCategories = true, limit = 20 } = Astro.props;
+
+// Fetch categories
+const categories: KBCategory[] = await knowledgeBaseService.getCategories();
+
+// Fetch articles
+const articles: ArticleWithCategory[] = await knowledgeBaseService.getArticles({
+  category_slug: categorySlug,
+  limit,
+  status: 'published',
+  sort_by: 'published_at',
+  sort_order: 'desc'
+});
+
+// Fetch popular articles
+const popularArticles = await knowledgeBaseService.getPopularArticles(5);
+
+// Get current category if specified
+const currentCategory = categorySlug 
+  ? categories.find(cat => cat.slug === categorySlug)
+  : null;
+---
+
+<section class="knowledge-base">
+  <!-- Header -->
+  <header class="mb-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+        {currentCategory ? currentCategory.name : 'Knowledge Base'}
+      </h1>
+      {currentCategory && (
+        <p class="text-lg text-gray-600 mb-2">{currentCategory.description}</p>
+      )}
+      <p class="text-gray-500">
+        {currentCategory 
+          ? `${articles.length} articles in ${currentCategory.name}`
+          : `Browse ${articles.length} helpful articles and guides`
+        }
+      </p>
+    </div>
+  </header>
+
+  <!-- Search Bar -->
+  {showSearch && (
+    <div class="mb-8">
+      <form action="/kb/search" method="GET" class="max-w-2xl mx-auto">
+        <div class="relative">
+          <input
+            type="text"
+            name="q"
+            placeholder="Search for help articles..."
+            class="w-full px-4 py-3 pl-12 pr-4 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          />
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <button
+            type="submit"
+            class="absolute inset-y-0 right-0 px-4 py-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+          >
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+  )}
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    {showCategories && (
+      <aside class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Categories</h2>
+          <nav class="space-y-2">
+            <a
+              href="/kb"
+              class={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                !categorySlug 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                All Articles
+              </span>
+            </a>
+            {categories.map((category) => (
+              <a
+                href={`/kb/category/${category.slug}`}
+                class={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  categorySlug === category.slug 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span class="flex items-center">
+                  <span class="mr-2">{category.icon}</span>
+                  {category.name}
+                </span>
+              </a>
+            ))}
+          </nav>
+
+          <!-- Popular Articles -->
+          {popularArticles.length > 0 && (
+            <div class="mt-8">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Popular Articles</h3>
+              <div class="space-y-3">
+                {popularArticles.map((article) => (
+                  <a
+                    href={`/kb/article/${article.slug}`}
+                    class="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <div class="font-medium text-gray-900">{article.title}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      {article.view_count} views • {article.category_name}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </aside>
+    )}
+
+    <!-- Main Content -->
+    <main class={showCategories ? 'lg:col-span-3' : 'lg:col-span-4'}>
+      <!-- Featured Articles -->
+      {articles.filter(article => article.featured).length > 0 && (
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Featured Articles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {articles.filter(article => article.featured).slice(0, 4).map((article) => (
+              <article class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div 
+                      class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                      style={`background-color: ${article.category.color}`}
+                    >
+                      {article.category.icon}
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span 
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                        style={`background-color: ${article.category.color}`}
+                      >
+                        {article.category.name}
+                      </span>
+                      {article.difficulty_level && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {article.difficulty_level}
+                        </span>
+                      )}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                      <a 
+                        href={`/kb/article/${article.slug}`}
+                        class="hover:text-blue-600 transition-colors"
+                      >
+                        {article.title}
+                      </a>
+                    </h3>
+                    {article.excerpt && (
+                      <p class="text-gray-600 text-sm mb-3 line-clamp-2">{article.excerpt}</p>
+                    )}
+                    <div class="flex items-center text-xs text-gray-500 space-x-4">
+                      <span>{article.view_count} views</span>
+                      {article.reading_time_minutes && (
+                        <span>{article.reading_time_minutes} min read</span>
+                      )}
+                      {article.published_at && (
+                        <span>{new Date(article.published_at).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- All Articles -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          {currentCategory ? `${currentCategory.name} Articles` : 'All Articles'}
+        </h2>
+        {articles.length > 0 ? (
+          <div class="space-y-4">
+            {articles.map((article) => (
+              <article class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div 
+                      class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                      style={`background-color: ${article.category.color}`}
+                    >
+                      {article.category.icon}
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span 
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                        style={`background-color: ${article.category.color}`}
+                      >
+                        {article.category.name}
+                      </span>
+                      {article.difficulty_level && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {article.difficulty_level}
+                        </span>
+                      )}
+                      {article.featured && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          ⭐ Featured
+                        </span>
+                      )}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                      <a 
+                        href={`/kb/article/${article.slug}`}
+                        class="hover:text-blue-600 transition-colors"
+                      >
+                        {article.title}
+                      </a>
+                    </h3>
+                    {article.excerpt && (
+                      <p class="text-gray-600 text-sm mb-3 line-clamp-2">{article.excerpt}</p>
+                    )}
+                    {article.tags && article.tags.length > 0 && (
+                      <div class="flex flex-wrap gap-1 mb-3">
+                        {article.tags.slice(0, 5).map((tag) => (
+                          <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div class="flex items-center text-xs text-gray-500 space-x-4">
+                      <span>{article.view_count} views</span>
+                      {article.helpful_count > 0 && (
+                        <span>👍 {article.helpful_count} helpful</span>
+                      )}
+                      {article.reading_time_minutes && (
+                        <span>{article.reading_time_minutes} min read</span>
+                      )}
+                      {article.published_at && (
+                        <span>{new Date(article.published_at).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No articles found</h3>
+            <p class="text-gray-500">
+              {currentCategory 
+                ? `No articles found in ${currentCategory.name}. Try browsing other categories.`
+                : 'No articles found. Try adjusting your search or browse all categories.'
+              }
+            </p>
+          </div>
+        )}
+      </section>
+    </main>
+  </div>
+</section>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

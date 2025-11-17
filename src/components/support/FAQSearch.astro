@@ -1,0 +1,316 @@
+---
+import { knowledgeBaseService, type SearchResult } from '../../lib/knowledge-base';
+
+export interface Props {
+  initialQuery?: string;
+  categorySlug?: string;
+  placeholder?: string;
+  showFilters?: boolean;
+}
+
+const { 
+  initialQuery = '', 
+  categorySlug, 
+  placeholder = 'Search for help articles...',
+  showFilters = true 
+} = Astro.props;
+
+// Get categories for filter dropdown
+const categories = await knowledgeBaseService.getCategories();
+
+// Perform search if there's an initial query
+let searchResults: SearchResult[] = [];
+let totalResults = 0;
+
+if (initialQuery) {
+  const results = await knowledgeBaseService.searchArticles({
+    query: initialQuery,
+    category_slug: categorySlug,
+    limit: 20
+  });
+  searchResults = results.articles;
+  totalResults = results.total;
+}
+---
+
+<section class="faq-search">
+  <!-- Search Form -->
+  <div class="max-w-4xl mx-auto">
+    <form 
+      id="searchForm"
+      action="/kb/search" 
+      method="GET" 
+      class="mb-8"
+    >
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex flex-col space-y-4">
+          <!-- Main Search Input -->
+          <div class="relative">
+            <input
+              type="text"
+              name="q"
+              value={initialQuery}
+              placeholder={placeholder}
+              class="w-full px-4 py-3 pl-12 pr-4 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              id="searchInput"
+              autocomplete="off"
+            />
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <button
+              type="submit"
+              class="absolute inset-y-0 right-0 px-4 py-3 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+            >
+              Search
+            </button>
+          </div>
+
+          <!-- Filters -->
+          {showFilters && (
+            <div class="flex flex-wrap gap-4 items-center">
+              <!-- Category Filter -->
+              <div class="flex items-center space-x-2">
+                <label for="categoryFilter" class="text-sm font-medium text-gray-700">
+                  Category:
+                </label>
+                <select
+                  name="category"
+                  id="categoryFilter"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option 
+                      value={category.slug}
+                      selected={categorySlug === category.slug}
+                    >
+                      {category.icon} {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <!-- Difficulty Filter -->
+              <div class="flex items-center space-x-2">
+                <label for="difficultyFilter" class="text-sm font-medium text-gray-700">
+                  Level:
+                </label>
+                <select
+                  name="difficulty"
+                  id="difficultyFilter"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">All Levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+
+              <!-- Sort Options -->
+              <div class="flex items-center space-x-2">
+                <label for="sortFilter" class="text-sm font-medium text-gray-700">
+                  Sort by:
+                </label>
+                <select
+                  name="sort"
+                  id="sortFilter"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="recent">Most Recent</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="helpful">Most Helpful</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </form>
+
+    <!-- Search Results -->
+    {initialQuery && (
+      <div>
+        <!-- Results Header -->
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">
+            Search Results
+          </h2>
+          <p class="text-gray-600">
+            Found {totalResults} result{totalResults !== 1 ? 's' : ''} for "{initialQuery}"
+          </p>
+        </div>
+
+        <!-- Results List -->
+        {searchResults.length > 0 ? (
+          <div class="space-y-6">
+            {searchResults.map((result) => (
+              <article class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                      📚
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span 
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white bg-blue-600"
+                      >
+                        {result.category_name}
+                      </span>
+                      {result.difficulty_level && (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {result.difficulty_level}
+                        </span>
+                      )}
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Relevance: {Math.round(result.rank * 100)}%
+                      </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                      <a 
+                        href={`/kb/article/${result.slug}`}
+                        class="hover:text-blue-600 transition-colors"
+                      >
+                        {result.title}
+                      </a>
+                    </h3>
+                    {result.excerpt && (
+                      <p class="text-gray-600 text-sm mb-3">{result.excerpt}</p>
+                    )}
+                    <div class="flex items-center text-xs text-gray-500 space-x-4">
+                      <span>{result.view_count} views</span>
+                      {result.helpful_count > 0 && (
+                        <span>👍 {result.helpful_count} helpful</span>
+                      )}
+                      {result.reading_time_minutes && (
+                        <span>{result.reading_time_minutes} min read</span>
+                      )}
+                      {result.published_at && (
+                        <span>{new Date(result.published_at).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+            <p class="text-gray-500 mb-4">
+              We couldn't find any articles matching "{initialQuery}"
+            </p>
+            <div class="space-y-2 text-sm text-gray-600">
+              <p>Try:</p>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Using different keywords</li>
+                <li>Checking your spelling</li>
+                <li>Browsing by category</li>
+                <li>Looking at our popular articles</li>
+              </ul>
+            </div>
+            <div class="mt-6">
+              <a 
+                href="/kb" 
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Browse All Articles
+              </a>
+            </div>
+          </div>
+        )}
+
+        <!-- Quick Links -->
+        <div class="mt-12 bg-gray-50 rounded-lg p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Help</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/kb/category/getting-started" class="block p-4 bg-white rounded-md hover:shadow-md transition-shadow">
+              <div class="text-2xl mb-2">🚀</div>
+              <h4 class="font-medium text-gray-900">Getting Started</h4>
+              <p class="text-sm text-gray-600">Basic setup and installation guides</p>
+            </a>
+            <a href="/kb/category/account-billing" class="block p-4 bg-white rounded-md hover:shadow-md transition-shadow">
+              <div class="text-2xl mb-2">💳</div>
+              <h4 class="font-medium text-gray-900">Account & Billing</h4>
+              <p class="text-sm text-gray-600">Manage your account and billing</p>
+            </a>
+            <a href="/kb/category/technical-support" class="block p-4 bg-white rounded-md hover:shadow-md transition-shadow">
+              <div class="text-2xl mb-2">🔧</div>
+              <h4 class="font-medium text-gray-900">Technical Support</h4>
+              <p class="text-sm text-gray-600">Troubleshooting and technical help</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- No Initial Query - Show Popular Searches -->
+    {!initialQuery && (
+      <div class="text-center py-12">
+        <h3 class="text-lg font-medium text-gray-900 mb-6">Popular Searches</h3>
+        <div class="flex flex-wrap justify-center gap-2">
+          {['router setup', 'internet connection', 'billing issues', 'wifi password', 'slow speed'].map((term) => (
+            <a
+              href={`/kb/search?q=${encodeURIComponent(term)}`}
+              class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {term}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<!-- Search Suggestions (Hidden by default) -->
+<div id="searchSuggestions" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1">
+  <div class="max-h-60 overflow-y-auto">
+    <!-- Suggestions will be populated here -->
+  </div>
+</div>
+
+<script>
+  // Auto-complete functionality
+  const searchInput = document.getElementById('searchInput');
+  const searchSuggestions = document.getElementById('searchSuggestions');
+  const searchForm = document.getElementById('searchForm');
+  
+  if (searchInput && searchSuggestions) {
+    let debounceTimer;
+    
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      const query = e.target.value.trim();
+      
+      if (query.length < 2) {
+        searchSuggestions.classList.add('hidden');
+        return;
+      }
+      
+      debounceTimer = setTimeout(() => {
+        // In a real implementation, this would call an API for suggestions
+        // For now, we'll keep it simple
+        searchSuggestions.classList.add('hidden');
+      }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+        searchSuggestions.classList.add('hidden');
+      }
+    });
+  }
+</script>

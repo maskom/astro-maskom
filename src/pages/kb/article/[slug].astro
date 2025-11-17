@@ -1,0 +1,24 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ArticleViewer from '../../../components/support/ArticleViewer.astro';
+
+export interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+
+// In a real implementation, you would get the user ID from the session
+const userId = undefined; // Would get from authentication
+---
+
+<Layout title="Knowledge Base Article - Maskom Network">
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ArticleViewer 
+        slug={slug}
+        userId={userId}
+      />
+    </div>
+  </div>
+</Layout>
