@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '../../lib/supabase';
+import { getEnv } from '../../lib/env';
 
 export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
@@ -33,6 +34,20 @@ export const GET: APIRoute = async () => {
       cloudflare: {
         status: 'active' as string,
         features: ['pages', 'kv', 'functions'] as string[],
+        region: 'unknown',
+        edge_location: 'unknown',
+      },
+      deployment: {
+        commit_sha:
+          process.env.VERCEL_GIT_COMMIT_SHA ||
+          process.env.GITHUB_SHA ||
+          'unknown',
+        deployment_url:
+          process.env.CF_PAGES_URL || process.env.VERCEL_URL || 'unknown',
+        environment:
+          process.env.CF_PAGES_BRANCH ||
+          process.env.VERCEL_ENV ||
+          import.meta.env.MODE,
       },
     },
   };
@@ -83,6 +98,42 @@ export const GET: APIRoute = async () => {
     }
   }
 
+  // Detect Cloudflare environment
+  try {
+    // Check if we're running on Cloudflare Pages
+    if (
+      typeof globalThis.navigator !== 'undefined' &&
+      (globalThis as any).navigator.userAgent
+    ) {
+      const userAgent = (globalThis as any).navigator.userAgent;
+      if (userAgent.includes('Cloudflare-Workers')) {
+        checks.services.cloudflare.status = 'active';
+        checks.services.cloudflare.features.push('workers-runtime');
+      }
+    }
+
+    // Try to access Cloudflare-specific environment variables
+    const cfEnv = {
+      accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
+      pages: {
+        url: process.env.CF_PAGES_URL,
+        branch: process.env.CF_PAGES_BRANCH,
+        commitSha: process.env.CF_PAGES_COMMIT_SHA,
+      },
+    };
+
+    // Add Cloudflare-specific info if available
+    if (cfEnv.accountId) {
+      checks.services.cloudflare.features.push('account-configured');
+    }
+    if (cfEnv.pages.url) {
+      checks.services.cloudflare.features.push('pages-deployed');
+    }
+  } catch (error) {
+    // Cloudflare detection failed, but don't mark as degraded
+    console.warn('Cloudflare environment detection failed:', error);
+  }
+
   // Calculate total response time
   checks.responseTime = Date.now() - startTime;
 
@@ -94,8 +145,9 @@ export const GET: APIRoute = async () => {
     'Content-Type': 'application/json',
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET',
+    'Access-Control-Allow-Methods': 'GET, HEAD',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'X-Health-Check': 'astro-maskom',
   });
 
   return new Response(JSON.stringify(checks, null, 2), {
