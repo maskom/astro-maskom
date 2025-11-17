@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
-import type { Database } from '../database.types';
+import type { Database } from '../types';
 
 // Use database types directly
 export type KBCategory = Database['public']['Tables']['kb_categories']['Row'];
