@@ -40,7 +40,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'createOutageEvent',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -85,7 +85,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateOutageEvent',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -172,7 +172,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateUserNotificationPreferences',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -251,15 +251,10 @@ class OutageNotificationService {
     try {
       const updates: Database['public']['Tables']['outage_events']['Update'] = {
         status: 'resolved',
-        updated_at: new Date().toISOString(),
       };
 
       if (resolutionData?.actual_resolution) {
         updates.actual_resolution = resolutionData.actual_resolution;
-      }
-
-      if (resolutionData?.resolution_notes) {
-        updates.resolution_notes = resolutionData.resolution_notes;
       }
 
       const data = await outageDatabase.updateOutageEvent(id, updates);
@@ -300,7 +295,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'createNotificationTemplate',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;
@@ -334,7 +329,7 @@ class OutageNotificationService {
           new Error('Validation failed'),
           {
             action: 'updateNotificationTemplate',
-            errors: validation.errors,
+            errors: JSON.stringify(validation.errors),
           }
         );
         return null;

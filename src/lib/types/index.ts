@@ -12,7 +12,7 @@ export * from './api';
 export * from './auth';
 
 // Re-export commonly used database types for convenience
-export type { Database } from './database.generated';
+export type { Database } from './database.manual';
 
 export type { SubscriberPreferences } from './database.manual';
 

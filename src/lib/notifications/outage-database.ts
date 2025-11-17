@@ -244,8 +244,8 @@ export class OutageDatabase {
     } catch (error) {
       logger.error('Error getting affected users for outage', error as Error, {
         action: 'getAffectedUsersForOutage',
-        outageRegions,
-        outageServices,
+        outageRegions: JSON.stringify(outageRegions),
+        outageServices: JSON.stringify(outageServices),
       });
       return [];
     }

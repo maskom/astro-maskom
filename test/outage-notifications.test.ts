@@ -174,14 +174,14 @@ describe('OutageNotificationService', () => {
         sms_notifications: false,
         in_app_notifications: true,
         push_notifications: false,
-        phone_number: null,
+        phone_number: undefined,
         outage_notifications: true,
         maintenance_notifications: true,
         billing_notifications: true,
         marketing_notifications: false,
         minimum_severity: 'medium' as const,
-        quiet_hours_start: null,
-        quiet_hours_end: null,
+        quiet_hours_start: undefined,
+        quiet_hours_end: undefined,
         timezone: 'UTC',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -215,14 +215,14 @@ describe('OutageNotificationService', () => {
         sms_notifications: false,
         in_app_notifications: true,
         push_notifications: false,
-        phone_number: null,
+        phone_number: undefined,
         outage_notifications: true,
         maintenance_notifications: true,
         billing_notifications: true,
         marketing_notifications: false,
         minimum_severity: 'medium' as const,
-        quiet_hours_start: null,
-        quiet_hours_end: null,
+        quiet_hours_start: undefined,
+        quiet_hours_end: undefined,
         timezone: 'UTC',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -250,15 +250,23 @@ describe('OutageNotificationService', () => {
         {
           id: 'event-1',
           title: 'Active Outage 1',
-          status: 'investigating',
-          severity: 'high',
+          description: 'Test outage 1',
+          status: 'investigating' as const,
+          severity: 'high' as const,
+          affected_regions: ['region-1'],
+          affected_services: ['service-1'],
+          updated_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
         },
         {
           id: 'event-2',
           title: 'Active Outage 2',
-          status: 'monitoring',
-          severity: 'medium',
+          description: 'Test outage 2',
+          status: 'monitoring' as const,
+          severity: 'medium' as const,
+          affected_regions: ['region-2'],
+          affected_services: ['service-2'],
+          updated_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
         },
       ];
@@ -391,11 +399,22 @@ describe('OutageNotificationService', () => {
   describe('shouldNotifyUser', () => {
     it('should return true for critical outages regardless of quiet hours', async () => {
       const prefs = {
+        id: 'test-prefs-id',
+        user_id: 'test-user',
         email_notifications: true,
+        sms_notifications: false,
+        in_app_notifications: true,
+        push_notifications: false,
         outage_notifications: true,
+        maintenance_notifications: true,
+        billing_notifications: true,
+        marketing_notifications: false,
         minimum_severity: 'medium' as const,
         quiet_hours_start: '22:00',
         quiet_hours_end: '06:00',
+        timezone: 'UTC',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Mock the validation method to return true for critical
@@ -417,9 +436,22 @@ describe('OutageNotificationService', () => {
 
     it('should respect minimum severity settings', async () => {
       const prefs = {
+        id: 'test-prefs-id',
+        user_id: 'test-user',
         email_notifications: true,
+        sms_notifications: false,
+        in_app_notifications: true,
+        push_notifications: false,
         outage_notifications: true,
+        maintenance_notifications: true,
+        billing_notifications: true,
+        marketing_notifications: false,
         minimum_severity: 'high' as const,
+        quiet_hours_start: undefined,
+        quiet_hours_end: undefined,
+        timezone: 'UTC',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Mock different return values based on severity
@@ -446,10 +478,22 @@ describe('OutageNotificationService', () => {
 
     it('should respect channel-specific settings', async () => {
       const prefs = {
+        id: 'test-prefs-id',
+        user_id: 'test-user',
         email_notifications: true,
         sms_notifications: false,
+        in_app_notifications: true,
+        push_notifications: false,
         outage_notifications: true,
+        maintenance_notifications: true,
+        billing_notifications: true,
+        marketing_notifications: false,
         minimum_severity: 'low' as const,
+        quiet_hours_start: undefined,
+        quiet_hours_end: undefined,
+        timezone: 'UTC',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Mock different return values based on channel

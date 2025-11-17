@@ -6,19 +6,19 @@ import { sanitizeInput } from '../../../../../lib/sanitization';
 
 export const prerender = false;
 
-interface Context {
-  slug: string;
-}
-
 // POST /api/kb/articles/[slug]/rate - Rate an article
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, params, cookies }) => {
-    const { slug } = params as Context;
-    const body = await request.json();
-    const { rating, feedback, helpful } = body;
+    const slug = params?.slug;
 
     // Validate required fields
+    if (!slug) {
+      throw ErrorFactory.missingRequiredField('slug');
+    }
     Validation.required(slug, 'slug');
+
+    const body = await request.json();
+    const { rating, feedback, helpful } = body;
 
     // Get article
     const article = await knowledgeBaseService.getArticleBySlug(slug, false);
@@ -55,9 +55,9 @@ export const POST: APIRoute = withApiMiddleware(
       const ratingData = {
         article_id: article.id,
         user_id: userId,
-        rating: rating || null,
-        feedback: feedback ? sanitizeInput(feedback.trim()) : null,
-        helpful: helpful !== undefined ? helpful : null,
+        rating: rating || 0,
+        feedback: feedback ? sanitizeInput(feedback.trim()) : undefined,
+        helpful: helpful !== undefined ? helpful : false,
         ip_address:
           request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown',
         user_agent: request.headers.get('user-agent') || 'unknown',
@@ -91,9 +91,12 @@ export const POST: APIRoute = withApiMiddleware(
 
 // GET /api/kb/articles/[slug]/ratings - Get article ratings
 export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
-  const { slug } = params as Context;
+  const slug = params?.slug;
 
   // Validate required fields
+  if (!slug) {
+    throw ErrorFactory.missingRequiredField('slug');
+  }
   Validation.required(slug, 'slug');
 
   // Get article

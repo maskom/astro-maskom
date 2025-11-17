@@ -6,7 +6,7 @@
 export * from './types';
 
 // Legacy exports - these will be deprecated in future versions
-export type { Database } from './types/database.generated';
+export type { Database } from './types/database.manual';
 export type { SubscriberPreferences } from './types/database.manual';
 
 // Note: This file is maintained for backward compatibility.

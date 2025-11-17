@@ -71,11 +71,12 @@ export const POST: APIRoute = withApiMiddleware(async ({ request }) => {
     const categoryData = {
       name: sanitizeInput(name.trim()),
       slug: knowledgeBaseService.generateSlug(name.trim()),
-      description: description ? sanitizeInput(description.trim()) : null,
+      description: description ? sanitizeInput(description.trim()) : undefined,
       icon: icon || '📁',
       color,
       sort_order: Math.max(0, sortOrder),
-      parent_id: parentId || null,
+      parent_id: parentId || undefined,
+      is_active: true,
     };
 
     const category = await knowledgeBaseService.createCategory(categoryData);

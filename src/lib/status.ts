@@ -172,7 +172,7 @@ export const createIncident = async (
         severity: 'medium', // Default severity, could be determined from incident type
         affected_services: incident.affected_services,
         affected_regions: [], // Could be determined from service coverage
-        created_by: 'system', // Would come from auth context
+        created_by: undefined, // Would be set to current user ID
       });
     }
 
@@ -216,7 +216,6 @@ export const updateIncident = async (
           await outageNotificationService.updateOutageEvent(event.id, {
             status: 'resolved',
             actual_resolution: new Date().toISOString(),
-            resolved_by: 'system', // Would come from auth context
           });
         }
       }

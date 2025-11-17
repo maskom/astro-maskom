@@ -132,7 +132,9 @@ export class OutageNotifications {
           new Error('Missing variables'),
           {
             action: 'sendNotification',
-            missingVariables: templateValidation.missingVariables,
+            missingVariables: JSON.stringify(
+              templateValidation.missingVariables
+            ),
           }
         );
         return;
@@ -395,7 +397,7 @@ export class OutageNotifications {
       logger.info('Retrieved notification statistics', {
         action: 'getNotificationStatistics',
         outageEventId,
-        stats,
+        stats: JSON.stringify(stats),
       });
 
       return stats;

@@ -140,6 +140,7 @@ export class OutageValidation {
 
     if (
       preferences.minimum_severity &&
+      typeof preferences.minimum_severity === 'string' &&
       !['low', 'medium', 'high', 'critical'].includes(
         preferences.minimum_severity
       )
@@ -156,6 +157,8 @@ export class OutageValidation {
     // Validate quiet hours format
     if (
       preferences.quiet_hours_start &&
+      typeof preferences.quiet_hours_start === 'string' &&
+      preferences.quiet_hours_start.trim() &&
       !this.isValidTimeFormat(preferences.quiet_hours_start)
     ) {
       errors.push('Quiet hours start must be in HH:MM format');
@@ -163,6 +166,8 @@ export class OutageValidation {
 
     if (
       preferences.quiet_hours_end &&
+      typeof preferences.quiet_hours_end === 'string' &&
+      preferences.quiet_hours_end.trim() &&
       !this.isValidTimeFormat(preferences.quiet_hours_end)
     ) {
       errors.push('Quiet hours end must be in HH:MM format');
