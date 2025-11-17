@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
-import type { Database } from '../../database.types';
+import type { Database } from '../database.types';
 
 export type OutageEvent = Database['public']['Tables']['outage_events']['Row'];
 export type OutageNotification =

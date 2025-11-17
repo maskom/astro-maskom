@@ -12,10 +12,9 @@ export * from './api';
 export * from './auth';
 
 // Re-export commonly used database types for convenience
-export type { 
-  Database, 
-  SubscriberPreferences 
-} from './database.generated';
+export type { Database } from './database.generated';
+
+export type { SubscriberPreferences } from './database.manual';
 
 export type {
   UserProfile,
@@ -28,7 +27,7 @@ export type {
   AlertConfig,
   AuditLog,
   ApiKey as ApiKeyType,
-  ExtendedNotificationPreferences
+  ExtendedNotificationPreferences,
 } from './database.manual';
 
 // Re-export API types for convenience
@@ -58,7 +57,7 @@ export type {
   WebhookEvent,
   SearchParams,
   ExportRequest,
-  ReportRequest
+  ReportRequest,
 } from './api';
 
 // Re-export auth types for convenience
@@ -97,5 +96,5 @@ export type {
   OAuthUser,
   OAuthCallback,
   SocialProvider,
-  SocialProfile
+  SocialProfile,
 } from './auth';

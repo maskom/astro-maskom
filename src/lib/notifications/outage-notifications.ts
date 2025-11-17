@@ -197,8 +197,8 @@ export class OutageNotifications {
   // Deliver notification via appropriate channel
   private async deliverNotification(
     notification: OutageNotification,
-    _subjectTemplate?: string | null,
-    _variables?: Record<string, string>
+    subjectTemplate?: string | null,
+    variables?: Record<string, string>
   ): Promise<void> {
     try {
       let success = false;

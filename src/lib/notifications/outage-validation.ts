@@ -72,7 +72,7 @@ export class OutageValidation {
   }
 
   // Validate notification preferences
-  validateNotificationPreferences(preferences: unknown): {
+  validateNotificationPreferences(preferences: Record<string, unknown>): {
     isValid: boolean;
     errors: string[];
   } {
