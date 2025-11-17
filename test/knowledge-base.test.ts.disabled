@@ -1,29 +1,67 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { knowledgeBaseService } from '../../src/lib/knowledge-base';
 
-// Mock Supabase client
-const mockSupabase = {
-  from: vi.fn(() => mockSupabase),
-  select: vi.fn(() => mockSupabase),
-  eq: vi.fn(() => mockSupabase),
-  order: vi.fn(() => mockSupabase),
-  limit: vi.fn(() => mockSupabase),
-  range: vi.fn(() => mockSupabase),
-  single: vi.fn(() => mockSupabase),
-  insert: vi.fn(() => mockSupabase),
-  update: vi.fn(() => mockSupabase),
-  delete: vi.fn(() => mockSupabase),
-  rpc: vi.fn(() => mockSupabase),
-};
+// Mock the environment first
+(globalThis as { import?: { meta: { env: Record<string, string> } } }).import =
+  {
+    meta: {
+      env: {
+        SUPABASE_URL: 'test-url',
+        SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+      },
+    },
+  };
 
 // Mock the createClient function
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => mockSupabase),
+  createClient: vi.fn(() => {
+    const mock: any = {
+      data: null,
+      error: null,
+    };
+
+    mock.from = vi.fn(() => mock);
+    mock.select = vi.fn(() => mock);
+    mock.eq = vi.fn(() => mock);
+    mock.order = vi.fn(() => mock);
+    mock.limit = vi.fn(() => mock);
+    mock.range = vi.fn(() => mock);
+    mock.single = vi.fn(() => mock);
+    mock.insert = vi.fn(() => mock);
+    mock.update = vi.fn(() => mock);
+    mock.delete = vi.fn(() => mock);
+    mock.rpc = vi.fn(() => mock);
+    mock.then = vi.fn(callback => callback(mock));
+
+    return mock;
+  }),
 }));
 
+// Import after mocking
+import { knowledgeBaseService } from '../src/lib/knowledge-base';
+
 describe('KnowledgeBaseService', () => {
+  let mockSupabase: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    // Create fresh mock for each test
+    mockSupabase = {
+      data: null,
+      error: null,
+    };
+
+    mockSupabase.from = vi.fn(() => mockSupabase);
+    mockSupabase.select = vi.fn(() => mockSupabase);
+    mockSupabase.eq = vi.fn(() => mockSupabase);
+    mockSupabase.order = vi.fn(() => mockSupabase);
+    mockSupabase.limit = vi.fn(() => mockSupabase);
+    mockSupabase.range = vi.fn(() => mockSupabase);
+    mockSupabase.single = vi.fn(() => mockSupabase);
+    mockSupabase.insert = vi.fn(() => mockSupabase);
+    mockSupabase.update = vi.fn(() => mockSupabase);
+    mockSupabase.delete = vi.fn(() => mockSupabase);
+    mockSupabase.rpc = vi.fn(() => mockSupabase);
+    mockSupabase.then = vi.fn((callback: any) => callback(mockSupabase));
   });
 
   describe('generateSlug', () => {

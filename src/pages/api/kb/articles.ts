@@ -1,21 +1,27 @@
 import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
-import { withApiMiddleware, setUserContext } from '../../../lib/middleware/api';
+import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
 import { sanitizeInput } from '../../../lib/sanitization';
 
 export const prerender = false;
 
 // GET /api/kb/articles - List articles
-export const GET: APIRoute = withApiMiddleware(async ({ request, url }) => {
+export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
   const searchParams = new URL(url).searchParams;
   const categorySlug = searchParams.get('category');
   const status = searchParams.get('status') || 'published';
   const featured = searchParams.get('featured');
   const limit = parseInt(searchParams.get('limit') || '20');
   const offset = parseInt(searchParams.get('offset') || '0');
-  const sortBy = (searchParams.get('sort_by') as any) || 'published_at';
-  const sortOrder = (searchParams.get('sort_order') as any) || 'desc';
+  const sortBy =
+    (searchParams.get('sort_by') as
+      | 'created_at'
+      | 'published_at'
+      | 'view_count'
+      | 'title') || 'published_at';
+  const sortOrder =
+    (searchParams.get('sort_order') as 'asc' | 'desc') || 'desc';
 
   // Validate parameters
   if (limit && (limit < 1 || limit > 100)) {

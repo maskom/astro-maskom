@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../../../lib/knowledge-base';
-import {
-  withApiMiddleware,
-  setUserContext,
-} from '../../../../../lib/middleware/api';
+import { withApiMiddleware } from '../../../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../../../lib/errors';
 import { sanitizeInput } from '../../../../../lib/sanitization';
 

@@ -7,13 +7,19 @@ export type KBCategory = Database['public']['Tables']['kb_categories']['Row'];
 export type KBArticle = Database['public']['Tables']['kb_articles']['Row'];
 export type KBRating = Database['public']['Tables']['kb_ratings']['Row'];
 export type KBSearchLog = Database['public']['Tables']['kb_search_logs']['Row'];
-export type KBArticleHistory = Database['public']['Tables']['kb_article_history']['Row'];
-export type KBAttachment = Database['public']['Tables']['kb_attachments']['Row'];
+export type KBArticleHistory =
+  Database['public']['Tables']['kb_article_history']['Row'];
+export type KBAttachment =
+  Database['public']['Tables']['kb_attachments']['Row'];
 
-export type KBCategoryInsert = Database['public']['Tables']['kb_categories']['Insert'];
-export type KBArticleInsert = Database['public']['Tables']['kb_articles']['Insert'];
-export type KBRatingInsert = Database['public']['Tables']['kb_ratings']['Insert'];
-export type KBSearchLogInsert = Database['public']['Tables']['kb_search_logs']['Insert'];
+export type KBCategoryInsert =
+  Database['public']['Tables']['kb_categories']['Insert'];
+export type KBArticleInsert =
+  Database['public']['Tables']['kb_articles']['Insert'];
+export type KBRatingInsert =
+  Database['public']['Tables']['kb_ratings']['Insert'];
+export type KBSearchLogInsert =
+  Database['public']['Tables']['kb_search_logs']['Insert'];
 
 export interface SearchResult {
   id: string;
@@ -130,7 +136,10 @@ class KnowledgeBaseService {
     }
   }
 
-  async updateCategory(id: string, updates: Partial<KBCategory>): Promise<KBCategory> {
+  async updateCategory(
+    id: string,
+    updates: Partial<KBCategory>
+  ): Promise<KBCategory> {
     try {
       const { data, error } = await this.supabase
         .from('kb_categories')
@@ -148,19 +157,19 @@ class KnowledgeBaseService {
   }
 
   // Articles
-  async getArticles(options: {
-    category_slug?: string;
-    status?: string;
-    featured?: boolean;
-    limit?: number;
-    offset?: number;
-    sort_by?: 'created_at' | 'published_at' | 'view_count' | 'title';
-    sort_order?: 'asc' | 'desc';
-  } = {}): Promise<ArticleWithCategory[]> {
+  async getArticles(
+    options: {
+      category_slug?: string;
+      status?: string;
+      featured?: boolean;
+      limit?: number;
+      offset?: number;
+      sort_by?: 'created_at' | 'published_at' | 'view_count' | 'title';
+      sort_order?: 'asc' | 'desc';
+    } = {}
+  ): Promise<ArticleWithCategory[]> {
     try {
-      let query = this.supabase
-        .from('kb_articles')
-        .select(`
+      let query = this.supabase.from('kb_articles').select(`
           *,
           category:kb_categories(*),
           author:auth.users(id, email, name)
@@ -190,7 +199,10 @@ class KnowledgeBaseService {
       }
 
       if (options.offset) {
-        query = query.range(options.offset, options.offset + (options.limit || 20) - 1);
+        query = query.range(
+          options.offset,
+          options.offset + (options.limit || 20) - 1
+        );
       }
 
       const { data, error } = await query;
@@ -203,15 +215,20 @@ class KnowledgeBaseService {
     }
   }
 
-  async getArticleBySlug(slug: string, incrementViews: boolean = true): Promise<ArticleWithCategory | null> {
+  async getArticleBySlug(
+    slug: string,
+    incrementViews: boolean = true
+  ): Promise<ArticleWithCategory | null> {
     try {
       const { data, error } = await this.supabase
         .from('kb_articles')
-        .select(`
+        .select(
+          `
           *,
           category:kb_categories(*),
           author:auth.users(id, email, name)
-        `)
+        `
+        )
         .eq('slug', slug)
         .eq('status', 'published')
         .single();
@@ -234,11 +251,13 @@ class KnowledgeBaseService {
     try {
       const { data, error } = await this.supabase
         .from('kb_articles')
-        .select(`
+        .select(
+          `
           *,
           category:kb_categories(*),
           author:auth.users(id, email, name)
-        `)
+        `
+        )
         .eq('id', id)
         .single();
 
@@ -266,7 +285,10 @@ class KnowledgeBaseService {
     }
   }
 
-  async updateArticle(id: string, updates: Partial<KBArticle>): Promise<KBArticle> {
+  async updateArticle(
+    id: string,
+    updates: Partial<KBArticle>
+  ): Promise<KBArticle> {
     try {
       const { data, error } = await this.supabase
         .from('kb_articles')
@@ -300,7 +322,7 @@ class KnowledgeBaseService {
   async incrementViewCount(articleId: string): Promise<void> {
     try {
       const { error } = await this.supabase.rpc('increment_view_count', {
-        article_id: articleId
+        article_id: articleId,
       });
 
       if (error) throw error;
@@ -311,13 +333,15 @@ class KnowledgeBaseService {
   }
 
   // Search
-  async searchArticles(options: SearchOptions): Promise<{ articles: SearchResult[]; total: number }> {
+  async searchArticles(
+    options: SearchOptions
+  ): Promise<{ articles: SearchResult[]; total: number }> {
     try {
       const { data, error } = await this.supabase.rpc('search_knowledge_base', {
         search_query: options.query,
         category_slug: options.category_slug || null,
         limit_count: options.limit || 20,
-        offset_count: options.offset || 0
+        offset_count: options.offset || 0,
       });
 
       if (error) throw error;
@@ -327,7 +351,7 @@ class KnowledgeBaseService {
 
       return {
         articles: data || [],
-        total: data?.length || 0
+        total: data?.length || 0,
       };
     } catch (error) {
       logger.error('Failed to search articles', { options, error });
@@ -339,7 +363,8 @@ class KnowledgeBaseService {
     try {
       const { data, error } = await this.supabase
         .from('kb_articles')
-        .select(`
+        .select(
+          `
           id,
           title,
           slug,
@@ -347,7 +372,8 @@ class KnowledgeBaseService {
           helpful_count,
           published_at,
           category:kb_categories(name)
-        `)
+        `
+        )
         .eq('status', 'published')
         .order('view_count', { ascending: false })
         .limit(limit);
@@ -360,7 +386,10 @@ class KnowledgeBaseService {
     }
   }
 
-  async getRelatedArticles(articleId: string, limit: number = 5): Promise<ArticleWithCategory[]> {
+  async getRelatedArticles(
+    articleId: string,
+    limit: number = 5
+  ): Promise<ArticleWithCategory[]> {
     try {
       // First get the current article to find related ones
       const currentArticle = await this.getArticleById(articleId);
@@ -369,11 +398,13 @@ class KnowledgeBaseService {
       // Find articles in the same category or with similar tags
       const { data, error } = await this.supabase
         .from('kb_articles')
-        .select(`
+        .select(
+          `
           *,
           category:kb_categories(*),
           author:auth.users(id, email, name)
-        `)
+        `
+        )
         .eq('status', 'published')
         .eq('category_id', currentArticle.category_id)
         .neq('id', articleId)
@@ -421,7 +452,10 @@ class KnowledgeBaseService {
     }
   }
 
-  async getUserRating(articleId: string, userId: string): Promise<KBRating | null> {
+  async getUserRating(
+    articleId: string,
+    userId: string
+  ): Promise<KBRating | null> {
     try {
       const { data, error } = await this.supabase
         .from('kb_ratings')
@@ -461,20 +495,30 @@ class KnowledgeBaseService {
 
       if (ratingsError) throw ratingsError;
 
-      const totalViews = articles?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
-      const totalHelpful = articles?.reduce((sum, article) => sum + (article.helpful_count || 0), 0) || 0;
-      const averageRating = ratings?.length > 0 
-        ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length 
-        : 0;
+      const totalViews =
+        articles?.reduce(
+          (sum, article) => sum + (article.view_count || 0),
+          0
+        ) || 0;
+
+      const averageRating =
+        ratings?.length > 0
+          ? ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+            ratings.length
+          : 0;
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const recentArticles = articles?.filter(article => 
-        article.published_at && new Date(article.published_at) > thirtyDaysAgo
-      ).length || 0;
+      const recentArticles =
+        articles?.filter(
+          article =>
+            article.published_at &&
+            new Date(article.published_at) > thirtyDaysAgo
+        ).length || 0;
 
-      const featuredArticles = articles?.filter(article => article.featured).length || 0;
+      const featuredArticles =
+        articles?.filter(article => article.featured).length || 0;
 
       return {
         total_articles: articles?.length || 0,
@@ -483,7 +527,7 @@ class KnowledgeBaseService {
         total_ratings: ratings?.length || 0,
         average_rating: Math.round(averageRating * 10) / 10,
         featured_articles: featuredArticles,
-        recent_articles: recentArticles
+        recent_articles: recentArticles,
       };
     } catch (error) {
       logger.error('Failed to fetch knowledge base stats', { error });
@@ -492,7 +536,12 @@ class KnowledgeBaseService {
   }
 
   // Search logging
-  async logSearch(query: string, resultsCount: number, userId?: string, sessionId?: string): Promise<void> {
+  async logSearch(
+    query: string,
+    resultsCount: number,
+    userId?: string,
+    sessionId?: string
+  ): Promise<void> {
     try {
       const searchLog: KBSearchLogInsert = {
         query,
@@ -500,7 +549,7 @@ class KnowledgeBaseService {
         user_id: userId || null,
         ip_address: '127.0.0.1', // Would be extracted from request in real implementation
         user_agent: 'Knowledge Base Service',
-        session_id: sessionId || null
+        session_id: sessionId || null,
       };
 
       const { error } = await this.supabase
@@ -521,6 +570,7 @@ class KnowledgeBaseService {
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
       .trim();
   }
 
@@ -542,7 +592,7 @@ class KnowledgeBaseService {
       .trim();
 
     if (plainText.length <= maxLength) return plainText;
-    
+
     return plainText.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
   }
 }

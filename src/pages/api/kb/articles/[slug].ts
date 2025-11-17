@@ -88,7 +88,7 @@ export const PUT: APIRoute = withApiMiddleware(async ({ request, params }) => {
   }
 
   try {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (title !== undefined) {
       updateData.title = title.trim();

@@ -7,96 +7,98 @@ import { sanitizeInput } from '../../../lib/sanitization';
 export const prerender = false;
 
 // GET /api/kb/categories - List categories
-export const GET: APIRoute = withApiMiddleware(
-  async ({ request, url }) => {
-    const searchParams = new URL(url).searchParams;
-    const activeOnly = searchParams.get('active') !== 'false'; // Default to true
+export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const searchParams = new URL(url).searchParams;
+  const activeOnly = searchParams.get('active') !== 'false'; // Default to true
 
-    try {
-      const categories = await knowledgeBaseService.getCategories(activeOnly);
+  try {
+    const categories = await knowledgeBaseService.getCategories(activeOnly);
 
-      return new Response(JSON.stringify({
+    return new Response(
+      JSON.stringify({
         success: true,
         data: categories,
         meta: {
           timestamp: new Date().toISOString(),
           request_id: crypto.randomUUID(),
           filters: {
-            active_only: activeOnly
-          }
-        }
-      }), {
+            active_only: activeOnly,
+          },
+        },
+      }),
+      {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=1800' // 30 minutes cache
-        }
-      });
-
-    } catch (error) {
-      console.error('Categories fetch error:', error);
-      throw ErrorFactory.internalError('Failed to fetch categories');
-    }
+          'Cache-Control': 'public, max-age=1800', // 30 minutes cache
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Categories fetch error:', error);
+    throw ErrorFactory.internalError('Failed to fetch categories');
   }
-);
+});
 
 // POST /api/kb/categories - Create new category (requires admin role)
-export const POST: APIRoute = withApiMiddleware(
-  async ({ request }) => {
-    const body = await request.json();
-    const {
-      name,
-      description,
-      icon,
-      color = '#6366f1',
-      sortOrder = 0,
-      parentId
-    } = body;
+export const POST: APIRoute = withApiMiddleware(async ({ request }) => {
+  const body = await request.json();
+  const {
+    name,
+    description,
+    icon,
+    color = '#6366f1',
+    sortOrder = 0,
+    parentId,
+  } = body;
 
-    // Validate required fields
-    Validation.required(name, 'name');
-    Validation.minLength(name?.trim() || '', 2, 'name');
+  // Validate required fields
+  Validation.required(name, 'name');
+  Validation.minLength(name?.trim() || '', 2, 'name');
 
-    if (!name?.trim()) {
-      throw ErrorFactory.missingRequiredField('name');
-    }
+  if (!name?.trim()) {
+    throw ErrorFactory.missingRequiredField('name');
+  }
 
-    // Validate color format
-    if (color && !/^#[0-9A-Fa-f]{6}$/.test(color)) {
-      throw ErrorFactory.validationError('Invalid color format. Use hex color like #6366f1');
-    }
+  // Validate color format
+  if (color && !/^#[0-9A-Fa-f]{6}$/.test(color)) {
+    throw ErrorFactory.validationError(
+      'Invalid color format. Use hex color like #6366f1'
+    );
+  }
 
-    try {
-      const categoryData = {
-        name: sanitizeInput(name.trim()),
-        slug: knowledgeBaseService.generateSlug(name.trim()),
-        description: description ? sanitizeInput(description.trim()) : null,
-        icon: icon || '📁',
-        color,
-        sort_order: Math.max(0, sortOrder),
-        parent_id: parentId || null
-      };
+  try {
+    const categoryData = {
+      name: sanitizeInput(name.trim()),
+      slug: knowledgeBaseService.generateSlug(name.trim()),
+      description: description ? sanitizeInput(description.trim()) : null,
+      icon: icon || '📁',
+      color,
+      sort_order: Math.max(0, sortOrder),
+      parent_id: parentId || null,
+    };
 
-      const category = await knowledgeBaseService.createCategory(categoryData);
+    const category = await knowledgeBaseService.createCategory(categoryData);
 
-      return new Response(JSON.stringify({
+    return new Response(
+      JSON.stringify({
         success: true,
         data: category,
         message: 'Category created successfully',
         meta: {
           timestamp: new Date().toISOString(),
-          request_id: crypto.randomUUID()
-        }
-      }), {
+          request_id: crypto.randomUUID(),
+        },
+      }),
+      {
         status: 201,
         headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-    } catch (error) {
-      console.error('Category creation error:', error);
-      throw ErrorFactory.internalError('Failed to create category');
-    }
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Category creation error:', error);
+    throw ErrorFactory.internalError('Failed to create category');
   }
-);
+});
