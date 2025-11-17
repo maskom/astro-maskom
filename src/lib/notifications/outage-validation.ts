@@ -1,9 +1,21 @@
 import { logger } from '../logger';
 import type { CustomerNotificationPreferences } from './outage-database';
 
+// Interface for outage event data validation
+interface OutageEventDataInput {
+  title?: string;
+  description?: string;
+  severity?: string;
+  status?: string;
+  affected_regions?: unknown;
+  affected_services?: unknown;
+  estimated_resolution?: string;
+  actual_resolution?: string;
+}
+
 export class OutageValidation {
   // Validate outage event data
-  validateOutageEventData(eventData: any): {
+  validateOutageEventData(eventData: OutageEventDataInput): {
     isValid: boolean;
     errors: string[];
   } {

@@ -2,6 +2,7 @@ import { logger } from '../logger';
 import type { OutageEvent, OutageNotification } from './outage-database';
 import type { OutageDatabase } from './outage-database';
 import type { OutageValidation } from './outage-validation';
+import type { Database } from '../types';
 
 export class OutageNotifications {
   constructor(
@@ -230,10 +231,11 @@ export class OutageNotifications {
       }
 
       // Update notification status
-      const updateData = {
-        status: success ? 'sent' : 'failed',
-        sent_at: new Date().toISOString(),
-      } as any;
+      const updateData: Database['public']['Tables']['outage_notifications']['Update'] =
+        {
+          status: success ? 'sent' : 'failed',
+          sent_at: new Date().toISOString(),
+        };
 
       if (!success) {
         updateData.error_message = errorMessage || 'Unknown error';
