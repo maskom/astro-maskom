@@ -133,7 +133,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (insertError) throw insertError;
 
-    // TODO: Send confirmation email (would require email service integration)
+    // NOTE: Email confirmation service integration needed
+    // Future implementation should integrate with email service provider
+    // Options: Resend, SendGrid, or AWS SES for transactional emails
 
     return new Response(JSON.stringify(insertedSubscriber), {
       headers: {
