@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '../../lib/supabase';
-import { getEnv } from '../../lib/env';
 
 export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
