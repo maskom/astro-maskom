@@ -15,7 +15,7 @@ export const GET: APIRoute = async () => {
     responseTime: 0,
     services: {
       supabase: {
-        status: 'unknown' as 'unknown' | 'healthy' | 'error',
+        status: 'unknown' as 'unknown' | 'healthy' | 'error' | 'skipped',
         latency: 0,
         error: null as string | null,
       },
