@@ -154,7 +154,11 @@ describe('Logger', () => {
       formatStructuredLog: (entry: LogEntry) => object;
     };
     const mockEntry: LogEntry = {
+<<<<<<< HEAD
       level: LogLevel.INFO,
+=======
+      level: 'info',
+>>>>>>> main
       message: 'Test message',
       timestamp: '2025-11-17T12:35:00.000Z',
       context: { userId: '123' },
@@ -204,7 +208,11 @@ describe('Logger', () => {
       formatStructuredLog: (entry: LogEntry) => object;
     };
     const mockEntry: LogEntry = {
+<<<<<<< HEAD
       level: LogLevel.ERROR,
+=======
+      level: 'error',
+>>>>>>> main
       message: 'Test error message',
       timestamp: '2025-11-17T12:35:00.000Z',
       context: { userId: '123' },
