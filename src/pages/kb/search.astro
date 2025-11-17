@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import FAQSearch from '../../components/support/FAQSearch.astro';
+
+export interface Props {
+  q?: string;
+  category?: string;
+  difficulty?: string;
+  sort?: string;
+}
+
+const { q, category, difficulty, sort } = Astro.props;
+---
+
+<Layout title="Search Knowledge Base - Maskom Network">
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <FAQSearch 
+        initialQuery={q || ''}
+        categorySlug={category}
+        placeholder="Search for help articles..."
+        showFilters={true}
+      />
+    </div>
+  </div>
+</Layout>
