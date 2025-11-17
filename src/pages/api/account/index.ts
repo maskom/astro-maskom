@@ -6,7 +6,7 @@ import {
   createSuccessResponse,
   logError,
   type APIContext,
-} from '../../../lib/api-utils.ts';
+} from '../../../lib/utils/api';
 
 export async function GET({ request }: APIContext) {
   try {
@@ -150,7 +150,11 @@ export async function PUT({ request }: APIContext) {
 
     logger.info('Account updated successfully', { userId: user.id });
 
-    return createSuccessResponse(null, 'Account updated successfully');
+    return createSuccessResponse({
+      success: true,
+      data: null,
+      message: 'Account updated successfully'
+    });
   } catch (error) {
     logError('Account update error', 'unknown', error);
     return createErrorResponse('Internal server error', 500);

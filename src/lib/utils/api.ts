@@ -1,10 +1,22 @@
 import { createClient, SupabaseClient, type User } from '@supabase/supabase-js';
 import { ErrorFactory } from '../errors';
 import { getRequestContext } from '../middleware/api';
+import { logger } from '../logger';
 
 /**
  * Common API utilities and helpers
  */
+
+export interface APIContext {
+  request: Request;
+  params?: Record<string, string>;
+}
+
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  phone?: string;
+}
 
 export interface AuthResult {
   user: User;
@@ -23,6 +35,45 @@ export function createServiceClient(): SupabaseClient {
     import.meta.env.SUPABASE_URL,
     import.meta.env.SUPABASE_SERVICE_ROLE_KEY
   );
+}
+
+/**
+ * Legacy authentication function for backward compatibility
+ * Use authenticateUser for new code
+ */
+export async function authenticateRequest(
+  request: Request
+): Promise<AuthenticatedUser | null> {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    const token = authHeader.split(' ')[1];
+    const supabase = createServiceClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email || '',
+      phone: user.phone || undefined,
+    };
+  } catch (error) {
+    logger.error(
+      'Authentication error',
+      error instanceof Error ? error : new Error('Unknown authentication error')
+    );
+    return null;
+  }
 }
 
 /**
@@ -228,6 +279,47 @@ export function createSuccessResponse<T>(
     status,
     headers: { ...defaultHeaders, ...headers },
   });
+}
+
+/**
+ * Legacy success response helper for backward compatibility
+ * Matches the signature from api-utils.ts
+ */
+export function createSuccessResponseCompat<T>(
+  data: T,
+  message?: string,
+  status: number = 200
+) {
+  const response: { success: true; data: T; message?: string } = {
+    success: true,
+    data,
+  };
+  if (message) {
+    response.message = message;
+  }
+
+  return new Response(JSON.stringify(response), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+/**
+ * Error response helper
+ */
+export function createErrorResponse(message: string, status: number = 500) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+/**
+ * Error logging helper
+ */
+export function logError(context: string, userId: string, error: unknown) {
+  const errorObj = error instanceof Error ? error : new Error('Unknown error');
+  logger.error(context, errorObj, { userId });
 }
 
 /**

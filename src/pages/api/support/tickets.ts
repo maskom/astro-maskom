@@ -6,7 +6,7 @@ import {
   createSuccessResponse,
   logError,
   type APIContext,
-} from '../../../lib/api-utils.ts';
+} from '../../../lib/utils/api';
 
 export async function GET({ request }: APIContext) {
   try {
@@ -141,8 +141,11 @@ export async function POST({ request }: APIContext) {
     });
 
     return createSuccessResponse(
-      ticket,
-      'Support ticket created successfully',
+      {
+        success: true,
+        data: ticket,
+        message: 'Support ticket created successfully'
+      },
       201
     );
   } catch (error) {
