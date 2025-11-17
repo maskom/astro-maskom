@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Logger, LogEntry, LogContext } from '../lib/logger';
+import { Logger, LogLevel } from '../lib/logger';
+import type { LogEntry, LogContext } from '../lib/logger';
 
 describe('Logger', () => {
   it('should create logger with default log level', () => {
@@ -153,7 +154,7 @@ describe('Logger', () => {
       formatStructuredLog: (entry: LogEntry) => object;
     };
     const mockEntry: LogEntry = {
-      level: 'info',
+      level: LogLevel.INFO,
       message: 'Test message',
       timestamp: '2025-11-17T12:35:00.000Z',
       context: { userId: '123' },
@@ -203,7 +204,7 @@ describe('Logger', () => {
       formatStructuredLog: (entry: LogEntry) => object;
     };
     const mockEntry: LogEntry = {
-      level: 'error',
+      level: LogLevel.ERROR,
       message: 'Test error message',
       timestamp: '2025-11-17T12:35:00.000Z',
       context: { userId: '123' },
