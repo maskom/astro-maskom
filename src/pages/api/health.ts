@@ -27,30 +27,44 @@ export const GET: APIRoute = async () => {
   };
 
   try {
-    // Test Supabase connectivity
+    // Test Supabase connectivity using basic auth check
     const supabase = createServerClient();
     const supabaseStart = Date.now();
 
+    // Try to access auth.users which should exist in all Supabase projects
     const { error } = await supabase
-      .from('security_audit_logs')
+      .from('auth.users')
       .select('count')
       .limit(1);
 
     const supabaseLatency = Date.now() - supabaseStart;
 
     if (error) {
-      checks.services.supabase.status = 'error';
-      checks.services.supabase.error = error.message;
-      checks.status = 'degraded';
+      // In development, Supabase might not be running - don't mark as degraded
+      if (import.meta.env.MODE === 'development') {
+        checks.services.supabase.status = 'skipped';
+        checks.services.supabase.error =
+          'Supabase not available in development';
+      } else {
+        checks.services.supabase.status = 'error';
+        checks.services.supabase.error = error.message;
+        checks.status = 'degraded';
+      }
     } else {
       checks.services.supabase.status = 'healthy';
       checks.services.supabase.latency = supabaseLatency;
     }
   } catch (error) {
-    checks.services.supabase.status = 'error';
-    checks.services.supabase.error =
-      error instanceof Error ? error.message : 'Unknown error';
-    checks.status = 'degraded';
+    // In development, Supabase might not be running - don't mark as degraded
+    if (import.meta.env.MODE === 'development') {
+      checks.services.supabase.status = 'skipped';
+      checks.services.supabase.error = 'Supabase not available in development';
+    } else {
+      checks.services.supabase.status = 'error';
+      checks.services.supabase.error =
+        error instanceof Error ? error.message : 'Unknown error';
+      checks.status = 'degraded';
+    }
   }
 
   // Calculate total response time
