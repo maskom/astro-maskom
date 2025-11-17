@@ -13,20 +13,23 @@ export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
   return {
     'Content-Security-Policy': [
       "default-src 'self'",
-      `script-src ${cspScriptSrc}`,
+      `script-src ${cspScriptSrc} 'unsafe-eval'`, // Required for Astro development
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
-      "font-src 'self'",
-      "connect-src 'self' https://api.openai.com https://*.supabase.co",
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://api.openai.com https://*.supabase.co wss://*.supabase.co",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      "object-src 'none'",
+      "media-src 'self'",
+      "manifest-src 'self'",
     ].join('; '),
     'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy':
-      'camera=(), microphone=(), geolocation=(), payment=()',
+      'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
   };
 };
