@@ -7,6 +7,7 @@
 
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
+<<<<<<< HEAD
 import { setTimeout } from 'timers/promises';
 
 const colors = {
@@ -95,6 +96,7 @@ function checkWranglerConfig() {
   try {
     const wranglerConfig = readFileSync('wrangler.toml', 'utf8');
 
+<<<<<<< HEAD
     // Check for essential Cloudflare Pages configuration
     const hasPagesConfig = wranglerConfig.includes('pages_build_output_dir');
     const hasKvNamespace = wranglerConfig.includes('kv_namespaces');
@@ -146,6 +148,7 @@ function checkSupabaseMigrations() {
   }
 }
 
+<<<<<<< HEAD
 async function checkDeployedHealth() {
   log('\n🏥 Checking deployed application health...', 'blue');
 
@@ -268,6 +271,7 @@ async function main() {
       name: 'Build',
       fn: () => runCommand('npm run build', 'Building application'),
     },
+<<<<<<< HEAD
     { name: 'Deployed health check', fn: checkDeployedHealth },
   ];
 
@@ -275,6 +279,7 @@ async function main() {
   let failed = 0;
 
   for (const check of checks) {
+<<<<<<< HEAD
     const result = await check.fn();
     if (result) {
       passed++;
@@ -299,6 +304,7 @@ async function main() {
   }
 }
 
+<<<<<<< HEAD
 main().catch(error => {
   log(
     `\n💥 Verification script failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
