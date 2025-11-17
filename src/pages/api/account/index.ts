@@ -10,6 +10,10 @@ import {
 
 export async function GET({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
@@ -83,6 +87,10 @@ export async function GET({ request }: APIContext) {
 
 export async function PUT({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);

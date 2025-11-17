@@ -10,6 +10,10 @@ import {
 
 export async function GET({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
@@ -51,7 +55,7 @@ export async function GET({ request }: APIContext) {
     // Get messages for each ticket
     const ticketsWithMessages = await Promise.all(
       (tickets || []).map(async ticket => {
-        const { data: messages } = await supabase
+        const { data: messages } = await supabase!
           .from('ticket_messages')
           .select('*')
           .eq('ticket_id', ticket.id)
@@ -88,6 +92,10 @@ export async function GET({ request }: APIContext) {
 
 export async function POST({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
