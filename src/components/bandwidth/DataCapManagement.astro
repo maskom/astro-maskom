@@ -219,7 +219,7 @@ const daysRemaining = getDaysRemaining();
   </div>
 </div>
 
-<script is:inline>
+<script>
   let selectedPackageId = null;
 
   function showUpgradeModal() {
@@ -298,7 +298,7 @@ const daysRemaining = getDaysRemaining();
     showUpgradeModal();
   }
 
-  // Make functions globally available
+// Ensure functions are available globally
   window.showUpgradeModal = showUpgradeModal;
   window.closeUpgradeModal = closeUpgradeModal;
   window.selectPackage = selectPackage;

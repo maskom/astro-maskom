@@ -140,7 +140,7 @@ function getNotificationIcon(threshold: number): string {
   }
 </div>
 
-<script is:inline>
+<script>
   async function markNotificationAsRead(notificationId) {
     try {
       const response = await fetch('/api/bandwidth/notifications', {
@@ -254,7 +254,7 @@ function getNotificationIcon(threshold: number): string {
     }
   }
 
-  // Make functions globally available
+// Ensure functions are available globally
   window.markNotificationAsRead = markNotificationAsRead;
   window.markAllNotificationsAsRead = markAllNotificationsAsRead;
   window.deleteNotification = deleteNotification;
