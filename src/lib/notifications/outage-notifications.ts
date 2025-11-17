@@ -249,8 +249,8 @@ export class OutageNotifications {
   // Deliver email notification
   private async deliverEmailNotification(
     notification: OutageNotification,
-    subjectTemplate?: string | null,
-    variables?: Record<string, string>
+    _subjectTemplate?: string | null,
+    _variables?: Record<string, string>
   ): Promise<boolean> {
     try {
       // Email delivery implementation would go here

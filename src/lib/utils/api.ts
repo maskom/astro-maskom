@@ -380,6 +380,7 @@ export function handleDatabaseError(
 
   throw ErrorFactory.databaseError(
     `Database operation failed: ${operation}`,
+    undefined,
     requestId
   );
 }
