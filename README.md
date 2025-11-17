@@ -94,6 +94,7 @@ Jangan membuka issue publik untuk masalah keamanan. Lihat [SECURITY.md](SECURITY
 ## 📚 Dokumentasi
 
 - [Panduan Kontribusi](docs/CONTRIBUTING.md)
+- [Kode Etik](CODE_OF_CONDUCT.md)
 - [Pengaturan Lingkungan](docs/ENVIRONMENT.md)
 - [Dokumentasi API](docs/API.md)
 - [Arsitektur Sistem](docs/ARCHITECTURE.md)
