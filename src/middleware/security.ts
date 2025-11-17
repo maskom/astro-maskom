@@ -9,12 +9,13 @@ export interface SecurityHeaders {
 
 export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
   const cspScriptSrc = nonce ? `'nonce-${nonce}'` : "'self'";
+  const cspStyleSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
 
   return {
     'Content-Security-Policy': [
       "default-src 'self'",
       `script-src ${cspScriptSrc}`,
-      "style-src 'self' 'unsafe-inline'",
+      `style-src ${cspStyleSrc}`,
       "img-src 'self' data: https:",
       "font-src 'self'",
       "connect-src 'self' https://api.openai.com https://*.supabase.co",

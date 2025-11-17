@@ -220,7 +220,7 @@ function getNotificationIcon(threshold: number): string {
         );
         if (badge) {
           badge.textContent = '0';
-          badge.style.display = 'none';
+          badge.classList.add('hidden');
         }
       }
     } catch (error) {

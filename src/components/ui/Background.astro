@@ -39,24 +39,19 @@ const {
 
   <!-- Simplified grid pattern -->
   <div
-    class="absolute inset-0 bg-[length:64px_64px] opacity-20"
-    style={`background-image: linear-gradient(${gridColor} 1px, transparent 1px),
-            linear-gradient(to right, ${gridColor} 1px, transparent 1px);`}
+    class="absolute inset-0 bg-[length:64px_64px] opacity-20 grid-pattern"
   >
   </div>
 
   <!-- Diagonal lines -->
   <div
-    class="absolute inset-0 opacity-20"
-    style={`background-image: repeating-linear-gradient(45deg, ${diagonalColor} 0, ${diagonalColor} 1px, transparent 0, transparent 48%);
-            background-size: 48px 48px;`}
+    class="absolute inset-0 opacity-20 diagonal-pattern"
   >
   </div>
 
   <!-- Vignette effect -->
   <div
-    class="absolute inset-0 pointer-events-none"
-    style={`background: radial-gradient(circle at center, transparent 0%, ${vignetteColor} 100%);`}
+    class="absolute inset-0 pointer-events-none vignette-effect"
   >
   </div>
   <div
@@ -70,15 +65,13 @@ const {
 
   <!-- Bottom violet glow -->
   <div
-    class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] rounded-full blur-[80px] opacity-30"
-    style={`background-color: ${secondaryBallColor};`}
+    class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] rounded-full blur-[80px] opacity-30 secondary-glow"
   >
   </div>
 
   <!-- Small accent glow -->
   <div
-    class="absolute bottom-[20%] right-[20%] w-[100px] h-[100px] rounded-full blur-[60px] opacity-20"
-    style={`background-color: ${primaryBallColor};`}
+    class="absolute bottom-[20%] right-[20%] w-[100px] h-[100px] rounded-full blur-[60px] opacity-20 primary-glow"
   >
   </div>
 </div>
@@ -124,5 +117,27 @@ const {
 
   .animation-delay-1500 {
     animation-delay: 1500ms;
+  }
+
+  .grid-pattern {
+    background-image: linear-gradient(var(--grid-color, rgba(255,255,255,0.05)) 1px, transparent 1px),
+                      linear-gradient(to right, var(--grid-color, rgba(255,255,255,0.05)) 1px, transparent 1px);
+  }
+
+  .diagonal-pattern {
+    background-image: repeating-linear-gradient(45deg, var(--diagonal-color, rgba(255,255,255,0.1)) 0, var(--diagonal-color, rgba(255,255,255,0.1)) 1px, transparent 0, transparent 48%);
+    background-size: 48px 48px;
+  }
+
+  .vignette-effect {
+    background: radial-gradient(circle at center, transparent 0%, var(--vignette-color, rgba(0,0,0,0.4)) 100%);
+  }
+
+  .primary-glow {
+    background-color: var(--primary-ball-color, #F97316);
+  }
+
+  .secondary-glow {
+    background-color: var(--secondary-ball-color, #A855F7);
   }
 </style>
