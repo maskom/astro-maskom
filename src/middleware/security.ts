@@ -15,7 +15,7 @@ export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
     'Content-Security-Policy': [
       "default-src 'self'",
       `script-src ${cspScriptSrc} 'unsafe-eval'`, // Required for Astro development
-      "style-src 'self' 'unsafe-inline'",
+      `style-src ${cspStyleSrc}`,
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https://api.openai.com https://*.supabase.co wss://*.supabase.co",
