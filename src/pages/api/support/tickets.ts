@@ -27,7 +27,7 @@ export async function GET({ request }: APIContext) {
     const offset = (page - 1) * limit;
 
     // Get support tickets
-    let ticketsQuery = supabase!
+    let ticketsQuery = supabase
       .from('support_tickets')
       .select('*', { count: 'exact' })
       .eq('user_id', user.id)
@@ -55,7 +55,15 @@ export async function GET({ request }: APIContext) {
     // Get messages for each ticket
     const ticketsWithMessages = await Promise.all(
       (tickets || []).map(async ticket => {
-        const { data: messages } = await supabase!
+        if (!supabase) {
+          return {
+            ...ticket,
+            messages: [],
+            unread_count: 0,
+          };
+        }
+
+        const { data: messages } = await supabase
           .from('ticket_messages')
           .select('*')
           .eq('ticket_id', ticket.id)
@@ -109,7 +117,7 @@ export async function POST({ request }: APIContext) {
       return createErrorResponse('Missing required ticket fields', 400);
     }
 
-    const { data: ticket, error: ticketError } = await supabase!
+    const { data: ticket, error: ticketError } = await supabase
       .from('support_tickets')
       .insert({
         user_id: user.id,

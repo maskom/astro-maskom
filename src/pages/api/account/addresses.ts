@@ -37,13 +37,21 @@ export async function POST({ request }: APIContext) {
 
     // If setting as primary, unset other primary addresses first
     if (is_primary) {
-      await supabase!
+      const { error: updateError } = await supabase
         .from('service_addresses')
         .update({ is_primary: false })
         .eq('user_id', user.id);
+
+      if (updateError) {
+        logError('Error unsetting primary addresses', user.id, updateError);
+        return createErrorResponse(
+          'Failed to update primary address status',
+          500
+        );
+      }
     }
 
-    const { data: address, error: addressError } = await supabase!
+    const { data: address, error: addressError } = await supabase
       .from('service_addresses')
       .insert({
         user_id: user.id,
@@ -104,14 +112,26 @@ export async function PUT({ request }: APIContext) {
 
     // If setting as primary, unset other primary addresses first
     if (is_primary) {
-      await supabase!
+      const { error: updateError } = await supabase
         .from('service_addresses')
         .update({ is_primary: false })
         .eq('user_id', user.id)
         .neq('id', id);
+
+      if (updateError) {
+        logError(
+          'Error unsetting other primary addresses',
+          user.id,
+          updateError
+        );
+        return createErrorResponse(
+          'Failed to update primary address status',
+          500
+        );
+      }
     }
 
-    const { data: address, error: addressError } = await supabase!
+    const { data: address, error: addressError } = await supabase
       .from('service_addresses')
       .update({
         address_line1,
@@ -162,7 +182,7 @@ export async function DELETE({ request }: APIContext) {
       return createErrorResponse('Address ID is required', 400);
     }
 
-    const { error: deleteError } = await supabase!
+    const { error: deleteError } = await supabase
       .from('service_addresses')
       .delete()
       .eq('id', addressId)
