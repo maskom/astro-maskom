@@ -6,7 +6,7 @@ import {
   createSuccessResponse,
   logError,
   type APIContext,
-} from '../../../lib/api-utils.ts';
+} from '../../../lib/utils/api';
 
 export async function GET({ request }: APIContext) {
   try {
@@ -145,8 +145,11 @@ export async function POST({ request }: APIContext) {
     });
 
     return createSuccessResponse(
-      paymentMethod,
-      'Payment method added successfully',
+      {
+        success: true,
+        data: paymentMethod,
+        message: 'Payment method added successfully'
+      },
       201
     );
   } catch (error) {

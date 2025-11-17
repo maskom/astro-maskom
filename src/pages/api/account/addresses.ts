@@ -5,7 +5,7 @@ import {
   createSuccessResponse,
   logError,
   type APIContext,
-} from '../../../lib/api-utils.ts';
+} from '../../../lib/utils/api';
 import { logger } from '../../../lib/logger.ts';
 
 export async function POST({ request }: APIContext) {
@@ -76,7 +76,14 @@ export async function POST({ request }: APIContext) {
       addressId: address.id,
     });
 
-    return createSuccessResponse(address, 'Address created successfully', 201);
+    return createSuccessResponse(
+      {
+        success: true,
+        data: address,
+        message: 'Address created successfully'
+      },
+      201
+    );
   } catch (error) {
     logError('Create address error', 'unknown', error);
     return createErrorResponse('Internal server error', 500);
@@ -157,7 +164,11 @@ export async function PUT({ request }: APIContext) {
       addressId: id,
     });
 
-    return createSuccessResponse(address, 'Address updated successfully');
+    return createSuccessResponse({
+      success: true,
+      data: address,
+      message: 'Address updated successfully'
+    });
   } catch (error) {
     logError('Update address error', 'unknown', error);
     return createErrorResponse('Internal server error', 500);
@@ -198,7 +209,11 @@ export async function DELETE({ request }: APIContext) {
       addressId,
     });
 
-    return createSuccessResponse(null, 'Address deleted successfully');
+    return createSuccessResponse({
+      success: true,
+      data: null,
+      message: 'Address deleted successfully'
+    });
   } catch (error) {
     logError('Delete address error', 'unknown', error);
     return createErrorResponse('Internal server error', 500);
