@@ -13,6 +13,9 @@ export default defineConfig({
   integrations: [icon(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      external: ['node:crypto'],
+    },
   },
 
   build: {
