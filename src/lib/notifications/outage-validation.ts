@@ -180,7 +180,15 @@ export class OutageValidation {
   }
 
   // Validate notification template
-  validateNotificationTemplate(template: any): {
+  validateNotificationTemplate(template: {
+    name?: string;
+    type?: string;
+    channel?: string;
+    subject_template?: string;
+    message_template?: string;
+    variables?: string[];
+    is_active?: boolean;
+  }): {
     isValid: boolean;
     errors: string[];
   } {

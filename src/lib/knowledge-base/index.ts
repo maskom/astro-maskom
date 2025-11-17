@@ -230,7 +230,9 @@ class KnowledgeBaseService {
       }
 
       // Type guard to check if data has parser errors
-      const hasParserError = (item: any): item is { error: true } & string =>
+      const hasParserError = (
+        item: unknown
+      ): item is { error: true } & string =>
         typeof item === 'object' && item !== null && 'error' in item;
 
       if (Array.isArray(data) && data.some(hasParserError)) {
@@ -275,7 +277,7 @@ class KnowledgeBaseService {
 
       // Increment view count if requested
       if (incrementViews && data && 'id' in data) {
-        await this.incrementViewCount((data as any).id);
+        await this.incrementViewCount((data as { id: string }).id);
       }
 
       return data as ArticleWithCategory | null;

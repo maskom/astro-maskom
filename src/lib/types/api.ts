@@ -1,7 +1,7 @@
 // API-related type definitions
 
 // Standard API response wrapper
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: ApiError;
@@ -14,7 +14,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   field?: string;
 }
 
@@ -129,7 +129,11 @@ export interface NotificationPreferencesUpdate {
 
 export interface NotificationTemplateCreate {
   name: string;
-  type: 'outage_started' | 'outage_updated' | 'outage_resolved' | 'maintenance_scheduled';
+  type:
+    | 'outage_started'
+    | 'outage_updated'
+    | 'outage_resolved'
+    | 'maintenance_scheduled';
   channel: 'email' | 'sms' | 'in_app' | 'push';
   subject_template?: string;
   message_template: string;
@@ -163,7 +167,7 @@ export interface PaymentIntent {
   amount: number;
   currency: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   payment_method_id?: string;
 }
 
@@ -232,7 +236,7 @@ export interface SystemMaintenance {
 export interface FileUpload {
   file: File;
   purpose: 'avatar' | 'attachment' | 'document' | 'logo';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface FileUploadResponse {
@@ -256,7 +260,7 @@ export interface WebhookCreate {
 export interface WebhookEvent {
   id: string;
   type: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   timestamp: string;
   signature?: string;
 }
@@ -264,7 +268,7 @@ export interface WebhookEvent {
 // Search and filtering types
 export interface SearchParams {
   q?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   sort?: string;
   order?: 'asc' | 'desc';
   limit?: number;
@@ -274,14 +278,14 @@ export interface SearchParams {
 export interface FilterOption {
   field: string;
   operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'like';
-  value: any;
+  value: unknown;
 }
 
 // Export and report types
 export interface ExportRequest {
   format: 'csv' | 'json' | 'pdf' | 'xlsx';
   data_type: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   date_range?: {
     start: string;
     end: string;
@@ -290,7 +294,7 @@ export interface ExportRequest {
 
 export interface ReportRequest {
   type: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   format?: 'json' | 'pdf' | 'csv';
   schedule?: {
     frequency: 'daily' | 'weekly' | 'monthly';

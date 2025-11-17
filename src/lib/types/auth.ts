@@ -6,7 +6,7 @@ export type UserRole = 'admin' | 'support' | 'billing' | 'customer';
 export interface Permission {
   resource: string;
   action: string;
-  conditions?: Record<string, any>;
+  conditions?: Record<string, unknown>;
 }
 
 export interface RolePermissions {
@@ -247,7 +247,7 @@ export interface SecurityEvent {
   ip_address: string;
   user_agent?: string;
   success: boolean;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: string;
 }
 
