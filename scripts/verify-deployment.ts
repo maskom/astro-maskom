@@ -7,6 +7,7 @@
 
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
+import { setTimeout } from 'timers/promises';
 
 const colors = {
   reset: '\x1b[0m',
@@ -94,14 +95,27 @@ function checkWranglerConfig() {
   try {
     const wranglerConfig = readFileSync('wrangler.toml', 'utf8');
 
-    if (
-      wranglerConfig.includes('SUPABASE_URL') &&
-      wranglerConfig.includes('SUPABASE_KEY')
-    ) {
-      log('✅ Supabase configuration found in wrangler.toml', 'green');
+    // Check for essential Cloudflare Pages configuration
+    const hasPagesConfig = wranglerConfig.includes('pages_build_output_dir');
+    const hasKvNamespace = wranglerConfig.includes('kv_namespaces');
+    const hasSupabaseComment = wranglerConfig.includes(
+      'Supabase configuration should be set via Cloudflare Pages environment variables'
+    );
+
+    if (hasPagesConfig && hasKvNamespace) {
+      log('✅ Cloudflare Pages configuration found in wrangler.toml', 'green');
+      if (hasSupabaseComment) {
+        log(
+          '✅ Supabase configuration properly documented for environment variables',
+          'green'
+        );
+      }
       return true;
     } else {
-      log('❌ Supabase configuration missing in wrangler.toml', 'red');
+      log(
+        '❌ Essential Cloudflare Pages configuration missing in wrangler.toml',
+        'red'
+      );
       return false;
     }
   } catch {
@@ -132,7 +146,108 @@ function checkSupabaseMigrations() {
   }
 }
 
-function main() {
+async function checkDeployedHealth() {
+  log('\n🏥 Checking deployed application health...', 'blue');
+
+  // Get the latest production deployment URL from wrangler
+  try {
+    const deploymentsOutput = execSync(
+      'npx wrangler pages deployment list --project-name astro-maskom',
+      {
+        encoding: 'utf8',
+        stdio: 'pipe',
+      }
+    );
+
+    // Parse the table output to find the latest production deployment
+    const lines = deploymentsOutput.trim().split('\n');
+
+    // Skip header lines and find production deployments
+    const productionLines = lines.filter(
+      line => line.includes('Production') && line.startsWith('https://')
+    );
+
+    if (productionLines.length === 0) {
+      log('⚠️  No production deployment found', 'yellow');
+      return true; // Don't fail verification if no deployment exists yet
+    }
+
+    // Get the most recent production deployment (first in list)
+    const latestProduction = productionLines[0];
+
+    // Extract URL from the line - it should start with https://
+    const urlMatch = latestProduction.match(/(https:\/\/[^\s]+)/);
+    if (!urlMatch) {
+      log('⚠️  Could not parse deployment URL from production line', 'yellow');
+      return true;
+    }
+
+    const deploymentUrl = urlMatch[1];
+    const healthUrl = `${deploymentUrl}/api/health`;
+    log(`🔍 Testing health endpoint: ${healthUrl}`, 'blue');
+
+    // Try to fetch health check with retries
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        const response = await fetch(healthUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'deployment-verification-script/1.0',
+          },
+        });
+
+        if (response.ok) {
+          const healthData = await response.json();
+
+          log(`✅ Health check passed (${response.status})`, 'green');
+          log(`   Status: ${healthData.status}`, 'green');
+          log(`   Response time: ${healthData.responseTime}ms`, 'green');
+          log(`   Supabase: ${healthData.services.supabase.status}`, 'green');
+
+          if (healthData.services.supabase.latency > 0) {
+            log(
+              `   Supabase latency: ${healthData.services.supabase.latency}ms`,
+              'green'
+            );
+          }
+
+          return true;
+        } else {
+          log(
+            `⚠️  Health check failed with status ${response.status} (attempt ${attempts}/${maxAttempts})`,
+            'yellow'
+          );
+          if (attempts < maxAttempts) {
+            await setTimeout(2000); // Wait 2 seconds before retry
+          }
+        }
+      } catch (error) {
+        log(
+          `⚠️  Health check request failed (attempt ${attempts}/${maxAttempts}): ${error instanceof Error ? error.message : 'Unknown error'}`,
+          'yellow'
+        );
+        if (attempts < maxAttempts) {
+          await setTimeout(2000); // Wait 2 seconds before retry
+        }
+      }
+    }
+
+    log('❌ Health check failed after all attempts', 'red');
+    return false;
+  } catch (error) {
+    log(
+      `⚠️  Could not check deployed health: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'yellow'
+    );
+    return true; // Don't fail verification if we can't check health
+  }
+}
+
+async function main() {
   log('🚀 Starting deployment verification for astro-maskom', 'blue');
 
   const checks = [
@@ -153,13 +268,14 @@ function main() {
       name: 'Build',
       fn: () => runCommand('npm run build', 'Building application'),
     },
+    { name: 'Deployed health check', fn: checkDeployedHealth },
   ];
 
   let passed = 0;
   let failed = 0;
 
   for (const check of checks) {
-    const result = check.fn();
+    const result = await check.fn();
     if (result) {
       passed++;
     } else {
@@ -183,4 +299,10 @@ function main() {
   }
 }
 
-main();
+main().catch(error => {
+  log(
+    `\n💥 Verification script failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    'red'
+  );
+  process.exit(1);
+});
