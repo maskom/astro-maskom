@@ -16,6 +16,10 @@ export async function authenticateRequest(
   request: Request
 ): Promise<AuthenticatedUser | null> {
   try {
+    if (!supabase) {
+      return null;
+    }
+
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return null;
@@ -37,9 +41,10 @@ export async function authenticateRequest(
       phone: user.phone || undefined,
     };
   } catch (error) {
-    logger.error('Authentication error', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    logger.error(
+      'Authentication error',
+      error instanceof Error ? error : new Error('Unknown authentication error')
+    );
     return null;
   }
 }
@@ -71,6 +76,6 @@ export function createSuccessResponse<T>(
 }
 
 export function logError(context: string, userId: string, error: unknown) {
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-  logger.error(context, { userId, error: errorMessage });
+  const errorObj = error instanceof Error ? error : new Error('Unknown error');
+  logger.error(context, errorObj, { userId });
 }

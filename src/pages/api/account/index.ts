@@ -10,13 +10,17 @@ import {
 
 export async function GET({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
     }
 
     // Get customer profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabase!
       .from('customer_profiles')
       .select('*')
       .eq('user_id', user.id)
@@ -28,7 +32,7 @@ export async function GET({ request }: APIContext) {
     }
 
     // Get service addresses
-    const { data: addresses, error: addressesError } = await supabase
+    const { data: addresses, error: addressesError } = await supabase!
       .from('service_addresses')
       .select('*')
       .eq('user_id', user.id)
@@ -83,6 +87,10 @@ export async function GET({ request }: APIContext) {
 
 export async function PUT({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
@@ -93,7 +101,7 @@ export async function PUT({ request }: APIContext) {
 
     // Update customer profile
     if (profile) {
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabase!
         .from('customer_profiles')
         .upsert(
           {
@@ -118,7 +126,7 @@ export async function PUT({ request }: APIContext) {
 
     // Update notification preferences
     if (preferences) {
-      const { error: preferencesError } = await supabase
+      const { error: preferencesError } = await supabase!
         .from('notification_preferences')
         .upsert(
           {

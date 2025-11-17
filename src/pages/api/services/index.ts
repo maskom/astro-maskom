@@ -10,13 +10,17 @@ import {
 
 export async function GET({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
     }
 
     // Get customer subscriptions
-    const { data: subscriptions, error: subscriptionsError } = await supabase
+    const { data: subscriptions, error: subscriptionsError } = await supabase!
       .from('customer_subscriptions')
       .select(
         `
@@ -44,7 +48,7 @@ export async function GET({ request }: APIContext) {
         sub => sub.status === 'active'
       );
       if (activeSubscription) {
-        const { data: usage, error: usageError } = await supabase
+        const { data: usage, error: usageError } = await supabase!
           .from('usage_monitoring')
           .select('*')
           .eq('user_id', user.id)
@@ -64,7 +68,7 @@ export async function GET({ request }: APIContext) {
     }
 
     // Get service requests
-    const { data: serviceRequests, error: requestsError } = await supabase
+    const { data: serviceRequests, error: requestsError } = await supabase!
       .from('service_requests')
       .select('*')
       .eq('user_id', user.id)
@@ -93,6 +97,10 @@ export async function GET({ request }: APIContext) {
 
 export async function POST({ request }: APIContext) {
   try {
+    if (!supabase) {
+      return createErrorResponse('Database connection unavailable', 503);
+    }
+
     const user = await authenticateRequest(request);
     if (!user) {
       return createErrorResponse('Unauthorized', 401);
@@ -116,7 +124,7 @@ export async function POST({ request }: APIContext) {
       );
     }
 
-    const { data: serviceRequest, error: requestError } = await supabase
+    const { data: serviceRequest, error: requestError } = await supabase!
       .from('service_requests')
       .insert({
         user_id: user.id,
