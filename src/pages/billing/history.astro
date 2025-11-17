@@ -238,7 +238,7 @@ if (user.data.user) {
     </div>
   </div>
 
-  <script>
+  <script is:inline>
     function viewReceipt(orderId) {
       window.open(`/payment/success?order_id=${orderId}`, '_blank');
     }
@@ -265,5 +265,9 @@ if (user.data.user) {
           alert('Unable to check payment status. Please try again.');
         });
     }
+
+    // Make functions globally available
+    window.viewReceipt = viewReceipt;
+    window.checkStatus = checkStatus;
   </script>
 </Layout>

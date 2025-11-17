@@ -140,8 +140,8 @@ function getNotificationIcon(threshold: number): string {
   }
 </div>
 
-<script>
-  async function markNotificationAsRead(notificationId: string) {
+<script is:inline>
+  async function markNotificationAsRead(notificationId) {
     try {
       const response = await fetch('/api/bandwidth/notifications', {
         method: 'PUT',
@@ -228,7 +228,7 @@ function getNotificationIcon(threshold: number): string {
     }
   }
 
-  async function deleteNotification(notificationId: string) {
+  async function deleteNotification(notificationId) {
     try {
       const response = await fetch('/api/bandwidth/notifications', {
         method: 'DELETE',
@@ -253,4 +253,9 @@ function getNotificationIcon(threshold: number): string {
       console.error('Error deleting notification:', error);
     }
   }
+
+  // Make functions globally available
+  window.markNotificationAsRead = markNotificationAsRead;
+  window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+  window.deleteNotification = deleteNotification;
 </script>
