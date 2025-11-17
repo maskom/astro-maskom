@@ -235,7 +235,7 @@ const daysRemaining = getDaysRemaining();
     selectedPackageId = null;
   }
 
-  function selectPackage(packageId: string) {
+  function selectPackage(packageId) {
     selectedPackageId = packageId;
     
     // Update UI to show selected package
@@ -279,7 +279,7 @@ const daysRemaining = getDaysRemaining();
     }
   }
 
-  function getPackageCap(packageId: string): number {
+  function getPackageCap(packageId) {
     // This should match the package caps defined in your system
     const caps = {
       'home-a': 50,
@@ -297,4 +297,12 @@ const daysRemaining = getDaysRemaining();
   function showPackageSelection() {
     showUpgradeModal();
   }
+
+  // Ensure functions are available globally
+  window.showUpgradeModal = showUpgradeModal;
+  window.closeUpgradeModal = closeUpgradeModal;
+  window.selectPackage = selectPackage;
+  window.confirmUpgrade = confirmUpgrade;
+  window.getPackageCap = getPackageCap;
+  window.showPackageSelection = showPackageSelection;
 </script>
