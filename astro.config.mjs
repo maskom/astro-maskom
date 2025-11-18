@@ -12,6 +12,7 @@ export default defineConfig({
   adapter: cloudflare(),
   integrations: [icon(), sitemap()],
   vite: {
+    // @ts-ignore - Vite plugin type compatibility issue
     plugins: [tailwindcss()],
     ssr: {
       external: ['node:crypto'],

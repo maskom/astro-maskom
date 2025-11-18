@@ -281,7 +281,7 @@ class KnowledgeBaseService {
         await this.incrementViewCount((data as { id: string }).id);
       }
 
-      return data as ArticleWithCategory | null;
+      return data as unknown as ArticleWithCategory | null;
     } catch (error) {
       logger.error(
         'Failed to fetch article by slug',
@@ -313,7 +313,7 @@ class KnowledgeBaseService {
         throw new Error('Parser error in article query result');
       }
 
-      return data as ArticleWithCategory | null;
+      return data as unknown as ArticleWithCategory | null;
     } catch (error) {
       logger.error(
         'Failed to fetch article by id',
