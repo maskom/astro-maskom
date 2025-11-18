@@ -1,7 +1,10 @@
 import { getPaymentManager } from '../../../lib/payments';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async () => {
+  const requestId = generateRequestId();
+  
   try {
     const paymentManager = getPaymentManager();
     const paymentMethods = await paymentManager.getPaymentMethods();
@@ -14,7 +17,12 @@ export const GET: APIRoute = async () => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment methods error:', error);
+    logger.apiError('Payment methods error', error, {
+      requestId,
+      endpoint: '/api/payments/methods',
+      method: 'GET'
+    });
+    
     return new Response(
       JSON.stringify({
         success: false,

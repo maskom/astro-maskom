@@ -3,11 +3,13 @@ import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
 import { sanitizeInput } from '../../../lib/sanitization';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 // GET /api/kb/articles - List articles
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const categorySlug = searchParams.get('category');
   const status = searchParams.get('status') || 'published';
@@ -26,20 +28,6 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
   // Validate parameters
   if (limit && (limit < 1 || limit > 100)) {
     throw ErrorFactory.validationError('Limit must be between 1 and 100');
-  }
-
-  if (offset && offset < 0) {
-    throw ErrorFactory.validationError('Offset must be non-negative');
-  }
-
-  const validSortBy = ['created_at', 'published_at', 'view_count', 'title'];
-  if (!validSortBy.includes(sortBy)) {
-    throw ErrorFactory.validationError('Invalid sort field');
-  }
-
-  const validSortOrder = ['asc', 'desc'];
-  if (!validSortOrder.includes(sortOrder)) {
-    throw ErrorFactory.validationError('Invalid sort order');
   }
 
   try {
@@ -84,7 +72,19 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Articles fetch error:', error);
+    logger.apiError('Articles fetch error', error, {
+      requestId,
+      categorySlug: categorySlug || undefined,
+      status: status || undefined,
+      featured: featured || undefined,
+      limit,
+      offset,
+      sortBy,
+      sortOrder,
+      endpoint: '/api/kb/articles',
+      method: 'GET',
+    });
+
     throw ErrorFactory.internalError('Failed to fetch articles');
   }
 });
@@ -92,6 +92,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
 // POST /api/kb/articles - Create new article (requires support/admin role)
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, cookies }) => {
+    const requestId = generateRequestId();
     const body = await request.json();
     const {
       title,
@@ -168,7 +169,15 @@ export const POST: APIRoute = withApiMiddleware(
         }
       );
     } catch (error) {
-      console.error('Article creation error:', error);
+      logger.apiError('Article creation error', error, {
+        requestId,
+        title: title || undefined,
+        categoryId: categoryId || undefined,
+        status: status || undefined,
+        endpoint: '/api/kb/articles',
+        method: 'POST',
+      });
+
       throw ErrorFactory.internalError('Failed to create article');
     }
   }

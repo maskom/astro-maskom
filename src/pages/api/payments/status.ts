@@ -1,11 +1,13 @@
 import { getPaymentManager } from '../../../lib/payments';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
-  try {
-    const url = new URL(request.url);
-    const orderId = url.searchParams.get('order_id');
+  const requestId = generateRequestId();
+  const url = new URL(request.url);
+  const orderId = url.searchParams.get('order_id');
 
+  try {
     if (!orderId) {
       return new Response(
         JSON.stringify({
@@ -27,7 +29,13 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment status error:', error);
+    logger.apiError('Payment status error', error, {
+      requestId,
+      orderId: orderId || undefined,
+      endpoint: '/api/payments/status',
+      method: 'GET',
+    });
+
     return new Response(
       JSON.stringify({
         success: false,

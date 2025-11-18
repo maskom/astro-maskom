@@ -2,11 +2,13 @@ import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory } from '../../../lib/errors';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 // GET /api/kb/stats - Get knowledge base statistics
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const includePopular = searchParams.get('popular') === 'true';
   const includeRecent = searchParams.get('recent') === 'true';
@@ -50,7 +52,14 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       },
     });
   } catch (error) {
-    console.error('Stats fetch error:', error);
+    logger.apiError('Stats fetch error', error, {
+      requestId,
+      includePopular,
+      includeRecent,
+      endpoint: '/api/kb/stats',
+      method: 'GET'
+    });
+    
     throw ErrorFactory.internalError('Failed to fetch statistics');
   }
 });
