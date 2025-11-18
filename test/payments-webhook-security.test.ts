@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../src/pages/api/payments/webhook';
 import { logger } from '../src/lib/logger';
+import type { APIContext } from 'astro';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
@@ -45,21 +46,32 @@ describe('Payment Webhook Security', () => {
 
     const mockRequest = {
       json: vi.fn().mockResolvedValue(sensitiveWebhookData),
+      headers: new Headers(),
+      cache: 'default' as const,
+      credentials: 'same-origin' as const,
+      destination: 'api' as const,
+      integrity: '',
+      keepalive: false,
+      method: 'POST',
+      mode: 'cors' as const,
+      redirect: 'follow' as const,
+      referrer: 'about:client',
+      referrerPolicy: '' as const,
+      signal: new AbortController().signal,
+      url: 'https://example.com/api/payments/webhook',
+      body: null,
+      bodyUsed: false,
+      clone: vi.fn(),
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      text: vi.fn(),
     };
 
     const mockContext = {
       request: mockRequest,
-      site: new URL('https://example.com'),
-      generator: 'static',
-      url: new URL('https://example.com/api/payments/webhook'),
       params: {},
-      props: {},
-      redirect: vi.fn(),
-      response: vi.fn(),
-      getStaticPaths: vi.fn(),
-      getActionResult: vi.fn(),
-      callAction: vi.fn(),
-    } as any;
+    } as unknown as APIContext;
 
     await POST(mockContext);
 
@@ -109,17 +121,8 @@ describe('Payment Webhook Security', () => {
 
     const mockContext = {
       request: mockRequest,
-      site: new URL('https://example.com'),
-      generator: 'static',
-      url: new URL('https://example.com/api/payments/webhook'),
       params: {},
-      props: {},
-      redirect: vi.fn(),
-      response: vi.fn(),
-      getStaticPaths: vi.fn(),
-      getActionResult: vi.fn(),
-      callAction: vi.fn(),
-    } as any;
+    } as unknown as APIContext;
 
     const response = await POST(mockContext);
 
@@ -153,17 +156,8 @@ describe('Payment Webhook Security', () => {
 
     const mockContext = {
       request: mockRequest,
-      site: new URL('https://example.com'),
-      generator: 'static',
-      url: new URL('https://example.com/api/payments/webhook'),
       params: {},
-      props: {},
-      redirect: vi.fn(),
-      response: vi.fn(),
-      getStaticPaths: vi.fn(),
-      getActionResult: vi.fn(),
-      callAction: vi.fn(),
-    } as any;
+    } as unknown as APIContext;
 
     const response = await POST(mockContext);
 
@@ -196,17 +190,8 @@ describe('Payment Webhook Security', () => {
 
       const mockContext = {
         request: mockRequest,
-        site: new URL('https://example.com'),
-        generator: 'static',
-        url: new URL('https://example.com/api/payments/webhook'),
         params: {},
-        props: {},
-        redirect: vi.fn(),
-        response: vi.fn(),
-        getStaticPaths: vi.fn(),
-        getActionResult: vi.fn(),
-        callAction: vi.fn(),
-      } as any;
+      } as unknown as APIContext;
 
       await POST(mockContext);
 
