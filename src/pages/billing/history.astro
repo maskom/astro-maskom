@@ -238,7 +238,7 @@ if (user.data.user) {
     </div>
   </div>
 
-  <script>
+  <script nonce={nonce}>
     function viewReceipt(orderId) {
       window.open(`/payment/success?order_id=${orderId}`, '_blank');
     }

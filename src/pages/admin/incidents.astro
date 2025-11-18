@@ -112,7 +112,7 @@ interface IncidentForm {
   </div>
 </Layout>
 
-<script>
+<script nonce={nonce}>
   document.addEventListener('DOMContentLoaded', async () => {
     // Load existing incidents
     await loadIncidents();

@@ -241,7 +241,7 @@ const { preferences } = Astro.props;
   </div>
 </div>
 
-<script>
+<script nonce={nonce}>
   // Show/hide phone number field based on SMS checkbox
   document.querySelector('input[name="sms_notifications"]')?.addEventListener('change', function() {
     const phoneField = document.getElementById('phone-number-field');

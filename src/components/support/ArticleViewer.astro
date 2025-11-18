@@ -332,7 +332,7 @@ const notHelpfulCount = ratings.filter(r => !r.helpful).length;
   </div>
 )}
 
-<script>
+<script nonce={nonce}>
   // Rating functionality
   const ratingForm = document.getElementById('ratingForm');
   const ratingStars = document.querySelectorAll('.rating-star');

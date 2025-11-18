@@ -256,7 +256,7 @@ const paymentMethods = await paymentManager.getPaymentMethods();
     src="https://app.sandbox.midtrans.com/snap/snap.js"
     data-client-key={clientConfig.clientKey}></script>
 
-  <script>
+  <script nonce={nonce}>
     // Payment form handling
     const paymentForm = document.getElementById('payment-form');
     const payButton = document.getElementById('pay-button');

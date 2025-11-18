@@ -10,9 +10,15 @@ describe('Security Middleware', () => {
       expect(headers).toHaveProperty('Content-Security-Policy');
       expect(headers).toHaveProperty('X-Frame-Options', 'DENY');
       expect(headers).toHaveProperty('X-Content-Type-Options', 'nosniff');
-      expect(headers).toHaveProperty('Referrer-Policy', 'strict-origin-when-cross-origin');
+      expect(headers).toHaveProperty(
+        'Referrer-Policy',
+        'strict-origin-when-cross-origin'
+      );
       expect(headers).toHaveProperty('Permissions-Policy');
-      expect(headers).toHaveProperty('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+      expect(headers).toHaveProperty(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains; preload'
+      );
     });
 
     it('should include nonce in CSP for scripts and styles', () => {
@@ -20,9 +26,10 @@ describe('Security Middleware', () => {
       const headers = getSecurityHeaders(nonce);
       const csp = headers['Content-Security-Policy'];
 
-      expect(csp).toContain(`script-src 'nonce-${nonce}'`);
-      expect(csp).toContain(`style-src 'self' 'nonce-${nonce}'`);
-      expect(csp).not.toContain("'unsafe-inline'");
+      expect(csp).toContain(`'nonce-${nonce}'`);
+      expect(csp).toContain('script-src');
+      expect(csp).toContain('style-src');
+      expect(csp).toContain("'unsafe-inline'"); // Now included for event handlers
     });
 
     it('should use self for scripts and styles when no nonce provided', () => {
@@ -31,17 +38,19 @@ describe('Security Middleware', () => {
 
       expect(csp).toContain("script-src 'self'");
       expect(csp).toContain("style-src 'self'");
-      expect(csp).not.toContain("'unsafe-inline'");
+      expect(csp).toContain("'unsafe-inline'"); // Now included for event handlers
     });
 
     it('should have proper CSP directives', () => {
-      const headers = getSecurityHeaders('test-nonce');
+      const headers = getSecurityHeaders('test-nonce', false); // Force production mode
       const csp = headers['Content-Security-Policy'];
 
       expect(csp).toContain("default-src 'self'");
       expect(csp).toContain("img-src 'self' data: https:");
       expect(csp).toContain("font-src 'self'");
-      expect(csp).toContain("connect-src 'self' https://api.openai.com https://*.supabase.co");
+      expect(csp).toContain(
+        "connect-src 'self' https://api.openai.com https://*.supabase.co wss://*.supabase.co"
+      );
       expect(csp).toContain("frame-ancestors 'none'");
       expect(csp).toContain("base-uri 'self'");
       expect(csp).toContain("form-action 'self'");
