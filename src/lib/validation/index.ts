@@ -1,6 +1,9 @@
 import { logger } from '../logger';
 import type { APIRoute } from 'astro';
 
+// Input validation system for API endpoints
+// Provides comprehensive validation with security features and sanitization
+
 // Enhanced validation interface
 export interface ValidationSchema {
   [key: string]: ValidationRule;
