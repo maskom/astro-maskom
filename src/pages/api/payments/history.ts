@@ -1,7 +1,7 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
 import { logger } from '../../../lib/logger';
-import { validateRequest } from '../../../lib/validation';
+import { validateRequest, createHeaders } from '../../../lib/validation';
 import { PaymentSchemas } from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
@@ -20,16 +20,10 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
     // Get authenticated user
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn('Missing authentication header', undefined, { requestId });
+      logger.warn('Missing authentication header', { requestId });
       return new Response(
         JSON.stringify({ success: false, error: 'Authentication required' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Request-ID': requestId,
-          },
-        }
+        { status: 401, headers: createHeaders(requestId) }
       );
     }
 
@@ -41,19 +35,16 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
     } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      logger.warn('Invalid authentication token', authError, { requestId });
+      logger.warn('Invalid authentication token', {
+        requestId,
+        error: authError?.message,
+      });
       return new Response(
         JSON.stringify({
           success: false,
           error: 'Invalid authentication token',
         }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Request-ID': requestId,
-          },
-        }
+        { status: 401, headers: createHeaders(requestId) }
       );
     }
 
@@ -90,13 +81,7 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
           hasMore: transactions.length === limit,
         },
       }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Request-ID': requestId,
-        },
-      }
+      { status: 200, headers: createHeaders(requestId) }
     );
   } catch (error) {
     logger.error('Payment history error', error as Error, { requestId });
@@ -108,13 +93,7 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
             ? error.message
             : 'Failed to get payment history',
       }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Request-ID': requestId,
-        },
-      }
+      { status: 500, headers: createHeaders(requestId) }
     );
   }
 });

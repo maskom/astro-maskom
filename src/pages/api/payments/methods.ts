@@ -1,6 +1,6 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { logger } from '../../../lib/logger';
-import { validateRequest } from '../../../lib/validation';
+import { validateRequest, createHeaders } from '../../../lib/validation';
 import { PaymentSchemas } from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
@@ -28,13 +28,7 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentMethods, {
         success: true,
         paymentMethods,
       }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Request-ID': requestId,
-        },
-      }
+      { status: 200, headers: createHeaders(requestId) }
     );
   } catch (error) {
     logger.error('Payment methods error', error as Error, { requestId });
@@ -46,13 +40,7 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentMethods, {
             ? error.message
             : 'Failed to get payment methods',
       }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Request-ID': requestId,
-        },
-      }
+      { status: 500, headers: createHeaders(requestId) }
     );
   }
 });

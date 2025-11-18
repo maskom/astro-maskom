@@ -230,12 +230,12 @@ export const PUT: APIRoute = async ({ request }) => {
       notification_thresholds?: number[];
     } = {};
     if (monthly_cap_gb) updateData.monthly_cap_gb = Number(monthly_cap_gb);
-    if (notification_thresholds)
-      updateData.notification_thresholds = Array.isArray(
-        notification_thresholds
-      )
+    if (notification_thresholds) {
+      const thresholds = Array.isArray(notification_thresholds)
         ? notification_thresholds
         : [notification_thresholds];
+      updateData.notification_thresholds = thresholds.map(Number);
+    }
 
     const { data, error: updateError } = await supabase
       .from('data_caps')

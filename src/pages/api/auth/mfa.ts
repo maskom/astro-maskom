@@ -21,7 +21,7 @@ export const POST: APIRoute = validateRequest({
     );
 
     if (!securityContext) {
-      logger.warn('MFA setup: Authentication required', undefined, {
+      logger.warn('MFA setup: Authentication required', {
         requestId,
       });
       return new Response('Authentication required', { status: 401 });
@@ -90,7 +90,7 @@ export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(async ({
     );
 
     if (!securityContext) {
-      logger.warn('MFA enable: Authentication required', undefined, {
+      logger.warn('MFA enable: Authentication required', {
         requestId,
       });
       return new Response('Authentication required', { status: 401 });
@@ -115,7 +115,7 @@ export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(async ({
         { reason: 'invalid_verification_code' }
       );
 
-      logger.warn('MFA enable: Invalid verification code', undefined, {
+      logger.warn('MFA enable: Invalid verification code', {
         requestId,
         userId: securityContext.userId,
       });
@@ -184,7 +184,7 @@ export const DELETE: APIRoute = validateRequest({
     );
 
     if (!securityContext) {
-      logger.warn('MFA disable: Authentication required', undefined, {
+      logger.warn('MFA disable: Authentication required', {
         requestId,
       });
       return new Response('Authentication required', { status: 401 });
@@ -218,7 +218,7 @@ export const DELETE: APIRoute = validateRequest({
         { reason: 'invalid_verification_code' }
       );
 
-      logger.warn('MFA disable: Invalid verification code', undefined, {
+      logger.warn('MFA disable: Invalid verification code', {
         requestId,
         userId: securityContext.userId,
       });

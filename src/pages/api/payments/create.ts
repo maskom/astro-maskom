@@ -14,7 +14,7 @@ export const POST: APIRoute = validateRequest(PaymentSchemas.createPayment)(
       // Get authenticated user
       const authHeader = request.headers.get('Authorization');
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        logger.warn('Missing authentication header', undefined, { requestId });
+        logger.warn('Missing authentication header', { requestId });
         return new Response(
           JSON.stringify({ success: false, error: 'Authentication required' }),
           { status: 401, headers: createHeaders(requestId) }
@@ -29,19 +29,16 @@ export const POST: APIRoute = validateRequest(PaymentSchemas.createPayment)(
       } = await supabase.auth.getUser(token);
 
       if (authError || !user) {
-        logger.warn('Invalid authentication token', authError, { requestId });
+        logger.warn('Invalid authentication token', {
+          requestId,
+          error: authError?.message,
+        });
         return new Response(
           JSON.stringify({
             success: false,
             error: 'Invalid authentication token',
           }),
-          {
-            status: 401,
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Request-ID': requestId,
-            },
-          }
+          { status: 401, headers: createHeaders(requestId) }
         );
       }
 
@@ -79,13 +76,7 @@ export const POST: APIRoute = validateRequest(PaymentSchemas.createPayment)(
           transaction: result.transaction,
           paymentResponse: result.paymentResponse,
         }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Request-ID': requestId,
-          },
-        }
+        { status: 200, headers: createHeaders(requestId) }
       );
     } catch (error) {
       logger.error('Payment creation error', error as Error, { requestId });
@@ -97,13 +88,7 @@ export const POST: APIRoute = validateRequest(PaymentSchemas.createPayment)(
               ? error.message
               : 'Payment processing failed',
         }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Request-ID': requestId,
-          },
-        }
+        { status: 500, headers: createHeaders(requestId) }
       );
     }
   }

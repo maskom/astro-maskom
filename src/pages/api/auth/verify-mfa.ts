@@ -25,7 +25,7 @@ export const POST: APIRoute = validateRequest(AuthSchemas.verifyMFA)(async ({
     );
 
     if (!securityContext) {
-      logger.warn('MFA verification: Authentication required', undefined, {
+      logger.warn('MFA verification: Authentication required', {
         requestId,
       });
       return new Response('Authentication required', { status: 401 });
@@ -43,7 +43,7 @@ export const POST: APIRoute = validateRequest(AuthSchemas.verifyMFA)(async ({
     );
 
     if (!profile?.mfa_secret) {
-      logger.warn('MFA verification: MFA not enabled', undefined, {
+      logger.warn('MFA verification: MFA not enabled', {
         requestId,
         userId: securityContext.userId,
       });
@@ -66,7 +66,7 @@ export const POST: APIRoute = validateRequest(AuthSchemas.verifyMFA)(async ({
         }
       );
 
-      logger.warn('MFA verification: Invalid code', undefined, {
+      logger.warn('MFA verification: Invalid code', {
         requestId,
         userId: securityContext.userId,
       });
