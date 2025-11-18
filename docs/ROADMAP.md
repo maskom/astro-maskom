@@ -53,17 +53,19 @@ Menjadikan Astro Maskom sebagai website ISP terdepan dengan performa optimal, ke
   - **Impact**: Prevent XSS attacks, improve security
   - **Effort**: 6-8 hours
 
-- [ ] **Remove Console Statements** (Issue #108)
-  - Implement proper logging utility
-  - Replace 7+ console.error statements
+- [x] **Remove Console Statements** (Issue #108) ✅ **COMPLETED in PR #285**
+  - ✅ Implemented proper logging utility (`src/lib/logger.ts`)
+  - ✅ Replaced 100+ console.error statements across API endpoints and security libraries
+  - ✅ Added structured logging with context (requestId, userId, module, operation)
   - **Impact**: Better debugging and monitoring
-  - **Effort**: 4-6 hours
+  - **Effort**: Completed
 
-- [ ] **Improve Error Handling** (Issue #109)
-  - Create consistent error types
-  - Implement structured error responses
+- [x] **Improve Error Handling** (Issue #109) ✅ **PARTIALLY COMPLETED in PR #285**
+  - ✅ Implemented structured error responses with proper context
+  - ✅ Added request ID tracking for debugging
+  - ⚠️ Error types still need standardization (remaining task)
   - **Impact**: Better debugging and user experience
-  - **Effort**: 6-8 hours
+  - **Effort**: 6-8 hours (2-3 hours remaining)
 
 ---
 
