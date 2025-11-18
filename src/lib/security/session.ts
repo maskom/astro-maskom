@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { SessionSecurity } from './types';
 
 export class SessionManager {
@@ -35,13 +36,31 @@ export class SessionManager {
         .insert(session);
 
       if (error) {
-        console.error('Failed to create session:', error);
+        logger.error(
+          'Failed to create session',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            userId,
+            ipAddress,
+            module: 'session',
+            operation: 'create',
+          }
+        );
         return null;
       }
 
       return sessionId;
     } catch (error) {
-      console.error('Session creation error:', error);
+      logger.error(
+        'Session creation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          ipAddress,
+          module: 'session',
+          operation: 'create',
+        }
+      );
       return null;
     }
   }
@@ -76,7 +95,16 @@ export class SessionManager {
 
       return session as SessionSecurity;
     } catch (error) {
-      console.error('Session validation error:', error);
+      logger.error(
+        'Session validation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          sessionId,
+          ipAddress,
+          module: 'session',
+          operation: 'validate',
+        }
+      );
       return null;
     }
   }
@@ -92,13 +120,29 @@ export class SessionManager {
         .eq('session_id', sessionId);
 
       if (error) {
-        console.error('Failed to invalidate session:', error);
+        logger.error(
+          'Failed to invalidate session',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            sessionId,
+            module: 'session',
+            operation: 'invalidate',
+          }
+        );
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Session invalidation error:', error);
+      logger.error(
+        'Session invalidation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          sessionId,
+          module: 'session',
+          operation: 'invalidate',
+        }
+      );
       return false;
     }
   }
@@ -124,13 +168,31 @@ export class SessionManager {
       const { error } = await query;
 
       if (error) {
-        console.error('Failed to invalidate user sessions:', error);
+        logger.error(
+          'Failed to invalidate user sessions',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            userId,
+            exceptSessionId,
+            module: 'session',
+            operation: 'invalidateAllUser',
+          }
+        );
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('User sessions invalidation error:', error);
+      logger.error(
+        'User sessions invalidation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          exceptSessionId,
+          module: 'session',
+          operation: 'invalidateAllUser',
+        }
+      );
       return false;
     }
   }
@@ -153,13 +215,31 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to extend session:', error);
+        logger.error(
+          'Failed to extend session',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            sessionId,
+            additionalMinutes,
+            module: 'session',
+            operation: 'extend',
+          }
+        );
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Session extension error:', error);
+      logger.error(
+        'Session extension error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          sessionId,
+          additionalMinutes,
+          module: 'session',
+          operation: 'extend',
+        }
+      );
       return false;
     }
   }
@@ -176,13 +256,29 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to verify MFA for session:', error);
+        logger.error(
+          'Failed to verify MFA for session',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            sessionId,
+            module: 'session',
+            operation: 'verifyMFA',
+          }
+        );
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA session verification error:', error);
+      logger.error(
+        'MFA session verification error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          sessionId,
+          module: 'session',
+          operation: 'verifyMFA',
+        }
+      );
       return false;
     }
   }
@@ -198,13 +294,29 @@ export class SessionManager {
         .order('last_activity', { ascending: false });
 
       if (error) {
-        console.error('Failed to get user sessions:', error);
+        logger.error(
+          'Failed to get user sessions',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            userId,
+            module: 'session',
+            operation: 'getUserActiveSessions',
+          }
+        );
         return [];
       }
 
       return sessions as SessionSecurity[];
     } catch (error) {
-      console.error('Get user sessions error:', error);
+      logger.error(
+        'Get user sessions error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          module: 'session',
+          operation: 'getUserActiveSessions',
+        }
+      );
       return [];
     }
   }
@@ -218,13 +330,27 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to cleanup expired sessions:', error);
+        logger.error(
+          'Failed to cleanup expired sessions',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            module: 'session',
+            operation: 'cleanupExpired',
+          }
+        );
         return 0;
       }
 
       return count || 0;
     } catch (error) {
-      console.error('Session cleanup error:', error);
+      logger.error(
+        'Session cleanup error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'session',
+          operation: 'cleanupExpired',
+        }
+      );
       return 0;
     }
   }
@@ -256,7 +382,15 @@ export class SessionManager {
 
       return [...new Set(suspiciousSessions)];
     } catch (error) {
-      console.error('Suspicious session detection error:', error);
+      logger.error(
+        'Suspicious session detection error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          module: 'session',
+          operation: 'detectSuspicious',
+        }
+      );
       return [];
     }
   }
@@ -271,7 +405,15 @@ export class SessionManager {
         })
         .eq('session_id', sessionId);
     } catch (error) {
-      console.error('Session activity update error:', error);
+      logger.error(
+        'Session activity update error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          sessionId,
+          module: 'session',
+          operation: 'updateActivity',
+        }
+      );
     }
   }
 
@@ -302,7 +444,15 @@ export class SessionManager {
 
         return session.mfa_verified;
       } catch (error) {
-        console.error('MFA verification check error:', error);
+        logger.error(
+          'MFA verification check error',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            sessionId,
+            module: 'session',
+            operation: 'checkMFAVerification',
+          }
+        );
         return false;
       }
     };

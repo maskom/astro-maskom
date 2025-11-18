@@ -3,11 +3,14 @@ import { mfaService } from '../../../lib/security/mfa';
 import { sessionManager } from '../../../lib/security/session';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
+import { logger, generateRequestId } from '../../../lib/logger';
 import { SecurityAction } from '../../../lib/security/types';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+  
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -97,7 +100,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('MFA verification error:', error);
+    logger.apiError('MFA verification error', error, {
+      requestId,
+      endpoint: '/api/auth/verify-mfa',
+      method: 'POST'
+    });
+    
     return new Response('Failed to verify MFA', { status: 500 });
   }
 };

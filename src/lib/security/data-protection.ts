@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { DataConsent, ConsentType, UserDataExport } from './types';
 
 export class DataProtectionService {
@@ -28,7 +29,14 @@ export class DataProtectionService {
 
       return iv.toString('hex') + ':' + encrypted;
     } catch (error) {
-      console.error('Encryption error:', error);
+      logger.error(
+        'Encryption error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'data-protection',
+          operation: 'encrypt',
+        }
+      );
       throw new Error('Failed to encrypt data');
     }
   }
@@ -50,7 +58,14 @@ export class DataProtectionService {
 
       return decrypted;
     } catch (error) {
-      console.error('Decryption error:', error);
+      logger.error(
+        'Decryption error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'data-protection',
+          operation: 'decrypt',
+        }
+      );
       throw new Error('Failed to decrypt data');
     }
   }
@@ -71,7 +86,14 @@ export class DataProtectionService {
         .toString('hex');
       return hash === verifyHash;
     } catch (error) {
-      console.error('Password verification error:', error);
+      logger.error(
+        'Password verification error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'data-protection',
+          operation: 'verifyPassword',
+        }
+      );
       return false;
     }
   }
@@ -101,13 +123,29 @@ export class DataProtectionService {
         .insert(consent);
 
       if (error) {
-        console.error('Failed to record data consent:', error);
+        logger.error('Failed to record data consent', error, {
+          userId,
+          consentType,
+          granted,
+          module: 'data-protection',
+          operation: 'recordDataConsent',
+        });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Data consent recording error:', error);
+      logger.error(
+        'Failed to record data consent',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          consentType,
+          granted,
+          module: 'data-protection',
+          operation: 'recordDataConsent',
+        }
+      );
       return false;
     }
   }
@@ -145,7 +183,16 @@ export class DataProtectionService {
 
       return !!consent;
     } catch (error) {
-      console.error('Data consent check error:', error);
+      logger.error(
+        'Data consent check error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          userId,
+          consentType,
+          module: 'data-protection',
+          operation: 'hasDataConsent',
+        }
+      );
       return false;
     }
   }

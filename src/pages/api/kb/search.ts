@@ -2,10 +2,12 @@ import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const query = searchParams.get('q');
   const categorySlug = searchParams.get('category');
@@ -67,7 +69,16 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Search error:', error);
+    logger.apiError('Search error', error, {
+      requestId,
+      query: query || undefined,
+      categorySlug: categorySlug || undefined,
+      limit,
+      offset,
+      endpoint: '/api/kb/search',
+      method: 'GET',
+    });
+
     throw ErrorFactory.internalError('Search failed');
   }
 });

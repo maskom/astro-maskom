@@ -3,6 +3,7 @@ import { rbacService } from '../../../lib/security/rbac';
 import { dataProtectionService } from '../../../lib/security/data-protection';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
+import { logger, generateRequestId } from '../../../lib/logger';
 import {
   Permission,
   UserRole,
@@ -12,6 +13,8 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -77,12 +80,20 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       }
     );
   } catch (error) {
-    console.error('User profile error:', error);
+    logger.apiError('User profile error', error, {
+      requestId,
+      targetUserId: url.searchParams.get('userId') || undefined,
+      endpoint: '/api/security/users',
+      method: 'GET',
+    });
+
     return new Response('Failed to fetch user profile', { status: 500 });
   }
 };
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -195,12 +206,19 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User profile update error:', error);
+    logger.apiError('User profile update error', error, {
+      requestId,
+      endpoint: '/api/security/users',
+      method: 'PUT',
+    });
+
     return new Response('Failed to update user profile', { status: 500 });
   }
 };
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -261,7 +279,12 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User deletion error:', error);
+    logger.apiError('User deletion error', error, {
+      requestId,
+      endpoint: '/api/security/users',
+      method: 'DELETE',
+    });
+
     return new Response('Failed to delete user', { status: 500 });
   }
 };
