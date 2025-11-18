@@ -53,7 +53,7 @@ export class SecurityAuditLogger {
           userId,
           action,
           resource,
-          riskLevel
+          riskLevel,
         });
       }
 
@@ -74,7 +74,7 @@ export class SecurityAuditLogger {
         operation: 'logSecurityAction',
         userId,
         action,
-        resource
+        resource,
       });
     }
   }
@@ -114,7 +114,7 @@ export class SecurityAuditLogger {
         operation: 'logFailedLogin',
         email,
         ipAddress,
-        reason
+        reason,
       });
     }
   }
@@ -148,7 +148,7 @@ export class SecurityAuditLogger {
           operation: 'createSecurityEvent',
           eventType,
           severity,
-          userId
+          userId,
         });
       }
 
@@ -162,7 +162,7 @@ export class SecurityAuditLogger {
         operation: 'createSecurityEvent',
         eventType,
         severity,
-        userId
+        userId,
       });
     }
   }
@@ -195,7 +195,7 @@ export class SecurityAuditLogger {
           operation: 'fetchSecurityEvents',
           userId,
           severity,
-          limit
+          limit,
         });
         return [];
       }
@@ -207,7 +207,7 @@ export class SecurityAuditLogger {
         operation: 'fetchSecurityEvents',
         userId,
         severity,
-        limit
+        limit,
       });
       return [];
     }
@@ -236,13 +236,25 @@ export class SecurityAuditLogger {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Failed to fetch audit logs:', error);
+        logger.error('Failed to fetch audit logs', error, {
+          module: 'security',
+          operation: 'getAuditLogs',
+          userId,
+          action,
+          limit,
+        });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Audit logs fetch error:', error);
+      logger.error('Audit logs fetch error', error, {
+        module: 'security',
+        operation: 'getAuditLogs',
+        userId,
+        action,
+        limit,
+      });
       return [];
     }
   }
@@ -296,13 +308,23 @@ export class SecurityAuditLogger {
         .gte('timestamp', since.toISOString());
 
       if (error) {
-        console.error('Failed to get recent failed logins:', error);
+        logger.error('Failed to get recent failed logins', error, {
+          module: 'security',
+          operation: 'getRecentFailedLogins',
+          ipAddress,
+          minutes,
+        });
         return 0;
       }
 
       return count || 0;
     } catch (error) {
-      console.error('Recent failed logins error:', error);
+      logger.error('Recent failed logins error', error, {
+        module: 'security',
+        operation: 'getRecentFailedLogins',
+        ipAddress,
+        minutes,
+      });
       return 0;
     }
   }
@@ -311,13 +333,15 @@ export class SecurityAuditLogger {
     event: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'>
   ): Promise<void> {
     // In a real implementation, this would send notifications via email, Slack, etc.
-    console.error('🚨 CRITICAL SECURITY ALERT:', {
-      type: event.type,
+    logger.error('🚨 CRITICAL SECURITY ALERT', undefined, {
+      module: 'security',
+      operation: 'triggerSecurityAlert',
+      eventType: event.type,
       severity: event.severity,
-      user_id: event.user_id,
-      ip_address: event.ip_address,
+      userId: event.user_id,
+      ipAddress: event.ip_address,
       description: event.description,
-      timestamp: new Date().toISOString(),
+      alertType: 'CRITICAL_SECURITY_ALERT',
     });
 
     // Store alert for admin dashboard
@@ -328,7 +352,13 @@ export class SecurityAuditLogger {
         acknowledged: false,
       });
     } catch (error) {
-      console.error('Failed to store security alert:', error);
+      logger.error('Failed to store security alert', error, {
+        module: 'security',
+        operation: 'triggerSecurityAlert',
+        eventType: event.type,
+        severity: event.severity,
+        userId: event.user_id,
+      });
     }
   }
 }
