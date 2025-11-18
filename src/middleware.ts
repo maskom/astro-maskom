@@ -1,6 +1,9 @@
 import { getSecurityHeaders, generateNonce } from './middleware/security';
 
-export const onRequest = async ({ request, locals }, next) => {
+export const onRequest = async (
+  { request, locals }: { request: Request; locals: Record<string, unknown> },
+  next: () => Promise<Response>
+) => {
   const response = await next();
   const { pathname } = new URL(request.url);
 
