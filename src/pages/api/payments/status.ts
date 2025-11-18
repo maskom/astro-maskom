@@ -1,33 +1,43 @@
 import { getPaymentManager } from '../../../lib/payments';
+import { logger } from '../../../lib/logger';
+import { validateRequest } from '../../../lib/validation';
+import { PaymentSchemas } from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = validateRequest(PaymentSchemas.paymentStatus, {
+  source: 'query',
+})(async ({ validatedData, requestId }) => {
   try {
-    const url = new URL(request.url);
-    const orderId = url.searchParams.get('order_id');
+    const { transactionId } = validatedData;
 
-    if (!orderId) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'order_id parameter is required',
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    logger.info('Getting payment status', {
+      requestId,
+      transactionId,
+    });
 
     const paymentManager = getPaymentManager();
-    const status = await paymentManager.getTransactionStatus(orderId);
+    const status = await paymentManager.getTransactionStatus(transactionId);
+
+    logger.info('Payment status retrieved', {
+      requestId,
+      transactionId,
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
         status,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId,
+        },
+      }
     );
   } catch (error) {
-    console.error('Payment status error:', error);
+    logger.error('Payment status error', error as Error, { requestId });
     return new Response(
       JSON.stringify({
         success: false,
@@ -36,7 +46,13 @@ export const GET: APIRoute = async ({ request }) => {
             ? error.message
             : 'Failed to get payment status',
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId,
+        },
+      }
     );
   }
-};
+});
