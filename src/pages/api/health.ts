@@ -56,11 +56,8 @@ export const GET: APIRoute = async () => {
     const supabase = createServerClient();
     const supabaseStart = Date.now();
 
-    // Try to access auth.users which should exist in all Supabase projects
-    const { error } = await supabase
-      .from('auth.users')
-      .select('count')
-      .limit(1);
+    // Simple connectivity test - just try to get the auth service status
+    const { error } = await supabase.auth.getSession();
 
     const supabaseLatency = Date.now() - supabaseStart;
 
