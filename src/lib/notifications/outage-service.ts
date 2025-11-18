@@ -6,7 +6,10 @@ import {
   type OutageNotification,
   type CustomerNotificationPreferences,
 } from './outage-database';
-import { outageValidation } from './outage-validation';
+import {
+  outageValidation,
+  type OutageEventDataInput,
+} from './outage-validation';
 import { OutageNotifications } from './outage-notifications';
 
 // Re-export types for backward compatibility
@@ -76,7 +79,9 @@ class OutageNotificationService {
     try {
       // Validate update data (exclude id from validation as it's not part of the interface)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id: _id, ...updateData } = updates as any;
+      const { id: _id, ...updateData } = updates as OutageEventDataInput & {
+        id?: string;
+      };
       const validation = outageValidation.validateOutageEventData(updateData);
       if (!validation.isValid) {
         logger.error(

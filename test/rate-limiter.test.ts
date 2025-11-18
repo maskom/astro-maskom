@@ -5,7 +5,24 @@ import {
   getClientIdentifier,
 } from '../src/lib/rate-limiter';
 
-// Mock KV namespace
+// Mock KV namespace interface
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number }
+  ): Promise<void>;
+}
+
+// Mock Request interface with Cloudflare properties
+interface MockRequest extends Request {
+  cf?: {
+    connecting_ip?: string;
+    client_ip?: string;
+  };
+}
+
 const mockKV = {
   get: vi.fn(),
   put: vi.fn(),
@@ -20,7 +37,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(null);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -41,7 +58,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(false);
@@ -60,7 +77,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -69,7 +86,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace);
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -88,7 +105,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace);
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -142,7 +159,7 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    } as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');
@@ -155,7 +172,7 @@ describe('getClientIdentifier', () => {
         'x-forwarded-for': '10.0.0.1, 192.168.1.1',
         'user-agent': 'TestAgent/1.0',
       }),
-    } as any;
+    } as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('10.0.0.1');
@@ -165,7 +182,7 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: {},
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    } as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('unknown');
@@ -175,7 +192,7 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'Mozilla/5.0 (Test Browser)' }),
-    } as any;
+    } as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');

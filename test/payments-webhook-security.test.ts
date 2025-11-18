@@ -59,9 +59,10 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    } as unknown;
 
-    await POST(mockContext);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await POST(mockContext as any);
 
     // Verify logger.info was called with safe metadata only
     expect(logger.info).toHaveBeenCalledWith('Payment webhook received', {
@@ -119,9 +120,10 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    } as unknown;
 
-    const response = await POST(mockContext);
+    const response = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await POST(mockContext as any);
 
     // Verify error logging includes only safe metadata
     expect(logger.error).toHaveBeenCalledWith(
@@ -163,9 +165,10 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    } as unknown;
 
-    const response = await POST(mockContext);
+    const response = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await POST(mockContext as any);
 
     // Verify error logging for malformed requests
     expect(logger.error).toHaveBeenCalledWith(
@@ -206,9 +209,10 @@ describe('Payment Webhook Security', () => {
         getStaticPaths: vi.fn(),
         getActionResult: vi.fn(),
         callAction: vi.fn(),
-      } as any;
+      } as unknown;
 
-      await POST(mockContext);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await POST(mockContext as any);
 
       // Verify safe logging for each event type
       expect(logger.info).toHaveBeenCalledWith('Payment webhook received', {
