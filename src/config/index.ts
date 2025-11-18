@@ -93,7 +93,7 @@ export function validateConfig(): void {
         `Missing production environment variables: ${missingProduction.join(', ')}`,
         {
           component: 'config-validation',
-          missingVariables: missingProduction,
+          missingVariables: missingProduction.join(', '),
           environment: config.nodeEnv,
         }
       );
