@@ -1,0 +1,184 @@
+---
+// Push Notification Manager Component
+---
+
+<div id="notification-permission-prompt" class="fixed bottom-4 left-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-y-full opacity-0 z-50">
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+      </svg>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-medium">Aktifkan Notifikasi</h3>
+      <p class="text-xs mt-1 opacity-90">Dapatkan notifikasi status layanan dan info penting</p>
+    </div>
+    <button id="notification-close" class="flex-shrink-0 text-white hover:text-gray-200">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+  <div class="mt-3 flex space-x-2">
+    <button id="notification-enable" class="flex-1 bg-white text-blue-600 px-3 py-2 rounded text-sm font-medium hover:bg-gray-100 transition-colors">
+      Aktifkan
+    </button>
+    <button id="notification-dismiss" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-800 transition-colors">
+      Nanti
+    </button>
+  </div>
+</div>
+
+<script>
+  const notificationPrompt = document.getElementById('notification-permission-prompt');
+  const enableButton = document.getElementById('notification-enable');
+  const dismissButton = document.getElementById('notification-dismiss');
+  const closeButton = document.getElementById('notification-close');
+
+  // Check if notifications are supported
+  if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
+    console.log('Push notifications are supported');
+    
+    // Check current permission status
+    if (Notification.permission === 'default') {
+      // Show permission prompt after delay
+      setTimeout(() => {
+        showNotificationPrompt();
+      }, 5000);
+    } else if (Notification.permission === 'granted') {
+      console.log('Notification permission already granted');
+      subscribeToPushNotifications();
+    }
+  } else {
+    console.log('Push notifications are not supported');
+  }
+
+  function showNotificationPrompt() {
+    if (Notification.permission === 'default' && !localStorage.getItem('notification-dismissed')) {
+      notificationPrompt.classList.remove('translate-y-full', 'opacity-0');
+      notificationPrompt.classList.add('translate-y-0', 'opacity-100');
+    }
+  }
+
+  function hideNotificationPrompt() {
+    notificationPrompt.classList.add('translate-y-full', 'opacity-0');
+    notificationPrompt.classList.remove('translate-y-0', 'opacity-100');
+  }
+
+  // Request notification permission
+  async function requestNotificationPermission() {
+    try {
+      const permission = await Notification.requestPermission();
+      console.log('Notification permission:', permission);
+      
+      if (permission === 'granted') {
+        await subscribeToPushNotifications();
+        showNotificationSuccess();
+      } else if (permission === 'denied') {
+        showNotificationDenied();
+      }
+      
+      hideNotificationPrompt();
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+    }
+  }
+
+  // Subscribe to push notifications
+  async function subscribeToPushNotifications() {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array('your-vapid-public-key-here')
+      });
+      
+      console.log('Push subscription:', subscription);
+      
+      // Send subscription to server
+      await sendSubscriptionToServer(subscription);
+    } catch (error) {
+      console.error('Error subscribing to push notifications:', error);
+    }
+  }
+
+  // Send subscription to server
+  async function sendSubscriptionToServer(subscription) {
+    try {
+      const response = await fetch('/api/notifications/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subscription)
+      });
+      
+      if (response.ok) {
+        console.log('Push subscription sent to server');
+      } else {
+        console.error('Failed to send subscription to server');
+      }
+    } catch (error) {
+      console.error('Error sending subscription to server:', error);
+    }
+  }
+
+  // Show success message
+  function showNotificationSuccess() {
+    const success = document.createElement('div');
+    success.className = 'fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300';
+    success.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span>Notifikasi diaktifkan!</span>
+      </div>
+    `;
+    
+    document.body.appendChild(success);
+    setTimeout(() => success.remove(), 3000);
+  }
+
+  // Show denied message
+  function showNotificationDenied() {
+    const denied = document.createElement('div');
+    denied.className = 'fixed top-4 right-4 bg-red-600 text-white p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300';
+    denied.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <span>Notifikasi diblokir</span>
+      </div>
+    `;
+    
+    document.body.appendChild(denied);
+    setTimeout(() => denied.remove(), 3000);
+  }
+
+  // Convert VAPID key
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    
+    return outputArray;
+  }
+
+  // Event listeners
+  enableButton.addEventListener('click', requestNotificationPermission);
+  dismissButton.addEventListener('click', () => {
+    hideNotificationPrompt();
+    localStorage.setItem('notification-dismissed', 'true');
+  });
+  closeButton.addEventListener('click', () => {
+    hideNotificationPrompt();
+    localStorage.setItem('notification-dismissed', 'true');
+  });
+</script>

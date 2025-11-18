@@ -1,0 +1,88 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Offline - Maskom Network" description="Anda sedang offline. Beberapa fitur mungkin tidak tersedia.">
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="max-w-md w-full text-center">
+      <div class="mb-8">
+        <div class="w-24 h-24 mx-auto bg-yellow-500/20 rounded-full flex items-center justify-center mb-6">
+          <svg class="w-12 h-12 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        
+        <h1 class="text-3xl font-bold text-white mb-4">Tidak Ada Koneksi Internet</h1>
+        <p class="text-gray-300 mb-8">
+          Anda sedang offline. Beberapa fitur mungkin tidak tersedia, namun Anda masih dapat mengakses informasi penting yang telah disimpan.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <button 
+          onclick="window.location.reload()" 
+          class="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors active:scale-95"
+        >
+          <span class="flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+            </svg>
+            <span>Refresh Halaman</span>
+          </span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-4">
+          <a 
+            href="/status" 
+            class="bg-gray-800 text-white px-4 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors text-center active:scale-95"
+          >
+            <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+            </svg>
+            Status Layanan
+          </a>
+          
+          <a 
+            href="/kontak" 
+            class="bg-gray-800 text-white px-4 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors text-center active:scale-95"
+          >
+            <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+            </svg>
+            Hubungi Kami
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-8 p-4 bg-gray-800/50 rounded-lg">
+        <h2 class="text-white font-medium mb-2">Fitur Offline Tersedia:</h2>
+        <ul class="text-gray-300 text-sm space-y-1 text-left">
+          <li>✓ Informasi status layanan</li>
+          <li>✓ Daftar paket layanan</li>
+          <li>✓ Informasi kontak</li>
+          <li>✓ Data yang telah disimpan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Periodically check for connection
+  setInterval(async () => {
+    try {
+      const response = await fetch('/api/status', {
+        method: 'HEAD',
+        cache: 'no-cache'
+      });
+      
+      if (response.ok) {
+        // Connection restored, redirect to home
+        window.location.href = '/';
+      }
+    } catch (error) {
+      // Still offline
+    }
+  }, 10000); // Check every 10 seconds
+</script>

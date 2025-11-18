@@ -4,7 +4,12 @@ import { SEO } from 'astro-seo';
 import Background from '../components/ui/Background.astro';
 import Footer from '../components/ui/Footer.astro';
 import Header from '../components/ui/Header.astro';
+import PWAInstallPrompt from '../components/ui/PWAInstallPrompt.astro';
+import OfflineStatus from '../components/ui/OfflineStatus.astro';
+import PushNotificationManager from '../components/ui/PushNotificationManager.astro';
 import '../styles/global.css';
+import '../styles/mobile-optimizations.css';
+import '../pwa/background-sync.js';
 
 interface Props {
   title: string;
@@ -96,6 +101,7 @@ const ogImageMeta = image.endsWith('.svg')
           { rel: 'canonical', href: canonicalUrl },
           { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
           { rel: 'apple-touch-icon', href: '/favicon.svg' },
+          { rel: 'manifest', href: '/manifest.json' },
         ],
       }}
     />
@@ -119,6 +125,9 @@ const ogImageMeta = image.endsWith('.svg')
     <div class="mb-32">
       <Footer />
     </div>
+    <PWAInstallPrompt />
+    <OfflineStatus />
+    <PushNotificationManager />
   </body>
 </html>
 
