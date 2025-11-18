@@ -6,11 +6,12 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
   let userId: string | undefined;
-  
+  let orderId: string | undefined;
+  let amount: number | undefined;
+
   try {
     const body = await request.json();
-    const { orderId, amount, customerDetails, itemDetails, paymentMethod } =
-      body;
+    ({ orderId, amount, customerDetails, itemDetails, paymentMethod } = body);
 
     if (!orderId || !amount || !customerDetails || !itemDetails) {
       return new Response(
@@ -49,7 +50,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    userId = user.id;
+    const userId = user.id;
 
     const paymentManager = getPaymentManager();
     const paymentRequest = {
@@ -73,11 +74,11 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     logger.apiError('Payment creation error', error, {
       requestId,
-      userId: user?.id,
+      userId,
       endpoint: '/api/payments/create',
       method: 'POST',
       orderId,
-      amount
+      amount,
     });
     return new Response(
       JSON.stringify({

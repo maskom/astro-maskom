@@ -69,13 +69,17 @@ export class SecurityAuditLogger {
         );
       }
     } catch (error) {
-      logger.error('Security audit logging error', error, {
-        module: 'security',
-        operation: 'logSecurityAction',
-        userId,
-        action,
-        resource,
-      });
+      logger.error(
+        'Security audit logging error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'logSecurityAction',
+          userId,
+          action,
+          resource,
+        }
+      );
     }
   }
 
@@ -109,13 +113,17 @@ export class SecurityAuditLogger {
         timestamp: new Date(),
       });
     } catch (error) {
-      logger.error('Failed login logging error', error, {
-        module: 'security',
-        operation: 'logFailedLogin',
-        email,
-        ipAddress,
-        reason,
-      });
+      logger.error(
+        'Failed login logging error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'logFailedLogin',
+          email,
+          ipAddress,
+          reason,
+        }
+      );
     }
   }
 
@@ -146,7 +154,7 @@ export class SecurityAuditLogger {
         logger.error('Failed to create security event', error, {
           module: 'security',
           operation: 'createSecurityEvent',
-          eventType,
+          eventType: type,
           severity,
           userId,
         });
@@ -157,13 +165,17 @@ export class SecurityAuditLogger {
         await this.triggerSecurityAlert(securityEvent);
       }
     } catch (error) {
-      logger.error('Security event creation error', error, {
-        module: 'security',
-        operation: 'createSecurityEvent',
-        eventType,
-        severity,
-        userId,
-      });
+      logger.error(
+        'Security event creation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'createSecurityEvent',
+          eventType: type,
+          severity,
+          userId,
+        }
+      );
     }
   }
 
@@ -202,13 +214,17 @@ export class SecurityAuditLogger {
 
       return data || [];
     } catch (error) {
-      logger.error('Security events fetch error', error, {
-        module: 'security',
-        operation: 'fetchSecurityEvents',
-        userId,
-        severity,
-        limit,
-      });
+      logger.error(
+        'Security events fetch error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'fetchSecurityEvents',
+          userId,
+          severity,
+          limit,
+        }
+      );
       return [];
     }
   }
@@ -352,13 +368,17 @@ export class SecurityAuditLogger {
         acknowledged: false,
       });
     } catch (error) {
-      logger.error('Failed to store security alert', error, {
-        module: 'security',
-        operation: 'triggerSecurityAlert',
-        eventType: event.type,
-        severity: event.severity,
-        userId: event.user_id,
-      });
+      logger.error(
+        'Failed to store security alert',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'triggerSecurityAlert',
+          eventType: event.type,
+          severity: event.severity,
+          userId: event.user_id,
+        }
+      );
     }
   }
 }

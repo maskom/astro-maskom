@@ -9,11 +9,13 @@ import {
   UserRole,
 } from '../../../lib/security/types';
 
+import { logger, generateRequestId } from '../../../lib/logger';
+
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
   const requestId = generateRequestId();
-  
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -88,7 +90,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     logger.apiError('Security dashboard error:', error, {
       requestId,
       endpoint: '/api/security/dashboard',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     return new Response('Failed to fetch security data', { status: 500 });
   }
@@ -137,12 +139,11 @@ async function getSecurityStats(userId: string) {
         await import('../../../lib/security/mfa')
       ).mfaService.isMFAEnabled(userId),
     };
-import { logger, generateRequestId } from '../../../lib/logger';
   } catch (error) {
     logger.apiError('Security stats error:', error, {
       requestId,
       endpoint: '/api/security/dashboard',
-      method: 'UNKNOWN'
+      method: 'GET',
     });
     return {
       criticalEvents: 0,

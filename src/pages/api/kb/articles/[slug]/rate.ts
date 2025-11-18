@@ -3,13 +3,14 @@ import { knowledgeBaseService } from '../../../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../../../lib/errors';
 import { sanitizeInput } from '../../../../../lib/sanitization';
-import { logger, generateRequestId } from '../../../lib/logger';
+import { logger, generateRequestId } from '../../../../../lib/logger';
 
 export const prerender = false;
 
 // POST /api/kb/articles/[slug]/rate - Rate an article
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, params, cookies }) => {
+    const requestId = generateRequestId();
     const slug = params?.slug;
 
     // Validate required fields
@@ -85,10 +86,10 @@ export const POST: APIRoute = withApiMiddleware(
       );
     } catch (error) {
       logger.apiError('Rating submission error:', error, {
-      requestId,
-      endpoint: '/api/kb/articles/[slug]/rate',
-      method: 'UNKNOWN'
-    });
+        requestId,
+        endpoint: '/api/kb/articles/[slug]/rate',
+        method: 'UNKNOWN',
+      });
       throw ErrorFactory.internalError('Failed to submit rating');
     }
   }
@@ -96,6 +97,7 @@ export const POST: APIRoute = withApiMiddleware(
 
 // GET /api/kb/articles/[slug]/ratings - Get article ratings
 export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
+  const requestId = generateRequestId();
   const slug = params?.slug;
 
   // Validate required fields
@@ -162,7 +164,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
     logger.apiError('Ratings fetch error:', error, {
       requestId,
       endpoint: '/api/kb/articles/[slug]/rate',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Failed to fetch ratings');
   }
