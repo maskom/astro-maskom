@@ -302,64 +302,116 @@ import Layout from '../../layouts/Layout.astro';
     function updateUserTable(dataCaps) {
       const tbody = document.getElementById('userTableBody');
 
+      // Clear existing content
+      tbody.innerHTML = '';
+
       if (dataCaps.length === 0) {
-        tbody.innerHTML =
-          '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+        const noUsersRow = document.createElement('tr');
+        const noUsersCell = document.createElement('td');
+        noUsersCell.colSpan = 7;
+        noUsersCell.className = 'px-6 py-4 text-center text-gray-500';
+        noUsersCell.textContent = 'No users found';
+        noUsersRow.appendChild(noUsersCell);
+        tbody.appendChild(noUsersRow);
         return;
       }
 
-      tbody.innerHTML = dataCaps
-        .map(cap => {
-          const usagePercentage =
-            (cap.current_usage_gb / cap.monthly_cap_gb) * 100;
-          const statusColor =
-            usagePercentage >= 90
-              ? 'red'
-              : usagePercentage >= 80
-                ? 'yellow'
-                : 'green';
-          const statusText =
-            usagePercentage >= 90
-              ? 'Critical'
-              : usagePercentage >= 80
-                ? 'Warning'
-                : 'Normal';
+      dataCaps.forEach(cap => {
+        const usagePercentage = (cap.current_usage_gb / cap.monthly_cap_gb) * 100;
+        const statusColor = usagePercentage >= 90 ? 'red' : usagePercentage >= 80 ? 'yellow' : 'green';
+        const statusText = usagePercentage >= 90 ? 'Critical' : usagePercentage >= 80 ? 'Warning' : 'Normal';
 
-          return `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">${cap.user?.email || 'Unknown'}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${cap.package_id}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${cap.monthly_cap_gb} GB</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${cap.current_usage_gb.toFixed(2)} GB</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="text-sm text-gray-900 mr-2">${usagePercentage.toFixed(1)}%</div>
-                <div class="w-16 bg-gray-200 rounded-full h-2">
-                  <div class="bg-${statusColor}-500 h-2 rounded-full admin-usage-bar" style="--admin-usage-width: ${Math.min(usagePercentage, 100)}%;"></div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800">
-                ${statusText}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button class="text-indigo-600 hover:text-indigo-900 mr-3" onclick="viewUserDetails('${cap.user_id}')">View</button>
-              <button class="text-blue-600 hover:text-blue-900" onclick="editUserCap('${cap.id}')">Edit</button>
-            </td>
-          </tr>
-        `;
-        })
-        .join('');
+        const row = document.createElement('tr');
+
+        // User cell
+        const userCell = document.createElement('td');
+        userCell.className = 'px-6 py-4 whitespace-nowrap';
+        const userDiv = document.createElement('div');
+        userDiv.className = 'text-sm font-medium text-gray-900';
+        userDiv.textContent = cap.user?.email || 'Unknown';
+        userCell.appendChild(userDiv);
+
+        // Package cell
+        const packageCell = document.createElement('td');
+        packageCell.className = 'px-6 py-4 whitespace-nowrap';
+        const packageDiv = document.createElement('div');
+        packageDiv.className = 'text-sm text-gray-900';
+        packageDiv.textContent = cap.package_id;
+        packageCell.appendChild(packageDiv);
+
+        // Monthly cap cell
+        const monthlyCapCell = document.createElement('td');
+        monthlyCapCell.className = 'px-6 py-4 whitespace-nowrap';
+        const monthlyCapDiv = document.createElement('div');
+        monthlyCapDiv.className = 'text-sm text-gray-900';
+        monthlyCapDiv.textContent = `${cap.monthly_cap_gb} GB`;
+        monthlyCapCell.appendChild(monthlyCapDiv);
+
+        // Current usage cell
+        const currentUsageCell = document.createElement('td');
+        currentUsageCell.className = 'px-6 py-4 whitespace-nowrap';
+        const currentUsageDiv = document.createElement('div');
+        currentUsageDiv.className = 'text-sm text-gray-900';
+        currentUsageDiv.textContent = `${cap.current_usage_gb.toFixed(2)} GB`;
+        currentUsageCell.appendChild(currentUsageDiv);
+
+        // Usage percentage cell
+        const usagePercentCell = document.createElement('td');
+        usagePercentCell.className = 'px-6 py-4 whitespace-nowrap';
+        const usageFlexDiv = document.createElement('div');
+        usageFlexDiv.className = 'flex items-center';
+        
+        const usagePercentDiv = document.createElement('div');
+        usagePercentDiv.className = 'text-sm text-gray-900 mr-2';
+        usagePercentDiv.textContent = `${usagePercentage.toFixed(1)}%`;
+        
+        const progressBarDiv = document.createElement('div');
+        progressBarDiv.className = 'w-16 bg-gray-200 rounded-full h-2';
+        
+        const progressBarFill = document.createElement('div');
+        progressBarFill.className = `bg-${statusColor}-500 h-2 rounded-full admin-usage-bar`;
+        progressBarFill.style.setProperty('--admin-usage-width', `${Math.min(usagePercentage, 100)}%`);
+        
+        progressBarDiv.appendChild(progressBarFill);
+        usageFlexDiv.appendChild(usagePercentDiv);
+        usageFlexDiv.appendChild(progressBarDiv);
+        usagePercentCell.appendChild(usageFlexDiv);
+
+        // Status cell
+        const statusCell = document.createElement('td');
+        statusCell.className = 'px-6 py-4 whitespace-nowrap';
+        const statusSpan = document.createElement('span');
+        statusSpan.className = `px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800`;
+        statusSpan.textContent = statusText;
+        statusCell.appendChild(statusSpan);
+
+        // Actions cell
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium';
+        
+        const viewButton = document.createElement('button');
+        viewButton.className = 'text-indigo-600 hover:text-indigo-900 mr-3';
+        viewButton.textContent = 'View';
+        viewButton.onclick = () => viewUserDetails(cap.user_id);
+        
+        const editButton = document.createElement('button');
+        editButton.className = 'text-blue-600 hover:text-blue-900';
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editUserCap(cap.id);
+        
+        actionsCell.appendChild(viewButton);
+        actionsCell.appendChild(editButton);
+
+        row.appendChild(userCell);
+        row.appendChild(packageCell);
+        row.appendChild(monthlyCapCell);
+        row.appendChild(currentUsageCell);
+        row.appendChild(usagePercentCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionsCell);
+
+        tbody.appendChild(row);
+      });
     }
 
     function updatePagination(pagination) {
@@ -382,27 +434,49 @@ import Layout from '../../layouts/Layout.astro';
     function updateNotifications(notifications) {
       const container = document.getElementById('notificationsList');
 
+      // Clear existing content
+      container.innerHTML = '';
+
       if (notifications.length === 0) {
-        container.innerHTML =
-          '<div class="text-center text-gray-500">No recent notifications</div>';
+        const noNotificationsDiv = document.createElement('div');
+        noNotificationsDiv.className = 'text-center text-gray-500';
+        noNotificationsDiv.textContent = 'No recent notifications';
+        container.appendChild(noNotificationsDiv);
         return;
       }
 
-      container.innerHTML = notifications
-        .slice(0, 10)
-        .map(
-          notif => `
-        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl">${notif.threshold_percentage >= 90 ? '🔴' : notif.threshold_percentage >= 80 ? '🟡' : '🔵'}</div>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-gray-900">${notif.user?.email || 'Unknown User'}</div>
-            <div class="text-sm text-gray-600">${notif.message}</div>
-            <div class="text-xs text-gray-500 mt-1">${new Date(notif.sent_at).toLocaleString()}</div>
-          </div>
-        </div>
-      `
-        )
-        .join('');
+      notifications.slice(0, 10).forEach(notif => {
+        const notifDiv = document.createElement('div');
+        notifDiv.className = 'flex items-start space-x-3 p-3 bg-gray-50 rounded-lg';
+
+        const emojiDiv = document.createElement('div');
+        emojiDiv.className = 'text-2xl';
+        emojiDiv.textContent = notif.threshold_percentage >= 90 ? '🔴' : notif.threshold_percentage >= 80 ? '🟡' : '🔵';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'flex-1';
+
+        const emailDiv = document.createElement('div');
+        emailDiv.className = 'text-sm font-medium text-gray-900';
+        emailDiv.textContent = notif.user?.email || 'Unknown User';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'text-sm text-gray-600';
+        messageDiv.textContent = notif.message;
+
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'text-xs text-gray-500 mt-1';
+        timeDiv.textContent = new Date(notif.sent_at).toLocaleString();
+
+        contentDiv.appendChild(emailDiv);
+        contentDiv.appendChild(messageDiv);
+        contentDiv.appendChild(timeDiv);
+
+        notifDiv.appendChild(emojiDiv);
+        notifDiv.appendChild(contentDiv);
+
+        container.appendChild(notifDiv);
+      });
     }
 
     function updateHighUsageAlert(highUsageUsers) {
