@@ -11,9 +11,9 @@ export const supabase =
           return createClient(config.url, config.anonKey);
         } catch (error) {
           logger.apiError('Failed to initialize Supabase client:', error, {
-    module: 'supabase',
-    operation: 'unknown'
-  });
+            module: 'supabase',
+            operation: 'unknown',
+          });
           return null;
         }
       })()
@@ -40,9 +40,9 @@ export function createServerClient() {
     return client;
   } catch (error) {
     logger.apiError('Failed to create Supabase server client:', error, {
-    module: 'supabase',
-    operation: 'create'
-  });
+      module: 'supabase',
+      operation: 'create',
+    });
     throw error;
   }
 }
@@ -54,8 +54,13 @@ export function createServiceClient() {
 
     if (!config.url || !config.serviceRoleKey) {
       if (isDevelopment()) {
-        console.warn(
-          'Service role key not configured, using anon key for development'
+        logger.warn(
+          'Service role key not configured, using anon key for development',
+          {
+            module: 'supabase',
+            operation: 'create-service-client',
+            fallback: 'using-anon-key',
+          }
         );
         return createServerClient();
       }
@@ -73,9 +78,9 @@ export function createServiceClient() {
     });
   } catch (error) {
     logger.apiError('Failed to create Supabase service client:', error, {
-    module: 'supabase',
-    operation: 'create'
-  });
+      module: 'supabase',
+      operation: 'create',
+    });
     throw error;
   }
 }
