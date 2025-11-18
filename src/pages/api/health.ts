@@ -10,8 +10,12 @@ export const GET: APIRoute = async ({ request }) => {
   const clientIdentifier = getClientIdentifier(request);
 
   // Check if KV namespace is available for rate limiting
-  if (typeof globalThis !== 'undefined' && globalThis.SESSION) {
-    const rateLimiter = new RateLimiter(globalThis.SESSION, 60 * 1000, 100);
+  if (typeof globalThis !== 'undefined' && (globalThis as any).SESSION) {
+    const rateLimiter = new RateLimiter(
+      (globalThis as any).SESSION,
+      60 * 1000,
+      100
+    );
     const rateLimitResult = await rateLimiter.isAllowed(
       `health:${clientIdentifier}`
     );
