@@ -1,4 +1,5 @@
 // Simple rate limiting utilities for Cloudflare Pages
+// Enhanced with proper TypeScript types for better type safety
 export interface RateLimitInfo {
   count: number;
   resetTime: number;
