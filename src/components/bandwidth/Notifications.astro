@@ -140,7 +140,7 @@ function getNotificationIcon(threshold: number): string {
   }
 </div>
 
-<script>
+<script nonce={nonce}>
   async function markNotificationAsRead(notificationId) {
     try {
       const response = await fetch('/api/bandwidth/notifications', {
