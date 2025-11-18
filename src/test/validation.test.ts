@@ -24,7 +24,7 @@ describe('ValidationEngine', () => {
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toBeDefined();
-    expect(result.errors![0].field).toBe('email');
+    expect(result.errors?.[0]?.field).toBe('email');
   });
 
   it('should validate positive amount', () => {
@@ -74,7 +74,7 @@ describe('ValidationEngine', () => {
     const result = validator.validate({ id: 'invalid-uuid' }, schema);
 
     expect(result.isValid).toBe(false);
-    expect(result.errors![0].field).toBe('id');
+    expect(result.errors?.[0]?.field).toBe('id');
   });
 
   it('should sanitize string values', () => {
@@ -91,8 +91,8 @@ describe('ValidationEngine', () => {
     const result = validator.validate({ message: maliciousInput }, schema);
 
     expect(result.isValid).toBe(true);
-    expect(result.data!.message).not.toContain('<script>');
-    expect(result.data!.message).toBe('Hello World');
+    expect(result.data?.message).not.toContain('<script>');
+    expect(result.data?.message).toBe('Hello World');
   });
 
   it('should validate custom rules', () => {
@@ -115,7 +115,7 @@ describe('ValidationEngine', () => {
 
     expect(validResult.isValid).toBe(true);
     expect(invalidResult.isValid).toBe(false);
-    expect(invalidResult.errors![0].message).toBe(
+    expect(invalidResult.errors?.[0]?.message).toBe(
       'Password must be at least 8 characters'
     );
   });
