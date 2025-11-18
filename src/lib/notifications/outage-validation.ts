@@ -2,7 +2,7 @@ import { logger } from '../logger';
 import type { CustomerNotificationPreferences } from './outage-database';
 
 // Interface for outage event data validation
-interface OutageEventDataInput {
+export interface OutageEventDataInput {
   title?: string;
   description?: string;
   severity?: string;
