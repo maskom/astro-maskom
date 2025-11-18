@@ -74,11 +74,10 @@ class OutageNotificationService {
     updates: Database['public']['Tables']['outage_events']['Update']
   ): Promise<OutageEvent | null> {
     try {
-      // Validate update data
-      const validation = outageValidation.validateOutageEventData({
-        ...updates,
-        id,
-      });
+      // Validate update data (exclude id from validation as it's not part of the interface)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, ...updateData } = updates as any;
+      const validation = outageValidation.validateOutageEventData(updateData);
       if (!validation.isValid) {
         logger.error(
           'Invalid outage event update data',
