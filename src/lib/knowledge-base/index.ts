@@ -12,6 +12,19 @@ export type KBArticleHistory =
 export type KBAttachment =
   Database['public']['Tables']['kb_attachments']['Row'];
 
+// Interface for popular articles query result
+interface PopularArticleQueryResult {
+  id: unknown;
+  title: unknown;
+  slug: unknown;
+  view_count: unknown;
+  helpful_count: unknown;
+  published_at: unknown;
+  category?: Array<{
+    name: unknown;
+  }>;
+}
+
 export type KBCategoryInsert =
   Database['public']['Tables']['kb_categories']['Insert'];
 export type KBArticleInsert =
@@ -456,22 +469,23 @@ class KnowledgeBaseService {
       if (error) throw error;
 
       // Transform the data to match PopularArticle interface
-      const transformedData = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        slug: item.slug,
-        view_count: item.view_count,
-        helpful_count: item.helpful_count,
-        published_at: item.published_at,
-        category_name: item.category?.name || 'Unknown',
-      }));
+      const transformedData = (data || []).map(
+        (item: PopularArticleQueryResult) => ({
+          id: String(item.id),
+          title: String(item.title),
+          slug: String(item.slug),
+          view_count: Number(item.view_count || 0),
+          helpful_count: Number(item.helpful_count || 0),
+          published_at: String(item.published_at),
+          category_name: String(item.category?.[0]?.name || 'Unknown'),
+        })
+      );
 
       return transformedData;
     } catch (error) {
       logger.error(
         'Failed to fetch popular articles',
-        error instanceof Error ? error : new Error(String(error)),
-        { limit }
+        error instanceof Error ? error : new Error(String(error))
       );
       throw error;
     }
