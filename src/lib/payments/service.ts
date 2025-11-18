@@ -4,6 +4,7 @@ import type {
   PaymentTransactionMetadata,
 } from './types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 
 // Database row interfaces
 interface PaymentTransactionRow {
@@ -58,7 +59,20 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error creating payment transaction:', error);
+      logger.error(
+        'Error creating payment transaction',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'createTransaction',
+          userId: transactionData.userId,
+          orderId: transactionData.orderId,
+          amount: transactionData.amount,
+          currency: transactionData.currency,
+          paymentMethod: String(transactionData.paymentMethod),
+        }
+      );
       throw error;
     }
   }
@@ -83,7 +97,18 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error updating transaction status:', error);
+      logger.error(
+        'Error updating transaction status',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'updateTransactionStatus',
+          transactionId,
+          status,
+          metadata: metadata ? JSON.stringify(metadata) : undefined,
+        }
+      );
       throw error;
     }
   }
@@ -101,7 +126,16 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error getting transaction:', error);
+      logger.error(
+        'Error getting transaction',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'getTransactionById',
+          transactionId,
+        }
+      );
       throw error;
     }
   }
@@ -119,7 +153,16 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error getting transaction by order ID:', error);
+      logger.error(
+        'Error getting transaction by order ID',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'getTransactionByOrderId',
+          orderId,
+        }
+      );
       throw error;
     }
   }
@@ -140,7 +183,18 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformTransactionData);
     } catch (error) {
-      console.error('Error getting user transactions:', error);
+      logger.error(
+        'Error getting user transactions',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'getTransactionsByUserId',
+          userId,
+          limit,
+          offset,
+        }
+      );
       throw error;
     }
   }
@@ -162,7 +216,19 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error creating invoice:', error);
+      logger.error(
+        'Error creating invoice',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'createInvoice',
+          userId: invoiceData.userId,
+          transactionId: invoiceData.transactionId,
+          amount: invoiceData.amount,
+          total: invoiceData.total,
+        }
+      );
       throw error;
     }
   }
@@ -185,7 +251,17 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error updating invoice status:', error);
+      logger.error(
+        'Error updating invoice status',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'updateInvoiceStatus',
+          invoiceId,
+          status,
+        }
+      );
       throw error;
     }
   }
@@ -206,7 +282,16 @@ export class PaymentService {
       if (error) return null;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error getting invoice:', error);
+      logger.error(
+        'Error getting invoice',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'getInvoiceById',
+          invoiceId,
+        }
+      );
       throw error;
     }
   }
@@ -232,7 +317,18 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformInvoiceData);
     } catch (error) {
-      console.error('Error getting user invoices:', error);
+      logger.error(
+        'Error getting user invoices',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'getInvoicesByUserId',
+          userId,
+          limit,
+          offset,
+        }
+      );
       throw error;
     }
   }
@@ -261,7 +357,15 @@ export class PaymentService {
 
       return `${prefix}${year}${month}${String(sequence).padStart(4, '0')}`;
     } catch (error) {
-      console.error('Error generating invoice number:', error);
+      logger.error(
+        'Error generating invoice number',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'service',
+          operation: 'generateInvoiceNumber',
+        }
+      );
       throw error;
     }
   }

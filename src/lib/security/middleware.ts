@@ -1,4 +1,5 @@
 import type { APIContext, AstroCookies } from 'astro';
+import { logger } from '../logger';
 import { securityAuditLogger } from './audit';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';
@@ -67,7 +68,7 @@ export class SecurityMiddleware {
         permissions,
       };
     } catch (error) {
-      console.error('Security context creation error:', error);
+      logger.error('Security context creation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'middleware', operation: 'createSecurityContext', ipAddress: this.getClientIP(request) });
       return null;
     }
   }

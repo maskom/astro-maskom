@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { DataConsent, ConsentType, UserDataExport } from './types';
 
 export class DataProtectionService {
@@ -28,7 +29,7 @@ export class DataProtectionService {
 
       return iv.toString('hex') + ':' + encrypted;
     } catch (error) {
-      console.error('Encryption error:', error);
+      logger.error('Encryption error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'encryptSensitiveData' });
       throw new Error('Failed to encrypt data');
     }
   }
@@ -50,7 +51,7 @@ export class DataProtectionService {
 
       return decrypted;
     } catch (error) {
-      console.error('Decryption error:', error);
+      logger.error('Decryption error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'decryptSensitiveData' });
       throw new Error('Failed to decrypt data');
     }
   }
@@ -71,7 +72,7 @@ export class DataProtectionService {
         .toString('hex');
       return hash === verifyHash;
     } catch (error) {
-      console.error('Password verification error:', error);
+      logger.error('Password verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'verifyPassword' });
       return false;
     }
   }
@@ -101,13 +102,13 @@ export class DataProtectionService {
         .insert(consent);
 
       if (error) {
-        console.error('Failed to record data consent:', error);
+        logger.error('Failed to record data consent', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'recordDataConsent', userId, consentType, granted, purpose });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Data consent recording error:', error);
+      logger.error('Data consent recording error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'recordDataConsent', userId, consentType, granted, purpose });
       return false;
     }
   }
@@ -145,7 +146,7 @@ export class DataProtectionService {
 
       return !!consent;
     } catch (error) {
-      console.error('Data consent check error:', error);
+      logger.error('Data consent check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'hasDataConsent', userId, consentType });
       return false;
     }
   }
@@ -165,7 +166,7 @@ export class DataProtectionService {
         .eq('id', userId);
 
       if (profileError) {
-        console.error('Failed to anonymize profile:', profileError);
+        logger.error('Failed to anonymize profile', profileError instanceof Error ? profileError : new Error(String(profileError)), { module: 'security', submodule: 'data-protection', operation: 'anonymizeUserData', userId });
         return false;
       }
 
@@ -180,7 +181,7 @@ export class DataProtectionService {
 
       return true;
     } catch (error) {
-      console.error('Data anonymization error:', error);
+      logger.error('Data anonymization error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'anonymizeUserData', userId });
       return false;
     }
   }
@@ -235,7 +236,7 @@ export class DataProtectionService {
 
       return deletedCount.count;
     } catch (error) {
-      console.error('Expired data deletion error:', error);
+      logger.error('Expired data deletion error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'deleteExpiredData' });
       return 0;
     }
   }
@@ -311,7 +312,7 @@ export class DataProtectionService {
 
       return userData;
     } catch (error) {
-      console.error('User data export error:', error);
+      logger.error('User data export error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'exportUserData', userId });
       return null;
     }
   }

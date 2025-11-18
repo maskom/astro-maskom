@@ -3,6 +3,7 @@ import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
 import { sanitizeInput } from '../../../lib/sanitization';
+import { logger } from '../../../lib/logger';
 
 export const prerender = false;
 
@@ -35,7 +36,12 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Categories fetch error:', error);
+    logger.error('Categories fetch error', error instanceof Error ? error : new Error(String(error)), { 
+      module: 'api', 
+      endpoint: 'kb/categories', 
+      method: 'GET',
+      active_only: activeOnly
+    });
     throw ErrorFactory.internalError('Failed to fetch categories');
   }
 });
@@ -99,7 +105,12 @@ export const POST: APIRoute = withApiMiddleware(async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Category creation error:', error);
+    logger.error('Category creation error', error instanceof Error ? error : new Error(String(error)), { 
+      module: 'api', 
+      endpoint: 'kb/categories', 
+      method: 'POST',
+      category_name: name?.trim()
+    });
     throw ErrorFactory.internalError('Failed to create category');
   }
 });

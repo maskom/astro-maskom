@@ -2,6 +2,7 @@ import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
 import type { Invoice } from '../../../lib/payments/types';
+import { logger } from '../../../lib/logger';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -73,7 +74,15 @@ export const GET: APIRoute = async ({ request }) => {
       },
     });
   } catch (error) {
-    console.error('Invoice download error:', error);
+    logger.error(
+      'Invoice download error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'invoices/download',
+        method: 'GET',
+      }
+    );
     return new Response(
       JSON.stringify({
         success: false,

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
@@ -84,7 +85,17 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Articles fetch error:', error);
+    logger.error(
+      'Articles fetch error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'kb/articles',
+        method: 'GET',
+        category: categorySlug || undefined,
+        status,
+      }
+    );
     throw ErrorFactory.internalError('Failed to fetch articles');
   }
 });
@@ -168,7 +179,15 @@ export const POST: APIRoute = withApiMiddleware(
         }
       );
     } catch (error) {
-      console.error('Article creation error:', error);
+      logger.error(
+        'Article creation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'api',
+          endpoint: 'kb/articles',
+          method: 'POST',
+        }
+      );
       throw ErrorFactory.internalError('Failed to create article');
     }
   }

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
@@ -67,7 +68,12 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Search error:', error);
+    logger.error('Search error', error instanceof Error ? error : new Error(String(error)), {
+      module: 'api',
+      endpoint: 'kb/search',
+      method: 'GET',
+      query: query?.trim()
+    });
     throw ErrorFactory.internalError('Search failed');
   }
 });

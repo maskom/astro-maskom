@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { rbacService } from '../../../lib/security/rbac';
 import { sessionManager } from '../../../lib/security/session';
@@ -12,8 +13,9 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
+  let securityContext: any = null;
   try {
-    const securityContext = await SecurityMiddleware.createSecurityContext(
+    securityContext = await SecurityMiddleware.createSecurityContext(
       request,
       cookies
     );
@@ -83,7 +85,16 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       }
     );
   } catch (error) {
-    console.error('Security dashboard error:', error);
+    logger.error(
+      'Security dashboard error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/dashboard',
+        method: 'GET',
+        userId: securityContext?.userId,
+      }
+    );
     return new Response('Failed to fetch security data', { status: 500 });
   }
 };
@@ -132,7 +143,16 @@ async function getSecurityStats(userId: string) {
       ).mfaService.isMFAEnabled(userId),
     };
   } catch (error) {
-    console.error('Security stats error:', error);
+    logger.error(
+      'Security stats error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/dashboard',
+        operation: 'getSecurityStats',
+        userId,
+      }
+    );
     return {
       criticalEvents: 0,
       failedLogins: 0,
