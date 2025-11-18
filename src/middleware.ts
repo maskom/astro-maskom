@@ -5,6 +5,16 @@ import {
   getClientIdentifier,
 } from './lib/rate-limiter';
 
+// Cloudflare KV namespace type
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number }
+  ): Promise<void>;
+}
+
 export const onRequest = async (
   {
     request,
@@ -24,7 +34,7 @@ export const onRequest = async (
     try {
       const config = getRateLimitConfig(pathname);
       const rateLimiter = new RateLimiter(
-        env.SESSION,
+        env.SESSION as KVNamespace,
         config.windowMs,
         config.maxRequests
       );
@@ -135,10 +145,15 @@ export const onRequest = async (
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
   // Add rate limit headers if available
-  if (locals.rateLimitInfo) {
-    const rateLimiter = new RateLimiter(env?.SESSION);
+  if (locals.rateLimitInfo && env?.SESSION) {
+    const rateLimiter = new RateLimiter(env.SESSION as KVNamespace);
     const rateLimitHeaders = rateLimiter.getRateLimitHeaders(
-      locals.rateLimitInfo
+      locals.rateLimitInfo as {
+        count: number;
+        resetTime: number;
+        windowMs: number;
+        maxRequests: number;
+      }
     );
     Object.entries(rateLimitHeaders).forEach(([header, value]) => {
       response.headers.set(header, value);

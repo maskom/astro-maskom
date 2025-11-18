@@ -1,5 +1,5 @@
 // Simple rate limiting utilities for Cloudflare Pages
-interface RateLimitInfo {
+export interface RateLimitInfo {
   count: number;
   resetTime: number;
   windowMs: number;
