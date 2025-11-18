@@ -63,6 +63,50 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 - Environment variables for sensitive data
 - Regular security audits recommended
 
+## Performance Optimization
+
+### Database Indexes
+
+The database includes comprehensive indexing strategies for optimal performance:
+
+#### Security Tables
+
+- `security_audit_logs`: User-timestamp, action-timestamp, risk-level indexes
+- `security_events`: Type-severity, user-timestamp, resolved-status indexes
+- `security_alerts`: Event-id, severity-timestamp, acknowledgment indexes
+
+#### Business Logic Tables
+
+- `bandwidth_usage`: User-date composite with total bytes ordering
+- `payment_transactions`: User-status-created composite indexes
+- `invoices`: User-status-due date optimization
+- `outage_events`: Status-created time for active outage queries
+
+#### Specialized Indexes
+
+- **Partial indexes** for common filtered queries (pending payments, overdue invoices)
+- **JSONB GIN indexes** for metadata searches
+- **Text search indexes** for outage content search
+- **Function-based indexes** for calculated fields (usage in GB, percentages)
+- **Covering indexes** to eliminate table lookups
+
+#### Index Benefits
+
+- Faster user security history queries
+- Optimized bandwidth usage reporting
+- Efficient payment status filtering
+- Quick outage event lookups
+- Improved search performance
+
+### Migration Management
+
+All performance optimizations are managed through Supabase migrations:
+
+- Migrations are idempotent and safe to re-run
+- Indexes use `IF NOT EXISTS` to prevent conflicts
+- Comprehensive comments document index purposes
+- Regular performance monitoring recommended
+
 ## Development Setup
 
 1. Create Supabase project
@@ -73,4 +117,4 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ---
 
-_Last Updated: 2025-11-14_
+_Last Updated: 2025-11-18_
