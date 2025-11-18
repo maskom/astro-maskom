@@ -1,8 +1,12 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const body = await request.json();
     const { orderId } = body;
@@ -40,6 +44,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const result = await paymentManager.cancelPayment(orderId);
 
@@ -51,7 +57,13 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment cancellation error:', error);
+    logger.apiError('Payment cancellation error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/payments/cancel',
+      method: 'POST',
+      orderId
+    });
     return new Response(
       JSON.stringify({
         success: false,

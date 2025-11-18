@@ -1,8 +1,12 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get('limit') || '20');
@@ -34,6 +38,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const transactions = await paymentManager.getUserPaymentHistory(
       user.id,
@@ -54,7 +60,14 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment history error:', error);
+    logger.apiError('Payment history error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/payments/history',
+      method: 'GET',
+      limit,
+      offset
+    });
     return new Response(
       JSON.stringify({
         success: false,

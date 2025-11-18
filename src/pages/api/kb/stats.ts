@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory } from '../../../lib/errors';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
@@ -50,7 +51,11 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       },
     });
   } catch (error) {
-    console.error('Stats fetch error:', error);
+    logger.apiError('Stats fetch error:', error, {
+      requestId,
+      endpoint: '/api/kb/stats',
+      method: 'UNKNOWN'
+    });
     throw ErrorFactory.internalError('Failed to fetch statistics');
   }
 });

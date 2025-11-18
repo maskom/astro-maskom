@@ -8,10 +8,13 @@ import {
   SecurityAction,
   ConsentType,
 } from '../../../lib/security/types';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+  
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -93,7 +96,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       },
     });
   } catch (error) {
-    console.error('Data export error:', error);
+    logger.apiError('Data export error:', error, {
+      requestId,
+      endpoint: '/api/security/export-data',
+      method: 'UNKNOWN'
+    });
     return new Response('Failed to export data', { status: 500 });
   }
 };

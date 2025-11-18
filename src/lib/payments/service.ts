@@ -4,6 +4,7 @@ import type {
   PaymentTransactionMetadata,
 } from './types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 
 // Database row interfaces
 interface PaymentTransactionRow {
@@ -58,7 +59,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error creating payment transaction:', error);
+      logger.error('Error creating payment transaction:', error, {
+    module: 'service',
+    operation: 'unknown'
+  });
       throw error;
     }
   }
@@ -83,7 +87,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error updating transaction status:', error);
+      logger.error('Error updating transaction status:', error, {
+    module: 'service',
+    operation: 'unknown'
+  });
       throw error;
     }
   }
@@ -101,7 +108,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error getting transaction:', error);
+      logger.error('Error getting transaction:', error, {
+    module: 'service',
+    operation: 'get'
+  });
       throw error;
     }
   }
@@ -119,7 +129,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      console.error('Error getting transaction by order ID:', error);
+      logger.error('Error getting transaction by order ID:', error, {
+    module: 'service',
+    operation: 'get'
+  });
       throw error;
     }
   }
@@ -140,7 +153,10 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformTransactionData);
     } catch (error) {
-      console.error('Error getting user transactions:', error);
+      logger.error('Error getting user transactions:', error, {
+    module: 'service',
+    operation: 'get'
+  });
       throw error;
     }
   }
@@ -162,7 +178,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error creating invoice:', error);
+      logger.error('Error creating invoice:', error, {
+    module: 'service',
+    operation: 'unknown'
+  });
       throw error;
     }
   }
@@ -185,7 +204,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error updating invoice status:', error);
+      logger.error('Error updating invoice status:', error, {
+    module: 'service',
+    operation: 'unknown'
+  });
       throw error;
     }
   }
@@ -206,7 +228,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformInvoiceData(data);
     } catch (error) {
-      console.error('Error getting invoice:', error);
+      logger.error('Error getting invoice:', error, {
+    module: 'service',
+    operation: 'get'
+  });
       throw error;
     }
   }
@@ -232,7 +257,10 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformInvoiceData);
     } catch (error) {
-      console.error('Error getting user invoices:', error);
+      logger.error('Error getting user invoices:', error, {
+    module: 'service',
+    operation: 'get'
+  });
       throw error;
     }
   }
@@ -261,7 +289,10 @@ export class PaymentService {
 
       return `${prefix}${year}${month}${String(sequence).padStart(4, '0')}`;
     } catch (error) {
-      console.error('Error generating invoice number:', error);
+      logger.error('Error generating invoice number:', error, {
+    module: 'service',
+    operation: 'unknown'
+  });
       throw error;
     }
   }

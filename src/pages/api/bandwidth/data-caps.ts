@@ -1,7 +1,11 @@
 import type { APIRoute } from 'astro';
 import { createServiceClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -24,6 +28,8 @@ export const GET: APIRoute = async ({ request }) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    userId = user.id;
 
     // Get data caps for the user
     const { data: dataCaps, error: capsError } = await supabase
@@ -86,7 +92,12 @@ export const GET: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Data caps API error:', error);
+    logger.apiError('Data caps API error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/bandwidth/data-caps',
+      method: 'GET'
+    });
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -95,6 +106,9 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const body = await request.json();
     const { package_id, monthly_cap_gb, billing_cycle_start } = body;
@@ -131,6 +145,8 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    userId = user.id;
+
     // Create or update data cap
     const { data, error: upsertError } = await supabase
       .from('data_caps')
@@ -164,7 +180,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Data caps POST error:', error);
+    logger.apiError('Data caps POST error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/bandwidth/data-caps',
+      method: 'POST',
+      package_id,
+      monthly_cap_gb
+    });
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -173,6 +196,9 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 export const PUT: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const body = await request.json();
     const { monthly_cap_gb, notification_thresholds } = body;
@@ -198,6 +224,8 @@ export const PUT: APIRoute = async ({ request }) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    userId = user.id;
 
     // Update data cap
     const updateData: {
@@ -234,7 +262,14 @@ export const PUT: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Data caps PUT error:', error);
+    logger.apiError('Data caps PUT error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/bandwidth/data-caps',
+      method: 'PUT',
+      monthly_cap_gb,
+      notification_thresholds
+    });
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

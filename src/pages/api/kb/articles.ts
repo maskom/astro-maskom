@@ -3,6 +3,7 @@ import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
 import { sanitizeInput } from '../../../lib/sanitization';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
@@ -84,7 +85,11 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Articles fetch error:', error);
+    logger.apiError('Articles fetch error:', error, {
+      requestId,
+      endpoint: '/api/kb/articles',
+      method: 'UNKNOWN'
+    });
     throw ErrorFactory.internalError('Failed to fetch articles');
   }
 });
@@ -168,7 +173,11 @@ export const POST: APIRoute = withApiMiddleware(
         }
       );
     } catch (error) {
-      console.error('Article creation error:', error);
+      logger.apiError('Article creation error:', error, {
+      requestId,
+      endpoint: '/api/kb/articles',
+      method: 'UNKNOWN'
+    });
       throw ErrorFactory.internalError('Failed to create article');
     }
   }

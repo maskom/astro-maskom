@@ -1,8 +1,12 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const url = new URL(request.url);
     const invoiceId = url.searchParams.get('id');
@@ -40,6 +44,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const invoice = await paymentManager.getInvoiceById(invoiceId);
 
@@ -66,7 +72,13 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Invoice details error:', error);
+    logger.apiError('Invoice details error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/invoices/get',
+      method: 'GET',
+      invoiceId
+    });
     return new Response(
       JSON.stringify({
         success: false,

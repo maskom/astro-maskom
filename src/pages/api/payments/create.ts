@@ -1,8 +1,12 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  
   try {
     const body = await request.json();
     const { orderId, amount, customerDetails, itemDetails, paymentMethod } =
@@ -45,6 +49,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const paymentRequest = {
       orderId,
@@ -65,7 +71,14 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment creation error:', error);
+    logger.apiError('Payment creation error', error, {
+      requestId,
+      userId: user?.id,
+      endpoint: '/api/payments/create',
+      method: 'POST',
+      orderId,
+      amount
+    });
     return new Response(
       JSON.stringify({
         success: false,
