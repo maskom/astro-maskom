@@ -1,12 +1,18 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  let limit = 20;
+  let offset = 0;
+
   try {
     const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get('limit') || '20');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    limit = parseInt(url.searchParams.get('limit') || '20');
+    offset = parseInt(url.searchParams.get('offset') || '0');
 
     // Get authenticated user
     const authHeader = request.headers.get('Authorization');
@@ -34,6 +40,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const invoices = await paymentManager.getUserInvoices(
       user.id,
@@ -54,7 +62,14 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Invoices list error:', error);
+    logger.apiError('Invoices list error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/invoices',
+      method: 'GET',
+      limit,
+      offset,
+    });
     return new Response(
       JSON.stringify({
         success: false,

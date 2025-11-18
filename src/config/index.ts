@@ -1,20 +1,22 @@
+import { logger } from '../lib/logger';
+
 export interface AppConfig {
   // Supabase Configuration
   supabaseUrl: string;
   supabaseAnonKey: string;
-  
+
   // API Keys
   openaiApiKey: string;
-  
+
   // Payment Configuration
   midtransServerKey: string;
   midtransClientKey: string;
   midtransEnvironment: string;
   midtransMerchantId: string;
-  
+
   // Security Configuration
   encryptionPassword: string;
-  
+
   // Application Configuration
   logLevel: string;
   nodeEnv: string;
@@ -40,7 +42,9 @@ export function validateConfig(): void {
     'encryptionPassword',
   ];
 
-  const missingFields = requiredFields.filter(field => !config[field as keyof AppConfig]);
+  const missingFields = requiredFields.filter(
+    field => !config[field as keyof AppConfig]
+  );
 
   if (missingFields.length > 0) {
     throw new Error(
@@ -58,13 +62,17 @@ export function validateConfig(): void {
   // Validate log level
   const validLogLevels = ['error', 'warn', 'info', 'debug'];
   if (!validLogLevels.includes(config.logLevel)) {
-    throw new Error(`Invalid LOG_LEVEL: ${config.logLevel}. Must be one of: ${validLogLevels.join(', ')}`);
+    throw new Error(
+      `Invalid LOG_LEVEL: ${config.logLevel}. Must be one of: ${validLogLevels.join(', ')}`
+    );
   }
 
   // Validate environment
   const validEnvironments = ['development', 'production', 'test'];
   if (!validEnvironments.includes(config.nodeEnv)) {
-    throw new Error(`Invalid NODE_ENV: ${config.nodeEnv}. Must be one of: ${validEnvironments.join(', ')}`);
+    throw new Error(
+      `Invalid NODE_ENV: ${config.nodeEnv}. Must be one of: ${validEnvironments.join(', ')}`
+    );
   }
 
   // Production-specific validations
@@ -76,10 +84,19 @@ export function validateConfig(): void {
       'midtransMerchantId',
     ];
 
-    const missingProduction = productionRequired.filter(field => !config[field as keyof AppConfig]);
-    
+    const missingProduction = productionRequired.filter(
+      field => !config[field as keyof AppConfig]
+    );
+
     if (missingProduction.length > 0) {
-      console.warn(`Warning: Missing production environment variables: ${missingProduction.join(', ')}`);
+      logger.warn(
+        `Missing production environment variables: ${missingProduction.join(', ')}`,
+        {
+          component: 'config-validation',
+          missingVariables: missingProduction,
+          environment: config.nodeEnv,
+        }
+      );
     }
   }
 }

@@ -5,6 +5,7 @@ import type {
   PaymentResponse,
   WebhookNotification,
 } from './types';
+import { logger } from '../logger';
 
 // Midtrans API response interface
 interface MidtransApiResponse {
@@ -100,7 +101,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error creating Midtrans transaction:', error);
+      logger.apiError('Error creating Midtrans transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -123,7 +127,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error getting transaction status:', error);
+      logger.apiError('Error getting transaction status:', error, {
+        module: 'gateway',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -146,7 +153,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error cancelling transaction:', error);
+      logger.apiError('Error cancelling transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -176,7 +186,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error refunding transaction:', error);
+      logger.apiError('Error refunding transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }

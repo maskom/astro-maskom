@@ -3,6 +3,7 @@ import { securityAuditLogger } from './audit';
 import { rbacService } from './rbac';
 import { sessionManager } from './session';
 import { dataProtectionService } from './data-protection';
+import { logger } from '../logger';
 import {
   SecurityAction,
   SecurityEventType,
@@ -67,7 +68,12 @@ export class SecurityMiddleware {
         permissions,
       };
     } catch (error) {
-      console.error('Security context creation error:', error);
+      logger.apiError('Security context creation error', error, {
+        module: 'security',
+        operation: 'createSecurityContext',
+        ipAddress: this.getClientIP(request),
+        userAgent: request.headers.get('user-agent') || 'unknown',
+      });
       return null;
     }
   }

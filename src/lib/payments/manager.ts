@@ -7,6 +7,7 @@ import type {
   WebhookNotification,
 } from './types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 
 export class PaymentManager {
   private gateway: MidtransGateway;
@@ -51,7 +52,10 @@ export class PaymentManager {
         paymentResponse,
       };
     } catch (error) {
-      console.error('Error processing payment:', error);
+      logger.apiError('Error processing payment:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -83,7 +87,10 @@ export class PaymentManager {
 
       return { success: true, transactionId: transaction.id };
     } catch (error) {
-      console.error('Error handling webhook:', error);
+      logger.apiError('Error handling webhook:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -150,7 +157,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error getting transaction status:', error);
+      logger.apiError('Error getting transaction status:', error, {
+        module: 'manager',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -172,7 +182,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error cancelling payment:', error);
+      logger.apiError('Error cancelling payment:', error, {
+        module: 'manager',
+        operation: 'cancel',
+      });
       throw error;
     }
   }
@@ -194,7 +207,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error refunding payment:', error);
+      logger.apiError('Error refunding payment:', error, {
+        module: 'manager',
+        operation: 'refund',
+      });
       throw error;
     }
   }
@@ -258,7 +274,10 @@ export class PaymentManager {
         ],
       });
     } catch (error) {
-      console.error('Error generating invoice:', error);
+      logger.apiError('Error generating invoice:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
     }
   }
 

@@ -8,10 +8,14 @@ import {
   UserRole,
   SecurityAction,
 } from '../../../lib/security/types';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
+  const requestId = generateRequestId();
+  let targetUserId: string | undefined;
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -23,7 +27,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     }
 
     const searchParams = new URLSearchParams(url.search);
-    const targetUserId = searchParams.get('userId');
+    targetUserId = searchParams.get('userId') || undefined;
 
     // Users can only view their own profile unless they have admin permissions
     if (targetUserId && targetUserId !== securityContext.userId) {
@@ -77,14 +81,23 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       }
     );
   } catch (error) {
-    console.error('User profile error:', error);
+    logger.apiError('User profile error', error, {
+      requestId,
+      endpoint: '/api/security/users',
+      method: 'GET',
+      targetUserId,
+    });
     return new Response('Failed to fetch user profile', { status: 500 });
   }
 };
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+  let securityContext: any;
+  let targetUserId: string | undefined;
+
   try {
-    const securityContext = await SecurityMiddleware.createSecurityContext(
+    securityContext = await SecurityMiddleware.createSecurityContext(
       request,
       cookies
     );
@@ -93,7 +106,9 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       return new Response('Authentication required', { status: 401 });
     }
 
-    const { targetUserId, role, permissions } = await request.json();
+    const body = await request.json();
+    targetUserId = body.targetUserId;
+    const { role, permissions } = body;
 
     if (!targetUserId) {
       return new Response('Target user ID is required', { status: 400 });
@@ -195,14 +210,23 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User profile update error:', error);
+    logger.apiError('User profile update error', error, {
+      requestId,
+      endpoint: '/api/security/users',
+      method: 'PUT',
+      userId: securityContext?.userId,
+    });
     return new Response('Failed to update user profile', { status: 500 });
   }
 };
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+  let securityContext: any;
+  let targetUserId: string | undefined;
+
   try {
-    const securityContext = await SecurityMiddleware.createSecurityContext(
+    securityContext = await SecurityMiddleware.createSecurityContext(
       request,
       cookies
     );
@@ -211,7 +235,9 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
       return new Response('Authentication required', { status: 401 });
     }
 
-    const { targetUserId, confirm } = await request.json();
+    const body = await request.json();
+    targetUserId = body.targetUserId;
+    const { confirm } = body;
 
     if (!targetUserId || !confirm) {
       return new Response('Target user ID and confirmation are required', {
@@ -261,7 +287,13 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User deletion error:', error);
+    logger.apiError('User deletion error', error, {
+      requestId,
+      endpoint: '/api/security/users',
+      method: 'DELETE',
+      userId: securityContext?.userId,
+      targetUserId,
+    });
     return new Response('Failed to delete user', { status: 500 });
   }
 };

@@ -11,6 +11,7 @@ import {
   RiskLevel,
 } from './types';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 
 export class SecurityAuditLogger {
   private supabase = createClient(
@@ -46,7 +47,14 @@ export class SecurityAuditLogger {
         .insert(auditLog);
 
       if (error) {
-        console.error('Failed to log security action:', error);
+        logger.error('Failed to log security action', error, {
+          module: 'security',
+          operation: 'logSecurityAction',
+          userId,
+          action,
+          resource,
+          riskLevel,
+        });
       }
 
       // Create security event for high-risk actions
@@ -61,7 +69,17 @@ export class SecurityAuditLogger {
         );
       }
     } catch (error) {
-      console.error('Security audit logging error:', error);
+      logger.error(
+        'Security audit logging error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'logSecurityAction',
+          userId,
+          action,
+          resource,
+        }
+      );
     }
   }
 
@@ -95,7 +113,17 @@ export class SecurityAuditLogger {
         timestamp: new Date(),
       });
     } catch (error) {
-      console.error('Failed login logging error:', error);
+      logger.error(
+        'Failed login logging error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'logFailedLogin',
+          email,
+          ipAddress,
+          reason,
+        }
+      );
     }
   }
 
@@ -123,7 +151,13 @@ export class SecurityAuditLogger {
         .insert(securityEvent);
 
       if (error) {
-        console.error('Failed to create security event:', error);
+        logger.error('Failed to create security event', error, {
+          module: 'security',
+          operation: 'createSecurityEvent',
+          eventType: type,
+          severity,
+          userId,
+        });
       }
 
       // For critical events, trigger immediate alerts
@@ -131,7 +165,17 @@ export class SecurityAuditLogger {
         await this.triggerSecurityAlert(securityEvent);
       }
     } catch (error) {
-      console.error('Security event creation error:', error);
+      logger.error(
+        'Security event creation error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'createSecurityEvent',
+          eventType: type,
+          severity,
+          userId,
+        }
+      );
     }
   }
 
@@ -158,13 +202,29 @@ export class SecurityAuditLogger {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Failed to fetch security events:', error);
+        logger.error('Failed to fetch security events', error, {
+          module: 'security',
+          operation: 'fetchSecurityEvents',
+          userId,
+          severity,
+          limit,
+        });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Security events fetch error:', error);
+      logger.error(
+        'Security events fetch error',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'fetchSecurityEvents',
+          userId,
+          severity,
+          limit,
+        }
+      );
       return [];
     }
   }
@@ -192,13 +252,25 @@ export class SecurityAuditLogger {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Failed to fetch audit logs:', error);
+        logger.error('Failed to fetch audit logs', error, {
+          module: 'security',
+          operation: 'getAuditLogs',
+          userId,
+          action,
+          limit,
+        });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Audit logs fetch error:', error);
+      logger.apiError('Audit logs fetch error', error, {
+        module: 'security',
+        operation: 'getAuditLogs',
+        userId,
+        action,
+        limit,
+      });
       return [];
     }
   }
@@ -252,13 +324,23 @@ export class SecurityAuditLogger {
         .gte('timestamp', since.toISOString());
 
       if (error) {
-        console.error('Failed to get recent failed logins:', error);
+        logger.error('Failed to get recent failed logins', error, {
+          module: 'security',
+          operation: 'getRecentFailedLogins',
+          ipAddress,
+          minutes,
+        });
         return 0;
       }
 
       return count || 0;
     } catch (error) {
-      console.error('Recent failed logins error:', error);
+      logger.apiError('Recent failed logins error', error, {
+        module: 'security',
+        operation: 'getRecentFailedLogins',
+        ipAddress,
+        minutes,
+      });
       return 0;
     }
   }
@@ -267,13 +349,15 @@ export class SecurityAuditLogger {
     event: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'>
   ): Promise<void> {
     // In a real implementation, this would send notifications via email, Slack, etc.
-    console.error('🚨 CRITICAL SECURITY ALERT:', {
-      type: event.type,
+    logger.error('🚨 CRITICAL SECURITY ALERT', undefined, {
+      module: 'security',
+      operation: 'triggerSecurityAlert',
+      eventType: event.type,
       severity: event.severity,
-      user_id: event.user_id,
-      ip_address: event.ip_address,
+      userId: event.user_id,
+      ipAddress: event.ip_address,
       description: event.description,
-      timestamp: new Date().toISOString(),
+      alertType: 'CRITICAL_SECURITY_ALERT',
     });
 
     // Store alert for admin dashboard
@@ -284,7 +368,17 @@ export class SecurityAuditLogger {
         acknowledged: false,
       });
     } catch (error) {
-      console.error('Failed to store security alert:', error);
+      logger.error(
+        'Failed to store security alert',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'security',
+          operation: 'triggerSecurityAlert',
+          eventType: event.type,
+          severity: event.severity,
+          userId: event.user_id,
+        }
+      );
     }
   }
 }

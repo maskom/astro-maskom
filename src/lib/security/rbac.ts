@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { UserRole, Permission, type UserSecurityProfile } from './types';
 
+import { logger } from '../logger';
 export class RBACService {
   private supabase = createClient(
     import.meta.env.SUPABASE_URL,
@@ -51,7 +52,10 @@ export class RBACService {
         });
 
       if (error) {
-        console.error('Failed to assign role:', error);
+        logger.apiError('Failed to assign role:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return false;
       }
 
@@ -66,7 +70,10 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Role assignment error:', error);
+      logger.apiError('Role assignment error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -100,7 +107,10 @@ export class RBACService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to grant permission:', error);
+        logger.apiError('Failed to grant permission:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return false;
       }
 
@@ -115,7 +125,10 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Permission grant error:', error);
+      logger.apiError('Permission grant error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -151,7 +164,10 @@ export class RBACService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to revoke permission:', error);
+        logger.apiError('Failed to revoke permission:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return false;
       }
 
@@ -166,7 +182,10 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Permission revocation error:', error);
+      logger.apiError('Permission revocation error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -193,7 +212,10 @@ export class RBACService {
         explicitPermissions.includes(permission)
       );
     } catch (error) {
-      console.error('Permission check error:', error);
+      logger.apiError('Permission check error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -212,7 +234,10 @@ export class RBACService {
 
       return profile?.role === role;
     } catch (error) {
-      console.error('Role check error:', error);
+      logger.apiError('Role check error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -222,7 +247,10 @@ export class RBACService {
       const profile = await this.getUserSecurityProfile(userId);
       return profile?.role || null;
     } catch (error) {
-      console.error('Get user role error:', error);
+      logger.apiError('Get user role error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return null;
     }
   }
@@ -241,7 +269,10 @@ export class RBACService {
       // Combine and deduplicate permissions
       return [...new Set([...rolePermissions, ...explicitPermissions])];
     } catch (error) {
-      console.error('Get user permissions error:', error);
+      logger.apiError('Get user permissions error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return [];
     }
   }
@@ -254,13 +285,19 @@ export class RBACService {
         .eq('role', role);
 
       if (error) {
-        console.error('Failed to get users by role:', error);
+        logger.apiError('Failed to get users by role:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return [];
       }
 
       return data?.map(profile => profile.user_id) || [];
     } catch (error) {
-      console.error('Users by role error:', error);
+      logger.apiError('Users by role error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return [];
     }
   }
@@ -281,7 +318,10 @@ export class RBACService {
 
       return profile as UserSecurityProfile;
     } catch (error) {
-      console.error('Get security profile error:', error);
+      logger.apiError('Get security profile error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return null;
     }
   }

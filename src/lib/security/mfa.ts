@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import type { UserSecurityProfile } from './types';
 
+import { logger } from '../logger';
 export class MFAService {
   private supabase = createClient(
     import.meta.env.SUPABASE_URL,
@@ -44,13 +45,19 @@ export class MFAService {
         });
 
       if (error) {
-        console.error('Failed to enable MFA:', error);
+        logger.apiError('Failed to enable MFA:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA enable error:', error);
+      logger.apiError('MFA enable error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -68,13 +75,19 @@ export class MFAService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to disable MFA:', error);
+        logger.apiError('Failed to disable MFA:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA disable error:', error);
+      logger.apiError('MFA disable error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -97,7 +110,10 @@ export class MFAService {
 
       return false;
     } catch (error) {
-      console.error('TOTP verification error:', error);
+      logger.apiError('TOTP verification error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -134,7 +150,10 @@ export class MFAService {
 
       return true;
     } catch (error) {
-      console.error('Backup code verification error:', error);
+      logger.apiError('Backup code verification error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -153,7 +172,10 @@ export class MFAService {
 
       return profile?.mfa_enabled || false;
     } catch (error) {
-      console.error('MFA status check error:', error);
+      logger.apiError('MFA status check error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return false;
     }
   }
@@ -174,7 +196,10 @@ export class MFAService {
 
       return profile as UserSecurityProfile;
     } catch (error) {
-      console.error('Get security profile error:', error);
+      logger.apiError('Get security profile error:', error, {
+        module: 'security',
+        operation: 'unknown'
+      });
       return null;
     }
   }

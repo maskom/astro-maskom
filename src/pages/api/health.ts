@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
 
 export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
@@ -132,7 +133,10 @@ export const GET: APIRoute = async () => {
     }
   } catch (error) {
     // Cloudflare detection failed, but don't mark as degraded
-    console.warn('Cloudflare environment detection failed:', error);
+    logger.warn('Cloudflare environment detection failed', {
+      component: 'health-check',
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 
   // Calculate total response time

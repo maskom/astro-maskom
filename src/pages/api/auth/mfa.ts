@@ -3,10 +3,14 @@ import { mfaService } from '../../../lib/security/mfa';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+  let email: string | undefined;
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -17,7 +21,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response('Authentication required', { status: 401 });
     }
 
-    const { email } = await request.json();
+    const body = await request.json();
+    email = body.email;
 
     if (!email) {
       return new Response('Email is required', { status: 400 });
@@ -52,12 +57,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('MFA setup error:', error);
+    logger.apiError('MFA setup error', error, {
+      requestId,
+      endpoint: '/api/auth/mfa',
+      method: 'POST',
+      email,
+    });
     return new Response('Failed to setup MFA', { status: 500 });
   }
 };
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -124,12 +136,18 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('MFA enable error:', error);
+    logger.apiError('MFA enable error', error, {
+      requestId,
+      endpoint: '/api/auth/mfa',
+      method: 'PUT',
+    });
     return new Response('Failed to enable MFA', { status: 500 });
   }
 };
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -201,7 +219,11 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('MFA disable error:', error);
+    logger.apiError('MFA disable error', error, {
+      requestId,
+      endpoint: '/api/auth/mfa',
+      method: 'DELETE',
+    });
     return new Response('Failed to disable MFA', { status: 500 });
   }
 };

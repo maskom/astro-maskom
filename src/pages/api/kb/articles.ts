@@ -3,11 +3,13 @@ import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../lib/errors';
 import { sanitizeInput } from '../../../lib/sanitization';
+import { logger, generateRequestId } from '../../../lib/logger';
 
 export const prerender = false;
 
 // GET /api/kb/articles - List articles
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const categorySlug = searchParams.get('category');
   const status = searchParams.get('status') || 'published';
@@ -84,7 +86,11 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       }
     );
   } catch (error) {
-    console.error('Articles fetch error:', error);
+    logger.apiError('Articles fetch error:', error, {
+      requestId,
+      endpoint: '/api/kb/articles',
+      method: 'UNKNOWN',
+    });
     throw ErrorFactory.internalError('Failed to fetch articles');
   }
 });
@@ -92,6 +98,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
 // POST /api/kb/articles - Create new article (requires support/admin role)
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, cookies }) => {
+    const requestId = generateRequestId();
     const body = await request.json();
     const {
       title,
@@ -168,7 +175,11 @@ export const POST: APIRoute = withApiMiddleware(
         }
       );
     } catch (error) {
-      console.error('Article creation error:', error);
+      logger.apiError('Article creation error:', error, {
+        requestId,
+        endpoint: '/api/kb/articles',
+        method: 'UNKNOWN',
+      });
       throw ErrorFactory.internalError('Failed to create article');
     }
   }

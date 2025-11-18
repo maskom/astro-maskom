@@ -9,9 +9,13 @@ import {
   UserRole,
 } from '../../../lib/security/types';
 
+import { logger, generateRequestId } from '../../../lib/logger';
+
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
+  const requestId = generateRequestId();
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -66,7 +70,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     }
 
     // Get summary statistics
-    const stats = await getSecurityStats(securityContext.userId);
+    const stats = await getSecurityStats(securityContext.userId, requestId);
 
     return new Response(
       JSON.stringify({
@@ -83,12 +87,16 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       }
     );
   } catch (error) {
-    console.error('Security dashboard error:', error);
+    logger.apiError('Security dashboard error:', error, {
+      requestId,
+      endpoint: '/api/security/dashboard',
+      method: 'UNKNOWN',
+    });
     return new Response('Failed to fetch security data', { status: 500 });
   }
 };
 
-async function getSecurityStats(userId: string) {
+async function getSecurityStats(userId: string, requestId?: string) {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -132,7 +140,11 @@ async function getSecurityStats(userId: string) {
       ).mfaService.isMFAEnabled(userId),
     };
   } catch (error) {
-    console.error('Security stats error:', error);
+    logger.apiError('Security stats error:', error, {
+      requestId: requestId || 'unknown',
+      endpoint: '/api/security/dashboard',
+      method: 'GET',
+    });
     return {
       criticalEvents: 0,
       failedLogins: 0,

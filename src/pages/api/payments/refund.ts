@@ -1,11 +1,18 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  let orderId: string | undefined;
+  let amount: number | undefined;
+
   try {
     const body = await request.json();
-    const { orderId, amount } = body;
+    orderId = body.orderId;
+    amount = body.amount;
 
     if (!orderId) {
       return new Response(
@@ -40,6 +47,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const result = await paymentManager.refundPayment(orderId, amount);
 
@@ -51,7 +60,14 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Payment refund error:', error);
+    logger.apiError('Payment refund error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/payments/refund',
+      method: 'POST',
+      orderId,
+      amount,
+    });
     return new Response(
       JSON.stringify({
         success: false,

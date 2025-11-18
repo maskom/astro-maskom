@@ -1,14 +1,19 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
+import { logger, generateRequestId } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 import type { Invoice } from '../../../lib/payments/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  let userId: string | undefined;
+  let invoiceId: string | undefined;
+
   try {
     const url = new URL(request.url);
-    const invoiceId = url.searchParams.get('id');
+    invoiceId = url.searchParams.get('id') || undefined;
 
     if (!invoiceId) {
       return new Response(
@@ -43,6 +48,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
+    userId = user.id;
+
     const paymentManager = getPaymentManager();
     const invoice: Invoice | null =
       await paymentManager.getInvoiceById(invoiceId);
@@ -73,7 +80,13 @@ export const GET: APIRoute = async ({ request }) => {
       },
     });
   } catch (error) {
-    console.error('Invoice download error:', error);
+    logger.apiError('Invoice download error', error, {
+      requestId,
+      userId,
+      endpoint: '/api/invoices/download',
+      method: 'GET',
+      invoiceId,
+    });
     return new Response(
       JSON.stringify({
         success: false,

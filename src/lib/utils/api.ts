@@ -68,7 +68,7 @@ export async function authenticateRequest(
       phone: user.phone || undefined,
     };
   } catch (error) {
-    logger.error(
+    logger.apiError(
       'Authentication error',
       error instanceof Error ? error : new Error('Unknown authentication error')
     );
@@ -319,7 +319,7 @@ export function createErrorResponse(message: string, status: number = 500) {
  */
 export function logError(context: string, userId: string, error: unknown) {
   const errorObj = error instanceof Error ? error : new Error('Unknown error');
-  logger.error(context, errorObj, { userId });
+  logger.apiError(context, errorObj, { userId });
 }
 
 /**
@@ -367,7 +367,17 @@ export function handleDatabaseError(
   operation: string,
   requestId?: string
 ): never {
-  console.error(`Database error during ${operation}:`, error);
+  logger.apiError(
+    `Database error during ${operation}`,
+    new Error(error.message || 'Unknown database error'),
+    {
+      module: 'utils',
+      operation: 'handleDatabaseError',
+      requestId,
+      errorCode: error.code,
+      errorMessage: error.message,
+    }
+  );
 
   // You can customize this based on your database error patterns
   if (error.code === 'PGRST116') {
