@@ -11,10 +11,19 @@ export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
   const cspScriptSrc = nonce ? `'nonce-${nonce}'` : "'self'";
   const cspStyleSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
 
+  // Check if we're in development mode
+  const isDevelopment =
+    import.meta.env.MODE === 'development' || import.meta.env.DEV;
+
+  // Only allow unsafe-eval in development for Astro HMR
+  const scriptSrc = isDevelopment
+    ? `${cspScriptSrc} 'unsafe-eval'`
+    : cspScriptSrc;
+
   return {
     'Content-Security-Policy': [
       "default-src 'self'",
-      `script-src ${cspScriptSrc} 'unsafe-eval'`, // Required for Astro development
+      `script-src ${scriptSrc}`,
       `style-src ${cspStyleSrc}`,
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",

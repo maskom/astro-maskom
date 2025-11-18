@@ -1,9 +1,38 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '../../lib/supabase';
+import { RateLimiter, getClientIdentifier } from '../../lib/rate-limiter';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
   const timestamp = new Date().toISOString();
   const startTime = Date.now();
+
+  // Apply rate limiting to health check endpoint (100 requests per minute per IP)
+  const clientIdentifier = getClientIdentifier(request);
+
+  // Check if KV namespace is available for rate limiting
+  if (typeof globalThis !== 'undefined' && globalThis.SESSION) {
+    const rateLimiter = new RateLimiter(globalThis.SESSION, 60 * 1000, 100);
+    const rateLimitResult = await rateLimiter.isAllowed(
+      `health:${clientIdentifier}`
+    );
+
+    if (!rateLimitResult.allowed) {
+      const headers = rateLimiter.getRateLimitHeaders(rateLimitResult.info);
+      return new Response(
+        JSON.stringify({
+          error: 'Rate limit exceeded',
+          message: 'Too many health check requests',
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers,
+          },
+        }
+      );
+    }
+  }
 
   // Check required environment variables
   const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_KEY'];
