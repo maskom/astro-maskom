@@ -4,33 +4,34 @@ import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
 import { logger } from '../../../lib/logger';
-import { validateRequest, createHeaders } from '../../../lib/validation';
+import { validateRequest } from '../../../lib/validation';
 import { AuthSchemas } from '../../../lib/validation/schemas';
 
 export const prerender = false;
 
 export const POST: APIRoute = validateRequest({
   email: AuthSchemas.register.email,
-})(
-  async ({ request, cookies, validatedData, requestId }) => {
-    try {
-      const { email } = validatedData;
+})(async ({ request, cookies, validatedData, requestId }) => {
+  try {
+    const { email } = validatedData;
 
-      const securityContext = await SecurityMiddleware.createSecurityContext(
-        request,
-        cookies
-      );
+    const securityContext = await SecurityMiddleware.createSecurityContext(
+      request,
+      cookies
+    );
 
-      if (!securityContext) {
-        logger.warn('MFA setup: Authentication required', undefined, { requestId });
-        return new Response('Authentication required', { status: 401 });
-      }
-
-      logger.info('MFA setup initiated', {
+    if (!securityContext) {
+      logger.warn('MFA setup: Authentication required', undefined, {
         requestId,
-        userId: securityContext.userId,
-        email,
       });
+      return new Response('Authentication required', { status: 401 });
+    }
+
+    logger.info('MFA setup initiated', {
+      requestId,
+      userId: securityContext.userId,
+      email,
+    });
 
     // Generate TOTP secret
     const { secret, qrCodeUrl } = mfaService.generateTOTPSecret(email);
@@ -39,149 +40,160 @@ export const POST: APIRoute = validateRequest({
     // For now, we'll return the URL that can be used to generate one
 
     await securityAuditLogger.logSecurityAction(
-        securityContext.userId,
-        SecurityAction.MFA_ENABLE,
-        'mfa_setup',
-        securityContext.ipAddress,
-        securityContext.userAgent,
-        true,
-        { email, secret_generated: true }
-      );
+      securityContext.userId,
+      SecurityAction.MFA_ENABLE,
+      'mfa_setup',
+      securityContext.ipAddress,
+      securityContext.userAgent,
+      true,
+      { email, secret_generated: true }
+    );
 
-      logger.info('MFA secret generated', {
-        requestId,
-        userId: securityContext.userId,
-      });
+    logger.info('MFA secret generated', {
+      requestId,
+      userId: securityContext.userId,
+    });
 
-      return new Response(
-        JSON.stringify({
-          secret,
-          qrCodeUrl,
-          instructions:
-            'Scan this QR code with your authenticator app or enter the secret manually',
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', 'X-Request-ID': requestId || 'unknown' },
-        }
-      );
-    } catch (error) {
-      logger.error('MFA setup error', error as Error, { requestId });
-      return new Response('Failed to setup MFA', { status: 500 });
-    }
-  }
-);
-
-export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(
-  async ({ request, cookies, validatedData, requestId }) => {
-    try {
-      const { secret, code } = validatedData;
-
-      const securityContext = await SecurityMiddleware.createSecurityContext(
-        request,
-        cookies
-      );
-
-      if (!securityContext) {
-        logger.warn('MFA enable: Authentication required', undefined, { requestId });
-        return new Response('Authentication required', { status: 401 });
+    return new Response(
+      JSON.stringify({
+        secret,
+        qrCodeUrl,
+        instructions:
+          'Scan this QR code with your authenticator app or enter the secret manually',
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId || 'unknown',
+        },
       }
+    );
+  } catch (error) {
+    logger.error('MFA setup error', error as Error, { requestId });
+    return new Response('Failed to setup MFA', { status: 500 });
+  }
+});
 
-      logger.info('MFA enable attempt', {
+export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(async ({
+  request,
+  cookies,
+  validatedData,
+  requestId,
+}) => {
+  try {
+    const { secret, code } = validatedData;
+
+    const securityContext = await SecurityMiddleware.createSecurityContext(
+      request,
+      cookies
+    );
+
+    if (!securityContext) {
+      logger.warn('MFA enable: Authentication required', undefined, {
         requestId,
-        userId: securityContext.userId,
       });
+      return new Response('Authentication required', { status: 401 });
+    }
+
+    logger.info('MFA enable attempt', {
+      requestId,
+      userId: securityContext.userId,
+    });
 
     // Verify the TOTP code
-      const isValid = await mfaService.verifyTOTP(secret, code);
+    const isValid = await mfaService.verifyTOTP(secret, code);
 
-      if (!isValid) {
-        await securityAuditLogger.logSecurityAction(
-          securityContext.userId,
-          SecurityAction.MFA_ENABLE,
-          'mfa_verification',
-          securityContext.ipAddress,
-          securityContext.userAgent,
-          false,
-          { reason: 'invalid_verification_code' }
-        );
-
-        logger.warn('MFA enable: Invalid verification code', undefined, {
-          requestId,
-          userId: securityContext.userId,
-        });
-
-        return new Response('Invalid verification code', { status: 400 });
-      }
-
-      // Enable MFA for the user
-      const success = await mfaService.enableMFA(securityContext.userId, secret);
-
-      if (!success) {
-        logger.error('MFA enable: Failed to enable MFA', undefined, {
-          requestId,
-          userId: securityContext.userId,
-        });
-        return new Response('Failed to enable MFA', { status: 500 });
-      }
-
-      // Generate backup codes
-      const backupCodes = mfaService.generateBackupCodes();
-
+    if (!isValid) {
       await securityAuditLogger.logSecurityAction(
         securityContext.userId,
         SecurityAction.MFA_ENABLE,
-        'mfa_enabled',
+        'mfa_verification',
         securityContext.ipAddress,
         securityContext.userAgent,
-        true,
-        { backup_codes_count: backupCodes.length }
+        false,
+        { reason: 'invalid_verification_code' }
       );
 
-      logger.info('MFA enabled successfully', {
+      logger.warn('MFA enable: Invalid verification code', undefined, {
         requestId,
         userId: securityContext.userId,
-        backupCodesCount: backupCodes.length,
       });
 
-      return new Response(
-        JSON.stringify({
-          message: 'MFA enabled successfully',
-          backupCodes,
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', 'X-Request-ID': requestId || 'unknown' },
-        }
-      );
-    } catch (error) {
-      logger.error('MFA enable error', error as Error, { requestId });
+      return new Response('Invalid verification code', { status: 400 });
+    }
+
+    // Enable MFA for the user
+    const success = await mfaService.enableMFA(securityContext.userId, secret);
+
+    if (!success) {
+      logger.error('MFA enable: Failed to enable MFA', undefined, {
+        requestId,
+        userId: securityContext.userId,
+      });
       return new Response('Failed to enable MFA', { status: 500 });
     }
+
+    // Generate backup codes
+    const backupCodes = mfaService.generateBackupCodes();
+
+    await securityAuditLogger.logSecurityAction(
+      securityContext.userId,
+      SecurityAction.MFA_ENABLE,
+      'mfa_enabled',
+      securityContext.ipAddress,
+      securityContext.userAgent,
+      true,
+      { backup_codes_count: backupCodes.length }
+    );
+
+    logger.info('MFA enabled successfully', {
+      requestId,
+      userId: securityContext.userId,
+      backupCodesCount: backupCodes.length,
+    });
+
+    return new Response(
+      JSON.stringify({
+        message: 'MFA enabled successfully',
+        backupCodes,
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId || 'unknown',
+        },
+      }
+    );
+  } catch (error) {
+    logger.error('MFA enable error', error as Error, { requestId });
+    return new Response('Failed to enable MFA', { status: 500 });
   }
-);
+});
 
 export const DELETE: APIRoute = validateRequest({
   code: AuthSchemas.setupMFA.code,
-})(
-  async ({ request, cookies, validatedData, requestId }) => {
-    try {
-      const { code } = validatedData;
+})(async ({ request, cookies, validatedData, requestId }) => {
+  try {
+    const { code } = validatedData;
 
-      const securityContext = await SecurityMiddleware.createSecurityContext(
-        request,
-        cookies
-      );
+    const securityContext = await SecurityMiddleware.createSecurityContext(
+      request,
+      cookies
+    );
 
-      if (!securityContext) {
-        logger.warn('MFA disable: Authentication required', undefined, { requestId });
-        return new Response('Authentication required', { status: 401 });
-      }
-
-      logger.info('MFA disable attempt', {
+    if (!securityContext) {
+      logger.warn('MFA disable: Authentication required', undefined, {
         requestId,
-        userId: securityContext.userId,
       });
+      return new Response('Authentication required', { status: 401 });
+    }
+
+    logger.info('MFA disable attempt', {
+      requestId,
+      userId: securityContext.userId,
+    });
 
     // Get current MFA secret to verify
     const profile = await mfaService.getUserSecurityProfile(
@@ -193,67 +205,66 @@ export const DELETE: APIRoute = validateRequest({
     }
 
     // Verify the TOTP code before disabling
-      const isValid = await mfaService.verifyTOTP(
-        profile.mfa_secret,
-        code
-      );
+    const isValid = await mfaService.verifyTOTP(profile.mfa_secret, code);
 
-      if (!isValid) {
-        await securityAuditLogger.logSecurityAction(
-          securityContext.userId,
-          SecurityAction.MFA_DISABLE,
-          'mfa_disable_attempt',
-          securityContext.ipAddress,
-          securityContext.userAgent,
-          false,
-          { reason: 'invalid_verification_code' }
-        );
-
-        logger.warn('MFA disable: Invalid verification code', undefined, {
-          requestId,
-          userId: securityContext.userId,
-        });
-
-        return new Response('Invalid verification code', { status: 400 });
-      }
-
-      // Disable MFA
-      const success = await mfaService.disableMFA(securityContext.userId);
-
-      if (!success) {
-        logger.error('MFA disable: Failed to disable MFA', undefined, {
-          requestId,
-          userId: securityContext.userId,
-        });
-        return new Response('Failed to disable MFA', { status: 500 });
-      }
-
+    if (!isValid) {
       await securityAuditLogger.logSecurityAction(
         securityContext.userId,
         SecurityAction.MFA_DISABLE,
-        'mfa_disabled',
+        'mfa_disable_attempt',
         securityContext.ipAddress,
         securityContext.userAgent,
-        true
+        false,
+        { reason: 'invalid_verification_code' }
       );
 
-      logger.info('MFA disabled successfully', {
+      logger.warn('MFA disable: Invalid verification code', undefined, {
         requestId,
         userId: securityContext.userId,
       });
 
-      return new Response(
-        JSON.stringify({
-          message: 'MFA disabled successfully',
-        }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', 'X-Request-ID': requestId || 'unknown' },
-        }
-      );
-    } catch (error) {
-      logger.error('MFA disable error', error as Error, { requestId });
+      return new Response('Invalid verification code', { status: 400 });
+    }
+
+    // Disable MFA
+    const success = await mfaService.disableMFA(securityContext.userId);
+
+    if (!success) {
+      logger.error('MFA disable: Failed to disable MFA', undefined, {
+        requestId,
+        userId: securityContext.userId,
+      });
       return new Response('Failed to disable MFA', { status: 500 });
     }
+
+    await securityAuditLogger.logSecurityAction(
+      securityContext.userId,
+      SecurityAction.MFA_DISABLE,
+      'mfa_disabled',
+      securityContext.ipAddress,
+      securityContext.userAgent,
+      true
+    );
+
+    logger.info('MFA disabled successfully', {
+      requestId,
+      userId: securityContext.userId,
+    });
+
+    return new Response(
+      JSON.stringify({
+        message: 'MFA disabled successfully',
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId || 'unknown',
+        },
+      }
+    );
+  } catch (error) {
+    logger.error('MFA disable error', error as Error, { requestId });
+    return new Response('Failed to disable MFA', { status: 500 });
   }
-);
+});

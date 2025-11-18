@@ -1,6 +1,6 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { logger } from '../../../lib/logger';
-import { validateRequest, createHeaders } from '../../../lib/validation';
+import { validateRequest } from '../../../lib/validation';
 import { PaymentSchemas } from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 

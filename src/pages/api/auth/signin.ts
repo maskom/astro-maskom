@@ -7,7 +7,7 @@ import { withApiMiddleware, setUserContext } from '../../../lib/middleware/api';
 import { ErrorFactory } from '../../../lib/errors';
 import { SecurityAction } from '../../../lib/security/types';
 import { logger } from '../../../lib/logger';
-import { validateRequest, createHeaders } from '../../../lib/validation';
+import { validateRequest } from '../../../lib/validation';
 import { AuthSchemas } from '../../../lib/validation/schemas';
 
 export const prerender = false;
