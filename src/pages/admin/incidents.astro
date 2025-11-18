@@ -172,8 +172,10 @@ interface IncidentForm {
       const container = document.getElementById('incidents-list');
       if (!container) return;
 
-      // Clear existing content
-      container.innerHTML = '';
+      // Clear existing content safely
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
 
       if (incidents.length === 0) {
         const noIncidentsDiv = document.createElement('div');
@@ -236,7 +238,10 @@ interface IncidentForm {
       });
       const container = document.getElementById('incidents-list');
       if (container) {
-        container.innerHTML = '';
+        // Clear existing content safely
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
         const errorDiv = document.createElement('div');
         errorDiv.className = 'bg-gray-800 rounded-lg p-8 text-center';
         const errorText = document.createElement('p');
