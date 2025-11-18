@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../src/pages/api/payments/webhook';
 import { logger } from '../src/lib/logger';
-import type { APIRoute } from 'astro';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
