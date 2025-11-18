@@ -33,9 +33,10 @@ export const POST: APIRoute = withApiMiddleware(
       });
 
       if (error) {
-        logger.warn('Registration failed', error, {
+        logger.warn('Registration failed', {
           requestId,
           email,
+          error: error.message,
         });
 
         throw ErrorFactory.validationFailed(

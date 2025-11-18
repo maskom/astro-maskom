@@ -46,10 +46,11 @@ export const POST: APIRoute = withApiMiddleware(
           error.message
         );
 
-        logger.warn('Sign in failed', error, {
+        logger.warn('Sign in failed', {
           requestId,
           email,
           ipAddress,
+          error: error.message,
         });
 
         throw ErrorFactory.invalidCredentials();

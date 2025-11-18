@@ -99,13 +99,10 @@ export class ValidationEngine {
           sanitizedFields: Object.keys(sanitizedData).length,
         });
       } else {
-        logger.warn('Validation failed', undefined, {
+        logger.warn('Validation failed', {
           ...this.context,
           errorCount: errors.length,
-          validationErrors: errors.map(e => ({
-            field: e.field,
-            message: e.message,
-          })),
+          validationErrorCount: errors.length,
         });
       }
 
@@ -490,9 +487,9 @@ export function validateRequest(
 
         if (!result.isValid) {
           // Log validation failure
-          logger.warn('Request validation failed', undefined, {
+          logger.warn('Request validation failed', {
             ...validationContext,
-            errors: result.errors,
+            errorCount: result.errors?.length || 0,
           });
 
           // Return validation error response
