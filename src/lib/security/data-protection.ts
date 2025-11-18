@@ -29,7 +29,7 @@ export class DataProtectionService {
 
       return iv.toString('hex') + ':' + encrypted;
     } catch (error) {
-      logger.error('Encryption error:', error, {
+      logger.apiError('Encryption error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -54,7 +54,7 @@ export class DataProtectionService {
 
       return decrypted;
     } catch (error) {
-      logger.error('Decryption error:', error, {
+      logger.apiError('Decryption error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -78,7 +78,7 @@ export class DataProtectionService {
         .toString('hex');
       return hash === verifyHash;
     } catch (error) {
-      logger.error('Password verification error:', error, {
+      logger.apiError('Password verification error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -111,7 +111,7 @@ export class DataProtectionService {
         .insert(consent);
 
       if (error) {
-        logger.error('Failed to record data consent:', error, {
+        logger.apiError('Failed to record data consent:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -120,7 +120,7 @@ export class DataProtectionService {
 
       return true;
     } catch (error) {
-      logger.error('Data consent recording error:', error, {
+      logger.apiError('Data consent recording error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -161,7 +161,7 @@ export class DataProtectionService {
 
       return !!consent;
     } catch (error) {
-      logger.error('Data consent check error:', error, {
+      logger.apiError('Data consent check error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -184,7 +184,7 @@ export class DataProtectionService {
         .eq('id', userId);
 
       if (profileError) {
-        logger.error('Failed to anonymize profile:', profileError, {
+        logger.apiError('Failed to anonymize profile:', profileError, {
         module: 'security',
         operation: 'unknown'
       });
@@ -202,7 +202,7 @@ export class DataProtectionService {
 
       return true;
     } catch (error) {
-      logger.error('Data anonymization error:', error, {
+      logger.apiError('Data anonymization error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -260,7 +260,7 @@ export class DataProtectionService {
 
       return deletedCount.count;
     } catch (error) {
-      logger.error('Expired data deletion error:', error, {
+      logger.apiError('Expired data deletion error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -339,7 +339,7 @@ export class DataProtectionService {
 
       return userData;
     } catch (error) {
-      logger.error('User data export error:', error, {
+      logger.apiError('User data export error:', error, {
         module: 'security',
         operation: 'unknown'
       });

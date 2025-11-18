@@ -59,10 +59,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      logger.error('Error creating payment transaction:', error, {
-    module: 'service',
-    operation: 'unknown'
-  });
+      logger.apiError('Error creating payment transaction:', error, {
+        module: 'service',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -87,10 +87,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformTransactionData(data);
     } catch (error) {
-      logger.error('Error updating transaction status:', error, {
-    module: 'service',
-    operation: 'unknown'
-  });
+      logger.apiError('Error updating transaction status:', error, {
+        module: 'service',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -108,10 +108,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      logger.error('Error getting transaction:', error, {
-    module: 'service',
-    operation: 'get'
-  });
+      logger.apiError('Error getting transaction:', error, {
+        module: 'service',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -129,10 +129,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformTransactionData(data);
     } catch (error) {
-      logger.error('Error getting transaction by order ID:', error, {
-    module: 'service',
-    operation: 'get'
-  });
+      logger.apiError('Error getting transaction by order ID:', error, {
+        module: 'service',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -153,10 +153,10 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformTransactionData);
     } catch (error) {
-      logger.error('Error getting user transactions:', error, {
-    module: 'service',
-    operation: 'get'
-  });
+      logger.apiError('Error getting user transactions:', error, {
+        module: 'service',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -178,10 +178,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      logger.error('Error creating invoice:', error, {
-    module: 'service',
-    operation: 'unknown'
-  });
+      logger.apiError('Error creating invoice:', error, {
+        module: 'service',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -204,10 +204,10 @@ export class PaymentService {
       if (error) throw error;
       return this.transformInvoiceData(data);
     } catch (error) {
-      logger.error('Error updating invoice status:', error, {
-    module: 'service',
-    operation: 'unknown'
-  });
+      logger.apiError('Error updating invoice status:', error, {
+        module: 'service',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -228,10 +228,10 @@ export class PaymentService {
       if (error) return null;
       return this.transformInvoiceData(data);
     } catch (error) {
-      logger.error('Error getting invoice:', error, {
-    module: 'service',
-    operation: 'get'
-  });
+      logger.apiError('Error getting invoice:', error, {
+        module: 'service',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -257,10 +257,10 @@ export class PaymentService {
       if (error) throw error;
       return data.map(this.transformInvoiceData);
     } catch (error) {
-      logger.error('Error getting user invoices:', error, {
-    module: 'service',
-    operation: 'get'
-  });
+      logger.apiError('Error getting user invoices:', error, {
+        module: 'service',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -289,10 +289,10 @@ export class PaymentService {
 
       return `${prefix}${year}${month}${String(sequence).padStart(4, '0')}`;
     } catch (error) {
-      logger.error('Error generating invoice number:', error, {
-    module: 'service',
-    operation: 'unknown'
-  });
+      logger.apiError('Error generating invoice number:', error, {
+        module: 'service',
+        operation: 'unknown',
+      });
       throw error;
     }
   }

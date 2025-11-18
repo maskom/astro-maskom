@@ -70,7 +70,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     }
 
     // Get summary statistics
-    const stats = await getSecurityStats(securityContext.userId);
+    const stats = await getSecurityStats(securityContext.userId, requestId);
 
     return new Response(
       JSON.stringify({
@@ -96,7 +96,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
   }
 };
 
-async function getSecurityStats(userId: string) {
+async function getSecurityStats(userId: string, requestId?: string) {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -141,7 +141,7 @@ async function getSecurityStats(userId: string) {
     };
   } catch (error) {
     logger.apiError('Security stats error:', error, {
-      requestId,
+      requestId: requestId || 'unknown',
       endpoint: '/api/security/dashboard',
       method: 'GET',
     });

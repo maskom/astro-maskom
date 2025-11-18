@@ -6,11 +6,13 @@ import type { APIRoute } from 'astro';
 export const GET: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
   let userId: string | undefined;
-  
+  let limit = 20;
+  let offset = 0;
+
   try {
     const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get('limit') || '20');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    limit = parseInt(url.searchParams.get('limit') || '20');
+    offset = parseInt(url.searchParams.get('offset') || '0');
 
     // Get authenticated user
     const authHeader = request.headers.get('Authorization');
@@ -66,7 +68,7 @@ export const GET: APIRoute = async ({ request }) => {
       endpoint: '/api/payments/history',
       method: 'GET',
       limit,
-      offset
+      offset,
     });
     return new Response(
       JSON.stringify({

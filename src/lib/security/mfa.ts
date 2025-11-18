@@ -45,7 +45,7 @@ export class MFAService {
         });
 
       if (error) {
-        logger.error('Failed to enable MFA:', error, {
+        logger.apiError('Failed to enable MFA:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -54,7 +54,7 @@ export class MFAService {
 
       return true;
     } catch (error) {
-      logger.error('MFA enable error:', error, {
+      logger.apiError('MFA enable error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -75,7 +75,7 @@ export class MFAService {
         .eq('user_id', userId);
 
       if (error) {
-        logger.error('Failed to disable MFA:', error, {
+        logger.apiError('Failed to disable MFA:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -84,7 +84,7 @@ export class MFAService {
 
       return true;
     } catch (error) {
-      logger.error('MFA disable error:', error, {
+      logger.apiError('MFA disable error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -110,7 +110,7 @@ export class MFAService {
 
       return false;
     } catch (error) {
-      logger.error('TOTP verification error:', error, {
+      logger.apiError('TOTP verification error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -150,7 +150,7 @@ export class MFAService {
 
       return true;
     } catch (error) {
-      logger.error('Backup code verification error:', error, {
+      logger.apiError('Backup code verification error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -172,7 +172,7 @@ export class MFAService {
 
       return profile?.mfa_enabled || false;
     } catch (error) {
-      logger.error('MFA status check error:', error, {
+      logger.apiError('MFA status check error:', error, {
         module: 'security',
         operation: 'unknown'
       });
@@ -196,7 +196,7 @@ export class MFAService {
 
       return profile as UserSecurityProfile;
     } catch (error) {
-      logger.error('Get security profile error:', error, {
+      logger.apiError('Get security profile error:', error, {
         module: 'security',
         operation: 'unknown'
       });

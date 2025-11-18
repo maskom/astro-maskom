@@ -10,7 +10,7 @@ export const supabase =
           const config = getSupabaseConfig();
           return createClient(config.url, config.anonKey);
         } catch (error) {
-          logger.error('Failed to initialize Supabase client:', error, {
+          logger.apiError('Failed to initialize Supabase client:', error, {
     module: 'supabase',
     operation: 'unknown'
   });
@@ -39,7 +39,7 @@ export function createServerClient() {
 
     return client;
   } catch (error) {
-    logger.error('Failed to create Supabase server client:', error, {
+    logger.apiError('Failed to create Supabase server client:', error, {
     module: 'supabase',
     operation: 'create'
   });
@@ -72,7 +72,7 @@ export function createServiceClient() {
       },
     });
   } catch (error) {
-    logger.error('Failed to create Supabase service client:', error, {
+    logger.apiError('Failed to create Supabase service client:', error, {
     module: 'supabase',
     operation: 'create'
   });

@@ -101,10 +101,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      logger.error('Error creating Midtrans transaction:', error, {
-    module: 'gateway',
-    operation: 'unknown'
-  });
+      logger.apiError('Error creating Midtrans transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -127,10 +127,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      logger.error('Error getting transaction status:', error, {
-    module: 'gateway',
-    operation: 'get'
-  });
+      logger.apiError('Error getting transaction status:', error, {
+        module: 'gateway',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -153,10 +153,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      logger.error('Error cancelling transaction:', error, {
-    module: 'gateway',
-    operation: 'unknown'
-  });
+      logger.apiError('Error cancelling transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -186,10 +186,10 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      logger.error('Error refunding transaction:', error, {
-    module: 'gateway',
-    operation: 'unknown'
-  });
+      logger.apiError('Error refunding transaction:', error, {
+        module: 'gateway',
+        operation: 'unknown',
+      });
       throw error;
     }
   }

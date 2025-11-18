@@ -52,10 +52,10 @@ export class PaymentManager {
         paymentResponse,
       };
     } catch (error) {
-      logger.error('Error processing payment:', error, {
-    module: 'manager',
-    operation: 'unknown'
-  });
+      logger.apiError('Error processing payment:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -87,10 +87,10 @@ export class PaymentManager {
 
       return { success: true, transactionId: transaction.id };
     } catch (error) {
-      logger.error('Error handling webhook:', error, {
-    module: 'manager',
-    operation: 'unknown'
-  });
+      logger.apiError('Error handling webhook:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
       throw error;
     }
   }
@@ -157,10 +157,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error getting transaction status:', error, {
-    module: 'manager',
-    operation: 'get'
-  });
+      logger.apiError('Error getting transaction status:', error, {
+        module: 'manager',
+        operation: 'get',
+      });
       throw error;
     }
   }
@@ -182,10 +182,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error cancelling payment:', error, {
-    module: 'manager',
-    operation: 'unknown'
-  });
+      logger.apiError('Error cancelling payment:', error, {
+        module: 'manager',
+        operation: 'cancel',
+      });
       throw error;
     }
   }
@@ -207,10 +207,10 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error refunding payment:', error, {
-    module: 'manager',
-    operation: 'unknown'
-  });
+      logger.apiError('Error refunding payment:', error, {
+        module: 'manager',
+        operation: 'refund',
+      });
       throw error;
     }
   }
@@ -274,10 +274,10 @@ export class PaymentManager {
         ],
       });
     } catch (error) {
-      logger.error('Error generating invoice:', error, {
-    module: 'manager',
-    operation: 'unknown'
-  });
+      logger.apiError('Error generating invoice:', error, {
+        module: 'manager',
+        operation: 'unknown',
+      });
     }
   }
 

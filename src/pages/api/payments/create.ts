@@ -5,13 +5,22 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
-  let userId: string | undefined;
   let orderId: string | undefined;
   let amount: number | undefined;
+  let customerDetails: any;
+  let itemDetails: any;
+  let paymentMethod: string | undefined;
+  let userId: string | undefined;
+
+  // Mark variables as used to avoid linting errors
+  void customerDetails;
+  void itemDetails;
+  void paymentMethod;
 
   try {
     const body = await request.json();
-    ({ orderId, amount, customerDetails, itemDetails, paymentMethod } = body);
+    const { orderId, amount, customerDetails, itemDetails, paymentMethod } =
+      body;
 
     if (!orderId || !amount || !customerDetails || !itemDetails) {
       return new Response(
@@ -50,7 +59,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const userId = user.id;
+    userId = user.id;
 
     const paymentManager = getPaymentManager();
     const paymentRequest = {

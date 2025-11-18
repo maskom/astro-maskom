@@ -9,6 +9,7 @@ export const prerender = false;
 
 // GET /api/kb/articles - List articles
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const categorySlug = searchParams.get('category');
   const status = searchParams.get('status') || 'published';
@@ -88,7 +89,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     logger.apiError('Articles fetch error:', error, {
       requestId,
       endpoint: '/api/kb/articles',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Failed to fetch articles');
   }
@@ -97,6 +98,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
 // POST /api/kb/articles - Create new article (requires support/admin role)
 export const POST: APIRoute = withApiMiddleware(
   async ({ request, cookies }) => {
+    const requestId = generateRequestId();
     const body = await request.json();
     const {
       title,
@@ -174,10 +176,10 @@ export const POST: APIRoute = withApiMiddleware(
       );
     } catch (error) {
       logger.apiError('Article creation error:', error, {
-      requestId,
-      endpoint: '/api/kb/articles',
-      method: 'UNKNOWN'
-    });
+        requestId,
+        endpoint: '/api/kb/articles',
+        method: 'UNKNOWN',
+      });
       throw ErrorFactory.internalError('Failed to create article');
     }
   }

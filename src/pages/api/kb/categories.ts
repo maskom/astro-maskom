@@ -9,6 +9,7 @@ export const prerender = false;
 
 // GET /api/kb/categories - List categories
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const activeOnly = searchParams.get('active') !== 'false'; // Default to true
 
@@ -39,7 +40,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     logger.apiError('Categories fetch error:', error, {
       requestId,
       endpoint: '/api/kb/categories',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Failed to fetch categories');
   }
@@ -47,6 +48,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
 
 // POST /api/kb/categories - Create new category (requires admin role)
 export const POST: APIRoute = withApiMiddleware(async ({ request }) => {
+  const requestId = generateRequestId();
   const body = await request.json();
   const {
     name,
@@ -107,7 +109,7 @@ export const POST: APIRoute = withApiMiddleware(async ({ request }) => {
     logger.apiError('Category creation error:', error, {
       requestId,
       endpoint: '/api/kb/categories',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Failed to create category');
   }

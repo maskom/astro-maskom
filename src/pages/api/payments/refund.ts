@@ -6,10 +6,13 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
   let userId: string | undefined;
-  
+  let orderId: string | undefined;
+  let amount: number | undefined;
+
   try {
     const body = await request.json();
-    const { orderId, amount } = body;
+    orderId = body.orderId;
+    amount = body.amount;
 
     if (!orderId) {
       return new Response(
@@ -63,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
       endpoint: '/api/payments/refund',
       method: 'POST',
       orderId,
-      amount
+      amount,
     });
     return new Response(
       JSON.stringify({

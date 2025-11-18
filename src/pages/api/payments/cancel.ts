@@ -6,10 +6,11 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
   let userId: string | undefined;
-  
+  let orderId: string | undefined;
+
   try {
     const body = await request.json();
-    const { orderId } = body;
+    orderId = body.orderId;
 
     if (!orderId) {
       return new Response(
@@ -62,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
       userId,
       endpoint: '/api/payments/cancel',
       method: 'POST',
-      orderId
+      orderId,
     });
     return new Response(
       JSON.stringify({

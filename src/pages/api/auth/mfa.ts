@@ -9,7 +9,8 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const requestId = generateRequestId();
-  
+  let email: string | undefined;
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -20,7 +21,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response('Authentication required', { status: 401 });
     }
 
-    const { email } = await request.json();
+    const body = await request.json();
+    email = body.email;
 
     if (!email) {
       return new Response('Email is required', { status: 400 });
@@ -59,7 +61,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       requestId,
       endpoint: '/api/auth/mfa',
       method: 'POST',
-      email
+      email,
     });
     return new Response('Failed to setup MFA', { status: 500 });
   }
@@ -67,7 +69,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
   const requestId = generateRequestId();
-  
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -137,7 +139,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     logger.apiError('MFA enable error', error, {
       requestId,
       endpoint: '/api/auth/mfa',
-      method: 'PUT'
+      method: 'PUT',
     });
     return new Response('Failed to enable MFA', { status: 500 });
   }
@@ -145,7 +147,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
   const requestId = generateRequestId();
-  
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -220,7 +222,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     logger.apiError('MFA disable error', error, {
       requestId,
       endpoint: '/api/auth/mfa',
-      method: 'DELETE'
+      method: 'DELETE',
     });
     return new Response('Failed to disable MFA', { status: 500 });
   }

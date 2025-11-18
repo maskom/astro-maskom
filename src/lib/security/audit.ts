@@ -264,7 +264,7 @@ export class SecurityAuditLogger {
 
       return data || [];
     } catch (error) {
-      logger.error('Audit logs fetch error', error, {
+      logger.apiError('Audit logs fetch error', error, {
         module: 'security',
         operation: 'getAuditLogs',
         userId,
@@ -335,7 +335,7 @@ export class SecurityAuditLogger {
 
       return count || 0;
     } catch (error) {
-      logger.error('Recent failed logins error', error, {
+      logger.apiError('Recent failed logins error', error, {
         module: 'security',
         operation: 'getRecentFailedLogins',
         ipAddress,

@@ -8,6 +8,7 @@ export const prerender = false;
 
 // GET /api/kb/stats - Get knowledge base statistics
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const includePopular = searchParams.get('popular') === 'true';
   const includeRecent = searchParams.get('recent') === 'true';
@@ -54,7 +55,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     logger.apiError('Stats fetch error:', error, {
       requestId,
       endpoint: '/api/kb/stats',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Failed to fetch statistics');
   }

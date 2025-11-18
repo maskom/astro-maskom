@@ -7,6 +7,7 @@ import { logger, generateRequestId } from '../../../lib/logger';
 export const prerender = false;
 
 export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
+  const requestId = generateRequestId();
   const searchParams = new URL(url).searchParams;
   const query = searchParams.get('q');
   const categorySlug = searchParams.get('category');
@@ -71,7 +72,7 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     logger.apiError('Search error:', error, {
       requestId,
       endpoint: '/api/kb/search',
-      method: 'UNKNOWN'
+      method: 'UNKNOWN',
     });
     throw ErrorFactory.internalError('Search failed');
   }

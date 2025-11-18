@@ -68,11 +68,11 @@ export class SecurityMiddleware {
         permissions,
       };
     } catch (error) {
-      logger.error('Security context creation error', error, {
+      logger.apiError('Security context creation error', error, {
         module: 'security',
         operation: 'createSecurityContext',
-        ipAddress,
-        userAgent
+        ipAddress: this.getClientIP(request),
+        userAgent: request.headers.get('user-agent') || 'unknown',
       });
       return null;
     }

@@ -4,10 +4,11 @@ import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
-  
+  let orderId: string | undefined;
+
   try {
     const url = new URL(request.url);
-    const orderId = url.searchParams.get('order_id');
+    orderId = url.searchParams.get('order_id') || undefined;
 
     if (!orderId) {
       return new Response(
@@ -34,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
       requestId,
       endpoint: '/api/payments/status',
       method: 'GET',
-      orderId
+      orderId,
     });
     return new Response(
       JSON.stringify({

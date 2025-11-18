@@ -9,10 +9,11 @@ import type { Invoice } from '../../../lib/payments/types';
 export const GET: APIRoute = async ({ request }) => {
   const requestId = generateRequestId();
   let userId: string | undefined;
-  
+  let invoiceId: string | undefined;
+
   try {
     const url = new URL(request.url);
-    const invoiceId = url.searchParams.get('id');
+    invoiceId = url.searchParams.get('id') || undefined;
 
     if (!invoiceId) {
       return new Response(
@@ -84,7 +85,7 @@ export const GET: APIRoute = async ({ request }) => {
       userId,
       endpoint: '/api/invoices/download',
       method: 'GET',
-      invoiceId
+      invoiceId,
     });
     return new Response(
       JSON.stringify({

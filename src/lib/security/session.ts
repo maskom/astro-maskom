@@ -36,7 +36,7 @@ export class SessionManager {
         .insert(session);
 
       if (error) {
-        logger.error('Failed to create session', error, {
+        logger.apiError('Failed to create session', error, {
           module: 'session',
           operation: 'createSession',
           userId,
@@ -48,7 +48,7 @@ export class SessionManager {
 
       return sessionId;
     } catch (error) {
-      logger.error('Session creation error', error, {
+      logger.apiError('Session creation error', error, {
         module: 'session',
         operation: 'createSession',
         userId,
@@ -88,7 +88,7 @@ export class SessionManager {
 
       return session as SessionSecurity;
     } catch (error) {
-      logger.error('Session validation error', error, {
+      logger.apiError('Session validation error', error, {
         module: 'session',
         operation: 'validateSession',
         sessionId
@@ -108,7 +108,7 @@ export class SessionManager {
         .eq('session_id', sessionId);
 
       if (error) {
-        logger.error('Failed to invalidate session', error, {
+        logger.apiError('Failed to invalidate session', error, {
           module: 'session',
           operation: 'invalidateSession',
           sessionId
@@ -118,7 +118,7 @@ export class SessionManager {
 
       return true;
     } catch (error) {
-      logger.error('Session invalidation error', error, {
+      logger.apiError('Session invalidation error', error, {
         module: 'session',
         operation: 'invalidateSession',
         sessionId
@@ -148,7 +148,7 @@ export class SessionManager {
       const { error } = await query;
 
       if (error) {
-        logger.error('Failed to invalidate user sessions:', error, {
+        logger.apiError('Failed to invalidate user sessions:', error, {
     module: 'session',
     operation: 'validate'
   });
@@ -157,7 +157,7 @@ export class SessionManager {
 
       return true;
     } catch (error) {
-      logger.error('User sessions invalidation error:', error, {
+      logger.apiError('User sessions invalidation error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -183,7 +183,7 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        logger.error('Failed to extend session:', error, {
+        logger.apiError('Failed to extend session:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -192,7 +192,7 @@ export class SessionManager {
 
       return true;
     } catch (error) {
-      logger.error('Session extension error:', error, {
+      logger.apiError('Session extension error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -212,7 +212,7 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        logger.error('Failed to verify MFA for session:', error, {
+        logger.apiError('Failed to verify MFA for session:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -221,7 +221,7 @@ export class SessionManager {
 
       return true;
     } catch (error) {
-      logger.error('MFA session verification error:', error, {
+      logger.apiError('MFA session verification error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -240,7 +240,7 @@ export class SessionManager {
         .order('last_activity', { ascending: false });
 
       if (error) {
-        logger.error('Failed to get user sessions:', error, {
+        logger.apiError('Failed to get user sessions:', error, {
     module: 'session',
     operation: 'get'
   });
@@ -249,7 +249,7 @@ export class SessionManager {
 
       return sessions as SessionSecurity[];
     } catch (error) {
-      logger.error('Get user sessions error:', error, {
+      logger.apiError('Get user sessions error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -266,7 +266,7 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        logger.error('Failed to cleanup expired sessions:', error, {
+        logger.apiError('Failed to cleanup expired sessions:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -275,7 +275,7 @@ export class SessionManager {
 
       return count || 0;
     } catch (error) {
-      logger.error('Session cleanup error:', error, {
+      logger.apiError('Session cleanup error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -310,7 +310,7 @@ export class SessionManager {
 
       return [...new Set(suspiciousSessions)];
     } catch (error) {
-      logger.error('Suspicious session detection error:', error, {
+      logger.apiError('Suspicious session detection error:', error, {
     module: 'session',
     operation: 'unknown'
   });
@@ -328,7 +328,7 @@ export class SessionManager {
         })
         .eq('session_id', sessionId);
     } catch (error) {
-      logger.error('Session activity update error:', error, {
+      logger.apiError('Session activity update error:', error, {
     module: 'session',
     operation: 'update'
   });
@@ -362,7 +362,7 @@ export class SessionManager {
 
         return session.mfa_verified;
       } catch (error) {
-        logger.error('MFA verification check error:', error, {
+        logger.apiError('MFA verification check error:', error, {
     module: 'session',
     operation: 'unknown'
   });

@@ -10,7 +10,8 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const requestId = generateRequestId();
-  
+  let verificationMethod: string | undefined;
+
   try {
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -104,7 +105,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       requestId,
       endpoint: '/api/auth/verify-mfa',
       method: 'POST',
-      verificationMethod
+      verificationMethod,
     });
     return new Response('Failed to verify MFA', { status: 500 });
   }
