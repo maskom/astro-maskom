@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 import { getSupabaseConfig, isDevelopment } from './env';
 
 // Client-side Supabase instance for browser
@@ -9,7 +10,10 @@ export const supabase =
           const config = getSupabaseConfig();
           return createClient(config.url, config.anonKey);
         } catch (error) {
-          console.error('Failed to initialize Supabase client:', error);
+          logger.error('Failed to initialize Supabase client', error instanceof Error ? error : new Error(String(error)), {
+            module: 'supabase',
+            operation: 'client-initialization'
+          });
           return null;
         }
       })()
@@ -35,7 +39,10 @@ export function createServerClient() {
 
     return client;
   } catch (error) {
-    console.error('Failed to create Supabase server client:', error);
+    logger.error('Failed to create Supabase server client', error instanceof Error ? error : new Error(String(error)), {
+      module: 'supabase',
+      operation: 'server-client-creation'
+    });
     throw error;
   }
 }
@@ -65,7 +72,10 @@ export function createServiceClient() {
       },
     });
   } catch (error) {
-    console.error('Failed to create Supabase service client:', error);
+    logger.error('Failed to create Supabase service client', error instanceof Error ? error : new Error(String(error)), {
+      module: 'supabase',
+      operation: 'service-client-creation'
+    });
     throw error;
   }
 }

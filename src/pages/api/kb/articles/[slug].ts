@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../../lib/errors';
+import { logger } from '../../../../lib/logger';
 
 export const prerender = false;
 
@@ -44,7 +45,12 @@ export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
     if (error instanceof Error && error.message.includes('not found')) {
       throw error;
     }
-    console.error('Article fetch error:', error);
+    logger.error('Article fetch error', error instanceof Error ? error : new Error(String(error)), { 
+  module: 'api', 
+  endpoint: 'kb/articles/[slug]', 
+  method: 'GET',
+  article_slug: slug
+});
     throw ErrorFactory.internalError('Failed to fetch article');
   }
 });
@@ -158,7 +164,13 @@ export const PUT: APIRoute = withApiMiddleware(async ({ request, params }) => {
       }
     );
   } catch (error) {
-    console.error('Article update error:', error);
+    logger.error('Article update error', error instanceof Error ? error : new Error(String(error)), { 
+  module: 'api', 
+  endpoint: 'kb/articles/[slug]', 
+  method: 'PUT',
+  article_slug: slug,
+  article_id: existingArticle.id
+});
     throw ErrorFactory.internalError('Failed to update article');
   }
 });
@@ -202,7 +214,13 @@ export const DELETE: APIRoute = withApiMiddleware(async ({ params }) => {
       }
     );
   } catch (error) {
-    console.error('Article deletion error:', error);
+    logger.error('Article deletion error', error instanceof Error ? error : new Error(String(error)), { 
+  module: 'api', 
+  endpoint: 'kb/articles/[slug]', 
+  method: 'DELETE',
+  article_slug: slug,
+  article_id: existingArticle.id
+});
     throw ErrorFactory.internalError('Failed to delete article');
   }
 });

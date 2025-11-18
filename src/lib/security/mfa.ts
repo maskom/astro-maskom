@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { UserSecurityProfile } from './types';
 
 export class MFAService {
@@ -44,13 +45,13 @@ export class MFAService {
         });
 
       if (error) {
-        console.error('Failed to enable MFA:', error);
+        logger.error('Failed to enable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA enable error:', error);
+      logger.error('MFA enable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });
       return false;
     }
   }
@@ -68,13 +69,13 @@ export class MFAService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to disable MFA:', error);
+        logger.error('Failed to disable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA disable error:', error);
+      logger.error('MFA disable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });
       return false;
     }
   }
@@ -97,7 +98,7 @@ export class MFAService {
 
       return false;
     } catch (error) {
-      console.error('TOTP verification error:', error);
+      logger.error('TOTP verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyTOTP', secret });
       return false;
     }
   }
@@ -134,7 +135,7 @@ export class MFAService {
 
       return true;
     } catch (error) {
-      console.error('Backup code verification error:', error);
+      logger.error('Backup code verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyBackupCode', userId, code });
       return false;
     }
   }
@@ -153,7 +154,7 @@ export class MFAService {
 
       return profile?.mfa_enabled || false;
     } catch (error) {
-      console.error('MFA status check error:', error);
+      logger.error('MFA status check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'isMFAEnabled', userId });
       return false;
     }
   }
@@ -174,7 +175,7 @@ export class MFAService {
 
       return profile as UserSecurityProfile;
     } catch (error) {
-      console.error('Get security profile error:', error);
+      logger.error('Get security profile error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'getUserSecurityProfile', userId });
       return null;
     }
   }

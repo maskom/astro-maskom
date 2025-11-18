@@ -3,6 +3,7 @@ import { knowledgeBaseService } from '../../../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../../../lib/middleware/api';
 import { ErrorFactory, Validation } from '../../../../../lib/errors';
 import { sanitizeInput } from '../../../../../lib/sanitization';
+import { logger } from '../../../../../lib/logger';
 
 export const prerender = false;
 
@@ -83,7 +84,13 @@ export const POST: APIRoute = withApiMiddleware(
         }
       );
     } catch (error) {
-      console.error('Rating submission error:', error);
+      logger.error('Rating submission error', error instanceof Error ? error : new Error(String(error)), { 
+        module: 'api', 
+        endpoint: 'kb/articles/[slug]/rate', 
+        method: 'POST',
+        article_slug: slug,
+        user_id: userId
+      });
       throw ErrorFactory.internalError('Failed to submit rating');
     }
   }
@@ -154,7 +161,12 @@ export const GET: APIRoute = withApiMiddleware(async ({ params }) => {
       }
     );
   } catch (error) {
-    console.error('Ratings fetch error:', error);
+    logger.error('Ratings fetch error', error instanceof Error ? error : new Error(String(error)), { 
+      module: 'api', 
+      endpoint: 'kb/articles/[slug]/rate', 
+      method: 'GET',
+      article_slug: slug
+    });
     throw ErrorFactory.internalError('Failed to fetch ratings');
   }
 });
