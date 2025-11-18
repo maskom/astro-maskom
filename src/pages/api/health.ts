@@ -102,9 +102,11 @@ export const GET: APIRoute = async () => {
     // Check if we're running on Cloudflare Pages
     if (
       typeof globalThis.navigator !== 'undefined' &&
-      (globalThis as any).navigator.userAgent
+      (globalThis as { navigator?: { userAgent?: string } }).navigator
+        ?.userAgent
     ) {
-      const userAgent = (globalThis as any).navigator.userAgent;
+      const userAgent = (globalThis as { navigator: { userAgent: string } })
+        .navigator.userAgent;
       if (userAgent.includes('Cloudflare-Workers')) {
         checks.services.cloudflare.status = 'active';
         checks.services.cloudflare.features.push('workers-runtime');
