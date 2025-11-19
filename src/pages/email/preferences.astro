@@ -1,0 +1,460 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Email Preferences - Maskom Network">
+  <div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h1 class="text-2xl font-bold text-gray-900">Preferensi Email</h1>
+          <p class="mt-1 text-sm text-gray-600">
+            Kelola preferensi komunikasi email Anda
+          </p>
+        </div>
+
+        <div class="p-6">
+          <form id="preferencesForm" class="space-y-6">
+            <!-- General Email Settings -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-gray-900">Pengaturan Umum</h3>
+              
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="emailEnabled" class="text-sm font-medium text-gray-700">
+                    Aktifkan Email
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Nonaktifkan untuk berhenti menerima semua email
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="emailEnabled"
+                  name="emailEnabled"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="preferredLanguage" class="text-sm font-medium text-gray-700">
+                    Bahasa Preferensi
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Pilih bahasa untuk email yang Anda terima
+                  </p>
+                </div>
+                <select
+                  id="preferredLanguage"
+                  name="preferredLanguage"
+                  class="mt-1 block w-32 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                >
+                  <option value="id">Indonesia</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="frequencyPreference" class="text-sm font-medium text-gray-700">
+                    Frekuensi Email Marketing
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Seberapa sering Anda ingin menerima email marketing
+                  </p>
+                </div>
+                <select
+                  id="frequencyPreference"
+                  name="frequencyPreference"
+                  class="mt-1 block w-32 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                >
+                  <option value="immediate">Segera</option>
+                  <option value="daily">Harian</option>
+                  <option value="weekly">Mingguan</option>
+                  <option value="never">Tidak Pernah</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Transactional Emails -->
+            <div class="space-y-4 pt-6 border-t border-gray-200">
+              <h3 class="text-lg font-medium text-gray-900">Email Transaksional</h3>
+              <p class="text-sm text-gray-600">
+                Email penting terkait akun dan layanan Anda
+              </p>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="transactionalEmails" class="text-sm font-medium text-gray-700">
+                    Email Transaksional
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Konfirmasi pendaftaran, reset password, dll.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="transactionalEmails"
+                  name="transactionalEmails"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="billingNotifications" class="text-sm font-medium text-gray-700">
+                    Notifikasi Tagihan
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Invoice, pengingat pembayaran, konfirmasi
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="billingNotifications"
+                  name="billingNotifications"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="serviceNotifications" class="text-sm font-medium text-gray-700">
+                    Notifikasi Layanan
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Pembaruan layanan, maintenance, gangguan
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="serviceNotifications"
+                  name="serviceNotifications"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="appointmentReminders" class="text-sm font-medium text-gray-700">
+                    Pengingat Janji Temu
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Konfirmasi dan pengingat janji temu teknisi
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="appointmentReminders"
+                  name="appointmentReminders"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="securityNotifications" class="text-sm font-medium text-gray-700">
+                    Notifikasi Keamanan
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Peringatan keamanan dan aktivitas mencurigakan
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="securityNotifications"
+                  name="securityNotifications"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+            </div>
+
+            <!-- Marketing Emails -->
+            <div class="space-y-4 pt-6 border-t border-gray-200">
+              <h3 class="text-lg font-medium text-gray-900">Email Marketing</h3>
+              <p class="text-sm text-gray-600">
+                Email promosi dan informasi produk terbaru
+              </p>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="marketingEmails" class="text-sm font-medium text-gray-700">
+                    Email Marketing
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Penawaran khusus dan promosi
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="marketingEmails"
+                  name="marketingEmails"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="newsletterEmails" class="text-sm font-medium text-gray-700">
+                    Newsletter
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Berita dan update terbaru dari Maskom Network
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="newsletterEmails"
+                  name="newsletterEmails"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label for="promotionalEmails" class="text-sm font-medium text-gray-700">
+                    Email Promosi
+                  </label>
+                  <p class="text-sm text-gray-500">
+                    Informasi produk dan layanan baru
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  id="promotionalEmails"
+                  name="promotionalEmails"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                id="unsubscribeAll"
+                class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Berhenti Berlangganan Semua Email
+              </button>
+              
+              <div class="space-x-3">
+                <button
+                  type="button"
+                  id="cancelBtn"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Simpan Preferensi
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Status Messages -->
+      <div id="successMessage" class="hidden mt-4 bg-green-50 border border-green-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-green-800">
+              Preferensi email berhasil disimpan!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="errorMessage" class="hidden mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-red-800">
+              Terjadi kesalahan. Silakan coba lagi.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load current preferences
+    async function loadPreferences() {
+      try {
+        const token = localStorage.getItem('supabase.auth.token');
+        if (!token) {
+          window.location.href = '/signin';
+          return;
+        }
+
+        const response = await fetch('/api/email/preferences', {
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(token).access_token}`
+          }
+        });
+
+        if (response.ok) {
+          const { data } = await response.json();
+          
+          // Update form with current preferences
+          document.getElementById('emailEnabled').checked = data.emailEnabled;
+          document.getElementById('preferredLanguage').value = data.preferredLanguage;
+          document.getElementById('frequencyPreference').value = data.frequencyPreference;
+          document.getElementById('transactionalEmails').checked = data.transactionalEmails;
+          document.getElementById('marketingEmails').checked = data.marketingEmails;
+          document.getElementById('newsletterEmails').checked = data.newsletterEmails;
+          document.getElementById('billingNotifications').checked = data.billingNotifications;
+          document.getElementById('serviceNotifications').checked = data.serviceNotifications;
+          document.getElementById('appointmentReminders').checked = data.appointmentReminders;
+          document.getElementById('promotionalEmails').checked = data.promotionalEmails;
+          document.getElementById('securityNotifications').checked = data.securityNotifications;
+
+          // Disable transactional emails if email is disabled
+          toggleTransactionalEmails();
+        }
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+        showError();
+      }
+    }
+
+    // Toggle transactional emails based on main email setting
+    function toggleTransactionalEmails() {
+      const emailEnabled = document.getElementById('emailEnabled').checked;
+      const transactionalCheckboxes = [
+        'transactionalEmails',
+        'billingNotifications',
+        'serviceNotifications',
+        'appointmentReminders',
+        'securityNotifications'
+      ];
+
+      transactionalCheckboxes.forEach(id => {
+        const checkbox = document.getElementById(id);
+        checkbox.disabled = !emailEnabled;
+        if (!emailEnabled) {
+          checkbox.checked = false;
+        }
+      });
+    }
+
+    // Save preferences
+    async function savePreferences(preferences) {
+      try {
+        const token = localStorage.getItem('supabase.auth.token');
+        if (!token) {
+          window.location.href = '/signin';
+          return;
+        }
+
+        const response = await fetch('/api/email/preferences', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${JSON.parse(token).access_token}`
+          },
+          body: JSON.stringify(preferences)
+        });
+
+        if (response.ok) {
+          showSuccess();
+        } else {
+          throw new Error('Failed to save preferences');
+        }
+      } catch (error) {
+        console.error('Error saving preferences:', error);
+        showError();
+      }
+    }
+
+    // Unsubscribe from all emails
+    async function unsubscribeAll() {
+      if (!confirm('Apakah Anda yakin ingin berhenti berlangganan semua email? Anda akan tetap menerima email transaksional penting.')) {
+        return;
+      }
+
+      const preferences = {
+        emailEnabled: false,
+        transactionalEmails: false,
+        marketingEmails: false,
+        newsletterEmails: false,
+        billingNotifications: false,
+        serviceNotifications: false,
+        appointmentReminders: false,
+        promotionalEmails: false,
+        securityNotifications: false,
+        frequencyPreference: 'never',
+        preferredLanguage: 'id'
+      };
+
+      await savePreferences(preferences);
+    }
+
+    // Show/hide messages
+    function showSuccess() {
+      document.getElementById('successMessage').classList.remove('hidden');
+      document.getElementById('errorMessage').classList.add('hidden');
+      setTimeout(() => {
+        document.getElementById('successMessage').classList.add('hidden');
+      }, 5000);
+    }
+
+    function showError() {
+      document.getElementById('errorMessage').classList.remove('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+    }
+
+    // Event listeners
+    document.getElementById('emailEnabled').addEventListener('change', toggleTransactionalEmails);
+
+    document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const preferences = {
+        emailEnabled: document.getElementById('emailEnabled').checked,
+        preferredLanguage: document.getElementById('preferredLanguage').value,
+        frequencyPreference: document.getElementById('frequencyPreference').value,
+        transactionalEmails: document.getElementById('transactionalEmails').checked,
+        marketingEmails: document.getElementById('marketingEmails').checked,
+        newsletterEmails: document.getElementById('newsletterEmails').checked,
+        billingNotifications: document.getElementById('billingNotifications').checked,
+        serviceNotifications: document.getElementById('serviceNotifications').checked,
+        appointmentReminders: document.getElementById('appointmentReminders').checked,
+        promotionalEmails: document.getElementById('promotionalEmails').checked,
+        securityNotifications: document.getElementById('securityNotifications').checked,
+      };
+
+      await savePreferences(preferences);
+    });
+
+    document.getElementById('unsubscribeAll').addEventListener('click', unsubscribeAll);
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      window.history.back();
+    });
+
+    // Load preferences on page load
+    loadPreferences();
+  </script>
+</Layout>

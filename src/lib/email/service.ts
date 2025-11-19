@@ -1,21 +1,21 @@
 import { EmailQueueService } from './queue';
+import { EmailNotificationService } from './notification-service';
 import type { SendEmailOptions } from './types';
 
 export class EmailService {
   private queueService: EmailQueueService;
+  private notificationService: EmailNotificationService;
 
   constructor(supabaseUrl: string, supabaseKey: string) {
     this.queueService = new EmailQueueService(supabaseUrl, supabaseKey);
+    this.notificationService = new EmailNotificationService(supabaseUrl, supabaseKey);
   }
 
   /**
    * Send welcome email to new user
    */
-  async sendWelcomeEmail(to: string, userName: string): Promise<string> {
-    return this.queueService.sendTransactionalEmail(to, 'welcome_email', {
-      user_name: userName,
-      signup_date: new Date().toLocaleDateString(),
-    });
+  async sendWelcomeEmail(to: string, userName: string, language: 'id' | 'en' = 'id'): Promise<string> {
+    return this.notificationService.sendWelcomeEmail(to, userName, language);
   }
 
   /**
@@ -28,19 +28,10 @@ export class EmailService {
       amount: number;
       currency: string;
       productName: string;
-    }
+    },
+    language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.queueService.sendTransactionalEmail(
-      to,
-      'payment_confirmation',
-      {
-        order_id: orderData.orderId,
-        amount: orderData.amount.toLocaleString(),
-        currency: orderData.currency,
-        product_name: orderData.productName,
-        payment_date: new Date().toLocaleDateString(),
-      }
-    );
+    return this.notificationService.sendPaymentConfirmation(to, orderData, language);
   }
 
   /**
@@ -49,13 +40,10 @@ export class EmailService {
   async sendPasswordReset(
     to: string,
     resetUrl: string,
-    userName?: string
+    userName?: string,
+    language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.queueService.sendTransactionalEmail(to, 'password_reset', {
-      reset_url: resetUrl,
-      user_name: userName || 'User',
-      expiry_hours: '24',
-    });
+    return this.notificationService.sendPasswordReset(to, resetUrl, userName, language);
   }
 
   /**
@@ -248,6 +236,106 @@ View your invoice at: ${process.env.SITE_URL}/billing
    */
   async sendEmail(options: SendEmailOptions): Promise<string> {
     return this.sendCustomEmail(options);
+  }
+
+  /**
+   * Get customer email preferences
+   */
+  async getCustomerEmailPreferences(customerId: string) {
+    return this.notificationService.getCustomerEmailPreferences(customerId);
+  }
+
+  /**
+   * Update customer email preferences
+   */
+  async updateCustomerEmailPreferences(customerId: string, preferences: any) {
+    return this.notificationService.updateCustomerEmailPreferences(customerId, preferences);
+  }
+
+  /**
+   * Send appointment confirmation
+   */
+  async sendAppointmentConfirmation(
+    to: string,
+    appointmentData: {
+      appointmentId: string;
+      date: string;
+      time: string;
+      type: string;
+      technician?: string;
+      address?: string;
+    },
+    language: 'id' | 'en' = 'id'
+  ): Promise<string> {
+    return this.notificationService.sendAppointmentConfirmation(to, appointmentData, language);
+  }
+
+  /**
+   * Send installation confirmation
+   */
+  async sendInstallationConfirmation(
+    to: string,
+    installationData: {
+      installationId: string;
+      serviceAddress: string;
+      installationDate: string;
+      installationTime: string;
+      serviceName: string;
+      technician?: string;
+    },
+    language: 'id' | 'en' = 'id'
+  ): Promise<string> {
+    return this.notificationService.sendInstallationConfirmation(to, installationData, language);
+  }
+
+  /**
+   * Create marketing campaign
+   */
+  async createMarketingCampaign(
+    name: string,
+    subject: string,
+    contentHtml: string,
+    contentText?: string,
+    options?: {
+      description?: string;
+      campaignType?: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
+      targetAudience?: Record<string, any>;
+      scheduledAt?: Date;
+      createdBy?: string;
+    }
+  ): Promise<string> {
+    return this.notificationService.createMarketingCampaign(name, subject, contentHtml, contentText, options);
+  }
+
+  /**
+   * Get email analytics
+   */
+  async getEmailAnalytics(filters?: {
+    startDate?: string;
+    endDate?: string;
+    campaignId?: string;
+    customerId?: string;
+    eventType?: string;
+  }) {
+    return this.notificationService.getEmailAnalytics(filters);
+  }
+
+  /**
+   * Track email event
+   */
+  async trackEmailEvent(
+    emailId: string,
+    eventType: 'opened' | 'clicked' | 'bounced' | 'complained',
+    eventData?: Record<string, any>
+  ): Promise<void> {
+    return this.notificationService.trackEmailEvent(emailId, eventType, eventData);
+  }
+
+  /**
+   * Get notification service for advanced operations
+   */
+  getNotificationService(): EmailNotificationService {
+    return this.notificationService;
   }
 }
 

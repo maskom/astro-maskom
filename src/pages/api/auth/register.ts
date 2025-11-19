@@ -5,6 +5,7 @@ import { ErrorFactory } from '../../../lib/errors';
 import { logger } from '../../../lib/logger';
 import { validateRequest } from '../../../lib/validation';
 import { AuthSchemas } from '../../../lib/validation/schemas';
+import { emailService } from '../../../lib/email';
 
 export const prerender = false;
 export const POST: APIRoute = withApiMiddleware(
@@ -21,7 +22,7 @@ export const POST: APIRoute = withApiMiddleware(
 
       const supabase = createServerClient();
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -49,6 +50,22 @@ export const POST: APIRoute = withApiMiddleware(
         email,
         fullName,
       });
+
+      // Send welcome email
+      try {
+        await emailService.sendWelcomeEmail(email, fullName || 'Pengguna', 'id');
+        logger.info('Welcome email sent', {
+          requestId,
+          email,
+        });
+      } catch (emailError) {
+        logger.warn('Failed to send welcome email', {
+          requestId,
+          email,
+          error: emailError instanceof Error ? emailError.message : 'Unknown error',
+        });
+        // Don't fail registration if email fails
+      }
 
       return redirect('/signin');
     }

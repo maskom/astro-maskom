@@ -132,3 +132,68 @@ export interface EmailDeliveryResult {
   provider: string;
   timestamp?: Date;
 }
+
+export interface CustomerEmailPreferences {
+  customerId: string;
+  emailEnabled: boolean;
+  transactionalEmails: boolean;
+  marketingEmails: boolean;
+  newsletterEmails: boolean;
+  billingNotifications: boolean;
+  serviceNotifications: boolean;
+  appointmentReminders: boolean;
+  promotionalEmails: boolean;
+  securityNotifications: boolean;
+  frequencyPreference: 'immediate' | 'daily' | 'weekly' | 'never';
+  preferredLanguage: 'id' | 'en';
+}
+
+export interface EmailCampaign {
+  id: string;
+  name: string;
+  description?: string;
+  subject: string;
+  contentHtml: string;
+  contentText?: string;
+  campaignType: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
+  targetAudience: Record<string, any>;
+  scheduledAt?: string;
+  sentAt?: string;
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'cancelled' | 'paused';
+  totalRecipients: number;
+  sentCount: number;
+  deliveredCount: number;
+  openedCount: number;
+  clickedCount: number;
+  bouncedCount: number;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailAnalytics {
+  id: string;
+  emailId?: string;
+  campaignId?: string;
+  customerId?: string;
+  eventType: string;
+  eventData: Record<string, any>;
+  userAgent?: string;
+  ipAddress?: string;
+  timestamp: string;
+}
+
+export interface UnsubscribeRequest {
+  email: string;
+  customerId?: string;
+  reason?: string;
+  campaignId?: string;
+}
+
+export interface EmailTrackingPixel {
+  emailId: string;
+  customerId?: string;
+  campaignId?: string;
+  userAgent?: string;
+  ipAddress?: string;
+}
