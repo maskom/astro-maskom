@@ -368,7 +368,7 @@ describe('OutageNotificationService', () => {
 
       // Access private method through type assertion for testing
       const renderTemplate = (
-        notifications as {
+        notifications as unknown as {
           renderTemplate: (
             template: string,
             variables: Record<string, string>
@@ -396,7 +396,7 @@ describe('OutageNotificationService', () => {
       );
 
       const renderTemplate = (
-        notifications as {
+        notifications as unknown as {
           renderTemplate: (
             template: string,
             variables: Record<string, string>
