@@ -1,15 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Mock EmailQueueService first
+// Mock EmailQueueService and EmailNotificationService
 vi.mock('@/lib/email/queue', () => ({
   EmailQueueService: class {
-    sendTransactionalEmail = vi.fn().mockResolvedValue('mock-email-id');
-    addEmailToQueue = vi.fn().mockResolvedValue('mock-email-id');
+    sendTransactionalEmail = vi.fn().mockResolvedValue('email-id');
+    addEmailToQueue = vi.fn().mockResolvedValue('email-id');
     processQueue = vi.fn().mockResolvedValue({ processed: 0, failed: 0 });
     getQueueStats = vi
       .fn()
       .mockResolvedValue({ pending: 0, processing: 0, failed: 0 });
     getSettings = vi.fn().mockResolvedValue([]);
+  },
+}));
+
+vi.mock('@/lib/email/notification-service', () => ({
+  EmailNotificationService: class {
+    sendWelcomeEmail = vi.fn().mockResolvedValue('email-id');
+    sendPaymentConfirmation = vi.fn().mockResolvedValue('email-id');
+    sendPasswordReset = vi.fn().mockResolvedValue('email-id');
   },
 }));
 
@@ -25,8 +33,8 @@ describe('EmailService', () => {
 
   describe('sendWelcomeEmail', () => {
     it('should send welcome email', async () => {
-      const queueService = service.getQueueService();
-      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
+      const notificationService = service.getNotificationService();
+      vi.mocked(notificationService.sendWelcomeEmail).mockResolvedValue(
         'email-id'
       );
 
@@ -36,21 +44,18 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(notificationService.sendWelcomeEmail).toHaveBeenCalledWith(
         'test@example.com',
-        'welcome_email',
-        {
-          user_name: 'John Doe',
-          signup_date: expect.any(String),
-        }
+        'John Doe',
+        'id'
       );
     });
   });
 
   describe('sendPaymentConfirmation', () => {
     it('should send payment confirmation email', async () => {
-      const queueService = service.getQueueService();
-      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
+      const notificationService = service.getNotificationService();
+      vi.mocked(notificationService.sendPaymentConfirmation).mockResolvedValue(
         'email-id'
       );
 
@@ -67,24 +72,18 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(notificationService.sendPaymentConfirmation).toHaveBeenCalledWith(
         'test@example.com',
-        'payment_confirmation',
-        {
-          order_id: 'ORD-123',
-          amount: '100,000',
-          currency: 'IDR',
-          product_name: 'Internet Package',
-          payment_date: expect.any(String),
-        }
+        orderData,
+        'id'
       );
     });
   });
 
   describe('sendPasswordReset', () => {
     it('should send password reset email', async () => {
-      const queueService = service.getQueueService();
-      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
+      const notificationService = service.getNotificationService();
+      vi.mocked(notificationService.sendPasswordReset).mockResolvedValue(
         'email-id'
       );
 
@@ -95,14 +94,11 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(notificationService.sendPasswordReset).toHaveBeenCalledWith(
         'test@example.com',
-        'password_reset',
-        {
-          reset_url: 'https://example.com/reset?token=abc123',
-          user_name: 'John Doe',
-          expiry_hours: '24',
-        }
+        'https://example.com/reset?token=abc123',
+        'John Doe',
+        'id'
       );
     });
   });

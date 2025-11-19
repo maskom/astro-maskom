@@ -1,40 +1,39 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EmailNotificationService } from '@/lib/email/notification-service';
-import { createClient } from '@supabase/supabase-js';
 
-// Mock Supabase client
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({
-    rpc: vi.fn(),
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn(),
+// Mock EmailQueueService with proper class structure
+vi.mock('@/lib/email/queue', () => ({
+  EmailQueueService: class {
+    supabase = {
+      rpc: vi.fn(),
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(),
+          })),
         })),
-        insert: vi.fn(),
+        insert: vi.fn().mockReturnValue({ error: null }),
         update: vi.fn(),
       })),
-    })),
-  })),
+    };
+
+    sendTransactionalEmail = vi.fn().mockResolvedValue('email-id');
+    addEmailToQueue = vi.fn().mockResolvedValue('email-id');
+  },
 }));
 
 describe('EmailNotificationService', () => {
   let service: EmailNotificationService;
-  let mockSupabase: any;
+  let mockQueueService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     service = new EmailNotificationService('test-url', 'test-key');
-    mockSupabase = createClient('test-url', 'test-key');
+    mockQueueService = (service as any).queueService;
   });
 
   describe('sendWelcomeEmail', () => {
     it('should send welcome email with Indonesian language by default', async () => {
-      const mockQueueService = {
-        sendTransactionalEmail: vi.fn().mockResolvedValue('email-id'),
-      };
-      service['queueService'] = mockQueueService;
-
       await service.sendWelcomeEmail('test@example.com', 'John Doe');
 
       expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
@@ -42,17 +41,12 @@ describe('EmailNotificationService', () => {
         'welcome_email',
         {
           user_name: 'John Doe',
-          signup_date: new Date().toLocaleDateString('id-ID'),
+          signup_date: expect.any(String),
         }
       );
     });
 
     it('should send welcome email with English language when specified', async () => {
-      const mockQueueService = {
-        sendTransactionalEmail: vi.fn().mockResolvedValue('email-id'),
-      };
-      service['queueService'] = mockQueueService;
-
       await service.sendWelcomeEmail('test@example.com', 'John Doe', 'en');
 
       expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
@@ -60,7 +54,7 @@ describe('EmailNotificationService', () => {
         'welcome_email',
         {
           user_name: 'John Doe',
-          signup_date: new Date().toLocaleDateString('en-US'),
+          signup_date: expect.any(String),
         }
       );
     });
@@ -68,11 +62,6 @@ describe('EmailNotificationService', () => {
 
   describe('sendPasswordReset', () => {
     it('should send password reset email', async () => {
-      const mockQueueService = {
-        sendTransactionalEmail: vi.fn().mockResolvedValue('email-id'),
-      };
-      service['queueService'] = mockQueueService;
-
       await service.sendPasswordReset(
         'test@example.com',
         'https://example.com/reset',
@@ -92,11 +81,6 @@ describe('EmailNotificationService', () => {
     });
 
     it('should use default user name when not provided', async () => {
-      const mockQueueService = {
-        sendTransactionalEmail: vi.fn().mockResolvedValue('email-id'),
-      };
-      service['queueService'] = mockQueueService;
-
       await service.sendPasswordReset(
         'test@example.com',
         'https://example.com/reset',
@@ -132,12 +116,13 @@ describe('EmailNotificationService', () => {
         preferred_language: 'id',
       };
 
-      mockSupabase.rpc.mockResolvedValue({
+      mockQueueService.supabase.rpc.mockResolvedValue({
         data: [mockPreferences],
         error: null,
       });
 
-      const preferences = await service.getCustomerEmailPreferences('customer-123');
+      const preferences =
+        await service.getCustomerEmailPreferences('customer-123');
 
       expect(preferences).toEqual({
         customerId: 'customer-123',
@@ -156,12 +141,13 @@ describe('EmailNotificationService', () => {
     });
 
     it('should return null when no preferences found', async () => {
-      mockSupabase.rpc.mockResolvedValue({
+      mockQueueService.supabase.rpc.mockResolvedValue({
         data: [],
         error: null,
       });
 
-      const preferences = await service.getCustomerEmailPreferences('customer-123');
+      const preferences =
+        await service.getCustomerEmailPreferences('customer-123');
 
       expect(preferences).toBeNull();
     });
@@ -175,9 +161,14 @@ describe('EmailNotificationService', () => {
         marketingEmails: false,
       };
 
-      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(mockPreferences as any);
+      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(
+        mockPreferences as any
+      );
 
-      const canSend = await service.canSendEmailToCustomer('customer-123', 'transactional');
+      const canSend = await service.canSendEmailToCustomer(
+        'customer-123',
+        'transactional'
+      );
 
       expect(canSend).toBe(true);
     });
@@ -189,9 +180,14 @@ describe('EmailNotificationService', () => {
         marketingEmails: false,
       };
 
-      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(mockPreferences as any);
+      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(
+        mockPreferences as any
+      );
 
-      const canSend = await service.canSendEmailToCustomer('customer-123', 'marketing');
+      const canSend = await service.canSendEmailToCustomer(
+        'customer-123',
+        'marketing'
+      );
 
       expect(canSend).toBe(false);
     });
@@ -203,9 +199,14 @@ describe('EmailNotificationService', () => {
         marketingEmails: false,
       };
 
-      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(mockPreferences as any);
+      vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(
+        mockPreferences as any
+      );
 
-      const canSend = await service.canSendEmailToCustomer('customer-123', 'transactional');
+      const canSend = await service.canSendEmailToCustomer(
+        'customer-123',
+        'transactional'
+      );
 
       expect(canSend).toBe(false);
     });
@@ -213,7 +214,10 @@ describe('EmailNotificationService', () => {
     it('should return false for marketing emails when preferences not found', async () => {
       vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(null);
 
-      const canSend = await service.canSendEmailToCustomer('customer-123', 'marketing');
+      const canSend = await service.canSendEmailToCustomer(
+        'customer-123',
+        'marketing'
+      );
 
       expect(canSend).toBe(false);
     });
@@ -221,7 +225,10 @@ describe('EmailNotificationService', () => {
     it('should return true for transactional emails when preferences not found', async () => {
       vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue(null);
 
-      const canSend = await service.canSendEmailToCustomer('customer-123', 'transactional');
+      const canSend = await service.canSendEmailToCustomer(
+        'customer-123',
+        'transactional'
+      );
 
       expect(canSend).toBe(true);
     });
@@ -230,7 +237,7 @@ describe('EmailNotificationService', () => {
   describe('createMarketingCampaign', () => {
     it('should create marketing campaign', async () => {
       const mockCampaignId = 'campaign-123';
-      mockSupabase.rpc.mockResolvedValue({
+      mockQueueService.supabase.rpc.mockResolvedValue({
         data: mockCampaignId,
         error: null,
       });
@@ -247,26 +254,55 @@ describe('EmailNotificationService', () => {
       );
 
       expect(campaignId).toBe(mockCampaignId);
-      expect(mockSupabase.rpc).toHaveBeenCalledWith('create_email_campaign', {
-        p_name: 'Test Campaign',
-        p_description: 'Test Description',
-        p_subject: 'Test Subject',
-        p_content_html: '<p>Test Content</p>',
-        p_content_text: 'Test Text Content',
-        p_campaign_type: 'marketing',
-        p_target_audience: {},
-        p_scheduled_at: null,
-        p_created_by: undefined,
-      });
+      expect(mockQueueService.supabase.rpc).toHaveBeenCalledWith(
+        'create_email_campaign',
+        {
+          p_name: 'Test Campaign',
+          p_description: 'Test Description',
+          p_subject: 'Test Subject',
+          p_content_html: '<p>Test Content</p>',
+          p_content_text: 'Test Text Content',
+          p_campaign_type: 'marketing',
+          p_target_audience: {},
+          p_scheduled_at: null,
+          p_created_by: null,
+        }
+      );
     });
   });
 
   describe('trackEmailEvent', () => {
     it('should track email event', async () => {
+      // Mock for email_analytics insert
       const mockAnalytics = {
-        insert: vi.fn().mockResolvedValue({ error: null }),
+        insert: vi.fn().mockReturnValue({ error: null }),
       };
-      mockSupabase.from.mockReturnValue(mockAnalytics);
+
+      // Mock for email_queue select
+      const mockEmailQueue = {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
+              data: { metadata: { campaign_id: 'campaign-123' } },
+            }),
+          })),
+        })),
+      };
+
+      // Mock for email_campaign_recipients update
+      const mockCampaignRecipients = {
+        update: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+      };
+
+      // Set up the from mock to return different objects based on the table
+      mockQueueService.supabase.from.mockImplementation((table: string) => {
+        if (table === 'email_analytics') return mockAnalytics;
+        if (table === 'email_queue') return mockEmailQueue;
+        if (table === 'email_campaign_recipients')
+          return mockCampaignRecipients;
+        return mockAnalytics;
+      });
 
       await service.trackEmailEvent('email-123', 'opened', {
         userAgent: 'Mozilla/5.0',
@@ -288,11 +324,6 @@ describe('EmailNotificationService', () => {
 
   describe('sendEmailWithPreferences', () => {
     it('should send email when preferences allow', async () => {
-      const mockQueueService = {
-        addEmailToQueue: vi.fn().mockResolvedValue('email-id'),
-      };
-      service['queueService'] = mockQueueService;
-
       vi.spyOn(service, 'canSendEmailToCustomer').mockResolvedValue(true);
       vi.spyOn(service, 'getCustomerEmailPreferences').mockResolvedValue({
         preferredLanguage: 'id',

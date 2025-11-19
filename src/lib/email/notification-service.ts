@@ -1,10 +1,10 @@
 import { EmailQueueService } from './queue';
-import type { 
-  SendEmailOptions, 
-  EmailCampaign, 
-  CustomerEmailPreferences, 
+import type {
+  SendEmailOptions,
+  EmailCampaign,
+  CustomerEmailPreferences,
   EmailAnalytics,
-  TemplateData 
+  TemplateData,
 } from './types';
 
 export class EmailNotificationService {
@@ -17,13 +17,23 @@ export class EmailNotificationService {
   /**
    * Send welcome email to new user
    */
-  async sendWelcomeEmail(to: string, userName: string, language: 'id' | 'en' = 'id'): Promise<string> {
+  async sendWelcomeEmail(
+    to: string,
+    userName: string,
+    language: 'id' | 'en' = 'id'
+  ): Promise<string> {
     const templateData: TemplateData = {
       user_name: userName,
-      signup_date: new Date().toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US'),
+      signup_date: new Date().toLocaleDateString(
+        language === 'id' ? 'id-ID' : 'en-US'
+      ),
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'welcome_email', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'welcome_email',
+      templateData
+    );
   }
 
   /**
@@ -41,13 +51,21 @@ export class EmailNotificationService {
   ): Promise<string> {
     const templateData: TemplateData = {
       order_id: orderData.orderId,
-      amount: orderData.amount.toLocaleString(language === 'id' ? 'id-ID' : 'en-US'),
+      amount: orderData.amount.toLocaleString(
+        language === 'id' ? 'id-ID' : 'en-US'
+      ),
       currency: orderData.currency,
       product_name: orderData.productName,
-      payment_date: new Date().toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US'),
+      payment_date: new Date().toLocaleDateString(
+        language === 'id' ? 'id-ID' : 'en-US'
+      ),
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'payment_confirmation', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'payment_confirmation',
+      templateData
+    );
   }
 
   /**
@@ -65,7 +83,11 @@ export class EmailNotificationService {
       expiry_hours: '24',
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'password_reset', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'password_reset',
+      templateData
+    );
   }
 
   /**
@@ -79,17 +101,18 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const priority = severity === 'error' ? 1 : severity === 'warning' ? 3 : 5;
-    
+
     const colors = {
       error: { bg: '#fee', text: '#721c24' },
       warning: { bg: '#fff3cd', text: '#856404' },
-      info: { bg: '#d1ecf1', text: '#0c5460' }
+      info: { bg: '#d1ecf1', text: '#0c5460' },
     };
 
     const color = colors[severity];
-    const footerText = language === 'id' 
-      ? 'Ini adalah notifikasi otomatis dari Maskom Network. Jika ada pertanyaan, silakan hubungi tim support kami.'
-      : 'This is an automated notification from Maskom Network. If you have any questions, please contact our support team.';
+    const footerText =
+      language === 'id'
+        ? 'Ini adalah notifikasi otomatis dari Maskom Network. Jika ada pertanyaan, silakan hubungi tim support kami.'
+        : 'This is an automated notification from Maskom Network. If you have any questions, please contact our support team.';
 
     return this.queueService.addEmailToQueue({
       to,
@@ -125,7 +148,7 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId 
+    const subject = isId
       ? `Pengingat Pembayaran - Invoice ${invoiceData.invoiceNumber}`
       : `Billing Reminder - Invoice ${invoiceData.invoiceNumber}`;
 
@@ -138,7 +161,11 @@ export class EmailNotificationService {
       user_name: isId ? 'Pelanggan' : 'Customer',
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'billing_reminder', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'billing_reminder',
+      templateData
+    );
   }
 
   /**
@@ -157,7 +184,7 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId 
+    const subject = isId
       ? 'Konfirmasi Janji Temu Layanan'
       : 'Service Appointment Confirmation';
 
@@ -166,12 +193,18 @@ export class EmailNotificationService {
       appointment_date: appointmentData.date,
       appointment_time: appointmentData.time,
       appointment_type: appointmentData.type,
-      technician_name: appointmentData.technician || (isId ? 'Teknisi' : 'Technician'),
-      service_address: appointmentData.address || (isId ? 'Alamat Anda' : 'Your Address'),
+      technician_name:
+        appointmentData.technician || (isId ? 'Teknisi' : 'Technician'),
+      service_address:
+        appointmentData.address || (isId ? 'Alamat Anda' : 'Your Address'),
       user_name: isId ? 'Pelanggan' : 'Customer',
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'appointment_confirmation', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'appointment_confirmation',
+      templateData
+    );
   }
 
   /**
@@ -190,7 +223,7 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId 
+    const subject = isId
       ? 'Konfirmasi Instalasi Layanan'
       : 'Service Installation Confirmation';
 
@@ -200,11 +233,16 @@ export class EmailNotificationService {
       installation_date: installationData.installationDate,
       installation_time: installationData.installationTime,
       service_name: installationData.serviceName,
-      technician_name: installationData.technician || (isId ? 'Teknisi' : 'Technician'),
+      technician_name:
+        installationData.technician || (isId ? 'Teknisi' : 'Technician'),
       user_name: isId ? 'Pelanggan' : 'Customer',
     };
 
-    return this.queueService.sendTransactionalEmail(to, 'installation_confirmation', templateData);
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'installation_confirmation',
+      templateData
+    );
   }
 
   /**
@@ -217,23 +255,30 @@ export class EmailNotificationService {
     contentText?: string,
     options: {
       description?: string;
-      campaignType?: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
+      campaignType?:
+        | 'marketing'
+        | 'newsletter'
+        | 'promotional'
+        | 'announcement';
       targetAudience?: Record<string, any>;
       scheduledAt?: Date;
       createdBy?: string;
     } = {}
   ): Promise<string> {
-    const { data, error } = await this.queueService.supabase.rpc('create_email_campaign', {
-      p_name: name,
-      p_description: options.description || null,
-      p_subject: subject,
-      p_content_html: contentHtml,
-      p_content_text: contentText || null,
-      p_campaign_type: options.campaignType || 'marketing',
-      p_target_audience: options.targetAudience || {},
-      p_scheduled_at: options.scheduledAt?.toISOString() || null,
-      p_created_by: options.createdBy || null,
-    });
+    const { data, error } = await this.queueService.supabase.rpc(
+      'create_email_campaign',
+      {
+        p_name: name,
+        p_description: options.description || null,
+        p_subject: subject,
+        p_content_html: contentHtml,
+        p_content_text: contentText || null,
+        p_campaign_type: options.campaignType || 'marketing',
+        p_target_audience: options.targetAudience || {},
+        p_scheduled_at: options.scheduledAt?.toISOString() || null,
+        p_created_by: options.createdBy || null,
+      }
+    );
 
     if (error) {
       throw new Error(`Failed to create campaign: ${error.message}`);
@@ -245,10 +290,15 @@ export class EmailNotificationService {
   /**
    * Get customer email preferences
    */
-  async getCustomerEmailPreferences(customerId: string): Promise<CustomerEmailPreferences | null> {
-    const { data, error } = await this.queueService.supabase.rpc('get_customer_email_preferences', {
-      p_customer_id: customerId,
-    });
+  async getCustomerEmailPreferences(
+    customerId: string
+  ): Promise<CustomerEmailPreferences | null> {
+    const { data, error } = await this.queueService.supabase.rpc(
+      'get_customer_email_preferences',
+      {
+        p_customer_id: customerId,
+      }
+    );
 
     if (error) {
       throw new Error(`Failed to get customer preferences: ${error.message}`);
@@ -282,23 +332,28 @@ export class EmailNotificationService {
     customerId: string,
     preferences: Partial<CustomerEmailPreferences>
   ): Promise<boolean> {
-    const { error } = await this.queueService.supabase.rpc('update_customer_email_preferences', {
-      p_customer_id: customerId,
-      p_email_enabled: preferences.emailEnabled ?? true,
-      p_transactional_emails: preferences.transactionalEmails ?? true,
-      p_marketing_emails: preferences.marketingEmails ?? false,
-      p_newsletter_emails: preferences.newsletterEmails ?? false,
-      p_billing_notifications: preferences.billingNotifications ?? true,
-      p_service_notifications: preferences.serviceNotifications ?? true,
-      p_appointment_reminders: preferences.appointmentReminders ?? true,
-      p_promotional_emails: preferences.promotionalEmails ?? false,
-      p_security_notifications: preferences.securityNotifications ?? true,
-      p_frequency_preference: preferences.frequencyPreference ?? 'normal',
-      p_preferred_language: preferences.preferredLanguage ?? 'id',
-    });
+    const { error } = await this.queueService.supabase.rpc(
+      'update_customer_email_preferences',
+      {
+        p_customer_id: customerId,
+        p_email_enabled: preferences.emailEnabled ?? true,
+        p_transactional_emails: preferences.transactionalEmails ?? true,
+        p_marketing_emails: preferences.marketingEmails ?? false,
+        p_newsletter_emails: preferences.newsletterEmails ?? false,
+        p_billing_notifications: preferences.billingNotifications ?? true,
+        p_service_notifications: preferences.serviceNotifications ?? true,
+        p_appointment_reminders: preferences.appointmentReminders ?? true,
+        p_promotional_emails: preferences.promotionalEmails ?? false,
+        p_security_notifications: preferences.securityNotifications ?? true,
+        p_frequency_preference: preferences.frequencyPreference ?? 'normal',
+        p_preferred_language: preferences.preferredLanguage ?? 'id',
+      }
+    );
 
     if (error) {
-      throw new Error(`Failed to update customer preferences: ${error.message}`);
+      throw new Error(
+        `Failed to update customer preferences: ${error.message}`
+      );
     }
 
     return true;
@@ -309,12 +364,23 @@ export class EmailNotificationService {
    */
   async canSendEmailToCustomer(
     customerId: string,
-    emailType: 'transactional' | 'marketing' | 'newsletter' | 'promotional' | 'notification'
+    emailType:
+      | 'transactional'
+      | 'marketing'
+      | 'newsletter'
+      | 'promotional'
+      | 'notification'
   ): Promise<boolean> {
     try {
       const preferences = await this.getCustomerEmailPreferences(customerId);
-      
-      if (!preferences || !preferences.emailEnabled) {
+
+      // If no preferences found, only allow transactional emails
+      if (!preferences) {
+        return emailType === 'transactional';
+      }
+
+      // If email is disabled, don't send any emails
+      if (!preferences.emailEnabled) {
         return false;
       }
 
@@ -343,12 +409,17 @@ export class EmailNotificationService {
    */
   async sendEmailWithPreferences(
     customerId: string,
-    emailType: 'transactional' | 'marketing' | 'newsletter' | 'promotional' | 'notification',
+    emailType:
+      | 'transactional'
+      | 'marketing'
+      | 'newsletter'
+      | 'promotional'
+      | 'notification',
     to: string,
     options: SendEmailOptions
   ): Promise<string | null> {
     const canSend = await this.canSendEmailToCustomer(customerId, emailType);
-    
+
     if (!canSend) {
       return null;
     }
@@ -371,13 +442,15 @@ export class EmailNotificationService {
   /**
    * Get email analytics
    */
-  async getEmailAnalytics(filters: {
-    startDate?: string;
-    endDate?: string;
-    campaignId?: string;
-    customerId?: string;
-    eventType?: string;
-  } = {}): Promise<EmailAnalytics[]> {
+  async getEmailAnalytics(
+    filters: {
+      startDate?: string;
+      endDate?: string;
+      campaignId?: string;
+      customerId?: string;
+      eventType?: string;
+    } = {}
+  ): Promise<EmailAnalytics[]> {
     let query = this.queueService.supabase
       .from('email_analytics')
       .select('*')
@@ -415,7 +488,9 @@ export class EmailNotificationService {
   /**
    * Get campaign performance
    */
-  async getCampaignPerformance(campaignId: string): Promise<EmailCampaign | null> {
+  async getCampaignPerformance(
+    campaignId: string
+  ): Promise<EmailCampaign | null> {
     const { data, error } = await this.queueService.supabase
       .from('email_campaigns')
       .select('*')
@@ -476,7 +551,11 @@ export class EmailNotificationService {
   /**
    * Process email queue with preference checks
    */
-  async processQueue(): Promise<{ processed: number; failed: number; skipped: number }> {
+  async processQueue(): Promise<{
+    processed: number;
+    failed: number;
+    skipped: number;
+  }> {
     const settings = await this.queueService.getSettings();
     const batchSizeSetting = settings.find(s => s.key === 'max_batch_size');
     const batchSize =
