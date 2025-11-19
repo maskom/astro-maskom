@@ -1,4 +1,5 @@
 // Simple rate limiting utilities for Cloudflare Pages
+// Enhanced with proper TypeScript types for better type safety
 export interface RateLimitInfo {
   count: number;
   resetTime: number;
@@ -7,7 +8,7 @@ export interface RateLimitInfo {
 }
 
 // Cloudflare KV namespace type
-interface KVNamespace {
+export interface KVNamespace {
   get(key: string): Promise<string | null>;
   put(
     key: string,

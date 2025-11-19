@@ -3,6 +3,7 @@ import {
   RateLimiter,
   getRateLimitConfig,
   getClientIdentifier,
+  type KVNamespace,
 } from '../src/lib/rate-limiter';
 
 // Mock KV namespace
@@ -10,6 +11,14 @@ const mockKV = {
   get: vi.fn(),
   put: vi.fn(),
 };
+
+// Extended Request interface for Cloudflare properties
+interface MockRequest extends Request {
+  cf?: {
+    connecting_ip?: string;
+    client_ip?: string;
+  };
+}
 
 describe('RateLimiter', () => {
   beforeEach(() => {
@@ -20,7 +29,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(null);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -41,7 +50,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(false);
@@ -60,7 +69,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -69,7 +78,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace);
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -88,7 +97,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace);
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -139,43 +148,43 @@ describe('getRateLimitConfig', () => {
 
 describe('getClientIdentifier', () => {
   it('should use Cloudflare connecting IP when available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    } as unknown as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');
   });
 
   it('should use x-forwarded-for header when Cloudflare IP not available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: {},
       headers: new Headers({
         'x-forwarded-for': '10.0.0.1, 192.168.1.1',
         'user-agent': 'TestAgent/1.0',
       }),
-    } as any;
+    } as unknown as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('10.0.0.1');
   });
 
   it('should use unknown IP when no IP information available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: {},
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    } as unknown as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('unknown');
   });
 
   it('should include user agent fingerprint', () => {
-    const request = {
+    const request: MockRequest = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'Mozilla/5.0 (Test Browser)' }),
-    } as any;
+    } as unknown as MockRequest;
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');
