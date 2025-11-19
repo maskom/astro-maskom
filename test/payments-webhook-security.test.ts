@@ -23,7 +23,7 @@ describe('Payment Webhook Security', () => {
   });
 
   it('should not log sensitive payment data', async () => {
-    const sensitiveWebhookData = {
+    const webhookData = {
       event_type: 'payment.success',
       transaction_id: 'txn_123456',
       order_id: 'order_789',
@@ -44,7 +44,7 @@ describe('Payment Webhook Security', () => {
     };
 
     const mockRequest = {
-      json: vi.fn().mockResolvedValue(sensitiveWebhookData),
+      json: vi.fn().mockResolvedValue(webhookData),
     };
 
     const mockContext = {

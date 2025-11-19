@@ -5,8 +5,13 @@ import {
   getClientIdentifier,
 } from '../src/lib/rate-limiter';
 
-// Mock KV namespace
-const mockKV = {
+// Mock KV namespace interface
+interface MockKV {
+  get: ReturnType<typeof vi.fn>;
+  put: ReturnType<typeof vi.fn>;
+}
+
+const mockKV: MockKV = {
   get: vi.fn(),
   put: vi.fn(),
 };
@@ -69,7 +74,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -88,7 +93,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation

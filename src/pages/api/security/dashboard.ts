@@ -13,7 +13,11 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
-  let securityContext: any = null;
+  let securityContext: {
+    userId: string;
+    permissions: string[];
+    role: string;
+  } | null = null;
   try {
     securityContext = await SecurityMiddleware.createSecurityContext(
       request,
