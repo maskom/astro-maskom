@@ -2,7 +2,7 @@ name: oc - pr handler
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:

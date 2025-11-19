@@ -1,14 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock the environment
-global.import = {
-  meta: {
-    env: {
-      SUPABASE_URL: 'test-url',
-      SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+(globalThis as { import?: { meta: { env: Record<string, string> } } }).import =
+  {
+    meta: {
+      env: {
+        SUPABASE_URL: 'test-url',
+        SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+      },
     },
-  },
-};
+  };
 
 describe('Bandwidth Monitoring API', () => {
   beforeEach(() => {
@@ -39,7 +40,7 @@ describe('Bandwidth Monitoring API', () => {
     it('should require authentication', async () => {
       const mockRequest = {
         headers: {
-          get: () => null,
+          get: (_header: string) => null,
         },
         url: 'http://localhost/api/bandwidth/usage',
       };

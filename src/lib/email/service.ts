@@ -1,302 +1,173 @@
-import type { EmailOptions, EmailDeliveryResult, EmailProvider, EmailLog, EmailTestResult } from './types';
-import { EmailConfigManager } from './config';
-import { SupabaseEmailProvider } from './providers/supabase';
-import { SendGridEmailProvider } from './providers/sendgrid';
+import { EmailQueueService } from './queue';
+import type { SendEmailOptions } from './types';
 
 export class EmailService {
-  private static instance: EmailService;
-  private configManager: EmailConfigManager;
-  private provider: EmailProvider;
-  private logs: EmailLog[] = [];
+  private queueService: EmailQueueService;
 
-  private constructor() {
-    this.configManager = EmailConfigManager.getInstance();
-    this.provider = this.initializeProvider();
+  constructor(supabaseUrl: string, supabaseKey: string) {
+    this.queueService = new EmailQueueService(supabaseUrl, supabaseKey);
   }
 
-  public static getInstance(): EmailService {
-    if (!EmailService.instance) {
-      EmailService.instance = new EmailService();
-    }
-    return EmailService.instance;
+  /**
+   * Send welcome email to new user
+   */
+  async sendWelcomeEmail(to: string, userName: string): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'welcome_email', {
+      user_name: userName,
+      signup_date: new Date().toLocaleDateString()
+    });
   }
 
-  private initializeProvider(): EmailProvider {
-    const config = this.configManager.getConfig();
+  /**
+   * Send payment confirmation email
+   */
+  async sendPaymentConfirmation(to: string, orderData: {
+    orderId: string;
+    amount: number;
+    currency: string;
+    productName: string;
+  }): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'payment_confirmation', {
+      order_id: orderData.orderId,
+      amount: orderData.amount.toLocaleString(),
+      currency: orderData.currency,
+      product_name: orderData.productName,
+      payment_date: new Date().toLocaleDateString()
+    });
+  }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordReset(to: string, resetUrl: string, userName?: string): Promise<string> {
+    return this.queueService.sendTransactionalEmail(to, 'password_reset', {
+      reset_url: resetUrl,
+      user_name: userName || 'User',
+      expiry_hours: '24'
+    });
+  }
+
+  /**
+   * Send service status notification
+   */
+  async sendServiceNotification(to: string, subject: string, message: string, severity: 'info' | 'warning' | 'error' = 'info'): Promise<string> {
+    const priority = severity === 'error' ? 1 : severity === 'warning' ? 3 : 5;
     
-    switch (config.provider) {
-      case 'supabase':
-        return new SupabaseEmailProvider();
-      
-      case 'sendgrid':
-        if (!config.sendgrid) {
-          throw new Error('SendGrid configuration is missing');
-        }
-        return new SendGridEmailProvider(config.sendgrid);
-      
-      case 'ses':
-        throw new Error('AWS SES provider not yet implemented');
-      
-      default:
-        throw new Error(`Unsupported email provider: ${config.provider}`);
-    }
-  }
-
-  async sendEmail(options: EmailOptions): Promise<EmailDeliveryResult> {
-    const startTime = Date.now();
-    
-    try {
-      // Validate configuration
-      const validation = this.configManager.validateConfig();
-      if (!validation.valid) {
-        throw new Error(`Email configuration invalid: ${validation.errors.join(', ')}`);
-      }
-
-      // Validate email options
-      this.validateEmailOptions(options);
-
-      // Send email
-      const result = await this.provider.send(options);
-
-      // Log the attempt
-      const log: EmailLog = {
-        id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        to: Array.isArray(options.to) ? options.to.map(r => r.email).join(', ') : options.to.email,
-        subject: options.subject,
-        provider: this.provider.name,
-        status: result.success ? 'sent' : 'failed',
-        messageId: result.messageId,
-        error: result.error,
-        timestamp: new Date(),
-        metadata: {
-          responseTime: Date.now() - startTime,
-          hasHtml: !!options.html,
-          hasText: !!options.text,
-          hasAttachments: !!(options.attachments && options.attachments.length > 0),
-        },
-      };
-
-      this.addLog(log);
-
-      return result;
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      
-      // Log the failure
-      const log: EmailLog = {
-        id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        to: Array.isArray(options.to) ? options.to.map(r => r.email).join(', ') : options.to.email,
-        subject: options.subject,
-        provider: this.provider.name,
-        status: 'failed',
-        error: errorMessage,
-        timestamp: new Date(),
-        metadata: {
-          responseTime: Date.now() - startTime,
-        },
-      };
-
-      this.addLog(log);
-
-      return {
-        success: false,
-        error: errorMessage,
-        provider: this.provider.name,
-        timestamp: new Date(),
-      };
-    }
-  }
-
-  async testEmail(testEmail?: string): Promise<EmailTestResult> {
-    const startTime = Date.now();
-    const email = testEmail || 'test@example.com';
-
-    try {
-      const validation = this.configManager.validateConfig();
-      if (!validation.valid) {
-        throw new Error(`Email configuration invalid: ${validation.errors.join(', ')}`);
-      }
-
-      const testOptions: EmailOptions = {
-        to: { email },
-        subject: 'Maskom Network - Email Service Test',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">🧪 Email Service Test</h2>
-            <p>This is a test email to verify that the Maskom Network email service is working correctly.</p>
-            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
-              <h3>Test Details:</h3>
-              <ul>
-                <li><strong>Provider:</strong> ${this.provider.name}</li>
-                <li><strong>Timestamp:</strong> ${new Date().toISOString()}</li>
-                <li><strong>Test Email:</strong> ${email}</li>
-              </ul>
-            </div>
-            <p style="color: #6b7280; font-size: 14px;">
-              If you received this email, the email service is configured correctly.
-            </p>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-            <p style="color: #6b7280; font-size: 12px;">
-              This is an automated test email from Maskom Network.
+    return this.queueService.addEmailToQueue({
+      to,
+      subject: `[${severity.toUpperCase()}] ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: ${severity === 'error' ? '#fee' : severity === 'warning' ? '#fff3cd' : '#d1ecf1'}; padding: 20px; border-radius: 5px;">
+            <h2 style="color: ${severity === 'error' ? '#721c24' : severity === 'warning' ? '#856404' : '#0c5460'}; margin: 0 0 10px 0;">
+              ${subject}
+            </h2>
+            <p style="color: ${severity === 'error' ? '#721c24' : severity === 'warning' ? '#856404' : '#0c5460'}; margin: 0;">
+              ${message}
             </p>
           </div>
-        `,
-        text: `
-Email Service Test
-
-This is a test email to verify that the Maskom Network email service is working correctly.
-
-Test Details:
-- Provider: ${this.provider.name}
-- Timestamp: ${new Date().toISOString()}
-- Test Email: ${email}
-
-If you received this email, the email service is configured correctly.
-
-This is an automated test email from Maskom Network.
-        `,
-      };
-
-      const result = await this.sendEmail(testOptions);
-      const responseTime = Date.now() - startTime;
-
-      return {
-        success: result.success,
-        provider: this.provider.name,
-        testEmail: email,
-        messageId: result.messageId,
-        error: result.error,
-        responseTime,
-        timestamp: new Date(),
-      };
-
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-      return {
-        success: false,
-        provider: this.provider.name,
-        testEmail: email,
-        error: errorMessage,
-        responseTime,
-        timestamp: new Date(),
-      };
-    }
+          <div style="margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+            <p style="margin: 0; color: #6c757d; font-size: 14px;">
+              This is an automated notification from Maskom Network. If you have any questions, please contact our support team.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `${subject}\n\n${message}\n\nThis is an automated notification from Maskom Network.`,
+      priority,
+      metadata: { severity, type: 'service_notification' }
+    });
   }
 
-  async testConnection(): Promise<{ success: boolean; error?: string }> {
-    try {
-      const validation = this.configManager.validateConfig();
-      if (!validation.valid) {
-        return {
-          success: false,
-          error: `Configuration invalid: ${validation.errors.join(', ')}`,
-        };
+  /**
+   * Send billing reminder
+   */
+  async sendBillingReminder(to: string, invoiceData: {
+    invoiceNumber: string;
+    amount: number;
+    dueDate: string;
+    productName: string;
+  }): Promise<string> {
+    return this.queueService.addEmailToQueue({
+      to,
+      subject: `Billing Reminder - Invoice ${invoiceData.invoiceNumber}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Billing Reminder</h2>
+          <p>This is a friendly reminder that your invoice is due soon.</p>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin: 0 0 15px 0;">Invoice Details</h3>
+            <p><strong>Invoice Number:</strong> ${invoiceData.invoiceNumber}</p>
+            <p><strong>Amount:</strong> Rp ${invoiceData.amount.toLocaleString()}</p>
+            <p><strong>Due Date:</strong> ${invoiceData.dueDate}</p>
+            <p><strong>Service:</strong> ${invoiceData.productName}</p>
+          </div>
+          
+          <p>Please ensure payment is made by the due date to avoid service interruption.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.SITE_URL}/billing" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              View Invoice
+            </a>
+          </div>
+        </div>
+      `,
+      text: `
+Billing Reminder
+
+Invoice Number: ${invoiceData.invoiceNumber}
+Amount: Rp ${invoiceData.amount.toLocaleString()}
+Due Date: ${invoiceData.dueDate}
+Service: ${invoiceData.productName}
+
+Please ensure payment is made by the due date to avoid service interruption.
+
+View your invoice at: ${process.env.SITE_URL}/billing
+      `,
+      priority: 4,
+      metadata: { 
+        type: 'billing_reminder',
+        invoice_number: invoiceData.invoiceNumber 
       }
-
-      // Test with a simple email
-      const result = await this.testEmail();
-      
-      return {
-        success: result.success,
-        error: result.error,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      };
-    }
+    });
   }
 
-  getProviderName(): string {
-    return this.provider.name;
+  /**
+   * Send custom email
+   */
+  async sendCustomEmail(options: SendEmailOptions): Promise<string> {
+    return this.queueService.addEmailToQueue(options);
   }
 
-  getConfiguration() {
-    return this.configManager.getConfig();
+  /**
+   * Process email queue (should be called by cron job)
+   */
+  async processQueue(): Promise<{ processed: number; failed: number }> {
+    const settings = await this.queueService.getSettings();
+    const batchSizeSetting = settings.find(s => s.key === 'max_batch_size');
+    const batchSize = batchSizeSetting?.value || 10;
+
+    return this.queueService.processQueue(batchSize);
   }
 
-  validateConfiguration() {
-    return this.configManager.validateConfig();
+  /**
+   * Get queue statistics
+   */
+  async getQueueStats() {
+    return this.queueService.getQueueStats();
   }
 
-  getLogs(limit: number = 50): EmailLog[] {
-    return this.logs.slice(-limit);
-  }
-
-  clearLogs(): void {
-    this.logs = [];
-  }
-
-  private validateEmailOptions(options: EmailOptions): void {
-    if (!options.to) {
-      throw new Error('Recipient (to) is required');
-    }
-
-    if (!options.subject) {
-      throw new Error('Subject is required');
-    }
-
-    if (!options.html && !options.text) {
-      throw new Error('Either html or text content is required');
-    }
-
-    // Validate email addresses
-    const validateAddress = (address: { email: string; name?: string }) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(address.email)) {
-        throw new Error(`Invalid email address: ${address.email}`);
-      }
-    };
-
-    const recipients = Array.isArray(options.to) ? options.to : [options.to];
-    recipients.forEach(validateAddress);
-
-    if (options.cc) {
-      const ccRecipients = Array.isArray(options.cc) ? options.cc : [options.cc];
-      ccRecipients.forEach(validateAddress);
-    }
-
-    if (options.bcc) {
-      const bccRecipients = Array.isArray(options.bcc) ? options.bcc : [options.bcc];
-      bccRecipients.forEach(validateAddress);
-    }
-
-    if (options.replyTo) {
-      validateAddress(options.replyTo);
-    }
-  }
-
-  private addLog(log: EmailLog): void {
-    this.logs.push(log);
-    
-    // Keep only the last 1000 logs in memory
-    if (this.logs.length > 1000) {
-      this.logs = this.logs.slice(-1000);
-    }
-  }
-
-  // Utility method to switch providers (useful for testing)
-  switchProvider(providerName: 'supabase' | 'sendgrid'): void {
-    const config = this.configManager.getConfig();
-    
-    // Temporarily override the provider
-    switch (providerName) {
-      case 'supabase':
-        this.provider = new SupabaseEmailProvider();
-        break;
-      case 'sendgrid':
-        if (config.sendgrid) {
-          this.provider = new SendGridEmailProvider(config.sendgrid);
-        } else {
-          throw new Error('SendGrid configuration not available');
-        }
-        break;
-      default:
-        throw new Error(`Unsupported provider: ${providerName}`);
-    }
+  /**
+   * Get queue service instance for advanced operations
+   */
+  getQueueService(): EmailQueueService {
+    return this.queueService;
   }
 }
+
+// Export singleton instance
+export const emailService = new EmailService(
+  import.meta.env.SUPABASE_URL || '',
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);

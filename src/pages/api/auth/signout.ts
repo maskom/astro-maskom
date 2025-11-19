@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '../../../lib/supabase';
 import { sanitizeString } from '../../../lib/sanitization';
 
 export const prerender = false;
@@ -12,10 +12,7 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
       path: '/',
     });
 
-    const supabase = createClient(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_ANON_KEY
-    );
+    const supabase = createServerClient();
 
     const { error } = await supabase.auth.signOut();
 
@@ -29,7 +26,9 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
 
     return redirect('/signin');
   } catch (error) {
-    const sanitizedError = sanitizeString(error?.message || 'Sign out failed');
+    const errorMessage =
+      error instanceof Error ? error.message : 'Sign out failed';
+    const sanitizedError = sanitizeString(errorMessage);
     return new Response(sanitizedError, {
       status: 500,
       headers: { 'X-Content-Type-Options': 'nosniff' },

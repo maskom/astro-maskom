@@ -1,10 +1,32 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import { logger } from '../logger';
+
+/**
+ * Midtrans payment gateway implementation with centralized error logging
+ * Replaces console.error calls with structured logging for better observability
+ */
 import type {
   PaymentGatewayConfig,
   PaymentRequest,
   PaymentResponse,
   WebhookNotification,
 } from './types';
+
+// Midtrans API response interface
+interface MidtransApiResponse {
+  transaction_id?: string;
+  order_id: string;
+  status_code: string;
+  status_message: string;
+  payment_type?: string;
+  transaction_status: string;
+  fraud_status?: string;
+  redirect_url?: string;
+  token?: string;
+  approval_code?: string;
+  gross_amount: string;
+  [key: string]: string | number | boolean | undefined;
+}
 
 export class MidtransGateway {
   private config: PaymentGatewayConfig;
@@ -84,7 +106,18 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error creating Midtrans transaction:', error);
+      logger.error(
+        'Error creating Midtrans transaction',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'gateway',
+          operation: 'createTransaction',
+          orderId: paymentRequest.orderId,
+          amount: paymentRequest.amount,
+          paymentMethod: paymentRequest.paymentMethod,
+        }
+      );
       throw error;
     }
   }
@@ -107,7 +140,16 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error getting transaction status:', error);
+      logger.error(
+        'Error getting transaction status',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'gateway',
+          operation: 'getTransactionStatus',
+          orderId,
+        }
+      );
       throw error;
     }
   }
@@ -130,7 +172,16 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error cancelling transaction:', error);
+      logger.error(
+        'Error cancelling transaction',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'gateway',
+          operation: 'cancelTransaction',
+          orderId,
+        }
+      );
       throw error;
     }
   }
@@ -160,7 +211,17 @@ export class MidtransGateway {
       const data = await response.json();
       return this.transformResponse(data);
     } catch (error) {
-      console.error('Error refunding transaction:', error);
+      logger.error(
+        'Error refunding transaction',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'gateway',
+          operation: 'refundTransaction',
+          orderId,
+          amount,
+        }
+      );
       throw error;
     }
   }
@@ -196,7 +257,7 @@ export class MidtransGateway {
     ];
   }
 
-  private transformResponse(data: any): PaymentResponse {
+  private transformResponse(data: MidtransApiResponse): PaymentResponse {
     return {
       transactionId: data.transaction_id || data.order_id,
       orderId: data.order_id,
