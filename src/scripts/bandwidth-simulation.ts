@@ -1,6 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { log, generateRequestId } from '../lib/logger';
 
+// Interface for Supabase Auth User
+interface SupabaseAuthUser {
+  id: string;
+  email: string;
+  [key: string]: unknown;
+}
+
+// Interface for Supabase Auth Users Response
+interface SupabaseAuthUsersResponse {
+  users: SupabaseAuthUser[];
+}
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -74,7 +86,7 @@ async function createSampleDataCaps() {
     try {
       // Get user ID from email (this would normally come from your auth system)
       const { data: authUser } = await supabase.auth.admin.listUsers();
-      const targetUser = (authUser?.users as any[])?.find(
+      const targetUser = (authUser as SupabaseAuthUsersResponse)?.users?.find(
         u => u.email === user.email
       );
 
@@ -180,7 +192,7 @@ async function createHighUsageScenarios() {
   try {
     // Get user ID
     const { data: authUser } = await supabase.auth.admin.listUsers();
-    const targetUser = (authUser?.users as any[])?.find(
+    const targetUser = (authUser as SupabaseAuthUsersResponse)?.users?.find(
       u => u.email === highUsageUser.email
     );
 
