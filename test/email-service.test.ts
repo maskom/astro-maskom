@@ -1,18 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EmailService } from '@/lib/email/service';
-import { EmailQueueService } from '@/lib/email/queue';
 
-// Mock EmailQueueService
-const mockQueueService = {
-  sendTransactionalEmail: vi.fn(),
-  addEmailToQueue: vi.fn(),
-  processQueue: vi.fn(),
-  getQueueStats: vi.fn(),
-  getSettings: vi.fn(),
-};
-
+// Mock EmailQueueService with proper class constructor
 vi.mock('@/lib/email/queue', () => ({
-  EmailQueueService: vi.fn(() => mockQueueService),
+  EmailQueueService: class {
+    sendTransactionalEmail = vi.fn();
+    addEmailToQueue = vi.fn();
+    processQueue = vi.fn();
+    getQueueStats = vi.fn();
+    getSettings = vi.fn();
+  },
 }));
 
 describe('EmailService', () => {
@@ -25,7 +22,8 @@ describe('EmailService', () => {
 
   describe('sendWelcomeEmail', () => {
     it('should send welcome email', async () => {
-      mockQueueService.sendTransactionalEmail.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const result = await service.sendWelcomeEmail(
         'test@example.com',
@@ -33,7 +31,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
         'test@example.com',
         'welcome_email',
         {
@@ -46,7 +44,8 @@ describe('EmailService', () => {
 
   describe('sendPaymentConfirmation', () => {
     it('should send payment confirmation email', async () => {
-      mockQueueService.sendTransactionalEmail.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const orderData = {
         orderId: 'ORD-123',
@@ -61,7 +60,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
         'test@example.com',
         'payment_confirmation',
         {
@@ -77,7 +76,8 @@ describe('EmailService', () => {
 
   describe('sendPasswordReset', () => {
     it('should send password reset email', async () => {
-      mockQueueService.sendTransactionalEmail.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const result = await service.sendPasswordReset(
         'test@example.com',
@@ -86,7 +86,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.sendTransactionalEmail).toHaveBeenCalledWith(
+      expect(queueService.sendTransactionalEmail).toHaveBeenCalledWith(
         'test@example.com',
         'password_reset',
         {
@@ -100,7 +100,8 @@ describe('EmailService', () => {
 
   describe('sendServiceNotification', () => {
     it('should send service notification with error severity', async () => {
-      mockQueueService.addEmailToQueue.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -110,7 +111,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.addEmailToQueue).toHaveBeenCalledWith({
+      expect(queueService.addEmailToQueue).toHaveBeenCalledWith({
         to: 'test@example.com',
         subject: '[ERROR] Service Outage',
         html: expect.stringContaining('Service Outage'),
@@ -121,7 +122,8 @@ describe('EmailService', () => {
     });
 
     it('should send service notification with info severity', async () => {
-      mockQueueService.addEmailToQueue.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -131,7 +133,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.addEmailToQueue).toHaveBeenCalledWith({
+      expect(queueService.addEmailToQueue).toHaveBeenCalledWith({
         to: 'test@example.com',
         subject: '[INFO] Maintenance Notice',
         html: expect.stringContaining('Maintenance Notice'),
@@ -144,7 +146,8 @@ describe('EmailService', () => {
 
   describe('sendBillingReminder', () => {
     it('should send billing reminder email', async () => {
-      mockQueueService.addEmailToQueue.mockResolvedValue('email-id');
+      const queueService = service.getQueueService();
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const invoiceData = {
         invoiceNumber: 'INV-123',
@@ -159,7 +162,7 @@ describe('EmailService', () => {
       );
 
       expect(result).toBe('email-id');
-      expect(mockQueueService.addEmailToQueue).toHaveBeenCalledWith({
+      expect(queueService.addEmailToQueue).toHaveBeenCalledWith({
         to: 'test@example.com',
         subject: 'Billing Reminder - Invoice INV-123',
         html: expect.stringContaining('INV-123'),
@@ -175,10 +178,11 @@ describe('EmailService', () => {
 
   describe('processQueue', () => {
     it('should process queue with custom batch size', async () => {
-      mockQueueService.getSettings.mockResolvedValue([
+      const queueService = service.getQueueService();
+      queueService.getSettings.mockResolvedValue([
         { key: 'max_batch_size', value: 20 },
       ]);
-      mockQueueService.processQueue.mockResolvedValue({
+      queueService.processQueue.mockResolvedValue({
         processed: 15,
         failed: 2,
       });
@@ -186,14 +190,16 @@ describe('EmailService', () => {
       const result = await service.processQueue();
 
       expect(result).toEqual({ processed: 15, failed: 2 });
-      expect(mockQueueService.processQueue).toHaveBeenCalledWith(20);
+      expect(queueService.processQueue).toHaveBeenCalledWith(20);
     });
   });
 
   describe('getQueueService', () => {
     it('should return queue service instance', () => {
       const queueService = service.getQueueService();
-      expect(queueService).toBe(mockQueueService);
+      expect(queueService).toBeDefined();
+      expect(typeof queueService.sendTransactionalEmail).toBe('function');
+      expect(typeof queueService.addEmailToQueue).toBe('function');
     });
   });
 });
