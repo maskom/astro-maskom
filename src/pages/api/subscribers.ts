@@ -7,8 +7,6 @@ import {
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export const prerender = false;
 
 // GET endpoint to fetch subscribers
@@ -123,9 +121,7 @@ export const POST: APIRoute = async ({ request }) => {
       confirmed: false, // Would be set to true after email confirmation
     };
 
-    const { data: insertedSubscriber, error: insertError } = await (
-      supabase as any
-    )
+    const { data: insertedSubscriber, error: insertError } = await supabase
       .from('subscribers')
       .insert(newSubscriber)
       .select()

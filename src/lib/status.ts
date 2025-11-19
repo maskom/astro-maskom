@@ -56,7 +56,8 @@ export const getStatusData = async (): Promise<StatusData> => {
     if (servicesError) throw servicesError;
 
     // Fetch active incidents
-    const { data: incidents, error: incidentsError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: incidents, error: incidentsError } = await (supabase as any)
       .from('incidents')
       .select('*')
       .in('status', ['investigating', 'identified', 'monitoring'])
