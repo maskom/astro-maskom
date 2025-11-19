@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EmailService } from '@/lib/email/service';
 
-// Mock EmailQueueService with proper class constructor
+// Mock EmailQueueService first
 vi.mock('@/lib/email/queue', () => ({
   EmailQueueService: class {
     sendTransactionalEmail = vi.fn();
@@ -11,6 +10,8 @@ vi.mock('@/lib/email/queue', () => ({
     getSettings = vi.fn();
   },
 }));
+
+import { EmailService } from '@/lib/email/service';
 
 describe('EmailService', () => {
   let service: EmailService;

@@ -37,7 +37,14 @@ export interface EmailTemplate {
 export interface EmailDeliveryLog {
   id: string;
   email_id: string;
-  event_type: 'queued' | 'sent' | 'delivered' | 'bounced' | 'complained' | 'rejected' | 'failed';
+  event_type:
+    | 'queued'
+    | 'sent'
+    | 'delivered'
+    | 'bounced'
+    | 'complained'
+    | 'rejected'
+    | 'failed';
   provider?: string;
   provider_message_id?: string;
   response_code?: string;
@@ -72,4 +79,45 @@ export interface SendEmailOptions {
   templateData?: Record<string, any>;
   priority?: number;
   metadata?: Record<string, any>;
+}
+
+export interface EmailConfig {
+  provider: 'supabase' | 'sendgrid' | 'ses';
+  supabase?: {
+    enabled: boolean;
+  };
+  sendgrid?: {
+    apiKey: string;
+    fromEmail: string;
+    fromName: string;
+  };
+  ses?: {
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    fromEmail: string;
+    fromName: string;
+  };
+}
+
+export type EmailProvider = 'supabase' | 'sendgrid' | 'ses';
+
+export interface EmailOptions extends SendEmailOptions {
+  cc?: string | string[] | Array<{ email: string; name?: string }>;
+  bcc?: string | string[] | Array<{ email: string; name?: string }>;
+  replyTo?: { email: string; name?: string };
+  attachments?: Array<{
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+  }>;
+  headers?: Record<string, string>;
+}
+
+export interface EmailDeliveryResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+  provider: string;
+  timestamp?: Date;
 }
