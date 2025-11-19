@@ -291,7 +291,11 @@ const { preferences } = Astro.props;
         throw new Error('Failed to save preferences');
       }
     } catch (error) {
-      console.error('Error saving notification preferences:', error);
+      console.error('Error saving notification preferences:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'saveNotificationPreferences',
+      });
       
       // Show error message
       document.getElementById('error-message')?.classList.remove('hidden');

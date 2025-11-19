@@ -47,7 +47,11 @@ if (user.data.user) {
       usageHistory = history || [];
     }
   } catch (error) {
-    console.error('Error fetching service data:', error);
+    console.error('Error fetching service data:', {
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+      action: 'fetchServiceData',
+    });
   }
 }
 
