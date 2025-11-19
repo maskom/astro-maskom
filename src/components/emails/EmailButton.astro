@@ -1,0 +1,57 @@
+---
+// Button component for emails
+export interface ButtonProps {
+  href: string;
+  text: string;
+  color?: 'primary' | 'secondary' | 'success' | 'danger';
+  fullWidth?: boolean;
+}
+
+const { href, text, color = 'primary', fullWidth = false } = Astro.props;
+
+const colorStyles = {
+  primary: 'background-color: #3B82F6;',
+  secondary: 'background-color: #6B7280;',
+  success: 'background-color: #10B981;',
+  danger: 'background-color: #EF4444;'
+};
+
+const hoverStyles = {
+  primary: '#2563EB',
+  secondary: '#4B5563',
+  success: '#059669',
+  danger: '#DC2626'
+};
+---
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="center" style="padding: 20px 0;">
+      <table border="0" cellpadding="0" cellspacing="0" class="mobile-full">
+        <tr>
+          <td align="center" style="border-radius: 6px; {colorStyles[color]}">
+            <a 
+              href={href} 
+              target="_blank" 
+              style="
+                display: inline-block;
+                padding: 12px 24px;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 16px;
+                line-height: 1;
+                {fullWidth ? 'width: 100%; display: block;' : ''}
+              "
+              onmouseover="this.style.backgroundColor='{hoverStyles[color]}'"
+              onmouseout="this.style.backgroundColor='{colorStyles[color].replace('background-color: ', '').replace(';',')}'"
+            >
+              {text}
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
