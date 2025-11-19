@@ -206,7 +206,7 @@ View your invoice at: ${process.env.SITE_URL}/billing
   /**
    * Get configuration
    */
-  getConfiguration(): Record<string, any> {
+  getConfiguration(): Record<string, string | number | boolean> {
     return {
       provider: 'supabase',
       queueEnabled: true,

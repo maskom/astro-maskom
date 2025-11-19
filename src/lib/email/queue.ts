@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type {
   EmailQueueItem,
   EmailTemplate,
@@ -6,10 +6,11 @@ import type {
   EmailQueueSettings,
   QueueStats,
   SendEmailOptions,
+  TemplateData,
 } from './types';
 
 export class EmailQueueService {
-  private supabase: any;
+  private supabase: SupabaseClient;
 
   constructor(supabaseUrl?: string, supabaseKey?: string) {
     this.supabase = createClient(
@@ -190,7 +191,7 @@ export class EmailQueueService {
   ): Promise<string> {
     const { data, error } = await this.supabase
       .from('email_templates')
-      .insert(template as any)
+      .insert(template)
       .select('id')
       .single();
 
@@ -211,7 +212,7 @@ export class EmailQueueService {
   ): Promise<void> {
     const { error } = await this.supabase
       .from('email_templates')
-      .update(updates as any)
+      .update(updates)
       .eq('id', id);
 
     if (error) {
@@ -255,12 +256,15 @@ export class EmailQueueService {
   /**
    * Update queue setting
    */
-  async updateSetting(key: string, value: any): Promise<void> {
+  async updateSetting(
+    key: string,
+    value: string | number | boolean | null
+  ): Promise<void> {
     const { error } = await this.supabase.from('email_queue_settings').upsert({
       key,
       value,
       updated_at: new Date().toISOString(),
-    } as any);
+    });
 
     if (error) {
       throw new Error(`Failed to update setting: ${error.message}`);
@@ -273,7 +277,7 @@ export class EmailQueueService {
   async cancelEmail(emailId: string): Promise<void> {
     const { error } = await this.supabase
       .from('email_queue')
-      .update({ status: 'cancelled' } as any)
+      .update({ status: 'cancelled' })
       .eq('id', emailId)
       .in('status', ['pending', 'retry']);
 
@@ -292,7 +296,7 @@ export class EmailQueueService {
         status: 'pending',
         next_retry_at: new Date().toISOString(),
         error_message: null,
-      } as any)
+      })
       .eq('id', emailId)
       .eq('status', 'failed');
 
@@ -326,7 +330,7 @@ export class EmailQueueService {
   /**
    * Render template with data
    */
-  renderTemplate(template: string, data: Record<string, any>): string {
+  renderTemplate(template: string, data: TemplateData): string {
     return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
       return data[key] !== undefined ? String(data[key]) : match;
     });
@@ -338,7 +342,7 @@ export class EmailQueueService {
   async sendTransactionalEmail(
     to: string,
     templateName: string,
-    data: Record<string, any>,
+    data: TemplateData,
     options: Partial<SendEmailOptions> = {}
   ): Promise<string> {
     const template = await this.getTemplateByName(templateName);
