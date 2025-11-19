@@ -5,10 +5,11 @@ export * from './types';
 
 import { supabase } from '../supabase';
 import type { PaymentGatewayConfig } from './types';
+import { PaymentManager } from './manager';
 
-let paymentManager: ReturnType<typeof PaymentManager> | null = null;
+let paymentManager: PaymentManager | null = null;
 
-export function getPaymentManager(): ReturnType<typeof PaymentManager> {
+export function getPaymentManager(): PaymentManager {
   if (!paymentManager) {
     const config: PaymentGatewayConfig = {
       serverKey: import.meta.env.MIDTRANS_SERVER_KEY || '',
@@ -23,6 +24,9 @@ export function getPaymentManager(): ReturnType<typeof PaymentManager> {
       throw new Error('Midtrans credentials are not configured');
     }
 
+    if (!supabase) {
+      throw new Error('Supabase client is not available');
+    }
     paymentManager = new PaymentManager(supabase, config);
   }
 

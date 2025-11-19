@@ -1,16 +1,19 @@
 import { MidtransGateway } from './gateway';
 import { PaymentService } from './service';
+import { logger } from '../logger';
 import type {
   PaymentGatewayConfig,
   PaymentRequest,
-  PaymentResponse,
+  PaymentTransaction,
+  WebhookNotification,
 } from './types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export class PaymentManager {
   private gateway: MidtransGateway;
   private service: PaymentService;
 
-  constructor(supabaseClient: any, config: PaymentGatewayConfig) {
+  constructor(supabaseClient: SupabaseClient, config: PaymentGatewayConfig) {
     this.gateway = new MidtransGateway(config);
     this.service = new PaymentService(supabaseClient);
   }
@@ -39,7 +42,7 @@ export class PaymentManager {
         transaction.id,
         this.mapMidtransStatus(paymentResponse.transactionStatus),
         {
-          gatewayResponse: paymentResponse,
+          gatewayResponse: JSON.stringify(paymentResponse),
           paymentType: paymentResponse.paymentType,
         }
       );
@@ -49,12 +52,19 @@ export class PaymentManager {
         paymentResponse,
       };
     } catch (error) {
-      console.error('Error processing payment:', error);
+      logger.error('Error processing payment', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'processPayment',
+        userId,
+        orderId: paymentRequest.orderId,
+        amount: paymentRequest.amount,
+      });
       throw error;
     }
   }
 
-  async handleWebhook(notification: any) {
+  async handleWebhook(notification: WebhookNotification) {
     try {
       const isValid = this.gateway.verifyWebhookSignature(notification);
       if (!isValid) {
@@ -71,7 +81,7 @@ export class PaymentManager {
       const newStatus = this.mapMidtransStatus(notification.transaction_status);
 
       await this.service.updateTransactionStatus(transaction.id, newStatus, {
-        webhookNotification: notification,
+        webhookNotification: JSON.stringify(notification),
         fraudStatus: notification.fraud_status,
       });
 
@@ -81,7 +91,13 @@ export class PaymentManager {
 
       return { success: true, transactionId: transaction.id };
     } catch (error) {
-      console.error('Error handling webhook:', error);
+      logger.error('Error handling webhook', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'handleWebhook',
+        orderId: notification.order_id,
+        transactionStatus: notification.transaction_status,
+      });
       throw error;
     }
   }
@@ -140,7 +156,7 @@ export class PaymentManager {
             transaction.id,
             newStatus,
             {
-              gatewayResponse: paymentResponse,
+              gatewayResponse: JSON.stringify(paymentResponse),
             }
           );
         }
@@ -148,7 +164,12 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error getting transaction status:', error);
+      logger.error('Error getting transaction status', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'getTransactionStatus',
+        orderId,
+      });
       throw error;
     }
   }
@@ -163,14 +184,19 @@ export class PaymentManager {
           transaction.id,
           'cancelled',
           {
-            gatewayResponse: paymentResponse,
+            gatewayResponse: JSON.stringify(paymentResponse),
           }
         );
       }
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error cancelling payment:', error);
+      logger.error('Error cancelling payment', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'cancelPayment',
+        orderId,
+      });
       throw error;
     }
   }
@@ -185,14 +211,20 @@ export class PaymentManager {
 
       if (transaction) {
         await this.service.updateTransactionStatus(transaction.id, 'refund', {
-          gatewayResponse: paymentResponse,
+          gatewayResponse: JSON.stringify(paymentResponse),
           refundAmount: amount,
         });
       }
 
       return paymentResponse;
     } catch (error) {
-      console.error('Error refunding payment:', error);
+      logger.error('Error refunding payment', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'refundPayment',
+        orderId,
+        amount,
+      });
       throw error;
     }
   }
@@ -203,6 +235,10 @@ export class PaymentManager {
 
   async getUserInvoices(userId: string, limit = 20, offset = 0) {
     return this.service.getInvoicesByUserId(userId, limit, offset);
+  }
+
+  async getInvoiceById(invoiceId: string) {
+    return this.service.getInvoiceById(invoiceId);
   }
 
   getClientConfig() {
@@ -252,7 +288,14 @@ export class PaymentManager {
         ],
       });
     } catch (error) {
-      console.error('Error generating invoice:', error);
+      logger.error('Error generating invoice', error instanceof Error ? error : new Error(String(error)), {
+        module: 'payments',
+        submodule: 'manager',
+        operation: 'generateInvoiceForTransaction',
+        transactionId: transaction.id,
+        userId: transaction.userId,
+        amount: transaction.amount,
+      });
     }
   }
 

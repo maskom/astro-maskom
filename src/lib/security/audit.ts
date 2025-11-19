@@ -1,12 +1,17 @@
 import type {
   SecurityAuditLog,
   SecurityEvent,
+  AuditDetails,
+  EventMetadata,
+} from './types';
+import {
   SecurityAction,
   SecurityEventType,
   SecuritySeverity,
   RiskLevel,
 } from './types';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 
 export class SecurityAuditLogger {
   private supabase = createClient(
@@ -21,7 +26,7 @@ export class SecurityAuditLogger {
     ipAddress: string,
     userAgent: string,
     success: boolean,
-    details?: Record<string, any>
+    details?: AuditDetails
   ): Promise<void> {
     const riskLevel = this.calculateRiskLevel(action, success, details);
 
@@ -42,7 +47,7 @@ export class SecurityAuditLogger {
         .insert(auditLog);
 
       if (error) {
-        console.error('Failed to log security action:', error);
+        logger.error('Failed to log security action', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'logSecurityAction', userId, action, resource, ipAddress });
       }
 
       // Create security event for high-risk actions
@@ -57,7 +62,7 @@ export class SecurityAuditLogger {
         );
       }
     } catch (error) {
-      console.error('Security audit logging error:', error);
+      logger.error('Security audit logging error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'logSecurityAction', userId, action, resource, ipAddress });
     }
   }
 
@@ -91,7 +96,7 @@ export class SecurityAuditLogger {
         timestamp: new Date(),
       });
     } catch (error) {
-      console.error('Failed login logging error:', error);
+      logger.error('Failed login logging error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'logFailedLogin', email, ipAddress, reason });
     }
   }
 
@@ -101,7 +106,7 @@ export class SecurityAuditLogger {
     userId?: string,
     ipAddress?: string,
     description?: string,
-    metadata?: Record<string, any>
+    metadata?: EventMetadata
   ): Promise<void> {
     const securityEvent: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'> =
       {
@@ -119,7 +124,7 @@ export class SecurityAuditLogger {
         .insert(securityEvent);
 
       if (error) {
-        console.error('Failed to create security event:', error);
+        logger.error('Failed to create security event', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'createSecurityEvent', type, severity, userId, ipAddress });
       }
 
       // For critical events, trigger immediate alerts
@@ -127,7 +132,7 @@ export class SecurityAuditLogger {
         await this.triggerSecurityAlert(securityEvent);
       }
     } catch (error) {
-      console.error('Security event creation error:', error);
+      logger.error('Security event creation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'createSecurityEvent', type, severity, userId, ipAddress });
     }
   }
 
@@ -154,13 +159,13 @@ export class SecurityAuditLogger {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Failed to fetch security events:', error);
+        logger.error('Failed to fetch security events', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getSecurityEvents', userId, severity, limit });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Security events fetch error:', error);
+      logger.error('Security events fetch error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getSecurityEvents', userId, severity, limit });
       return [];
     }
   }
@@ -188,13 +193,13 @@ export class SecurityAuditLogger {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Failed to fetch audit logs:', error);
+        logger.error('Failed to fetch audit logs', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getAuditLogs', userId, action, limit });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Audit logs fetch error:', error);
+      logger.error('Audit logs fetch error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getAuditLogs', userId, action, limit });
       return [];
     }
   }
@@ -202,7 +207,7 @@ export class SecurityAuditLogger {
   private calculateRiskLevel(
     action: SecurityAction,
     success: boolean,
-    details?: Record<string, any>
+    _details?: AuditDetails
   ): RiskLevel {
     if (!success) {
       return RiskLevel.MEDIUM;
@@ -248,13 +253,13 @@ export class SecurityAuditLogger {
         .gte('timestamp', since.toISOString());
 
       if (error) {
-        console.error('Failed to get recent failed logins:', error);
+        logger.error('Failed to get recent failed logins', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getRecentFailedLogins', ipAddress, minutes });
         return 0;
       }
 
       return count || 0;
     } catch (error) {
-      console.error('Recent failed logins error:', error);
+      logger.error('Recent failed logins error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'getRecentFailedLogins', ipAddress, minutes });
       return 0;
     }
   }
@@ -263,7 +268,10 @@ export class SecurityAuditLogger {
     event: Omit<SecurityEvent, 'id' | 'timestamp' | 'resolved'>
   ): Promise<void> {
     // In a real implementation, this would send notifications via email, Slack, etc.
-    console.error('🚨 CRITICAL SECURITY ALERT:', {
+    logger.error('🚨 CRITICAL SECURITY ALERT', new Error(`Critical security event: ${event.type}`), {
+      module: 'security',
+      submodule: 'audit',
+      operation: 'triggerSecurityAlert',
       type: event.type,
       severity: event.severity,
       user_id: event.user_id,
@@ -280,7 +288,7 @@ export class SecurityAuditLogger {
         acknowledged: false,
       });
     } catch (error) {
-      console.error('Failed to store security alert:', error);
+      logger.error('Failed to store security alert', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'audit', operation: 'triggerSecurityAlert', type: event.type, severity: event.severity, userId: event.user_id });
     }
   }
 }

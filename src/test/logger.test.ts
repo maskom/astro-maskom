@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Logger, LogLevel } from '../lib/logger';
+import type { LogEntry, LogContext } from '../lib/logger';
 
 describe('Logger', () => {
   it('should create logger with default log level', () => {
@@ -108,5 +109,162 @@ describe('Logger', () => {
 
     // Restore original env
     process.env.LOG_LEVEL = originalEnv;
+  });
+
+  it('should sanitize sensitive data in context', () => {
+    const testLogger = new Logger();
+    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+    const sensitiveContext = {
+      username: 'john',
+      password: 'secret123',
+      token: 'abc123xyz',
+      apiKey: 'def456',
+      authHeader: 'Bearer token123',
+      cookie: 'session=abc123',
+      normalField: 'visible',
+    };
+
+    testLogger.info('Test message', sensitiveContext);
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"password":"[REDACTED]"')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"token":"[REDACTED]"')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"authHeader":"[REDACTED]"')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"cookie":"[REDACTED]"')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"normalField":"visible"')
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should format structured log correctly', () => {
+    const testLogger = new Logger();
+
+    // Access private method through type assertion for testing
+    const loggerInstance = testLogger as unknown as {
+      formatStructuredLog: (entry: LogEntry) => object;
+    };
+    const mockEntry: LogEntry = {
+      level: LogLevel.INFO,
+      message: 'Test message',
+      timestamp: '2025-11-17T12:35:00.000Z',
+      context: { userId: '123' },
+    };
+
+    const structuredLog = loggerInstance.formatStructuredLog(mockEntry);
+
+    expect(structuredLog).toHaveProperty(
+      'timestamp',
+      '2025-11-17T12:35:00.000Z'
+    );
+    expect(structuredLog).toHaveProperty('level', 'info');
+    expect(structuredLog).toHaveProperty('message', 'Test message');
+    expect(structuredLog).toHaveProperty('context');
+    expect(structuredLog).toHaveProperty('service', 'maskom-website');
+    expect((structuredLog as { error?: unknown }).error).toBeUndefined();
+  });
+
+  it('should handle both import.meta.env and process.env for log level', () => {
+    const originalEnv = process.env.LOG_LEVEL;
+
+    // Test with process.env
+    process.env.LOG_LEVEL = 'warn';
+    const testLogger1 = new Logger();
+
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    testLogger1.debug('Should not log');
+    testLogger1.warn('Should log');
+
+    expect(debugSpy).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+
+    debugSpy.mockRestore();
+    warnSpy.mockRestore();
+
+    // Restore
+    process.env.LOG_LEVEL = originalEnv;
+  });
+
+  it('should format structured log with error correctly', () => {
+    const testLogger = new Logger();
+
+    // Access private method through type assertion for testing
+    const loggerInstance = testLogger as unknown as {
+      formatStructuredLog: (entry: LogEntry) => object;
+    };
+    const mockEntry: LogEntry = {
+      level: LogLevel.ERROR,
+      message: 'Test error message',
+      timestamp: '2025-11-17T12:35:00.000Z',
+      context: { userId: '123' },
+      error: {
+        name: 'Error',
+        message: 'Test error',
+        stack: 'Error: Test error\n    at test',
+      },
+    };
+
+    const structuredLog = loggerInstance.formatStructuredLog(mockEntry);
+
+    expect(structuredLog).toHaveProperty(
+      'timestamp',
+      '2025-11-17T12:35:00.000Z'
+    );
+    expect(structuredLog).toHaveProperty('level', 'error');
+    expect(structuredLog).toHaveProperty('message', 'Test error message');
+    expect(structuredLog).toHaveProperty('context');
+    expect(structuredLog).toHaveProperty('service', 'maskom-website');
+    expect(
+      (structuredLog as { error: { name: string; message: string } }).error
+    ).toHaveProperty('name', 'Error');
+    expect(
+      (structuredLog as { error: { name: string; message: string } }).error
+    ).toHaveProperty('message', 'Test error');
+    expect(
+      (
+        structuredLog as {
+          error: { name: string; message: string; stack?: string };
+        }
+      ).error
+    ).not.toHaveProperty('stack');
+  });
+
+  it('should sanitize context with sensitive data', () => {
+    const testLogger = new Logger();
+
+    // Access private method through type assertion for testing
+    const loggerInstance = testLogger as unknown as {
+      sanitizeContext: (context?: LogContext) => LogContext | undefined;
+    };
+    const sensitiveContext: LogContext = {
+      username: 'john',
+      password: 'secret123',
+      token: 'abc123xyz',
+      secretKey: 'def456',
+      authHeader: 'Bearer token123',
+      cookie: 'session=abc123',
+      normalField: 'visible',
+    };
+
+    const sanitized = loggerInstance.sanitizeContext(sensitiveContext);
+
+    expect(sanitized?.password).toBe('[REDACTED]');
+    expect(sanitized?.token).toBe('[REDACTED]');
+    expect(sanitized?.secretKey).toBe('[REDACTED]');
+    expect(sanitized?.authHeader).toBe('[REDACTED]');
+    expect(sanitized?.cookie).toBe('[REDACTED]');
+    expect(sanitized?.username).toBe('john');
+    expect(sanitized?.normalField).toBe('visible');
   });
 });

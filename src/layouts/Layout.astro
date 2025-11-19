@@ -105,7 +105,7 @@ const ogImageMeta = image.endsWith('.svg')
   </head>
   <body
     class="m-0 min-h-screen relative font-sans"
-    style={`background-color: ${bgColor}`}
+    style={`background-color: ${bgColor}; --bg-color: ${bgColor}; --primary-ball-color: ${primaryBallColor || '#4F46E5'}; --secondary-ball-color: ${secondaryBallColor || '#10B981'}; --grid-color: ${gridColor || '#1F2937'}; --diagonal-color: ${diagonalColor || '#374151'}; --vignette-color: ${vignetteColor || '#000000'}`}
   >
     <Background
       primaryBallColor={primaryBallColor}

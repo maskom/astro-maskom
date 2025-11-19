@@ -433,7 +433,13 @@ const paymentMethods = await paymentManager.getPaymentMethods();
           throw new Error(result.error || 'Payment processing failed');
         }
       } catch (error) {
-        console.error('Payment error:', error);
+        console.error('Payment error:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'processPayment',
+          amount,
+          paymentMethod,
+        });
         alert('Payment processing failed: ' + error.message);
         loadingOverlay.classList.add('hidden');
         payButton.disabled = false;

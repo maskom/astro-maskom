@@ -1,12 +1,20 @@
 import { getPaymentManager } from '../../../lib/payments';
+import { logger } from '../../../lib/logger';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
 
-    // Log the webhook for debugging
-    console.log('Midtrans webhook received:', JSON.stringify(body, null, 2));
+    // Log only safe webhook metadata
+    logger.info('Payment webhook received', {
+      eventType: body.event_type || body.event,
+      transactionId: body.transaction_id || body.order_id,
+      timestamp: new Date().toISOString(),
+      paymentType: body.payment_type,
+      statusCode: body.status_code,
+      // Never log full payment details, amounts, or customer data
+    });
 
     // Verify webhook signature
     const paymentManager = getPaymentManager();
@@ -23,7 +31,10 @@ export const POST: APIRoute = async ({ request }) => {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (webhookError) {
-      console.error('Webhook processing error:', webhookError);
+      logger.error('Webhook processing error', webhookError instanceof Error ? webhookError : new Error(String(webhookError)), {
+        eventType: body.event_type || body.event,
+        transactionId: body.transaction_id || body.order_id,
+      });
 
       return new Response(
         JSON.stringify({
@@ -37,7 +48,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
   } catch (error) {
-    console.error('Webhook handler error:', error);
+    logger.error('Webhook handler error', error instanceof Error ? error : new Error(String(error)), {
+      endpoint: '/api/payments/webhook',
+    });
     return new Response(
       JSON.stringify({
         success: false,

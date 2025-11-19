@@ -1,5 +1,6 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { SessionSecurity } from './types';
 
 export class SessionManager {
@@ -35,13 +36,13 @@ export class SessionManager {
         .insert(session);
 
       if (error) {
-        console.error('Failed to create session:', error);
+        logger.error('Failed to create session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'createSession', userId, ipAddress });
         return null;
       }
 
       return sessionId;
     } catch (error) {
-      console.error('Session creation error:', error);
+      logger.error('Session creation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'createSession', userId, ipAddress });
       return null;
     }
   }
@@ -76,7 +77,7 @@ export class SessionManager {
 
       return session as SessionSecurity;
     } catch (error) {
-      console.error('Session validation error:', error);
+      logger.error('Session validation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'validateSession', sessionId, ipAddress });
       return null;
     }
   }
@@ -92,13 +93,13 @@ export class SessionManager {
         .eq('session_id', sessionId);
 
       if (error) {
-        console.error('Failed to invalidate session:', error);
+        logger.error('Failed to invalidate session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateSession', sessionId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Session invalidation error:', error);
+      logger.error('Session invalidation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateSession', sessionId });
       return false;
     }
   }
@@ -124,13 +125,13 @@ export class SessionManager {
       const { error } = await query;
 
       if (error) {
-        console.error('Failed to invalidate user sessions:', error);
+        logger.error('Failed to invalidate user sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateAllUserSessions', userId, exceptSessionId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('User sessions invalidation error:', error);
+      logger.error('User sessions invalidation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateAllUserSessions', userId, exceptSessionId });
       return false;
     }
   }
@@ -153,13 +154,13 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to extend session:', error);
+        logger.error('Failed to extend session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'extendSession', sessionId, additionalMinutes });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Session extension error:', error);
+      logger.error('Session extension error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'extendSession', sessionId, additionalMinutes });
       return false;
     }
   }
@@ -176,13 +177,13 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to verify MFA for session:', error);
+        logger.error('Failed to verify MFA for session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'verifyMFAForSession', sessionId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('MFA session verification error:', error);
+      logger.error('MFA session verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'verifyMFAForSession', sessionId });
       return false;
     }
   }
@@ -198,13 +199,13 @@ export class SessionManager {
         .order('last_activity', { ascending: false });
 
       if (error) {
-        console.error('Failed to get user sessions:', error);
+        logger.error('Failed to get user sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'getUserActiveSessions', userId });
         return [];
       }
 
       return sessions as SessionSecurity[];
     } catch (error) {
-      console.error('Get user sessions error:', error);
+      logger.error('Get user sessions error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'getUserActiveSessions', userId });
       return [];
     }
   }
@@ -218,13 +219,13 @@ export class SessionManager {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Failed to cleanup expired sessions:', error);
+        logger.error('Failed to cleanup expired sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'cleanupExpiredSessions' });
         return 0;
       }
 
       return count || 0;
     } catch (error) {
-      console.error('Session cleanup error:', error);
+      logger.error('Session cleanup error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'cleanupExpiredSessions' });
       return 0;
     }
   }
@@ -256,7 +257,7 @@ export class SessionManager {
 
       return [...new Set(suspiciousSessions)];
     } catch (error) {
-      console.error('Suspicious session detection error:', error);
+      logger.error('Suspicious session detection error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'detectSuspiciousSessions', userId });
       return [];
     }
   }
@@ -271,7 +272,7 @@ export class SessionManager {
         })
         .eq('session_id', sessionId);
     } catch (error) {
-      console.error('Session activity update error:', error);
+      logger.error('Session activity update error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'updateSessionActivity', sessionId });
     }
   }
 
@@ -302,7 +303,7 @@ export class SessionManager {
 
         return session.mfa_verified;
       } catch (error) {
-        console.error('MFA verification check error:', error);
+        logger.error('MFA verification check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'requireMFAVerification', sessionId });
         return false;
       }
     };

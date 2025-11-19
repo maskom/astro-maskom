@@ -9,12 +9,25 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://maskom.co.id/',
   output: 'server',
-  adapter: cloudflare({
-    mode: 'advanced',
-  }),
+  adapter: cloudflare(),
   integrations: [icon(), sitemap()],
   vite: {
+    // @ts-ignore - Vite plugin type compatibility issue
     plugins: [tailwindcss()],
+    ssr: {
+      external: ['node:crypto'],
+    },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // Suppress empty chunk warnings for Astro components
+          if (warning.code === 'EMPTY_BUNDLE') {
+            return;
+          }
+          warn(warning);
+        },
+      },
+    },
   },
 
   build: {

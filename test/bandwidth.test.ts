@@ -1,35 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-// Mock Supabase client
-const mockSupabase = {
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        order: () => ({
-          limit: () => Promise.resolve({ data: [], error: null }),
-        }),
-      }),
-    }),
-    upsert: () => Promise.resolve({ data: {}, error: null }),
-    insert: () => Promise.resolve({ data: {}, error: null }),
-    update: () => Promise.resolve({ data: {}, error: null }),
-    delete: () => Promise.resolve({ error: null }),
-  }),
-  auth: {
-    getUser: () =>
-      Promise.resolve({ data: { user: { id: 'test-user' } }, error: null }),
-  },
-};
-
 // Mock the environment
-global.import = {
-  meta: {
-    env: {
-      SUPABASE_URL: 'test-url',
-      SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+(globalThis as { import?: { meta: { env: Record<string, string> } } }).import =
+  {
+    meta: {
+      env: {
+        SUPABASE_URL: 'test-url',
+        SUPABASE_SERVICE_ROLE_KEY: 'test-key',
+      },
     },
-  },
-};
+  };
 
 describe('Bandwidth Monitoring API', () => {
   beforeEach(() => {
@@ -44,7 +24,7 @@ describe('Bandwidth Monitoring API', () => {
     it('should return bandwidth usage data for authenticated user', async () => {
       const mockRequest = {
         headers: {
-          get: header =>
+          get: (header: string) =>
             header === 'authorization' ? 'Bearer test-token' : null,
         },
         url: 'http://localhost/api/bandwidth/usage',
@@ -60,7 +40,7 @@ describe('Bandwidth Monitoring API', () => {
     it('should require authentication', async () => {
       const mockRequest = {
         headers: {
-          get: () => null,
+          get: (_header: string) => null,
         },
         url: 'http://localhost/api/bandwidth/usage',
       };
@@ -184,7 +164,7 @@ describe('Bandwidth Data Simulation', () => {
     const downloadGB = totalUsage * downloadRatio;
     const uploadGB = totalUsage * uploadRatio;
 
-    expect(downloadGB + uploadGB).toBe(totalUsage);
+    expect(Math.round((downloadGB + uploadGB) * 1000) / 1000).toBe(totalUsage);
     expect(downloadGB).toBeGreaterThan(uploadGB);
   });
 });

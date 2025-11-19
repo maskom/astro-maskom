@@ -1,12 +1,28 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServiceClient } from '../../../../lib/supabase';
+import { log, generateRequestId } from '../../../../lib/logger';
 
-const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Interface for data cap statistics
+interface DataCapStats {
+  monthly_cap_gb: number;
+  current_usage_gb: number;
+}
+
+// Interface for data cap with usage info
+interface DataCapWithUsage {
+  monthly_cap_gb: number;
+  current_usage_gb: number;
+}
 
 export const GET: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-admin-monitoring',
+    method: 'GET',
+    url: request.url,
+  });
+
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -17,6 +33,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,
@@ -36,7 +53,8 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -52,18 +70,13 @@ export const GET: APIRoute = async ({ request }) => {
     // Get all data caps with user information
     let query = supabase
       .from('data_caps')
-      .select(
-        `
-        *,
-        user:auth.users(email, raw_user_meta_data)
-      `
-      )
+      .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (search) {
-      query = query.ilike('user.email', `%${search}%`);
+      query = query.ilike('user_id', `%${search}%`);
     }
 
     const { data: dataCaps, error: capsError } = await query;
@@ -103,28 +116,27 @@ export const GET: APIRoute = async ({ request }) => {
 
     const totalUsers = stats?.length || 0;
     const totalCapacityGB =
-      stats?.reduce((sum, cap) => sum + cap.monthly_cap_gb, 0) || 0;
+      stats?.reduce((sum, cap: DataCapStats) => sum + cap.monthly_cap_gb, 0) ||
+      0;
     const totalUsageGB =
-      stats?.reduce((sum, cap) => sum + cap.current_usage_gb, 0) || 0;
+      stats?.reduce(
+        (sum, cap: DataCapStats) => sum + cap.current_usage_gb,
+        0
+      ) || 0;
     const averageUsagePercentage =
       totalCapacityGB > 0 ? (totalUsageGB / totalCapacityGB) * 100 : 0;
 
     // Get users with high usage (>90% of cap)
     const highUsageUsers =
       dataCaps?.filter(
-        cap => (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
+        (cap: DataCapWithUsage) =>
+          (cap.current_usage_gb / cap.monthly_cap_gb) * 100 > 90
       ) || [];
 
     // Get recent notifications
     const { data: recentNotifications, error: notifError } = await supabase
       .from('usage_notifications')
-      .select(
-        `
-        *,
-        user:auth.users(email),
-        data_cap:data_caps(package_id, monthly_cap_gb)
-      `
-      )
+      .select('*')
       .order('sent_at', { ascending: false })
       .limit(20);
 
@@ -163,7 +175,14 @@ export const GET: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Admin monitoring API error:', error);
+    apiLogger.error(
+      'Admin monitoring API error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'GET',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -172,6 +191,14 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const requestId = generateRequestId();
+  const apiLogger = log.child({
+    requestId,
+    module: 'bandwidth-admin-monitoring',
+    method: 'POST',
+    url: request.url,
+  });
+
   try {
     const body = await request.json();
     const { userId, package_id, monthly_cap_gb, billing_cycle_start } = body;
@@ -197,6 +224,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7);
+    const supabase = createServiceClient();
     const {
       data: { user },
       error,
@@ -216,7 +244,8 @@ export const POST: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((profile as any)?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -224,7 +253,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create or update data cap for user
-    const { data, error: upsertError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error: upsertError } = await (supabase as any)
       .from('data_caps')
       .upsert({
         user_id: userId,
@@ -256,7 +286,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Admin monitoring POST error:', error);
+    apiLogger.error(
+      'Admin monitoring POST error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        method: 'POST',
+        url: request.url,
+      }
+    );
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

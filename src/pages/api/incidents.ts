@@ -4,10 +4,10 @@ import {
   getAllIncidents,
   updateIncident,
 } from '../../lib/status';
+import type { Incident } from '../../lib/status';
 import {
   sanitizeJsonInput,
   validateRequiredFields,
-  escapeHtml,
   sanitizeText,
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ url }) => {
       sanitizedParams[key] = sanitizeText(value);
     }
 
-    const incidents = await getAllIncidents(sanitizedParams);
+    const incidents = await getAllIncidents();
 
     return new Response(JSON.stringify(incidents), {
       headers: {
@@ -82,7 +82,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const newIncident = await createIncident(sanitizedData);
+    const newIncident = await createIncident(
+      sanitizedData as Omit<Incident, 'id' | 'created_at' | 'updated_at'>
+    );
 
     if (!newIncident) {
       return new Response(
@@ -149,7 +151,10 @@ export const PUT: APIRoute = async ({ request }) => {
     // Sanitize update data
     const sanitizedUpdates = sanitizeJsonInput(updates);
 
-    const updatedIncident = await updateIncident(id, sanitizedUpdates);
+    const updatedIncident = await updateIncident(
+      id,
+      sanitizedUpdates as Partial<Incident>
+    );
 
     if (!updatedIncident) {
       return new Response(

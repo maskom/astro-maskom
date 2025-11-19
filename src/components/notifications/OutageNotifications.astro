@@ -1,0 +1,384 @@
+---
+import type { OutageNotification } from '../../lib/notifications/outage-service';
+
+interface OutageNotificationsProps {
+  notifications: OutageNotifications[];
+  unreadCount: number;
+}
+
+const { notifications, unreadCount } = Astro.props;
+
+// Format date for display
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  } else if (diffHours > 0) {
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  } else {
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    return diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago` : 'Just now';
+  }
+}
+
+// Get notification icon based on severity
+function getNotificationIcon(severity: string): string {
+  switch (severity) {
+    case 'critical':
+      return '🔴';
+    case 'high':
+      return '🟠';
+    case 'medium':
+      return '🟡';
+    case 'low':
+      return '🔵';
+    default:
+      return '⚪';
+  }
+}
+
+// Get notification channel icon
+function getChannelIcon(channel: string): string {
+  switch (channel) {
+    case 'email':
+      return '📧';
+    case 'sms':
+      return '📱';
+    case 'in_app':
+      return '🔔';
+    case 'push':
+      return '📲';
+    default:
+      return '📢';
+  }
+}
+---
+
+<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold text-gray-800">
+      Outage Notifications
+      {
+        unreadCount > 0 && (
+          <span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+            {unreadCount} new
+          </span>
+        )
+      }
+    </h2>
+    <div class="flex space-x-2">
+      <button
+        class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        onclick="markAllNotificationsAsRead()"
+      >
+        Mark all read
+      </button>
+      <button
+        class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        onclick="refreshNotifications()"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  {
+    notifications.length > 0 ? (
+      <div class="space-y-3">
+        {notifications.map(notification => (
+          <div
+            class={`p-4 rounded-lg border transition-all ${
+              notification.status === 'delivered'
+                ? 'bg-gray-50 border-gray-200'
+                : 'bg-blue-50 border-blue-200'
+            }`}
+            data-notification-id={notification.id}
+          >
+            <div class="flex items-start">
+              <div class="text-2xl mr-3">
+                {getNotificationIcon(notification.outage_events?.severity || 'medium')}
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                      <span class="text-sm font-medium text-gray-900">
+                        {notification.outage_events?.title || 'Service Outage'}
+                      </span>
+                      <span class="text-xs px-2 py-1 rounded bg-gray-100">
+                        {getChannelIcon(notification.notification_type)} {notification.notification_type}
+                      </span>
+                      <span class={`text-xs px-2 py-1 rounded ${
+                        notification.outage_events?.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                        notification.outage_events?.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                        notification.outage_events?.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {notification.outage_events?.severity || 'medium'}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-2">
+                      {notification.message_content}
+                    </p>
+                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                      <span>
+                        {formatDate(notification.created_at)}
+                      </span>
+                      {notification.sent_at && (
+                        <span>
+                          Sent: {formatDate(notification.sent_at)}
+                        </span>
+                      )}
+                      {notification.status === 'failed' && (
+                        <span class="text-red-600">
+                          Failed to deliver
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-4">
+                    {notification.status !== 'delivered' && (
+                      <button
+                        class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                        onclick="markNotificationAsRead('{notification.id}')"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                    <button
+                      class="text-xs text-red-600 hover:text-red-800 transition-colors"
+                      onclick="deleteNotification('{notification.id}')"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-8 text-gray-500">
+        <svg
+          class="w-12 h-12 mx-auto mb-3 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <p>No outage notifications</p>
+        <p class="text-sm mt-1">
+          You'll receive notifications here when service outages occur
+        </p>
+      </div>
+    )
+  }
+
+  <!-- Loading indicator -->
+  <div id="loading-indicator" class="hidden text-center py-4">
+    <div class="inline-flex items-center">
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-sm text-gray-600">Loading notifications...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let isLoading = false;
+
+  // Mark notification as read
+  async function markNotificationAsRead(notificationId) {
+    try {
+      const response = await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+        },
+        body: JSON.stringify({
+          notificationIds: [notificationId],
+          markAsRead: true,
+        }),
+      });
+
+      if (response.ok) {
+        const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (element) {
+          element.classList.remove('bg-blue-50', 'border-blue-200');
+          element.classList.add('bg-gray-50', 'border-gray-200');
+
+          // Remove the "Mark read" button
+          const markReadBtn = element.querySelector('button[onclick*="markNotificationAsRead"]');
+          if (markReadBtn) {
+            markReadBtn.remove();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markNotificationAsRead',
+        notificationId,
+      });
+    }
+  }
+
+  // Mark all notifications as read
+  async function markAllNotificationsAsRead() {
+    if (isLoading) return;
+    
+    try {
+      const notificationElements = document.querySelectorAll('[data-notification-id]');
+      const notificationIds = Array.from(notificationElements)
+        .map(el => el.getAttribute('data-notification-id'))
+        .filter(Boolean);
+
+      if (notificationIds.length === 0) return;
+
+      isLoading = true;
+      showLoading(true);
+
+      const response = await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+        },
+        body: JSON.stringify({
+          notificationIds,
+          markAsRead: true,
+        }),
+      });
+
+      if (response.ok) {
+        notificationElements.forEach(element => {
+          element.classList.remove('bg-blue-50', 'border-blue-200');
+          element.classList.add('bg-gray-50', 'border-gray-200');
+
+          // Remove all "Mark read" buttons
+          const markReadBtn = element.querySelector('button[onclick*="markNotificationAsRead"]');
+          if (markReadBtn) {
+            markReadBtn.remove();
+          }
+        });
+
+        // Update unread count badge
+        const badge = document.querySelector('.bg-red-500.text-white.text-xs.rounded-full');
+        if (badge) {
+          badge.textContent = '0';
+          badge.classList.add('hidden');
+        }
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markAllNotificationsAsRead',
+      });
+    } finally {
+      isLoading = false;
+      showLoading(false);
+    }
+  }
+
+  // Delete notification
+  async function deleteNotification(notificationId) {
+    try {
+      const response = await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+        },
+        body: JSON.stringify({
+          notificationIds: [notificationId],
+        }),
+      });
+
+      if (response.ok) {
+        const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
+        if (element) {
+          element.classList.add('opacity-0', 'translate-x-full');
+          setTimeout(() => element.remove(), 300);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'deleteNotification',
+        notificationId,
+      });
+    }
+  }
+
+  // Refresh notifications
+  async function refreshNotifications() {
+    if (isLoading) return;
+    
+    try {
+      isLoading = true;
+      showLoading(true);
+
+      const response = await fetch('/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // In a real implementation, you would update the DOM with the new data
+        // For now, we'll just reload the page
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error refreshing notifications:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'refreshNotifications',
+      });
+    } finally {
+      isLoading = false;
+      showLoading(false);
+    }
+  }
+
+  // Show/hide loading indicator
+  function showLoading(show) {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+      loadingIndicator.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Auto-refresh notifications every 2 minutes
+  setInterval(() => {
+    if (!isLoading && document.visibilityState === 'visible') {
+      refreshNotifications();
+    }
+  }, 120000);
+
+  // Listen for visibility changes to pause/resume auto-refresh
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      refreshNotifications();
+    }
+  });
+</script>
