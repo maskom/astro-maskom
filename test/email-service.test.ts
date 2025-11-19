@@ -26,7 +26,7 @@ describe('EmailService', () => {
   describe('sendWelcomeEmail', () => {
     it('should send welcome email', async () => {
       const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
+      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
         'email-id'
       );
 
@@ -50,7 +50,7 @@ describe('EmailService', () => {
   describe('sendPaymentConfirmation', () => {
     it('should send payment confirmation email', async () => {
       const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
+      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
         'email-id'
       );
 
@@ -84,7 +84,7 @@ describe('EmailService', () => {
   describe('sendPasswordReset', () => {
     it('should send password reset email', async () => {
       const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
+      vi.mocked(queueService.sendTransactionalEmail).mockResolvedValue(
         'email-id'
       );
 
@@ -110,7 +110,7 @@ describe('EmailService', () => {
   describe('sendServiceNotification', () => {
     it('should send service notification with error severity', async () => {
       const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      vi.mocked(queueService.addEmailToQueue).mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -132,7 +132,7 @@ describe('EmailService', () => {
 
     it('should send service notification with info severity', async () => {
       const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      vi.mocked(queueService.addEmailToQueue).mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -156,7 +156,7 @@ describe('EmailService', () => {
   describe('sendBillingReminder', () => {
     it('should send billing reminder email', async () => {
       const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      vi.mocked(queueService.addEmailToQueue).mockResolvedValue('email-id');
 
       const invoiceData = {
         invoiceNumber: 'INV-123',
@@ -188,10 +188,14 @@ describe('EmailService', () => {
   describe('processQueue', () => {
     it('should process queue with custom batch size', async () => {
       const queueService = service.getQueueService();
-      (queueService.getSettings as any).mockResolvedValue([
-        { key: 'max_batch_size', value: 20 },
+      vi.mocked(queueService.getSettings).mockResolvedValue([
+        {
+          key: 'max_batch_size',
+          value: 20,
+          updated_at: new Date().toISOString(),
+        },
       ]);
-      (queueService.processQueue as any).mockResolvedValue({
+      vi.mocked(queueService.processQueue).mockResolvedValue({
         processed: 15,
         failed: 2,
       });
