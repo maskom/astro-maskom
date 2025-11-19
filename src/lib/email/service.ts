@@ -14,45 +14,61 @@ export class EmailService {
   async sendWelcomeEmail(to: string, userName: string): Promise<string> {
     return this.queueService.sendTransactionalEmail(to, 'welcome_email', {
       user_name: userName,
-      signup_date: new Date().toLocaleDateString()
+      signup_date: new Date().toLocaleDateString(),
     });
   }
 
   /**
    * Send payment confirmation email
    */
-  async sendPaymentConfirmation(to: string, orderData: {
-    orderId: string;
-    amount: number;
-    currency: string;
-    productName: string;
-  }): Promise<string> {
-    return this.queueService.sendTransactionalEmail(to, 'payment_confirmation', {
-      order_id: orderData.orderId,
-      amount: orderData.amount.toLocaleString(),
-      currency: orderData.currency,
-      product_name: orderData.productName,
-      payment_date: new Date().toLocaleDateString()
-    });
+  async sendPaymentConfirmation(
+    to: string,
+    orderData: {
+      orderId: string;
+      amount: number;
+      currency: string;
+      productName: string;
+    }
+  ): Promise<string> {
+    return this.queueService.sendTransactionalEmail(
+      to,
+      'payment_confirmation',
+      {
+        order_id: orderData.orderId,
+        amount: orderData.amount.toLocaleString(),
+        currency: orderData.currency,
+        product_name: orderData.productName,
+        payment_date: new Date().toLocaleDateString(),
+      }
+    );
   }
 
   /**
    * Send password reset email
    */
-  async sendPasswordReset(to: string, resetUrl: string, userName?: string): Promise<string> {
+  async sendPasswordReset(
+    to: string,
+    resetUrl: string,
+    userName?: string
+  ): Promise<string> {
     return this.queueService.sendTransactionalEmail(to, 'password_reset', {
       reset_url: resetUrl,
       user_name: userName || 'User',
-      expiry_hours: '24'
+      expiry_hours: '24',
     });
   }
 
   /**
    * Send service status notification
    */
-  async sendServiceNotification(to: string, subject: string, message: string, severity: 'info' | 'warning' | 'error' = 'info'): Promise<string> {
+  async sendServiceNotification(
+    to: string,
+    subject: string,
+    message: string,
+    severity: 'info' | 'warning' | 'error' = 'info'
+  ): Promise<string> {
     const priority = severity === 'error' ? 1 : severity === 'warning' ? 3 : 5;
-    
+
     return this.queueService.addEmailToQueue({
       to,
       subject: `[${severity.toUpperCase()}] ${subject}`,
@@ -75,19 +91,22 @@ export class EmailService {
       `,
       text: `${subject}\n\n${message}\n\nThis is an automated notification from Maskom Network.`,
       priority,
-      metadata: { severity, type: 'service_notification' }
+      metadata: { severity, type: 'service_notification' },
     });
   }
 
   /**
    * Send billing reminder
    */
-  async sendBillingReminder(to: string, invoiceData: {
-    invoiceNumber: string;
-    amount: number;
-    dueDate: string;
-    productName: string;
-  }): Promise<string> {
+  async sendBillingReminder(
+    to: string,
+    invoiceData: {
+      invoiceNumber: string;
+      amount: number;
+      dueDate: string;
+      productName: string;
+    }
+  ): Promise<string> {
     return this.queueService.addEmailToQueue({
       to,
       subject: `Billing Reminder - Invoice ${invoiceData.invoiceNumber}`,
@@ -126,10 +145,10 @@ Please ensure payment is made by the due date to avoid service interruption.
 View your invoice at: ${process.env.SITE_URL}/billing
       `,
       priority: 4,
-      metadata: { 
+      metadata: {
         type: 'billing_reminder',
-        invoice_number: invoiceData.invoiceNumber 
-      }
+        invoice_number: invoiceData.invoiceNumber,
+      },
     });
   }
 
@@ -163,6 +182,71 @@ View your invoice at: ${process.env.SITE_URL}/billing
    */
   getQueueService(): EmailQueueService {
     return this.queueService;
+  }
+
+  /**
+   * Test email service connection
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      await this.queueService.getSettings();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Get provider name
+   */
+  getProviderName(): string {
+    return 'supabase';
+  }
+
+  /**
+   * Get configuration
+   */
+  getConfiguration(): Record<string, any> {
+    return {
+      provider: 'supabase',
+      queueEnabled: true,
+    };
+  }
+
+  /**
+   * Validate configuration
+   */
+  async validateConfiguration(): Promise<{ valid: boolean; errors: string[] }> {
+    try {
+      await this.testConnection();
+      return { valid: true, errors: [] };
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
+      };
+    }
+  }
+
+  /**
+   * Send test email
+   */
+  async testEmail(to: string): Promise<string> {
+    return this.queueService.addEmailToQueue({
+      to,
+      subject: 'Test Email from Maskom Network',
+      html: '<p>This is a test email from the Maskom Network email service.</p>',
+      text: 'This is a test email from the Maskom Network email service.',
+      priority: 5,
+      metadata: { type: 'test_email' },
+    });
+  }
+
+  /**
+   * Send email (alias for sendCustomEmail)
+   */
+  async sendEmail(options: SendEmailOptions): Promise<string> {
+    return this.sendCustomEmail(options);
   }
 }
 

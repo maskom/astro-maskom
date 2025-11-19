@@ -1,10 +1,6 @@
-import type {
-  EmailProvider,
-  EmailOptions,
-  EmailDeliveryResult,
-} from '../types';
+import type { EmailOptions, EmailDeliveryResult } from '../types';
 
-export class SendGridEmailProvider implements EmailProvider {
+export class SendGridEmailProvider {
   public readonly name = 'sendgrid';
   private apiKey: string;
   private fromEmail: string;
@@ -52,8 +48,8 @@ export class SendGridEmailProvider implements EmailProvider {
           },
         ],
         from: {
-          email: options.from?.email || this.fromEmail,
-          name: options.from?.name || this.fromName,
+          email: this.fromEmail,
+          name: this.fromName,
         },
         reply_to: options.replyTo
           ? {
@@ -118,7 +114,7 @@ export class SendGridEmailProvider implements EmailProvider {
   async testConnection(): Promise<{ success: boolean; error?: string }> {
     try {
       const testOptions: EmailOptions = {
-        to: { email: 'test@example.com' },
+        to: 'test@example.com',
         subject: 'Test Email',
         text: 'This is a test email to verify the SendGrid provider is working.',
       };
@@ -139,12 +135,11 @@ export class SendGridEmailProvider implements EmailProvider {
   }
 
   private formatRecipients(
-    recipients: Array<{ email: string; name?: string }>
+    recipients: Array<string | { email: string; name?: string }>
   ) {
-    return recipients.map(recipient => ({
-      email: recipient.email,
-      name: recipient.name,
-    }));
+    return recipients.map(recipient =>
+      typeof recipient === 'string' ? { email: recipient } : recipient
+    );
   }
 
   private validateEmail(email: string): boolean {

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import type { EmailProvider, EmailOptions, EmailDeliveryResult } from './types';
+import type { EmailOptions, EmailDeliveryResult } from '../types';
 
-export class SupabaseEmailProvider implements EmailProvider {
+export class SupabaseEmailProvider {
   public readonly name = 'supabase';
   private supabase: ReturnType<typeof createClient>;
 
@@ -46,17 +46,23 @@ export class SupabaseEmailProvider implements EmailProvider {
         throw new Error('Valid recipient email address is required');
       }
 
-      // Use Supabase Auth's email functionality
-      // Note: Supabase Auth email is primarily for auth emails, but we can use it for basic transactional emails
-      const { data, error } = await this.supabase.auth.admin.invokeAction(
-        'send_email',
-        {
-          to: toEmails[0], // Supabase Auth email typically sends to one recipient at a time
+      // Use Supabase Database to store email for queue processing
+      // Note: This stores the email in the database for later processing by the email queue
+      const { data, error } = await (this.supabase as any)
+        .from('email_queue')
+        .insert({
+          to_email: toEmails[0],
           subject: options.subject,
-          html: options.html,
-          text: options.text,
-        }
-      );
+          content_html: options.html,
+          content_text: options.text,
+          status: 'pending',
+          priority: options.priority || 5,
+          template_data: options.templateData || {},
+          metadata: options.metadata || {},
+          created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Supabase email error: ${error.message}`);
@@ -66,7 +72,6 @@ export class SupabaseEmailProvider implements EmailProvider {
         success: true,
         messageId: data?.id || `supabase_${Date.now()}`,
         provider: this.name,
-        timestamp: new Date(),
       };
     } catch (error) {
       const errorMessage =
@@ -76,7 +81,6 @@ export class SupabaseEmailProvider implements EmailProvider {
         success: false,
         error: errorMessage,
         provider: this.name,
-        timestamp: new Date(),
       };
     }
   }
@@ -84,7 +88,7 @@ export class SupabaseEmailProvider implements EmailProvider {
   async testConnection(): Promise<{ success: boolean; error?: string }> {
     try {
       const testOptions: EmailOptions = {
-        to: { email: 'test@example.com' },
+        to: 'test@example.com',
         subject: 'Test Email',
         text: 'This is a test email to verify the Supabase email provider is working.',
       };

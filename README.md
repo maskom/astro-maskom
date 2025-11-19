@@ -65,29 +65,18 @@ npm run verify:setup  # Periksa konfigurasi development
 npm run typecheck     # Verifikasi kompilasi TypeScript
 npm run lint          # Periksa kode linting
 ```
+
 npm run dev
-```
+
+````
 
 Server pengembangan akan berjalan di `http://localhost:4321`
 
-<<<<<<< HEAD
-### Pemecahan Masalah
-
-Jika mengalami masalah dengan TypeScript atau build:
-
-```bash
-npm run verify:setup  # Periksa konfigurasi development
-npm run typecheck     # Verifikasi kompilasi TypeScript
-npm run lint          # Periksa kode linting
-```
-
-=======
->>>>>>> origin/main
 ## Build untuk Produksi
 
 ```bash
 npm run build
-```
+````
 
 File hasil build akan tersedia di direktori `dist/`
 
