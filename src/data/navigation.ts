@@ -38,4 +38,10 @@ export const frameworks: Framework[] = [
     path: '/dukungan',
     color: '#61DAFB',
   },
+  {
+    name: 'kb',
+    displayName: 'Knowledge Base',
+    path: '/kb',
+    color: '#8B5CF6',
+  },
 ];

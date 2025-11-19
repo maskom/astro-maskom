@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { landingPackages } from '../data/packages';
+import { getLandingPackages } from '../data/packages';
+
+const landingPackages = getLandingPackages();
 ---
 
 <Layout title="Maskom Indonesia - Paket Layanan">

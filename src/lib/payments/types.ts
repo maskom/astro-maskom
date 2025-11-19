@@ -6,6 +6,17 @@ export interface PaymentMethod {
   isActive: boolean;
 }
 
+export interface PaymentTransactionMetadata {
+  gatewayResponse?: string;
+  paymentMethodToken?: string;
+  installmentTerm?: number;
+  promoCode?: string;
+  discountAmount?: number;
+  refundReason?: string;
+  failureReason?: string;
+  [key: string]: string | number | boolean | undefined;
+}
+
 export interface PaymentTransaction {
   id: string;
   orderId: string;
@@ -16,7 +27,7 @@ export interface PaymentTransaction {
   paymentMethod: PaymentMethod;
   createdAt: Date;
   updatedAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: PaymentTransactionMetadata;
 }
 
 export interface Invoice {

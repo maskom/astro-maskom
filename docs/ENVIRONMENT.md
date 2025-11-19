@@ -306,6 +306,73 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Verify deployment health
+npm run deploy:verify
+```
+
+## 🔍 Health Check Endpoint
+
+The application includes a comprehensive health check endpoint at `/api/health` that monitors:
+
+- **Application Status**: Overall health and uptime
+- **Supabase Connectivity**: Database connection and latency
+- **Cloudflare Services**: Active features and status
+- **Response Times**: Performance metrics
+
+### Usage
+
+```bash
+# Check health locally
+curl http://localhost:4321/api/health
+
+# Check production health
+curl https://astro-maskom.pages.dev/api/health
+```
+
+### Response Format
+
+```json
+{
+  "status": "healthy|degraded",
+  "timestamp": "2025-11-17T16:32:04.854Z",
+  "uptime": 3600,
+  "environment": "production",
+  "version": "0.0.1",
+  "responseTime": 45,
+  "services": {
+    "supabase": {
+      "status": "healthy|error|skipped",
+      "latency": 23,
+      "error": null
+    },
+    "cloudflare": {
+      "status": "active",
+      "features": ["pages", "kv", "functions"]
+    }
+  }
+}
+```
+
+### Status Codes
+
+- **200**: Application is healthy
+- **503**: Application is degraded (e.g., missing environment variables)
+
+### Monitoring Integration
+
+The health endpoint can be integrated with monitoring tools:
+
+```bash
+# Simple monitoring script
+#!/bin/bash
+response=$(curl -s -o /dev/null -w "%{http_code}" https://astro-maskom.pages.dev/api/health)
+if [ $response -eq 200 ] || [ $response -eq 503 ]; then
+  echo "✅ Application is accessible"
+else
+  echo "❌ Application is down"
+  exit 1
+fi
 ```
 
 ## 📚 Additional Resources

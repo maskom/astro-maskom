@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
+import { outageNotificationService } from './notifications/outage-service';
+import type { Database } from './database.types';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -28,11 +30,11 @@ export interface StatusData {
 }
 
 // Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
 export const createSupabaseClient = () => {
   if (!supabaseClient) {
-    supabaseClient = createClient(
+    supabaseClient = createClient<Database>(
       import.meta.env.SUPABASE_URL,
       import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
     );
@@ -67,10 +69,10 @@ export const getStatusData = async (): Promise<StatusData> => {
 
     // First check if any services have outages or degraded status
     const hasServiceOutage = services.some(
-      service => service.status === 'outage'
+      (service: ServiceStatus) => service.status === 'outage'
     );
     const hasServiceDegraded = services.some(
-      service => service.status === 'degraded'
+      (service: ServiceStatus) => service.status === 'degraded'
     );
 
     // Then consider active incidents
@@ -116,7 +118,8 @@ export const getUptimePercentage = async (
   try {
     // This is a simplified implementation
     // In a real system, you would have a history table tracking service status over time
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('service_uptime')
       .select('uptime_percentage')
       .eq('service_id', serviceId)
@@ -125,7 +128,7 @@ export const getUptimePercentage = async (
 
     if (error) throw error;
 
-    return data?.uptime_percentage || 99.9;
+    return (data as { uptime_percentage?: number })?.uptime_percentage || 99.9;
   } catch (error) {
     logger.error(
       'Error fetching uptime data',
@@ -147,19 +150,32 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
-      .insert([
-        {
-          ...incident,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
+      .insert({
+        ...incident,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .select()
       .single();
 
     if (error) throw error;
+
+    // Create corresponding outage event if this is a new incident
+    if (data && incident.status !== 'resolved') {
+      await outageNotificationService.createOutageEvent({
+        title: incident.title,
+        description: incident.description,
+        status: incident.status,
+        severity: 'medium', // Default severity, could be determined from incident type
+        affected_services: incident.affected_services,
+        affected_regions: [], // Could be determined from service coverage
+        created_by: undefined, // Would be set to current user ID
+      });
+    }
+
     return data;
   } catch (error) {
     logger.error(
@@ -181,7 +197,8 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -189,6 +206,21 @@ export const updateIncident = async (
       .single();
 
     if (error) throw error;
+
+    // If incident status changed to resolved, resolve corresponding outage events
+    if (data && updates.status === 'resolved') {
+      const activeOutageEvents =
+        await outageNotificationService.getActiveOutageEvents();
+      for (const event of activeOutageEvents) {
+        if (event.title === data.title) {
+          await outageNotificationService.updateOutageEvent(event.id, {
+            status: 'resolved',
+            actual_resolution: new Date().toISOString(),
+          });
+        }
+      }
+    }
+
     return data;
   } catch (error) {
     logger.error(
@@ -207,7 +239,8 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .select('*')
       .order('created_at', { ascending: false });

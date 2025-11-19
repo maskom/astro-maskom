@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
 
 // Get user session
 const user = await supabase.auth.getUser();
@@ -20,7 +21,11 @@ if (user.data.user) {
       transactions = data || [];
     }
   } catch (err) {
-    console.error('Error fetching payment history:', err);
+    logger.error('Error fetching payment history', err instanceof Error ? err : new Error(String(err)), {
+      module: 'billing',
+      operation: 'fetchPaymentHistory',
+      userId: user.data.user?.id,
+    });
   }
 }
 ---
@@ -261,9 +266,18 @@ if (user.data.user) {
           }
         })
         .catch(error => {
-          console.error('Error checking status:', error);
+          console.error('Error checking status:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'checkPaymentStatus',
+            transactionId,
+          });
           alert('Unable to check payment status. Please try again.');
         });
     }
+
+    // Ensure functions are available globally
+    window.viewReceipt = viewReceipt;
+    window.checkStatus = checkStatus;
   </script>
 </Layout>
