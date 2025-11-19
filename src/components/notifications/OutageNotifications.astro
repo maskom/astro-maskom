@@ -230,7 +230,12 @@ function getChannelIcon(channel: string): string {
         }
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('Error marking notification as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markNotificationAsRead',
+        notificationId,
+      });
     }
   }
 
@@ -281,7 +286,11 @@ function getChannelIcon(channel: string): string {
         }
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error('Error marking all notifications as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markAllNotificationsAsRead',
+      });
     } finally {
       isLoading = false;
       showLoading(false);
@@ -310,7 +319,12 @@ function getChannelIcon(channel: string): string {
         }
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      console.error('Error deleting notification:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'deleteNotification',
+        notificationId,
+      });
     }
   }
 
@@ -335,7 +349,11 @@ function getChannelIcon(channel: string): string {
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error refreshing notifications:', error);
+      console.error('Error refreshing notifications:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'refreshNotifications',
+      });
     } finally {
       isLoading = false;
       showLoading(false);

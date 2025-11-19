@@ -402,7 +402,13 @@ const notHelpfulCount = ratings.filter(r => !r.helpful).length;
           throw new Error('Failed to submit rating');
         }
       } catch (error) {
-        console.error('Error submitting rating:', error);
+        console.error('Error submitting rating:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'submitRating',
+          articleId: article?.id,
+          rating,
+        });
         alert('Failed to submit feedback. Please try again.');
       }
     });
@@ -431,7 +437,12 @@ const notHelpfulCount = ratings.filter(r => !r.helpful).length;
           throw new Error('Failed to submit feedback');
         }
       } catch (error) {
-        console.error('Error submitting feedback:', error);
+        console.error('Error submitting feedback:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'submitFeedback',
+          articleId: article?.id,
+        });
         alert('Failed to submit feedback. Please try again.');
       }
     });
