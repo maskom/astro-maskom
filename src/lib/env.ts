@@ -1,4 +1,6 @@
 // Environment variable validation and configuration
+import { logger } from './logger';
+
 export interface EnvConfig {
   // Supabase Configuration
   SUPABASE_URL: string;
@@ -109,8 +111,13 @@ export function validateEnv(): EnvConfig {
 
   // Optional validations with warnings
   if (env.ENABLE_CHATBOT === 'true' && !env.OPENAI_API_KEY) {
-    console.warn(
-      'Warning: ENABLE_CHATBOT is true but OPENAI_API_KEY is not set'
+    logger.warn(
+      'Warning: ENABLE_CHATBOT is true but OPENAI_API_KEY is not set',
+      {
+        module: 'env',
+        operation: 'validation',
+        feature: 'chatbot',
+      }
     );
   }
 

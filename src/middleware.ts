@@ -4,6 +4,7 @@ import {
   getRateLimitConfig,
   getClientIdentifier,
 } from './lib/rate-limiter';
+import { logger } from './lib/logger';
 
 // Cloudflare KV namespace type
 interface KVNamespace {
@@ -65,7 +66,12 @@ export const onRequest = async (
       // Store rate limit info for response headers
       locals.rateLimitInfo = info;
     } catch (error) {
-      console.warn('Rate limiting failed:', error);
+      logger.warn('Rate limiting failed', {
+        module: 'middleware',
+        operation: 'rateLimiting',
+        pathname,
+        error: error instanceof Error ? error.message : String(error),
+      });
       // Continue without rate limiting if KV is unavailable
     }
   }
