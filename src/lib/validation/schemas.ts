@@ -65,7 +65,7 @@ export const PaymentSchemas = {
       // Legacy support for query params
       type: 'string',
       required: false,
-      custom: (value: string, data?: any) => {
+      custom: (value: string, data?: Record<string, unknown>) => {
         // If transactionId is not provided, validate order_id as UUID
         if (!data?.transactionId) {
           const uuidRegex =
@@ -271,7 +271,7 @@ export const AccountSchemas = {
       required: true,
       minLength: 8,
       maxLength: 128,
-      custom: (value: string, data?: any) => {
+      custom: (value: string, data?: Record<string, unknown>) => {
         return value === data?.newPassword || 'Passwords do not match';
       },
     },
@@ -311,7 +311,7 @@ export const SupportSchemas = {
     attachments: {
       type: 'array',
       required: false,
-      custom: (value: any[]) => {
+      custom: (value: unknown[]) => {
         if (value.length > 5) return 'Maximum 5 attachments allowed';
         return true;
       },
@@ -454,7 +454,7 @@ export const NotificationSchemas = {
     channels: {
       type: 'array',
       required: true,
-      custom: (value: any[]) => {
+      custom: (value: string[]) => {
         const validChannels = ['email', 'sms', 'in_app', 'push'];
         const invalidChannels = value.filter(
           channel => !validChannels.includes(channel)
@@ -531,7 +531,7 @@ export const KnowledgeBaseSchemas = {
     tags: {
       type: 'array',
       required: false,
-      custom: (value: any[]) => {
+      custom: (value: string[]) => {
         if (value.length > 10) return 'Maximum 10 tags allowed';
         return (
           value.every(tag => typeof tag === 'string' && tag.length <= 50) ||
@@ -676,7 +676,7 @@ export const UtilitySchemas = {
     topics: {
       type: 'array',
       required: true,
-      custom: (value: any[]) => {
+      custom: (value: string[]) => {
         const validTopics = ['outages', 'maintenance', 'updates', 'security'];
         const invalidTopics = value.filter(
           topic => !validTopics.includes(topic)

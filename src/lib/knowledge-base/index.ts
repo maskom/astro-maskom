@@ -456,15 +456,26 @@ class KnowledgeBaseService {
       if (error) throw error;
 
       // Transform the data to match PopularArticle interface
-      const transformedData = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        slug: item.slug,
-        view_count: item.view_count,
-        helpful_count: item.helpful_count,
-        published_at: item.published_at,
-        category_name: item.category?.name || 'Unknown',
-      }));
+      const transformedData = (data || []).map((item: unknown) => {
+        const typedItem = item as {
+          id: string;
+          title: string;
+          slug: string;
+          view_count: number;
+          helpful_count: number;
+          published_at: string;
+          category?: { name: string };
+        };
+        return {
+          id: typedItem.id,
+          title: typedItem.title,
+          slug: typedItem.slug,
+          view_count: typedItem.view_count,
+          helpful_count: typedItem.helpful_count,
+          published_at: typedItem.published_at,
+          category_name: typedItem.category?.name || 'Unknown',
+        };
+      });
 
       return transformedData;
     } catch (error) {

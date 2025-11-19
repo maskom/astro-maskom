@@ -76,7 +76,7 @@ class OutageNotificationService {
     try {
       // Validate update data (exclude id from validation as it's not part of the interface)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id: _id, ...updateData } = updates as any;
+      const { id: _id, ...updateData } = updates as Partial<OutageEvent>;
       const validation = outageValidation.validateOutageEventData(updateData);
       if (!validation.isValid) {
         logger.error(

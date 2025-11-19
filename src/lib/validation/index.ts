@@ -25,23 +25,23 @@ export interface ValidationRule {
   min?: number;
   max?: number;
   pattern?: RegExp;
-  enum?: any[];
-  custom?: (value: any, data?: any) => boolean | string;
+  enum?: (string | number | boolean)[];
+  custom?: (value: unknown, data?: Record<string, unknown>) => boolean | string;
   sanitize?: boolean;
   description?: string;
 }
 
 export interface ValidationResult {
   isValid: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   errors?: ValidationError[];
-  value?: any;
+  value?: Record<string, unknown> | unknown;
 }
 
 export interface ValidationError {
   field: string;
   message: string;
-  value?: any;
+  value?: unknown;
   constraint?: string;
 }
 
@@ -69,9 +69,12 @@ export class ValidationEngine {
   /**
    * Validate request data against schema
    */
-  validate(data: any, schema: ValidationSchema): ValidationResult {
+  validate(
+    data: Record<string, unknown>,
+    schema: ValidationSchema
+  ): ValidationResult {
     const errors: ValidationError[] = [];
-    const sanitizedData: any = {};
+    const sanitizedData: Record<string, unknown> = {};
 
     try {
       // Log validation attempt
@@ -132,7 +135,7 @@ export class ValidationEngine {
    */
   private validateField(
     field: string,
-    value: any,
+    value: unknown,
     rule: ValidationRule
   ): ValidationResult {
     const errors: ValidationError[] = [];
@@ -176,6 +179,7 @@ export class ValidationEngine {
       if (rule.type === 'string') {
         if (
           rule.minLength !== undefined &&
+          typeof sanitizedValue === 'string' &&
           sanitizedValue.length < rule.minLength
         ) {
           errors.push({
@@ -188,6 +192,7 @@ export class ValidationEngine {
 
         if (
           rule.maxLength !== undefined &&
+          typeof sanitizedValue === 'string' &&
           sanitizedValue.length > rule.maxLength
         ) {
           errors.push({
@@ -199,7 +204,11 @@ export class ValidationEngine {
         }
 
         // Pattern validation
-        if (rule.pattern && !rule.pattern.test(sanitizedValue)) {
+        if (
+          rule.pattern &&
+          typeof sanitizedValue === 'string' &&
+          !rule.pattern.test(sanitizedValue)
+        ) {
           errors.push({
             field,
             message: `${field} format is invalid`,
@@ -211,7 +220,11 @@ export class ValidationEngine {
 
       // Range validation for numbers
       if (rule.type === 'number') {
-        if (rule.min !== undefined && sanitizedValue < rule.min) {
+        if (
+          rule.min !== undefined &&
+          typeof sanitizedValue === 'number' &&
+          sanitizedValue < rule.min
+        ) {
           errors.push({
             field,
             message: `${field} must be at least ${rule.min}`,
@@ -220,7 +233,11 @@ export class ValidationEngine {
           });
         }
 
-        if (rule.max !== undefined && sanitizedValue > rule.max) {
+        if (
+          rule.max !== undefined &&
+          typeof sanitizedValue === 'number' &&
+          sanitizedValue > rule.max
+        ) {
           errors.push({
             field,
             message: `${field} must not exceed ${rule.max}`,
@@ -231,7 +248,10 @@ export class ValidationEngine {
       }
 
       // Enum validation
-      if (rule.enum && !rule.enum.includes(sanitizedValue)) {
+      if (
+        rule.enum &&
+        !rule.enum.includes(sanitizedValue as string | number | boolean)
+      ) {
         errors.push({
           field,
           message: `${field} must be one of: ${rule.enum.join(', ')}`,
@@ -258,14 +278,15 @@ export class ValidationEngine {
 
       return {
         isValid: errors.length === 0,
-        value: sanitizedValue,
+        value: sanitizedValue as string | number | boolean,
         errors: errors.length > 0 ? errors : undefined,
       };
     } catch (error) {
       logger.error(`Field validation error for ${field}`, error as Error, {
         ...this.context,
         field,
-        value: typeof value === 'string' ? value.substring(0, 100) : value,
+        value:
+          typeof value === 'string' ? value.substring(0, 100) : String(value),
       });
 
       return {
@@ -286,7 +307,7 @@ export class ValidationEngine {
    */
   private validateType(
     field: string,
-    value: any,
+    value: unknown,
     rule: ValidationRule
   ): ValidationError | null {
     switch (rule.type) {
@@ -453,7 +474,7 @@ export function validateRequest(
 
       try {
         // Parse request data based on source
-        let data: any = {};
+        let data: Record<string, unknown> = {};
         const source = options.source || 'body';
         const contentType = request.headers.get('content-type');
 

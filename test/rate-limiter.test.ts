@@ -69,7 +69,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -88,7 +88,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
