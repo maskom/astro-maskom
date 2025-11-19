@@ -1,0 +1,145 @@
+---
+// PWA Installation Prompt Component
+---
+
+<div id="pwa-install-prompt" class="fixed bottom-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-y-full opacity-0 z-50">
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+      </svg>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-medium">Install Maskom Network</h3>
+      <p class="text-xs mt-1 opacity-90">Install aplikasi untuk akses lebih cepat dan fitur offline</p>
+    </div>
+    <button id="pwa-install-close" class="flex-shrink-0 text-white hover:text-gray-200">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+  <div class="mt-3 flex space-x-2">
+    <button id="pwa-install-button" class="flex-1 bg-white text-indigo-600 px-3 py-2 rounded text-sm font-medium hover:bg-gray-100 transition-colors">
+      Install
+    </button>
+    <button id="pwa-install-later" class="flex-1 bg-indigo-700 text-white px-3 py-2 rounded text-sm font-medium hover:bg-indigo-800 transition-colors">
+      Nanti
+    </button>
+  </div>
+</div>
+
+<script>
+  let deferredPrompt = null;
+  const installPrompt = document.getElementById('pwa-install-prompt');
+  const installButton = document.getElementById('pwa-install-button');
+  const laterButton = document.getElementById('pwa-install-later');
+  const closeButton = document.getElementById('pwa-install-close');
+
+  // Listen for beforeinstallprompt event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA: beforeinstallprompt event fired');
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show install prompt after a delay
+    setTimeout(() => {
+      showInstallPrompt();
+    }, 3000);
+  });
+
+  // Listen for app installed event
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA: App was installed');
+    hideInstallPrompt();
+    deferredPrompt = null;
+    
+    // Show success message
+    showInstallSuccess();
+  });
+
+  function showInstallPrompt() {
+    if (deferredPrompt && !localStorage.getItem('pwa-install-dismissed')) {
+      installPrompt.classList.remove('translate-y-full', 'opacity-0');
+      installPrompt.classList.add('translate-y-0', 'opacity-100');
+    }
+  }
+
+  function hideInstallPrompt() {
+    installPrompt.classList.add('translate-y-full', 'opacity-0');
+    installPrompt.classList.remove('translate-y-0', 'opacity-100');
+  }
+
+  function showInstallSuccess() {
+    // Create success notification
+    const success = document.createElement('div');
+    success.className = 'fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300';
+    success.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span>Aplikasi berhasil diinstall!</span>
+      </div>
+    `;
+    
+    document.body.appendChild(success);
+    
+    setTimeout(() => {
+      success.remove();
+    }, 3000);
+  }
+
+  // Install button click handler
+  installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    
+    console.log('PWA: Install button clicked');
+    deferredPrompt.prompt();
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('PWA: User choice:', outcome);
+    
+    deferredPrompt = null;
+    hideInstallPrompt();
+  });
+
+  // Later button click handler
+  laterButton.addEventListener('click', () => {
+    console.log('PWA: Later button clicked');
+    hideInstallPrompt();
+    
+    // Show again after 24 hours
+    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+  });
+
+  // Close button click handler
+  closeButton.addEventListener('click', () => {
+    console.log('PWA: Close button clicked');
+    hideInstallPrompt();
+    localStorage.setItem('pwa-install-dismissed', 'true');
+  });
+
+  // Check if we should show the prompt again
+  const dismissed = localStorage.getItem('pwa-install-dismissed');
+  if (dismissed && dismissed !== 'true') {
+    const dismissedTime = parseInt(dismissed);
+    const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
+    
+    if (hoursSinceDismissed > 24) {
+      localStorage.removeItem('pwa-install-dismissed');
+    }
+  }
+
+  // Check if app is already installed
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('PWA: App is already installed');
+  }
+</script>
+
+<style>
+  #pwa-install-prompt {
+    backdrop-filter: blur(10px);
+    background: rgba(79, 70, 229, 0.95);
+  }
+</style>

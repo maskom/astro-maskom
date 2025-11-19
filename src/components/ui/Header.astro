@@ -56,8 +56,9 @@ const isActivePath = (path: string) => {
 
     <button
       id="mobile-menu-button"
-      class="md:hidden text-gray-200 p-2 focus:outline-none"
+      class="md:hidden text-gray-200 p-3 focus:outline-none active:scale-95 transition-transform"
       aria-label="Toggle navigation"
+      aria-expanded="false"
     >
       <svg
         class="w-6 h-6"
@@ -76,17 +77,17 @@ const isActivePath = (path: string) => {
 
   <div
     id="mobile-menu"
-    class="hidden md:hidden bg-gray-900/95 border-b border-purple-500/20"
+    class="hidden md:hidden bg-gray-900/95 border-b border-purple-500/20 backdrop-blur-sm"
   >
-    <div class="max-w-6xl mx-auto p-4 flex flex-col space-y-4">
+    <div class="max-w-6xl mx-auto p-4 flex flex-col space-y-2">
       {
         frameworks.map(framework => (
           <a
             href={framework.path}
             class:list={[
-              'block px-2 py-2 rounded-md text-sm font-medium',
+              'block px-4 py-3 rounded-lg text-base font-medium active:scale-95 transition-all',
               isActivePath(framework.path)
-                ? 'text-white bg-gray-800'
+                ? 'text-white bg-gray-800 border-l-4 border-purple-500'
                 : 'text-gray-300 hover:bg-gray-800 hover:text-white',
             ]}
           >
@@ -99,7 +100,7 @@ const isActivePath = (path: string) => {
         href="https://panel.maskom.co.id/"
         target="_blank"
         rel="noopener noreferrer"
-        class="block w-full text-center px-4 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition"
+        class="block w-full text-center px-4 py-3 rounded-lg text-base font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition active:scale-95"
         onclick="window.open('https://panel.maskom.co.id/', '_blank', 'noopener,noreferrer'); return false;"
       >
         Login
@@ -113,13 +114,74 @@ const isActivePath = (path: string) => {
     const button = document.getElementById('mobile-menu-button');
     const menu = document.getElementById('mobile-menu');
     if (!button || !menu) return;
-    button.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-      if (menu.classList.contains('hidden')) {
-        document.body.classList.remove('overflow-hidden');
-      } else {
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let menuOpen = false;
+
+    function toggleMenu(open) {
+      if (open) {
+        menu.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
+        button.setAttribute('aria-expanded', 'true');
+        menuOpen = true;
+      } else {
+        menu.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        button.setAttribute('aria-expanded', 'false');
+        menuOpen = false;
+      }
+    }
+
+    // Button click handler
+    button.addEventListener('click', () => {
+      toggleMenu(!menuOpen);
+    });
+
+    // Touch handlers for swipe gestures
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+
+      // Swipe left to close menu
+      if (menuOpen && diff > swipeThreshold) {
+        toggleMenu(false);
+      }
+      
+      // Swipe right from edge to open menu
+      if (!menuOpen && touchStartX < 20 && Math.abs(diff) > swipeThreshold) {
+        toggleMenu(true);
+      }
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !menu.contains(e.target) && !button.contains(e.target)) {
+        toggleMenu(false);
       }
     });
+
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        toggleMenu(false);
+      }
+    });
+
+    // Add haptic feedback for mobile devices
+    if ('vibrate' in navigator) {
+      button.addEventListener('touchstart', () => {
+        navigator.vibrate(10);
+      });
+    }
   });
 </script>
