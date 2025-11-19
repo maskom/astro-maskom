@@ -1,3 +1,11 @@
+export interface TemplateData {
+  [key: string]: string | number | boolean | null | undefined | TemplateData;
+}
+
+export interface EmailMetadata {
+  [key: string]: string | number | boolean | null | undefined | EmailMetadata;
+}
+
 export interface EmailQueueItem {
   id: string;
   to_email: string;
@@ -6,7 +14,7 @@ export interface EmailQueueItem {
   content_html?: string;
   content_text?: string;
   template_id?: string;
-  template_data: Record<string, any>;
+  template_data: TemplateData;
   priority: number;
   status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'retry';
   attempts: number;
@@ -15,7 +23,7 @@ export interface EmailQueueItem {
   next_retry_at?: string;
   sent_at?: string;
   error_message?: string;
-  metadata: Record<string, any>;
+  metadata: EmailMetadata;
   created_at: string;
   updated_at: string;
 }
@@ -50,12 +58,12 @@ export interface EmailDeliveryLog {
   response_code?: string;
   response_message?: string;
   processed_at: string;
-  metadata: Record<string, any>;
+  metadata: EmailMetadata;
 }
 
 export interface EmailQueueSettings {
   key: string;
-  value: any;
+  value: string | number | boolean | null;
   description?: string;
   updated_at: string;
 }
@@ -76,9 +84,9 @@ export interface SendEmailOptions {
   html?: string;
   text?: string;
   template?: string;
-  templateData?: Record<string, any>;
+  templateData?: TemplateData;
   priority?: number;
-  metadata?: Record<string, any>;
+  metadata?: EmailMetadata;
 }
 
 export interface EmailConfig {

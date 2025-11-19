@@ -48,7 +48,7 @@ export class SupabaseEmailProvider {
 
       // Use Supabase Database to store email for queue processing
       // Note: This stores the email in the database for later processing by the email queue
-      const { data, error } = await (this.supabase as any)
+      const { data, error } = await this.supabase
         .from('email_queue')
         .insert({
           to_email: toEmails[0],

@@ -11,41 +11,41 @@ const mockSupabase = {
         single: vi.fn(),
         order: vi.fn(() => ({
           limit: vi.fn(() => ({
-            range: vi.fn()
-          }))
-        }))
+            range: vi.fn(),
+          })),
+        })),
       })),
       order: vi.fn(() => ({
         limit: vi.fn(),
-        range: vi.fn()
+        range: vi.fn(),
       })),
       limit: vi.fn(),
-      range: vi.fn()
+      range: vi.fn(),
     })),
     insert: vi.fn(() => ({
       select: vi.fn(() => ({
-        single: vi.fn()
-      }))
+        single: vi.fn(),
+      })),
     })),
     update: vi.fn(() => ({
       eq: vi.fn(),
       in: vi.fn(),
       lt: vi.fn(() => ({
-        select: vi.fn()
-      }))
+        select: vi.fn(),
+      })),
     })),
     delete: vi.fn(() => ({
       in: vi.fn(() => ({
         lt: vi.fn(() => ({
-          select: vi.fn()
-        }))
-      }))
-    }))
-  }))
+          select: vi.fn(),
+        })),
+      })),
+    })),
+  })),
 };
 
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => mockSupabase
+  createClient: () => mockSupabase,
 }));
 
 describe('EmailQueueService', () => {
@@ -61,14 +61,14 @@ describe('EmailQueueService', () => {
       const mockEmailId = 'test-email-id';
       mockSupabase.rpc.mockResolvedValue({
         data: mockEmailId,
-        error: null
+        error: null,
       });
 
       const options: SendEmailOptions = {
         to: 'test@example.com',
         subject: 'Test Subject',
         html: '<p>Test HTML</p>',
-        text: 'Test text'
+        text: 'Test text',
       };
 
       const result = await service.addEmailToQueue(options);
@@ -83,22 +83,24 @@ describe('EmailQueueService', () => {
         p_template_id: null,
         p_template_data: {},
         p_priority: 5,
-        p_metadata: {}
+        p_metadata: {},
       });
     });
 
     it('should handle errors when adding email to queue', async () => {
       mockSupabase.rpc.mockResolvedValue({
         data: null,
-        error: { message: 'Database error' }
+        error: { message: 'Database error' },
       });
 
       const options: SendEmailOptions = {
         to: 'test@example.com',
-        subject: 'Test Subject'
+        subject: 'Test Subject',
       };
 
-      await expect(service.addEmailToQueue(options)).rejects.toThrow('Failed to add email to queue: Database error');
+      await expect(service.addEmailToQueue(options)).rejects.toThrow(
+        'Failed to add email to queue: Database error'
+      );
     });
   });
 
@@ -107,24 +109,26 @@ describe('EmailQueueService', () => {
       const mockResult = { processed: 5, failed: 2 };
       mockSupabase.rpc.mockResolvedValue({
         data: [mockResult],
-        error: null
+        error: null,
       });
 
       const result = await service.processQueue(10);
 
       expect(result).toEqual(mockResult);
       expect(mockSupabase.rpc).toHaveBeenCalledWith('process_email_queue', {
-        batch_size: 10
+        batch_size: 10,
       });
     });
 
     it('should handle errors when processing queue', async () => {
       mockSupabase.rpc.mockResolvedValue({
         data: null,
-        error: { message: 'Processing error' }
+        error: { message: 'Processing error' },
       });
 
-      await expect(service.processQueue()).rejects.toThrow('Failed to process email queue: Processing error');
+      await expect(service.processQueue()).rejects.toThrow(
+        'Failed to process email queue: Processing error'
+      );
     });
   });
 
@@ -135,11 +139,11 @@ describe('EmailQueueService', () => {
         processing_count: 2,
         sent_today: 50,
         failed_today: 3,
-        retry_count: 5
+        retry_count: 5,
       };
       mockSupabase.rpc.mockResolvedValue({
         data: [mockStats],
-        error: null
+        error: null,
       });
 
       const result = await service.getQueueStats();
@@ -181,7 +185,7 @@ describe('EmailQueueService', () => {
         is_active: true,
         version: 1,
         created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z'
+        updated_at: '2024-01-01T00:00:00Z',
       };
 
       const mockFrom = {
@@ -189,14 +193,14 @@ describe('EmailQueueService', () => {
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
           data: mockTemplate,
-          error: null
-        })
+          error: null,
+        }),
       };
 
-      mockSupabase.from.mockReturnValue(mockFrom as any);
+      mockSupabase.from.mockReturnValue(mockFrom);
       mockSupabase.rpc.mockResolvedValue({
         data: 'email-id',
-        error: null
+        error: null,
       });
 
       const result = await service.sendTransactionalEmail(
@@ -215,14 +219,18 @@ describe('EmailQueueService', () => {
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
           data: null,
-          error: { code: 'PGRST116' }
-        })
+          error: { code: 'PGRST116' },
+        }),
       };
 
-      mockSupabase.from.mockReturnValue(mockFrom as any);
+      mockSupabase.from.mockReturnValue(mockFrom);
 
       await expect(
-        service.sendTransactionalEmail('test@example.com', 'nonexistent_template', {})
+        service.sendTransactionalEmail(
+          'test@example.com',
+          'nonexistent_template',
+          {}
+        )
       ).rejects.toThrow("Template 'nonexistent_template' not found");
     });
   });
