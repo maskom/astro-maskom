@@ -1,6 +1,10 @@
 import { getPaymentManager } from '../../../lib/payments';
-import { supabase } from '../../../lib/supabase';
+import { createServerClient } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
+import type { Invoice } from '../../../lib/payments/types';
+import { logger } from '../../../lib/logger';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -24,6 +28,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
+    const supabase = createServerClient();
     const {
       data: { user },
       error: authError,
@@ -40,7 +45,8 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const paymentManager = getPaymentManager();
-    const invoice = await paymentManager.service.getInvoiceById(invoiceId);
+    const invoice: Invoice | null =
+      await paymentManager.getInvoiceById(invoiceId);
 
     if (!invoice) {
       return new Response(
@@ -50,7 +56,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // Check if user owns this invoice
-    if (invoice.userId !== user.id) {
+    if ((invoice as any).userId !== user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Access denied' }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -68,7 +74,15 @@ export const GET: APIRoute = async ({ request }) => {
       },
     });
   } catch (error) {
-    console.error('Invoice download error:', error);
+    logger.error(
+      'Invoice download error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'invoices/download',
+        method: 'GET',
+      }
+    );
     return new Response(
       JSON.stringify({
         success: false,
@@ -134,13 +148,12 @@ function generateInvoiceHTML(invoice: any): string {
           <div class="info-section">
             <h3>Invoice</h3>
             <p><strong>Number:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>Date:</strong> ${invoice.createdAt.toLocaleDateString('id-ID')}</p>
+            <p><strong>Date:</strong> ${(invoice as any).createdAt.toLocaleDateString('id-ID')}</p>
             <p><strong>Due Date:</strong> ${invoice.dueDate.toLocaleDateString('id-ID')}</p>
             <p><strong>Status:</strong> <span class="status ${invoice.status}">${invoice.status}</span></p>
-          </div>
-          <div class="info-section" style="text-align: right;">
-            <h3>Bill To</h3>
-            <p>Customer ID: ${invoice.userId}</p>
+</div>
+          <div class="billing-info">
+            <p>Customer ID: ${(invoice as any).userId}</p>
             <p>Payment Method: Online Payment</p>
           </div>
         </div>

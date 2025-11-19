@@ -1,213 +1,132 @@
-# Deployment Pipeline Documentation
+# Deployment Environment Configuration
 
-## Overview
+This document outlines the required environment variables and secrets for the deployment pipeline.
 
-This document describes the automated deployment pipeline for the Maskom Network website using GitHub Actions and Cloudflare Pages.
+## Required GitHub Secrets
 
-## Architecture
+### Cloudflare Configuration
+- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with Pages:Edit permissions
+- `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
 
-The deployment pipeline consists of the following stages:
+### Optional Secrets
+- `GH_TOKEN`: GitHub token for enhanced API access (automatically provided by GitHub Actions)
 
-1. **Quality Checks** - Linting, type checking, tests, and security audit
-2. **Build** - Compile the Astro application
-3. **Deploy to Staging** - Deploy to staging environment
-4. **Deploy to Production** - Deploy to production environment (after staging succeeds)
-5. **Health Checks** - Verify deployment success
+## Environment Variables
 
-## Environments
+### Staging Environment
+- `NODE_ENV`: Set to "staging"
+- `VITE_SUPABASE_URL`: Supabase project URL for staging
+- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key for staging
 
-### Staging
-- **URL**: `https://astro-maskom-staging.pages.dev`
-- **Purpose**: Testing and validation before production
-- **Trigger**: Every push to main branch
-- **Features**: Limited feature set for testing
+### Production Environment  
+- `NODE_ENV`: Set to "production"
+- `VITE_SUPABASE_URL`: Supabase project URL for production
+- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key for production
 
-### Production
-- **URL**: `https://maskom.co.id`
-- **Purpose**: Live production environment
-- **Trigger**: Manual approval after successful staging deployment
-- **Features**: Full feature set enabled
+## Cloudflare Projects
 
-## Deployment Triggers
+The deployment pipeline expects these Cloudflare Pages projects:
+- `astro-maskom`: Production environment
+- `astro-maskom-staging`: Staging environment (for PR previews)
+- `astro-maskom-preview`: Optional preview environment
 
-### Automatic Deployment
-- Push to `main` branch triggers the full pipeline
-- Staging deploys automatically
-- Production requires manual approval
+## Deployment Process
 
-### Manual Deployment
-- Use GitHub Actions "Run workflow" button
-- Choose target environment (staging/production)
-- Useful for hotfixes and emergency deployments
-
-### Rollback
-- Manual trigger available for emergency rollbacks
-- Returns to previous successful deployment
-- Should only be used in emergency situations
-
-## Environment Configuration
-
-### Required Secrets
-
-Configure these secrets in your GitHub repository settings:
-
-#### Cloudflare
-- `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
-- `CLOUDFLARE_API_TOKEN` - Cloudflare API token with Pages permissions
-
-#### Supabase
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_ANON_KEY` - Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
-
-#### Application
-- `SECURITY_WEBHOOK_SECRET` - Security webhook secret
-- `STRIPE_SECRET_KEY` - Stripe secret key (production only)
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (production only)
-- `SENDGRID_API_KEY` - SendGrid API key (production only)
-
-### Environment Files
-
-Copy and configure these files for local development:
-
-```bash
-# Staging
-cp .env.staging.example .env.staging
-
-# Production
-cp .env.production.example .env.production
-```
-
-## Quality Gates
-
-The pipeline includes several quality checks:
+### Automatic Deployments
+1. **Pull Requests**: Automatically deploy to staging environment
+2. **Main Branch**: Automatically deploy to production environment
+3. **Manual**: Trigger deployment via GitHub Actions UI
 
 ### Pre-deployment Checks
-- **Linting**: ESLint validation
-- **Type Checking**: TypeScript compilation
-- **Tests**: Unit and integration tests
-- **Security Audit**: Dependency vulnerability scan
-- **Build Verification**: Successful application build
+All deployments run these checks first:
+- ESLint validation
+- TypeScript type checking  
+- Unit tests execution
+- Application build
 
 ### Health Checks
-- **API Status**: `/api/status` endpoint verification
-- **Service Connectivity**: Supabase connection test
-- **Feature Validation**: Critical feature availability
+After deployment, the pipeline:
+- Waits for deployment to propagate (30s for staging, 60s for production)
+- Performs HTTP health check on the deployed URL
+- Fails deployment if health check fails
 
-## Deployment Commands
+### Rollback Process
+Manual rollback can be triggered via GitHub Actions:
+1. Go to Actions → Deploy to Cloudflare
+2. Click "Run workflow"
+3. Select "rollback" as environment
+4. Pipeline will deploy the previous successful commit
 
-### Local Development
-```bash
-# Install dependencies
-npm install
+## Zero-Downtime Deployment
 
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run quality checks
-npm run ci
-```
-
-### Manual Deployment
-```bash
-# Deploy to staging
-npm run deploy:staging
-
-# Deploy to production
-npm run deploy:production
-
-# Deploy to preview
-npm run deploy:preview
-```
+Cloudflare Pages provides zero-downtime deployments by:
+- Building new version while old version serves traffic
+- Instant atomic switch when deployment is ready
+- Global CDN ensures immediate propagation
 
 ## Monitoring and Notifications
 
 ### Deployment Status
-- GitHub commit status indicators
-- Environment-specific deployment URLs
-- Health check results
+- PR comments for staging deployments
+- GitHub deployment status for production
+- Optional integration with external notification systems
 
-### Error Handling
-- Automatic rollback on health check failure
-- Detailed error logging
-- Notification system integration
+### Health Monitoring
+- Automated health checks after each deployment
+- Failed deployments create GitHub issues for tracking
+- Rollback capabilities for quick recovery
+
+## Security Considerations
+
+- All secrets are stored in GitHub Secrets (never in code)
+- Environment-specific configurations are isolated
+- API tokens have minimum required permissions
+- Deployments use GitHub's built-in security features
+
+## Setup Instructions
+
+1. **Create Cloudflare Pages Projects**:
+   ```bash
+   # Production
+   wrangler pages project create astro-maskom
+   
+   # Staging  
+   wrangler pages project create astro-maskom-staging
+   ```
+
+2. **Configure GitHub Secrets**:
+   - Go to Repository → Settings → Secrets and variables → Actions
+   - Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
+
+3. **Test Deployment**:
+   ```bash
+   # Test staging deployment
+   npm run deploy:staging
+   
+   # Test production deployment (use with caution)
+   npm run deploy:production
+   ```
+
+4. **Verify Health Checks**:
+   ```bash
+   npm run health:check
+   ```
 
 ## Troubleshooting
 
 ### Common Issues
-
-#### Build Failures
-- Check dependency versions in `package.json`
-- Verify environment variables
-- Review build logs in GitHub Actions
-
-#### Deployment Failures
-- Verify Cloudflare credentials
-- Check project configuration
-- Review deployment logs
-
-#### Health Check Failures
-- Verify Supabase connectivity
-- Check API endpoint availability
-- Review service configuration
+- **Build failures**: Check that all dependencies are installed and compatible
+- **Permission errors**: Verify Cloudflare API token has correct permissions
+- **Health check failures**: Ensure application builds correctly and handles requests
 
 ### Debug Commands
-
 ```bash
 # Check build output
-ls -la dist/
+npm run build
 
 # Test locally
-npm run preview
+npm run dev
 
-# Verify environment
-npm run pages:dev
+# Verify Cloudflare configuration
+wrangler pages project list
 ```
-
-## Security Considerations
-
-- All secrets stored in GitHub Secrets
-- Environment-specific configurations
-- Security headers automatically applied
-- Regular dependency audits
-- HTTPS enforcement in production
-
-## Performance Optimizations
-
-- Automatic asset optimization
-- CDN distribution via Cloudflare
-- Build-time optimizations
-- Caching headers configuration
-
-## Rollback Procedures
-
-### Automatic Rollback
-- Triggered by health check failures
-- Returns to previous stable version
-- Maintains service availability
-
-### Manual Rollback
-1. Go to GitHub Actions
-2. Select "Deploy to Cloudflare Pages" workflow
-3. Click "Run workflow"
-4. Choose "rollback" as environment
-5. Confirm rollback operation
-
-## Best Practices
-
-1. **Test in Staging**: Always validate changes in staging first
-2. **Monitor Deployments**: Watch deployment status and health checks
-3. **Keep Secrets Secure**: Never commit secrets to repository
-4. **Document Changes**: Update documentation for significant changes
-5. **Regular Updates**: Keep dependencies and tools updated
-
-## Support
-
-For deployment issues:
-1. Check GitHub Actions logs
-2. Review this documentation
-3. Contact the DevOps team
-4. Create an issue with detailed error information

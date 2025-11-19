@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createServiceClient } from '../../lib/supabase';
 import {
   sanitizeEmail,
   sanitizeJsonInput,
@@ -7,18 +7,7 @@ import {
 } from '../../lib/sanitization';
 import { logger } from '../../lib/logger';
 
-// Singleton Supabase client for server-side operations
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-
-const getSupabaseClient = () => {
-  if (!supabaseClient) {
-    supabaseClient = createClient(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for server-side operations
-    );
-  }
-  return supabaseClient;
-};
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const prerender = false;
 
@@ -33,7 +22,7 @@ export const GET: APIRoute = async ({ url }) => {
       sanitizedParams[key] = sanitizeText(value);
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createServiceClient();
 
     // Fetch subscribers from database
     const { data: subscribers, error } = await supabase
@@ -74,11 +63,14 @@ export const POST: APIRoute = async ({ request }) => {
     const requestData = await request.json();
 
     // Sanitize input data
-    const sanitizedData = sanitizeJsonInput(requestData);
+    const sanitizedData = sanitizeJsonInput(requestData) as Record<
+      string,
+      unknown
+    >;
     const { email, preferences } = sanitizedData;
 
     // Validate and sanitize email
-    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedEmail = sanitizeEmail(email as string);
     if (!sanitizedEmail) {
       return new Response(
         JSON.stringify({ error: 'Valid email is required' }),
@@ -92,7 +84,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createServiceClient();
 
     // Check if email already exists
     const { data: existingSubscriber, error: checkError } = await supabase
@@ -131,15 +123,19 @@ export const POST: APIRoute = async ({ request }) => {
       confirmed: false, // Would be set to true after email confirmation
     };
 
-    const { data: insertedSubscriber, error: insertError } = await supabase
+    const { data: insertedSubscriber, error: insertError } = await (
+      supabase as any
+    )
       .from('subscribers')
-      .insert([newSubscriber])
+      .insert(newSubscriber)
       .select()
       .single();
 
     if (insertError) throw insertError;
 
-    // TODO: Send confirmation email (would require email service integration)
+    // NOTE: Email confirmation service integration needed
+    // Future implementation should integrate with email service provider
+    // Options: Resend, SendGrid, or AWS SES for transactional emails
 
     return new Response(JSON.stringify(insertedSubscriber), {
       headers: {
