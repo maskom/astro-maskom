@@ -43,7 +43,13 @@ export class EmailQueueService {
       throw new Error(`Failed to add email to queue: ${error.message}`);
     }
 
-    return data as string;
+    if (typeof data !== 'string') {
+      throw new Error(
+        'Invalid response from add_email_to_queue: expected string'
+      );
+    }
+
+    return data;
   }
 
   /**
@@ -60,8 +66,23 @@ export class EmailQueueService {
       throw new Error(`Failed to process email queue: ${error.message}`);
     }
 
-    const result = data as { processed: number; failed: number }[];
-    return result[0] || { processed: 0, failed: 0 };
+    if (!Array.isArray(data) || data.length === 0) {
+      return { processed: 0, failed: 0 };
+    }
+
+    const result = data[0];
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      typeof (result as { processed: number }).processed !== 'number' ||
+      typeof (result as { failed: number }).failed !== 'number'
+    ) {
+      throw new Error(
+        'Invalid response from process_email_queue: expected object with processed and failed numbers'
+      );
+    }
+
+    return result as { processed: number; failed: number };
   }
 
   /**
@@ -74,16 +95,32 @@ export class EmailQueueService {
       throw new Error(`Failed to get queue stats: ${error.message}`);
     }
 
-    const result = data as QueueStats[];
-    return (
-      result[0] || {
+    if (!Array.isArray(data) || data.length === 0) {
+      return {
         pending_count: 0,
         processing_count: 0,
         sent_today: 0,
         failed_today: 0,
         retry_count: 0,
-      }
-    );
+      };
+    }
+
+    const result = data[0];
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      typeof (result as QueueStats).pending_count !== 'number' ||
+      typeof (result as QueueStats).processing_count !== 'number' ||
+      typeof (result as QueueStats).sent_today !== 'number' ||
+      typeof (result as QueueStats).failed_today !== 'number' ||
+      typeof (result as QueueStats).retry_count !== 'number'
+    ) {
+      throw new Error(
+        'Invalid response from get_email_queue_stats: expected QueueStats object'
+      );
+    }
+
+    return result as QueueStats;
   }
 
   /**
@@ -126,7 +163,31 @@ export class EmailQueueService {
       throw new Error(`Failed to get emails: ${error.message}`);
     }
 
-    return (data as EmailQueueItem[]) || [];
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    // Validate that each item in the array is a valid EmailQueueItem
+    const validEmails = data.filter((item): item is EmailQueueItem => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.id === 'string' &&
+        typeof item.to_email === 'string' &&
+        typeof item.from_email === 'string' &&
+        typeof item.subject === 'string' &&
+        typeof item.priority === 'number' &&
+        typeof item.status === 'string' &&
+        typeof item.attempts === 'number' &&
+        typeof item.max_attempts === 'number' &&
+        typeof item.template_data === 'object' &&
+        typeof item.metadata === 'object' &&
+        typeof item.created_at === 'string' &&
+        typeof item.updated_at === 'string'
+      );
+    });
+
+    return validEmails;
   }
 
   /**
@@ -153,7 +214,28 @@ export class EmailQueueService {
       throw new Error(`Failed to get templates: ${error.message}`);
     }
 
-    return (data as EmailTemplate[]) || [];
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    // Validate that each item in the array is a valid EmailTemplate
+    const validTemplates = data.filter((item): item is EmailTemplate => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.id === 'string' &&
+        typeof item.name === 'string' &&
+        typeof item.subject_template === 'string' &&
+        typeof item.html_template === 'string' &&
+        typeof item.category === 'string' &&
+        typeof item.is_active === 'boolean' &&
+        typeof item.version === 'number' &&
+        typeof item.created_at === 'string' &&
+        typeof item.updated_at === 'string'
+      );
+    });
+
+    return validTemplates;
   }
 
   /**
@@ -171,7 +253,28 @@ export class EmailQueueService {
       throw new Error(`Failed to get template: ${error.message}`);
     }
 
-    return data as EmailTemplate | null;
+    if (!data) {
+      return null;
+    }
+
+    // Validate that the data is a valid EmailTemplate
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      typeof (data as EmailTemplate).id !== 'string' ||
+      typeof (data as EmailTemplate).name !== 'string' ||
+      typeof (data as EmailTemplate).subject_template !== 'string' ||
+      typeof (data as EmailTemplate).html_template !== 'string' ||
+      typeof (data as EmailTemplate).category !== 'string' ||
+      typeof (data as EmailTemplate).is_active !== 'boolean' ||
+      typeof (data as EmailTemplate).version !== 'number' ||
+      typeof (data as EmailTemplate).created_at !== 'string' ||
+      typeof (data as EmailTemplate).updated_at !== 'string'
+    ) {
+      throw new Error('Invalid template data received from database');
+    }
+
+    return data as EmailTemplate;
   }
 
   /**
@@ -199,6 +302,16 @@ export class EmailQueueService {
 
     if (error) {
       throw new Error(`Failed to create template: ${error.message}`);
+    }
+
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      typeof (data as { id: string }).id !== 'string'
+    ) {
+      throw new Error(
+        'Invalid response from template creation: expected object with id string'
+      );
     }
 
     const result = data as { id: string };
@@ -236,7 +349,24 @@ export class EmailQueueService {
       throw new Error(`Failed to get delivery logs: ${error.message}`);
     }
 
-    return (data as EmailDeliveryLog[]) || [];
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    // Validate that each item in the array is a valid EmailDeliveryLog
+    const validLogs = data.filter((item): item is EmailDeliveryLog => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.id === 'string' &&
+        typeof item.email_id === 'string' &&
+        typeof item.event_type === 'string' &&
+        typeof item.processed_at === 'string' &&
+        typeof item.metadata === 'object'
+      );
+    });
+
+    return validLogs;
   }
 
   /**
@@ -252,7 +382,21 @@ export class EmailQueueService {
       throw new Error(`Failed to get settings: ${error.message}`);
     }
 
-    return (data as EmailQueueSettings[]) || [];
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    // Validate that each item in the array is a valid EmailQueueSettings
+    const validSettings = data.filter((item): item is EmailQueueSettings => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.key === 'string' &&
+        typeof item.updated_at === 'string'
+      );
+    });
+
+    return validSettings;
   }
 
   /**
@@ -322,8 +466,17 @@ export class EmailQueueService {
       throw new Error(`Failed to cleanup old emails: ${error.message}`);
     }
 
-    const result = data as { id: string }[];
-    return result?.length || 0;
+    if (!Array.isArray(data)) {
+      return 0;
+    }
+
+    // Validate that each item has an id property
+    const validItems = data.filter(
+      (item): item is { id: string } =>
+        typeof item === 'object' && item !== null && typeof item.id === 'string'
+    );
+
+    return validItems.length;
   }
 
   /**

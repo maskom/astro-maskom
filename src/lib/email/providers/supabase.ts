@@ -1,6 +1,32 @@
 import { createClient } from '@supabase/supabase-js';
 import type { EmailOptions, EmailDeliveryResult } from '../types';
 
+// Interface for Supabase client method chaining to avoid complex type assertions
+interface SupabaseEmailQueueClient {
+  from: (table: 'email_queue') => {
+    insert: (data: EmailQueueInsertData) => {
+      select: () => {
+        single: () => Promise<{
+          data: { id: string } | null;
+          error: { message: string } | null;
+        }>;
+      };
+    };
+  };
+}
+
+interface EmailQueueInsertData {
+  to_email: string;
+  subject: string;
+  content_html?: string;
+  content_text?: string;
+  status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'retry';
+  priority: number;
+  template_data: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
 export class SupabaseEmailProvider {
   public readonly name = 'supabase';
   private supabase: ReturnType<typeof createClient>;
@@ -60,20 +86,9 @@ export class SupabaseEmailProvider {
         created_at: new Date().toISOString(),
       };
 
-      const { data, error } = await (
-        this.supabase as unknown as {
-          from: (table: string) => {
-            insert: (data: typeof insertData) => {
-              select: () => {
-                single: () => Promise<{
-                  data: { id: string } | null;
-                  error: { message: string } | null;
-                }>;
-              };
-            };
-          };
-        }
-      )
+      const supabaseClient = this
+        .supabase as unknown as SupabaseEmailQueueClient;
+      const { data, error } = await supabaseClient
         .from('email_queue')
         .insert(insertData)
         .select()

@@ -24,11 +24,11 @@ describe('CSP Violation Reporting API', () => {
   });
 
   // Helper function to create a complete mock APIContext
-  const createMockContext = (request: Request): APIContext =>
-    ({
+  const createMockContext = (request: Request): APIContext => {
+    const mockContext = {
       request,
       site: new URL('https://example.com'),
-      generator: 'static',
+      generator: 'static' as const,
       url: new URL('https://example.com/api/security/csp-report'),
       params: {},
       props: {},
@@ -37,7 +37,9 @@ describe('CSP Violation Reporting API', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    }) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    };
+    return mockContext as unknown as APIContext;
+  };
 
   describe('POST endpoint', () => {
     it('should handle valid CSP violation reports', async () => {
