@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST, OPTIONS } from '../src/pages/api/security/csp-report';
 import { logger } from '../src/lib/logger';
+import type { APIContext } from 'astro';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
@@ -16,12 +17,24 @@ interface MockRequest {
   json: ReturnType<typeof vi.fn>;
 }
 
-interface APIContext {
-  request: MockRequest;
-}
-
 describe('CSP Violation Reporting API', () => {
   let mockRequest: MockRequest;
+
+  // Helper function to create a proper mock context
+  const createMockContext = (request: MockRequest): APIContext =>
+    ({
+      request: request as unknown as Request,
+      site: new URL('https://example.com'),
+      generator: 'static',
+      url: new URL('https://example.com/api/security/csp-report'),
+      params: {},
+      props: {},
+      redirect: vi.fn(),
+      response: vi.fn(),
+      getStaticPaths: vi.fn(),
+      getActionResult: vi.fn(),
+      callAction: vi.fn() as never,
+    }) as unknown as APIContext;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,7 +66,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(validViolation);
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -73,7 +86,7 @@ describe('CSP Violation Reporting API', () => {
     it('should reject invalid content types', async () => {
       mockRequest.headers.set('content-type', 'text/plain');
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -84,7 +97,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/json');
       mockRequest.json.mockRejectedValue(new Error('Invalid JSON'));
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -108,7 +121,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/json');
       mockRequest.json.mockResolvedValue(invalidViolation);
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -137,7 +150,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(highSeverityViolation);
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
 
       expect(response.status).toBe(200);
       expect(logger.error).toHaveBeenCalledWith(
@@ -156,7 +169,7 @@ describe('CSP Violation Reporting API', () => {
         throw new Error('Database connection failed');
       });
 
-      const response = await POST({ request: mockRequest } as APIContext);
+      const response = await POST(createMockContext(mockRequest));
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -186,7 +199,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(violationWithLongScript);
 
-      await POST({ request: mockRequest } as APIContext);
+      await POST(createMockContext(mockRequest));
 
       expect(logger.warn).toHaveBeenCalledWith(
         'CSP violation detected',
@@ -212,7 +225,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('user-agent', 'Mozilla/5.0 (Test Browser)');
       mockRequest.json.mockResolvedValue(validViolation);
 
-      await POST({ request: mockRequest } as APIContext);
+      await POST(createMockContext(mockRequest));
 
       expect(logger.warn).toHaveBeenCalledWith(
         'CSP violation detected',
@@ -225,7 +238,7 @@ describe('CSP Violation Reporting API', () => {
 
   describe('OPTIONS endpoint', () => {
     it('should return correct CORS headers for preflight', async () => {
-      const response = await OPTIONS({} as APIContext);
+      const response = await OPTIONS(createMockContext(mockRequest));
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
