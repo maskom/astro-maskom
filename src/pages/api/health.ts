@@ -36,7 +36,7 @@ export const GET: APIRoute = async () => {
         features: ['pages', 'kv', 'functions'] as string[],
         region: 'unknown',
         edge_location: 'unknown',
-kv: {
+        kv: {
           status: 'unknown' as 'unknown' | 'healthy' | 'error',
           namespace: 'SESSION',
           error: null as string | null,
@@ -62,17 +62,10 @@ kv: {
     const supabase = createServerClient();
     const supabaseStart = Date.now();
 
-<<<<<<< HEAD
-    // Try to access auth.users which should exist in all Supabase projects
-    const { error } = await supabase
-      .from('auth.users')
-      .select('count')
-=======
     // Test Supabase connectivity with a simple health check query
     const { error } = await supabase
       .from('security_audit_logs')
       .select('id')
->>>>>>> 312d411 (feat: implement comprehensive email queue system (#152))
       .limit(1);
 
     const supabaseLatency = Date.now() - supabaseStart;
@@ -143,9 +136,6 @@ kv: {
     if (cfEnv.pages.url) {
       checks.services.cloudflare.features.push('pages-deployed');
     }
-<<<<<<< HEAD
-=======
-
     // Test KV namespace availability
     try {
       // Check if SESSION KV binding is available (runtime check)
@@ -183,7 +173,6 @@ kv: {
       checks.services.cloudflare.kv.error =
         kvError instanceof Error ? kvError.message : 'KV test failed';
     }
->>>>>>> 312d411 (feat: implement comprehensive email queue system (#152))
   } catch (error) {
     // Cloudflare detection failed, but don't mark as degraded
     logger.warn('Cloudflare environment detection failed', {
