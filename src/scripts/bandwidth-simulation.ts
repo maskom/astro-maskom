@@ -74,7 +74,7 @@ async function createSampleDataCaps() {
     try {
       // Get user ID from email (this would normally come from your auth system)
       const { data: authUser } = await supabase.auth.admin.listUsers();
-      const targetUser = (authUser.users as any[]).find(
+      const targetUser = (authUser?.users as any[])?.find(
         u => u.email === user.email
       );
 
@@ -180,7 +180,7 @@ async function createHighUsageScenarios() {
   try {
     // Get user ID
     const { data: authUser } = await supabase.auth.admin.listUsers();
-    const targetUser = (authUser.users as any[]).find(
+    const targetUser = (authUser?.users as any[])?.find(
       u => u.email === highUsageUser.email
     );
 

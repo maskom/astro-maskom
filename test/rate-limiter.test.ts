@@ -5,8 +5,13 @@ import {
   getClientIdentifier,
 } from '../src/lib/rate-limiter';
 
-// Mock KV namespace
-const mockKV = {
+// Mock KV namespace interface
+interface MockKV {
+  get: ReturnType<typeof vi.fn>;
+  put: ReturnType<typeof vi.fn>;
+}
+
+const mockKV: MockKV = {
   get: vi.fn(),
   put: vi.fn(),
 };
