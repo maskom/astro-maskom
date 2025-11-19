@@ -1,4 +1,8 @@
-import { getSecurityHeaders, generateNonce, getCSPReportGroup } from './middleware/security';
+import {
+  getSecurityHeaders,
+  generateNonce,
+  getCSPReportGroup,
+} from './middleware/security';
 import {
   RateLimiter,
   getRateLimitConfig,
@@ -155,6 +159,15 @@ export const onRequest = async (
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // Additional security headers
+  response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+
+  // Remove information disclosure headers
+  response.headers.delete('X-Powered-By');
+  response.headers.delete('Server');
 
   // Add rate limit headers if available
   if (locals.rateLimitInfo && env?.SESSION) {
