@@ -10,10 +10,14 @@ export const supabase =
           const config = getSupabaseConfig();
           return createClient(config.url, config.anonKey);
         } catch (error) {
-          logger.error('Failed to initialize Supabase client', error instanceof Error ? error : new Error(String(error)), {
-            module: 'supabase',
-            operation: 'client-initialization'
-          });
+          logger.error(
+            'Failed to initialize Supabase client',
+            error instanceof Error ? error : new Error(String(error)),
+            {
+              module: 'supabase',
+              operation: 'client-initialization',
+            }
+          );
           return null;
         }
       })()
@@ -39,10 +43,14 @@ export function createServerClient() {
 
     return client;
   } catch (error) {
-    logger.error('Failed to create Supabase server client', error instanceof Error ? error : new Error(String(error)), {
-      module: 'supabase',
-      operation: 'server-client-creation'
-    });
+    logger.error(
+      'Failed to create Supabase server client',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'supabase',
+        operation: 'server-client-creation',
+      }
+    );
     throw error;
   }
 }
@@ -54,8 +62,12 @@ export function createServiceClient() {
 
     if (!config.url || !config.serviceRoleKey) {
       if (isDevelopment()) {
-        console.warn(
-          'Service role key not configured, using anon key for development'
+        logger.warn(
+          'Service role key not configured, using anon key for development',
+          {
+            module: 'supabase',
+            operation: 'service-client-creation',
+          }
         );
         return createServerClient();
       }
@@ -72,10 +84,14 @@ export function createServiceClient() {
       },
     });
   } catch (error) {
-    logger.error('Failed to create Supabase service client', error instanceof Error ? error : new Error(String(error)), {
-      module: 'supabase',
-      operation: 'service-client-creation'
-    });
+    logger.error(
+      'Failed to create Supabase service client',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'supabase',
+        operation: 'service-client-creation',
+      }
+    );
     throw error;
   }
 }
