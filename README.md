@@ -46,12 +46,25 @@ src/
 
 ## Pengembangan
 
+### Setup Awal
+
 ```bash
 npm install
+npm run verify:setup  # Verifikasi konfigurasi TypeScript
 npm run dev
 ```
 
 Server pengembangan akan berjalan di `http://localhost:4321`
+
+### Pemecahan Masalah
+
+Jika mengalami masalah dengan TypeScript atau build:
+
+```bash
+npm run verify:setup  # Periksa konfigurasi development
+npm run typecheck     # Verifikasi kompilasi TypeScript
+npm run lint          # Periksa kode linting
+```
 
 ## Build untuk Produksi
 
