@@ -1,15 +1,15 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ request }) => {
   try {
     // Verify authentication
     const authHeader = request.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const token = authHeader.split(' ')[1];
@@ -18,8 +18,11 @@ export const GET: APIRoute = async ({ request, url }) => {
       import.meta.env.SUPABASE_ANON_KEY
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid authentication token' }),
@@ -28,9 +31,12 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Get customer email preferences
-    const { data, error } = await supabase.rpc('get_customer_email_preferences', {
-      p_customer_id: user.id,
-    });
+    const { data, error } = await supabase.rpc(
+      'get_customer_email_preferences',
+      {
+        p_customer_id: user.id,
+      }
+    );
 
     if (error) {
       throw new Error(`Failed to get preferences: ${error.message}`);
@@ -94,10 +100,10 @@ export const POST: APIRoute = async ({ request }) => {
     // Verify authentication
     const authHeader = request.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const token = authHeader.split(' ')[1];
@@ -106,8 +112,11 @@ export const POST: APIRoute = async ({ request }) => {
       import.meta.env.SUPABASE_ANON_KEY
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid authentication token' }),
@@ -132,7 +141,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Validate frequency preference
     const validFrequencies = ['immediate', 'daily', 'weekly', 'never'];
-    if (frequencyPreference && !validFrequencies.includes(frequencyPreference)) {
+    if (
+      frequencyPreference &&
+      !validFrequencies.includes(frequencyPreference)
+    ) {
       return new Response(
         JSON.stringify({ error: 'Invalid frequency preference' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }

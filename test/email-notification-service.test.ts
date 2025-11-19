@@ -334,6 +334,7 @@ describe('EmailNotificationService', () => {
         'transactional',
         'test@example.com',
         {
+          to: 'test@example.com',
           subject: 'Test Subject',
           html: '<p>Test Content</p>',
         }
@@ -341,6 +342,7 @@ describe('EmailNotificationService', () => {
 
       expect(emailId).toBe('email-id');
       expect(mockQueueService.addEmailToQueue).toHaveBeenCalledWith({
+        to: 'test@example.com',
         subject: 'Test Subject',
         html: '<p>Test Content</p>',
         metadata: {
@@ -359,6 +361,7 @@ describe('EmailNotificationService', () => {
         'marketing',
         'test@example.com',
         {
+          to: 'test@example.com',
           subject: 'Test Subject',
           html: '<p>Test Content</p>',
         }

@@ -12,7 +12,7 @@ import type {
 } from './types';
 
 export class EmailQueueService {
-  private supabase: SupabaseClient;
+  public supabase: SupabaseClient;
 
   constructor(supabaseUrl?: string, supabaseKey?: string) {
     this.supabase = createClient(

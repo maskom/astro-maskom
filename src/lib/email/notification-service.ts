@@ -148,9 +148,6 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId
-      ? `Pengingat Pembayaran - Invoice ${invoiceData.invoiceNumber}`
-      : `Billing Reminder - Invoice ${invoiceData.invoiceNumber}`;
 
     const templateData: TemplateData = {
       invoice_number: invoiceData.invoiceNumber,
@@ -184,9 +181,6 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId
-      ? 'Konfirmasi Janji Temu Layanan'
-      : 'Service Appointment Confirmation';
 
     const templateData: TemplateData = {
       appointment_id: appointmentData.appointmentId,
@@ -223,9 +217,6 @@ export class EmailNotificationService {
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
     const isId = language === 'id';
-    const subject = isId
-      ? 'Konfirmasi Instalasi Layanan'
-      : 'Service Installation Confirmation';
 
     const templateData: TemplateData = {
       installation_id: installationData.installationId,
@@ -578,8 +569,13 @@ export class EmailNotificationService {
         // Check customer preferences if customer_id is in metadata
         if (email.metadata?.customer_id && email.metadata?.email_type) {
           const canSend = await this.canSendEmailToCustomer(
-            email.metadata.customer_id,
-            email.metadata.email_type
+            String(email.metadata.customer_id),
+            email.metadata.email_type as
+              | 'transactional'
+              | 'marketing'
+              | 'newsletter'
+              | 'promotional'
+              | 'notification'
           );
 
           if (!canSend) {
@@ -593,7 +589,7 @@ export class EmailNotificationService {
         // Process the email
         await this.queueService.processQueue(1);
         processed++;
-      } catch (error) {
+      } catch {
         failed++;
       }
     }

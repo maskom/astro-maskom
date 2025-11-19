@@ -22,7 +22,7 @@ export const POST: APIRoute = withApiMiddleware(
 
       const supabase = createServerClient();
 
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -53,7 +53,11 @@ export const POST: APIRoute = withApiMiddleware(
 
       // Send welcome email
       try {
-        await emailService.sendWelcomeEmail(email, fullName || 'Pengguna', 'id');
+        await emailService.sendWelcomeEmail(
+          email,
+          fullName || 'Pengguna',
+          'id'
+        );
         logger.info('Welcome email sent', {
           requestId,
           email,
@@ -62,7 +66,8 @@ export const POST: APIRoute = withApiMiddleware(
         logger.warn('Failed to send welcome email', {
           requestId,
           email,
-          error: emailError instanceof Error ? emailError.message : 'Unknown error',
+          error:
+            emailError instanceof Error ? emailError.message : 'Unknown error',
         });
         // Don't fail registration if email fails
       }
