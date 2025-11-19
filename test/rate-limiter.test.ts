@@ -5,10 +5,20 @@ import {
   getClientIdentifier,
 } from '../src/lib/rate-limiter';
 
-// Mock KV namespace interface
+// Mock KV namespace interface compatible with KVNamespace
 interface MockKV {
   get: ReturnType<typeof vi.fn>;
   put: ReturnType<typeof vi.fn>;
+  // Add other KVNamespace methods as needed
+  delete?: ReturnType<typeof vi.fn>;
+  list?: ReturnType<typeof vi.fn>;
+}
+
+// Interface for Request with CF properties
+interface RequestWithCF extends Request {
+  cf?: {
+    connecting_ip?: string;
+  };
 }
 
 const mockKV: MockKV = {
@@ -25,7 +35,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(null);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -46,7 +56,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(false);
@@ -65,7 +75,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -74,7 +84,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100); // eslint-disable-line @typescript-eslint/no-explicit-any
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -93,7 +103,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
+    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100); // eslint-disable-line @typescript-eslint/no-explicit-any
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -147,9 +157,9 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    };
 
-    const identifier = getClientIdentifier(request);
+    const identifier = getClientIdentifier(request as unknown as RequestWithCF);
     expect(identifier).toContain('192.168.1.1');
   });
 
@@ -160,9 +170,9 @@ describe('getClientIdentifier', () => {
         'x-forwarded-for': '10.0.0.1, 192.168.1.1',
         'user-agent': 'TestAgent/1.0',
       }),
-    } as any;
+    };
 
-    const identifier = getClientIdentifier(request);
+    const identifier = getClientIdentifier(request as unknown as RequestWithCF);
     expect(identifier).toContain('10.0.0.1');
   });
 
@@ -170,9 +180,9 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: {},
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    };
 
-    const identifier = getClientIdentifier(request);
+    const identifier = getClientIdentifier(request as unknown as RequestWithCF);
     expect(identifier).toContain('unknown');
   });
 
@@ -180,9 +190,9 @@ describe('getClientIdentifier', () => {
     const request = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'Mozilla/5.0 (Test Browser)' }),
-    } as any;
+    };
 
-    const identifier = getClientIdentifier(request);
+    const identifier = getClientIdentifier(request as unknown as RequestWithCF);
     expect(identifier).toContain('192.168.1.1');
     expect(identifier.split(':')).toHaveLength(2);
   });

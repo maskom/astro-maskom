@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../src/pages/api/payments/webhook';
 import { logger } from '../src/lib/logger';
+import type { APIContext } from 'astro';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
@@ -59,9 +60,9 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
-    await POST(mockContext);
+    await POST(mockContext as unknown as APIContext);
 
     // Verify logger.info was called with safe metadata only
     expect(logger.info).toHaveBeenCalledWith('Payment webhook received', {
@@ -119,9 +120,9 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
-    const response = await POST(mockContext);
+    const response = await POST(mockContext as unknown as APIContext);
 
     // Verify error logging includes only safe metadata
     expect(logger.error).toHaveBeenCalledWith(
@@ -163,9 +164,9 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
-    const response = await POST(mockContext);
+    const response = await POST(mockContext as unknown as APIContext);
 
     // Verify error logging for malformed requests
     expect(logger.error).toHaveBeenCalledWith(
@@ -206,9 +207,9 @@ describe('Payment Webhook Security', () => {
         getStaticPaths: vi.fn(),
         getActionResult: vi.fn(),
         callAction: vi.fn(),
-      } as any;
+      };
 
-      await POST(mockContext);
+      await POST(mockContext as unknown as APIContext);
 
       // Verify safe logging for each event type
       expect(logger.info).toHaveBeenCalledWith('Payment webhook received', {
