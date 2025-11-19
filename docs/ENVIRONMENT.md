@@ -55,35 +55,66 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Site Configuration
 SITE_URL=http://localhost:4321
+SITE_NAME=Maskom Network
 NODE_ENV=development
+LOG_LEVEL=info
+
+# Security
+ENCRYPTION_PASSWORD=your-encryption-password
+```
+
+### Optional Variables
+
+```env
+# OpenAI (for chatbot functionality)
+OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_ORG_ID=org-your-org-id-here
+ENABLE_CHATBOT=true
 
 # Payment Gateway (Midtrans)
 MIDTRANS_SERVER_KEY=your_midtrans_server_key
 MIDTRANS_CLIENT_KEY=your_midtrans_client_key
 MIDTRANS_ENVIRONMENT=sandbox
 MIDTRANS_MERCHANT_ID=your_merchant_id
-```
 
-### Optional Variables
+# Contact Information
+CONTACT_EMAIL=support@maskom.co.id
+CONTACT_PHONE=+62123456789
+WHATSAPP_NUMBER=628123456789
 
-```env
-# Analytics
+# Analytics & Monitoring
 GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+ENABLE_ANALYTICS=false
+ENABLE_ERROR_REPORTING=false
 
 # Social Media
-WHATSAPP_NUMBER=628123456789
 FACEBOOK_URL=https://facebook.com/maskom
 TWITTER_URL=https://twitter.com/maskom
 
-# Development
-NODE_ENV=development
-LOG_LEVEL=debug
+# CORS
+CORS_ORIGIN=http://localhost:4321
 ```
+
+### Environment Variable Validation
+
+The application includes comprehensive environment variable validation. If required variables are missing, the application will:
+
+1. **Fail Fast**: Startup will fail with clear error messages
+2. **Provide Guidance**: Error messages include variable names and expected formats
+3. **Security Warnings**: Optional but recommended variables trigger warnings
+
+### Validation Rules
+
+- **SUPABASE_URL**: Must be a valid HTTPS URL
+- **SUPABASE_KEY**: Must be at least 100 characters (valid Supabase key)
+- **NODE_ENV**: Must be 'development', 'production', or 'test'
+- **LOG_LEVEL**: Must be 'debug', 'info', 'warn', or 'error'
+- **MIDTRANS_ENVIRONMENT**: Must be 'sandbox' or 'production'
 
 ## 📊 Supabase Setup
 
@@ -220,7 +251,14 @@ curl https://your-project.supabase.co/rest/v1/
 
 #### "TypeScript errors"
 
+**CRITICAL ISSUE (2025-11-19)**: TypeScript configuration is currently broken.
+
 ```bash
+# Current errors:
+error TS2688: Cannot find type definition file for 'node'
+error TS5083: Cannot read file './node_modules/astro/tsconfigs/base.json'
+
+# Temporary workaround (until issue #302 is fixed):
 # Check TypeScript version
 npx tsc --version
 
@@ -230,6 +268,8 @@ npx tsc --noEmit
 # Clear TypeScript cache
 rm -rf .astro/
 ```
+
+**Solution**: See issue #302 for the complete fix. The TypeScript configuration needs to be updated to use the correct Astro base configuration.
 
 #### "Port already in use"
 
@@ -384,6 +424,35 @@ fi
 
 ---
 
-For additional help, create an issue in the repository or contact the development team.
+## 🚨 Current Issues & Solutions
 
-_Last Updated: 2025-11-14_
+### TypeScript Configuration Crisis (November 2025)
+
+**Status**: 🚨 CRITICAL - Issue #302
+
+The repository currently has critical TypeScript configuration issues:
+
+1. **Broken Configuration**: `tsconfig.json` extends non-existent path
+2. **Missing Node Types**: `@types/node` not properly accessible
+3. **Dependency Resolution**: All dependencies show as "MISSING"
+
+**Immediate Actions Required**:
+1. Fix `tsconfig.json` extends path
+2. Resolve `@types/node` installation
+3. Fix dependency resolution issues
+4. Validate all development scripts
+
+**See**: Issue #302 for complete implementation plan.
+
+### Development Tools Status
+
+- **ESLint**: ✅ Working (after configuration fixes)
+- **TypeScript**: ❌ Broken (see issue #302)
+- **Build Process**: ❌ Failing due to TypeScript errors
+- **Test Suite**: ✅ Working (when TypeScript is fixed)
+
+---
+
+_Last Updated: 2025-11-19_
+_Next Review: 2025-11-20_
+_Environment Status: 🟡 MEDIUM - Critical TypeScript issues identified_
