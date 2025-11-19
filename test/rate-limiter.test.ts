@@ -5,10 +5,26 @@ import {
   getClientIdentifier,
 } from '../src/lib/rate-limiter';
 
+// Cloudflare KV namespace type
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number }
+  ): Promise<void>;
+}
+
 // Mock KV namespace interface
 interface MockKV {
   get: ReturnType<typeof vi.fn>;
   put: ReturnType<typeof vi.fn>;
+}
+
+// Mock Request interface for testing
+interface MockRequest {
+  cf?: { connecting_ip?: string };
+  headers: Headers;
 }
 
 const mockKV: MockKV = {
@@ -25,7 +41,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(null);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -46,7 +62,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(false);
@@ -65,7 +81,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -74,7 +90,7 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 100);
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -93,7 +109,7 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100);
+    const rateLimiter = new RateLimiter(mockKV as KVNamespace, 60000, 100);
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -144,43 +160,43 @@ describe('getRateLimitConfig', () => {
 
 describe('getClientIdentifier', () => {
   it('should use Cloudflare connecting IP when available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    };
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');
   });
 
   it('should use x-forwarded-for header when Cloudflare IP not available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: {},
       headers: new Headers({
         'x-forwarded-for': '10.0.0.1, 192.168.1.1',
         'user-agent': 'TestAgent/1.0',
       }),
-    } as any;
+    };
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('10.0.0.1');
   });
 
   it('should use unknown IP when no IP information available', () => {
-    const request = {
+    const request: MockRequest = {
       cf: {},
       headers: new Headers({ 'user-agent': 'TestAgent/1.0' }),
-    } as any;
+    };
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('unknown');
   });
 
   it('should include user agent fingerprint', () => {
-    const request = {
+    const request: MockRequest = {
       cf: { connecting_ip: '192.168.1.1' },
       headers: new Headers({ 'user-agent': 'Mozilla/5.0 (Test Browser)' }),
-    } as any;
+    };
 
     const identifier = getClientIdentifier(request);
     expect(identifier).toContain('192.168.1.1');

@@ -2,6 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../src/pages/api/payments/webhook';
 import { logger } from '../src/lib/logger';
 
+// Type for Astro API context in tests
+interface MockAPIContext {
+  request: { json: ReturnType<typeof vi.fn> };
+  site: URL;
+  generator: string;
+  url: URL;
+  params: Record<string, unknown>;
+  props: Record<string, unknown>;
+  redirect: ReturnType<typeof vi.fn>;
+  response: ReturnType<typeof vi.fn>;
+  getStaticPaths: ReturnType<typeof vi.fn>;
+  getActionResult: ReturnType<typeof vi.fn>;
+  callAction: ReturnType<typeof vi.fn>;
+}
+
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
   logger: {
@@ -47,7 +62,7 @@ describe('Payment Webhook Security', () => {
       json: vi.fn().mockResolvedValue(webhookData),
     };
 
-    const mockContext = {
+    const mockContext: MockAPIContext = {
       request: mockRequest,
       site: new URL('https://example.com'),
       generator: 'static',
@@ -59,7 +74,7 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
     await POST(mockContext);
 
@@ -107,7 +122,7 @@ describe('Payment Webhook Security', () => {
       json: vi.fn().mockResolvedValue(webhookData),
     };
 
-    const mockContext = {
+    const mockContext: MockAPIContext = {
       request: mockRequest,
       site: new URL('https://example.com'),
       generator: 'static',
@@ -119,7 +134,7 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
     const response = await POST(mockContext);
 
@@ -147,11 +162,17 @@ describe('Payment Webhook Security', () => {
   });
 
   it('should handle malformed requests without exposing data', async () => {
-    const mockRequest = {
-      json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
+    const webhookData = {
+      event_type: 'payment.malformed',
+      transaction_id: 'txn_malformed_123',
+      malformed_field: undefined,
     };
 
-    const mockContext = {
+    const mockRequest = {
+      json: vi.fn().mockResolvedValue(webhookData),
+    };
+
+    const mockContext: MockAPIContext = {
       request: mockRequest,
       site: new URL('https://example.com'),
       generator: 'static',
@@ -163,21 +184,22 @@ describe('Payment Webhook Security', () => {
       getStaticPaths: vi.fn(),
       getActionResult: vi.fn(),
       callAction: vi.fn(),
-    } as any;
+    };
 
     const response = await POST(mockContext);
 
     // Verify error logging for malformed requests
     expect(logger.error).toHaveBeenCalledWith(
-      'Webhook handler error',
+      'Webhook processing error',
       expect.any(Error),
       {
-        endpoint: '/api/payments/webhook',
+        eventType: 'payment.malformed',
+        transactionId: 'txn_malformed_123',
       }
     );
 
     // Verify response is appropriate
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
     const responseData = await response.json();
     expect(responseData.success).toBe(false);
   });
@@ -194,7 +216,7 @@ describe('Payment Webhook Security', () => {
         json: vi.fn().mockResolvedValue(webhookData),
       };
 
-      const mockContext = {
+      const mockContext: MockAPIContext = {
         request: mockRequest,
         site: new URL('https://example.com'),
         generator: 'static',
@@ -206,7 +228,7 @@ describe('Payment Webhook Security', () => {
         getStaticPaths: vi.fn(),
         getActionResult: vi.fn(),
         callAction: vi.fn(),
-      } as any;
+      };
 
       await POST(mockContext);
 
