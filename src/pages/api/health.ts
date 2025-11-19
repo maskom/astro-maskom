@@ -36,6 +36,11 @@ export const GET: APIRoute = async () => {
         features: ['pages', 'kv', 'functions'] as string[],
         region: 'unknown',
         edge_location: 'unknown',
+        kv: {
+          status: 'unknown' as 'unknown' | 'healthy' | 'error',
+          namespace: 'SESSION',
+          error: null as string | null,
+        },
       },
       deployment: {
         commit_sha:
@@ -57,10 +62,10 @@ export const GET: APIRoute = async () => {
     const supabase = createServerClient();
     const supabaseStart = Date.now();
 
-    // Try to access auth.users which should exist in all Supabase projects
-    const { error } = await supabase
-      .from('auth.users')
-      .select('count')
+    // Test Supabase connectivity with a simple health check query
+    const { error, data } = await supabase
+      .from('security_audit_logs')
+      .select('id')
       .limit(1);
 
     const supabaseLatency = Date.now() - supabaseStart;
@@ -130,6 +135,40 @@ export const GET: APIRoute = async () => {
     }
     if (cfEnv.pages.url) {
       checks.services.cloudflare.features.push('pages-deployed');
+    }
+
+    // Test KV namespace availability
+    try {
+      // Check if SESSION KV binding is available (runtime check)
+      if (typeof globalThis !== 'undefined' && (globalThis as any).SESSION) {
+        // Simple KV test - try to write and read a test value
+        const testKey = 'health-check-test';
+        const testValue = Date.now().toString();
+
+        await (globalThis as any).SESSION.put(testKey, testValue, {
+          expirationTtl: 60,
+        });
+        const result = await (globalThis as any).SESSION.get(testKey);
+
+        if (result === testValue) {
+          checks.services.cloudflare.kv.status = 'healthy';
+          checks.services.cloudflare.features.push('kv-operational');
+        } else {
+          checks.services.cloudflare.kv.status = 'error';
+          checks.services.cloudflare.kv.error = 'KV read/write test failed';
+        }
+
+        // Clean up test key
+        await (globalThis as any).SESSION.delete(testKey);
+      } else {
+        checks.services.cloudflare.kv.status = 'error';
+        checks.services.cloudflare.kv.error =
+          'SESSION KV binding not available';
+      }
+    } catch (kvError) {
+      checks.services.cloudflare.kv.status = 'error';
+      checks.services.cloudflare.kv.error =
+        kvError instanceof Error ? kvError.message : 'KV test failed';
     }
   } catch (error) {
     // Cloudflare detection failed, but don't mark as degraded
