@@ -7,7 +7,7 @@ export interface RateLimitInfo {
 }
 
 // Cloudflare KV namespace type
-interface KVNamespace {
+export interface KVNamespace {
   get(key: string): Promise<string | null>;
   put(
     key: string,

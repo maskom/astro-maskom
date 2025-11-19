@@ -3,6 +3,7 @@ import {
   RateLimiter,
   getRateLimitConfig,
   getClientIdentifier,
+  type KVNamespace,
 } from '../src/lib/rate-limiter';
 
 // Mock KV namespace interface compatible with KVNamespace
@@ -13,6 +14,10 @@ interface MockKV {
   delete?: ReturnType<typeof vi.fn>;
   list?: ReturnType<typeof vi.fn>;
 }
+
+// Type assertion helper to ensure MockKV is compatible with KVNamespace
+const mockKVAsKVNamespace = (mockKV: MockKV) =>
+  mockKV as unknown as KVNamespace;
 
 // Interface for Request with CF properties
 interface RequestWithCF extends Request {
@@ -35,7 +40,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(null);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rateLimiter = new RateLimiter(mockKVAsKVNamespace(mockKV), 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -56,7 +61,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rateLimiter = new RateLimiter(mockKVAsKVNamespace(mockKV), 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(false);
@@ -75,7 +80,7 @@ describe('RateLimiter', () => {
     mockKV.get.mockResolvedValue(existingData);
     mockKV.put.mockResolvedValue(undefined);
 
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 10); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rateLimiter = new RateLimiter(mockKVAsKVNamespace(mockKV), 60000, 10);
     const result = await rateLimiter.isAllowed('test-client');
 
     expect(result.allowed).toBe(true);
@@ -84,7 +89,11 @@ describe('RateLimiter', () => {
   });
 
   it('should generate correct rate limit headers', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rateLimiter = new RateLimiter(
+      mockKVAsKVNamespace(mockKV),
+      60000,
+      100
+    );
     const info = {
       count: 5,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation
@@ -103,7 +112,11 @@ describe('RateLimiter', () => {
   });
 
   it('should set retry-after when limit exceeded', () => {
-    const rateLimiter = new RateLimiter(mockKV as any, 60000, 100); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rateLimiter = new RateLimiter(
+      mockKVAsKVNamespace(mockKV),
+      60000,
+      100
+    );
     const info = {
       count: 100,
       resetTime: Date.now() + 3600000, // Use milliseconds like the actual implementation

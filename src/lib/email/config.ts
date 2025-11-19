@@ -16,8 +16,21 @@ export class EmailConfigManager {
   }
 
   private loadConfig(): EmailConfig {
-    const provider = (process.env.EMAIL_PROVIDER ||
-      'supabase') as EmailConfig['provider'];
+    const emailProvider = process.env.EMAIL_PROVIDER || 'supabase';
+
+    // Validate that the provider is a valid EmailConfig['provider']
+    const validProviders: EmailConfig['provider'][] = [
+      'supabase',
+      'sendgrid',
+      'ses',
+    ];
+    if (!validProviders.includes(emailProvider as EmailConfig['provider'])) {
+      throw new Error(
+        `Invalid email provider: ${emailProvider}. Must be one of: ${validProviders.join(', ')}`
+      );
+    }
+
+    const provider = emailProvider as EmailConfig['provider'];
 
     const config: EmailConfig = {
       provider,

@@ -2,7 +2,18 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Supabase client before importing the service
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// Interface for mock Supabase client
+interface MockSupabaseClient {
+  from: ReturnType<typeof vi.fn>;
+  rpc: ReturnType<typeof vi.fn>;
+}
+
+// Interface for mock notifications
+interface MockNotifications {
+  triggerOutageNotifications: ReturnType<typeof vi.fn>;
+  renderTemplate: ReturnType<typeof vi.fn>;
+}
+
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     from: vi.fn(),
@@ -66,10 +77,7 @@ const mockOutageDatabase = vi.mocked(outageDatabase);
 const mockOutageValidation = vi.mocked(outageValidation);
 
 describe('OutageNotificationService', () => {
-  let mockClient: {
-    from: ReturnType<typeof vi.fn>;
-    rpc: ReturnType<typeof vi.fn>;
-  };
+  let mockClient: MockSupabaseClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -80,7 +88,7 @@ describe('OutageNotificationService', () => {
       rpc: vi.fn(),
     };
 
-    mockCreateClient.mockReturnValue(mockClient as any);
+    mockCreateClient.mockReturnValue(mockClient as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     // Reset all mock implementations
     mockOutageDatabase.createOutageEvent.mockResolvedValue(null);
@@ -124,12 +132,13 @@ describe('OutageNotificationService', () => {
       mockOutageDatabase.createOutageEvent.mockResolvedValue(mockCreatedEvent);
 
       // Mock the notification trigger - it's now in the notifications module
-      const mockNotifications = {
+      const mockNotifications: MockNotifications = {
         triggerOutageNotifications: vi.fn().mockResolvedValue(undefined),
-      } as any;
+        renderTemplate: vi.fn(),
+      };
 
       // Replace the notifications instance on the service
-      (outageNotificationService as any).notifications = mockNotifications;
+      (outageNotificationService as any).notifications = mockNotifications; // eslint-disable-line @typescript-eslint/no-explicit-any
 
       const result =
         await outageNotificationService.createOutageEvent(mockEventData);
@@ -357,13 +366,15 @@ describe('OutageNotificationService', () => {
         outageValidation
       );
 
-      // Access private method through type assertion
+      // Access private method through type assertion for testing
       const renderTemplate = (
-        (notifications as any).renderTemplate as (
-          template: string,
-          variables: Record<string, string>
-        ) => string
-      ).bind(notifications);
+        notifications as unknown as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
+      ).renderTemplate.bind(notifications);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe(
@@ -385,11 +396,13 @@ describe('OutageNotificationService', () => {
       );
 
       const renderTemplate = (
-        (notifications as any).renderTemplate as (
-          template: string,
-          variables: Record<string, string>
-        ) => string
-      ).bind(notifications);
+        notifications as unknown as {
+          renderTemplate: (
+            template: string,
+            variables: Record<string, string>
+          ) => string;
+        }
+      ).renderTemplate.bind(notifications);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe('Hello John, you have {{count}} new notifications.');
