@@ -53,32 +53,38 @@ export const GET: APIRoute = async () => {
   };
 
   try {
-    // Test Supabase connectivity using basic auth check
-    const supabase = createServerClient();
-    const supabaseStart = Date.now();
+    // Only test Supabase if environment variables are available
+    if (checks.env_check.status === 'healthy') {
+      // Test Supabase connectivity using basic auth check
+      const supabase = createServerClient();
+      const supabaseStart = Date.now();
 
-    // Try to access auth.users which should exist in all Supabase projects
-    const { error } = await supabase
-      .from('auth.users')
-      .select('count')
-      .limit(1);
+      // Try to access auth.users which should exist in all Supabase projects
+      const { error } = await supabase
+        .from('auth.users')
+        .select('count')
+        .limit(1);
 
-    const supabaseLatency = Date.now() - supabaseStart;
+      const supabaseLatency = Date.now() - supabaseStart;
 
-    if (error) {
-      // In development, Supabase might not be running - don't mark as degraded
-      if (import.meta.env.MODE === 'development') {
-        checks.services.supabase.status = 'skipped';
-        checks.services.supabase.error =
-          'Supabase not available in development';
+      if (error) {
+        // In development, Supabase might not be running - don't mark as degraded
+        if (import.meta.env.MODE === 'development') {
+          checks.services.supabase.status = 'skipped';
+          checks.services.supabase.error =
+            'Supabase not available in development';
+        } else {
+          checks.services.supabase.status = 'error';
+          checks.services.supabase.error = error.message;
+          checks.status = 'degraded';
+        }
       } else {
-        checks.services.supabase.status = 'error';
-        checks.services.supabase.error = error.message;
-        checks.status = 'degraded';
+        checks.services.supabase.status = 'healthy';
+        checks.services.supabase.latency = supabaseLatency;
       }
     } else {
-      checks.services.supabase.status = 'healthy';
-      checks.services.supabase.latency = supabaseLatency;
+      checks.services.supabase.status = 'skipped';
+      checks.services.supabase.error = 'Environment variables not configured';
     }
 
     // Update overall status if environment check failed
