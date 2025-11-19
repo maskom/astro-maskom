@@ -67,7 +67,11 @@ export const GET: APIRoute = async () => {
     const supabaseLatency = Date.now() - supabaseStart;
 
     // Check if Supabase client is properly configured
-    if (supabase && supabase.supabaseUrl && supabase.supabaseKey) {
+    // Check if required environment variables are set for Supabase
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
+    const supabaseKey = import.meta.env.SUPABASE_KEY;
+
+    if (supabase && supabaseUrl && supabaseKey) {
       checks.services.supabase.status = 'healthy';
       checks.services.supabase.latency = supabaseLatency;
     } else {
