@@ -1,4 +1,4 @@
-import { getSecurityHeaders, generateNonce } from './middleware/security';
+import { getSecurityHeaders, generateNonce, getCSPReportGroup } from './middleware/security';
 import {
   RateLimiter,
   getRateLimitConfig,
@@ -141,6 +141,12 @@ export const onRequest = async (
   Object.entries(securityHeaders).forEach(([header, value]) => {
     response.headers.set(header, value);
   });
+
+  // Add Report-To header for CSP violation reporting in production
+  const isDev = (await import('./lib/env')).isDevelopment();
+  if (!isDev) {
+    response.headers.set('Report-To', getCSPReportGroup());
+  }
 
   // Add nonce to locals for use in templates
   locals.nonce = nonce;
