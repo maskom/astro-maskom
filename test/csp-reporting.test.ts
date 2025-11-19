@@ -10,8 +10,18 @@ vi.mock('../src/lib/logger', () => ({
   },
 }));
 
+// Type definitions for API request/response
+interface MockRequest {
+  headers: Headers;
+  json: ReturnType<typeof vi.fn>;
+}
+
+interface APIContext {
+  request: MockRequest;
+}
+
 describe('CSP Violation Reporting API', () => {
-  let mockRequest: any;
+  let mockRequest: MockRequest;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +53,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(validViolation);
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -63,7 +73,7 @@ describe('CSP Violation Reporting API', () => {
     it('should reject invalid content types', async () => {
       mockRequest.headers.set('content-type', 'text/plain');
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -74,7 +84,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/json');
       mockRequest.json.mockRejectedValue(new Error('Invalid JSON'));
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -98,7 +108,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/json');
       mockRequest.json.mockResolvedValue(invalidViolation);
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -127,7 +137,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(highSeverityViolation);
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
 
       expect(response.status).toBe(200);
       expect(logger.error).toHaveBeenCalledWith(
@@ -146,7 +156,7 @@ describe('CSP Violation Reporting API', () => {
         throw new Error('Database connection failed');
       });
 
-      const response = await POST({ request: mockRequest } as any);
+      const response = await POST({ request: mockRequest } as APIContext);
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -176,7 +186,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('content-type', 'application/csp-report');
       mockRequest.json.mockResolvedValue(violationWithLongScript);
 
-      await POST({ request: mockRequest } as any);
+      await POST({ request: mockRequest } as APIContext);
 
       expect(logger.warn).toHaveBeenCalledWith(
         'CSP violation detected',
@@ -202,7 +212,7 @@ describe('CSP Violation Reporting API', () => {
       mockRequest.headers.set('user-agent', 'Mozilla/5.0 (Test Browser)');
       mockRequest.json.mockResolvedValue(validViolation);
 
-      await POST({ request: mockRequest } as any);
+      await POST({ request: mockRequest } as APIContext);
 
       expect(logger.warn).toHaveBeenCalledWith(
         'CSP violation detected',
@@ -215,7 +225,7 @@ describe('CSP Violation Reporting API', () => {
 
   describe('OPTIONS endpoint', () => {
     it('should return correct CORS headers for preflight', async () => {
-      const response = await OPTIONS({} as any);
+      const response = await OPTIONS({} as APIContext);
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');

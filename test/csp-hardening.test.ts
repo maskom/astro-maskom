@@ -8,6 +8,22 @@ import {
   type CSPViolationReport,
 } from '../src/middleware/security';
 
+// Type for CSP report data to avoid any types
+interface CSPReportData {
+  'document-uri'?: string;
+  referrer?: string;
+  'violated-directive'?: string;
+  'effective-directive'?: string;
+  'original-policy'?: string;
+  disposition?: string;
+  'blocked-uri'?: string;
+  'line-number'?: number;
+  'column-number'?: number;
+  'source-file'?: string;
+  'status-code'?: number;
+  'script-sample'?: string;
+}
+
 // Mock environment detection
 const mockIsDevelopment = vi.fn();
 vi.mock('../src/lib/env', () => ({
@@ -176,7 +192,7 @@ describe('Enhanced CSP Security Headers', () => {
       const invalidViolation = {
         'csp-report': { ...validViolation['csp-report'] },
       };
-      delete (invalidViolation['csp-report'] as any)['document-uri'];
+      delete (invalidViolation['csp-report'] as CSPReportData)['document-uri'];
 
       expect(validateCSPViolation(invalidViolation)).toBe(false);
     });
@@ -185,7 +201,7 @@ describe('Enhanced CSP Security Headers', () => {
       const invalidViolation = {
         'csp-report': { ...validViolation['csp-report'] },
       };
-      (invalidViolation['csp-report'] as any)['document-uri'] =
+      (invalidViolation['csp-report'] as CSPReportData)['document-uri'] =
         'not-a-valid-uri';
 
       expect(validateCSPViolation(invalidViolation)).toBe(false);
@@ -195,7 +211,9 @@ describe('Enhanced CSP Security Headers', () => {
       const violationWithEmptyBlocked = {
         'csp-report': { ...validViolation['csp-report'] },
       };
-      (violationWithEmptyBlocked['csp-report'] as any)['blocked-uri'] = '';
+      (violationWithEmptyBlocked['csp-report'] as CSPReportData)[
+        'blocked-uri'
+      ] = '';
 
       expect(validateCSPViolation(violationWithEmptyBlocked)).toBe(true);
     });
