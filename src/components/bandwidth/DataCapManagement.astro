@@ -274,7 +274,12 @@ const daysRemaining = getDaysRemaining();
         alert('Gagal mengupgrade paket: ' + error.error);
       }
     } catch (error) {
-      console.error('Error upgrading package:', error);
+      console.error('Error upgrading package:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'upgradePackage',
+        packageId,
+      });
       alert('Terjadi kesalahan saat mengupgrade paket');
     }
   }

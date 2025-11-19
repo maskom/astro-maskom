@@ -281,10 +281,18 @@ import Layout from '../../layouts/Layout.astro';
           updateNotifications(data.recentNotifications);
           updateHighUsageAlert(data.highUsageUsers);
         } else {
-          console.error('Failed to load monitoring data');
+          console.error('Failed to load monitoring data:', {
+            timestamp: new Date().toISOString(),
+            action: 'loadMonitoringData',
+            details: 'API response indicated failure',
+          });
         }
       } catch (error) {
-        console.error('Error loading monitoring data:', error);
+        console.error('Error loading monitoring data:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'loadMonitoringData',
+        });
       }
     }
 
@@ -561,12 +569,20 @@ import Layout from '../../layouts/Layout.astro';
 
     function viewUserDetails(userId) {
       // Implementation for viewing user details
-      console.log('View user details:', userId);
+      console.log('View user details:', {
+        userId,
+        timestamp: new Date().toISOString(),
+        action: 'viewUserDetails',
+      });
     }
 
     function editUserCap(capId) {
       // Implementation for editing user cap
-      console.log('Edit user cap:', capId);
+      console.log('Edit user cap:', {
+        capId,
+        timestamp: new Date().toISOString(),
+        action: 'editUserCap',
+      });
     }
 
     // Load data on page load
