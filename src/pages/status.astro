@@ -79,8 +79,8 @@ const uptimePercentage = 99.9;
         <h3 class="font-medium mb-2">Uptime (Last 30 Days)</h3>
         <div class="flex items-end h-8">
           <div
-            class="bg-green-500 h-full rounded"
-            style={`width: ${uptimePercentage}%`}
+            class="bg-green-500 h-full rounded uptime-bar"
+            style={`--uptime-width: ${uptimePercentage}%;`}
           >
           </div>
           <span class="ml-2 text-sm">{uptimePercentage}%</span>
@@ -157,6 +157,12 @@ const uptimePercentage = 99.9;
     </div>
   </div>
 </Layout>
+
+<style>
+  .uptime-bar {
+    width: var(--uptime-width, 0%);
+  }
+</style>
 
 <script>
   // Add real-time updates with polling

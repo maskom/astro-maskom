@@ -1,6 +1,7 @@
 import { getPaymentManager } from '../../../lib/payments';
-import { supabase } from '../../../lib/supabase';
+import { createServerClient } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -18,6 +19,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.split(' ')[1];
+    const supabase = createServerClient();
     const {
       data: { user },
       error: authError,
@@ -53,7 +55,15 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Invoices list error:', error);
+    logger.error(
+      'Invoices list error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'invoices/index',
+        method: 'GET',
+      }
+    );
     return new Response(
       JSON.stringify({
         success: false,

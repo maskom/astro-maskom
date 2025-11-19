@@ -1,10 +1,19 @@
 /// <reference types="astro/client" />
 
+// Cloudflare KV namespace type
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number }
+  ): Promise<void>;
+}
+
 interface ImportMetaEnv {
-  readonly PUBLIC_SUPABASE_URL: string;
-  readonly PUBLIC_SUPABASE_ANON_KEY: string;
-  readonly SUPABASE_SERVICE_ROLE_KEY: string;
   readonly SUPABASE_URL: string;
+  readonly SUPABASE_KEY: string;
+  readonly SUPABASE_SERVICE_ROLE_KEY: string;
   readonly OPENAI_API_KEY: string;
   readonly MIDTRANS_SERVER_KEY: string;
   readonly MIDTRANS_CLIENT_KEY: string;
@@ -13,6 +22,7 @@ interface ImportMetaEnv {
   readonly ENCRYPTION_PASSWORD: string;
   readonly DEV: string;
   readonly LOG_LEVEL: string;
+  readonly SESSION?: KVNamespace;
 }
 
 interface ImportMeta {

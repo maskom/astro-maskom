@@ -122,14 +122,14 @@ const maxUsage = Math.max(...chartData.map(d => d.total), 1);
         </div>
         <div class="w-full bg-gray-200 rounded-full h-3">
           <div
-            class={`h-3 rounded-full transition-all duration-300 ${
+            class={`h-3 rounded-full transition-all duration-300 usage-bar ${
               usagePercentage >= 90
                 ? 'bg-red-500'
                 : usagePercentage >= 80
                   ? 'bg-yellow-500'
                   : 'bg-green-500'
             }`}
-            style={`width: ${Math.min(usagePercentage, 100)}%`}
+            style={`--usage-width: ${Math.min(usagePercentage, 100)}%;`}
           />
         </div>
         {usagePercentage >= 80 && (
@@ -155,8 +155,8 @@ const maxUsage = Math.max(...chartData.map(d => d.total), 1);
             {chartData.map((point, index) => (
               <div
                 key={index}
-                class="flex-1 bg-blue-500 hover:bg-blue-600 transition-colors relative group"
-                style={`height: ${(point.total / maxUsage) * 100}%`}
+                class="flex-1 bg-blue-500 hover:bg-blue-600 transition-colors relative group chart-bar"
+                style={`--bar-height: ${(point.total / maxUsage) * 100}%;`}
                 title={`${point.date}: ${point.total.toFixed(2)} GB`}
               >
                 <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -164,7 +164,17 @@ const maxUsage = Math.max(...chartData.map(d => d.total), 1);
                   <div>Download: {point.download.toFixed(2)} GB</div>
                   <div>Upload: {point.upload.toFixed(2)} GB</div>
                   <div>Total: {point.total.toFixed(2)} GB</div>
-                </div>
+</div>
+
+<style>
+  .usage-bar {
+    width: var(--usage-width, 0%);
+  }
+  
+  .chart-bar {
+    height: var(--bar-height, 0%);
+  }
+</style>
               </div>
             ))}
           </div>

@@ -10,7 +10,16 @@ export interface LogContext {
   userId?: string;
   service?: string;
   action?: string;
-  [key: string]: any;
+  timestamp?: string;
+  ip?: string;
+  userAgent?: string;
+  method?: string;
+  url?: string;
+  statusCode?: number;
+  duration?: number;
+  module?: string;
+  operation?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface LogEntry {
@@ -25,6 +34,11 @@ export interface LogEntry {
   };
 }
 
+// Generate unique request ID
+export function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
 class Logger {
   private logLevel: LogLevel;
   private isDevelopment: boolean;
@@ -35,12 +49,17 @@ class Logger {
   }
 
   private getLogLevel(): LogLevel {
-    const envLevel = import.meta.env.LOG_LEVEL?.toUpperCase();
+    // Check both import.meta.env (Vite) and process.env (Node/test)
+    const envLevel = import.meta.env.LOG_LEVEL || process.env.LOG_LEVEL;
+    const normalizedLevel = envLevel?.toUpperCase();
+
     if (
-      envLevel &&
-      Object.values(LogLevel).includes(envLevel.toLowerCase() as LogLevel)
+      normalizedLevel &&
+      Object.values(LogLevel).includes(
+        normalizedLevel.toLowerCase() as LogLevel
+      )
     ) {
-      return envLevel.toLowerCase() as LogLevel;
+      return normalizedLevel.toLowerCase() as LogLevel;
     }
     return this.isDevelopment ? LogLevel.DEBUG : LogLevel.INFO;
   }
@@ -57,12 +76,51 @@ class Logger {
     return messageLevelIndex >= currentLevelIndex;
   }
 
+  private sanitizeContext(context?: LogContext): LogContext | undefined {
+    if (!context) return undefined;
+
+    const sanitized: LogContext = {};
+    const sensitiveKeys = ['password', 'token', 'secret', 'auth', 'cookie'];
+
+    for (const [key, value] of Object.entries(context)) {
+      const lowerKey = key.toLowerCase();
+      if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
+        sanitized[key] = '[REDACTED]';
+      } else {
+        sanitized[key] = value;
+      }
+    }
+
+    return sanitized;
+  }
+
   private formatLog(entry: LogEntry): string {
-    const contextStr = entry.context ? ` ${JSON.stringify(entry.context)}` : '';
+    const sanitizedContext = this.sanitizeContext(entry.context);
+    const contextStr = sanitizedContext
+      ? ` ${JSON.stringify(sanitizedContext)}`
+      : '';
     const errorStr = entry.error
       ? ` ${entry.error.name}: ${entry.error.message}`
       : '';
     return `[${entry.timestamp}] ${entry.level.toUpperCase()}: ${entry.message}${contextStr}${errorStr}`;
+  }
+
+  private formatStructuredLog(entry: LogEntry): object {
+    const sanitizedContext = this.sanitizeContext(entry.context);
+
+    return {
+      timestamp: entry.timestamp,
+      level: entry.level,
+      message: entry.message,
+      context: sanitizedContext,
+      error: entry.error
+        ? {
+            name: entry.error.name,
+            message: entry.error.message,
+          }
+        : undefined,
+      service: 'maskom-website',
+    };
   }
 
   private log(
@@ -111,12 +169,15 @@ class Logger {
           break;
       }
     } else {
-      // In production, you might want to send to a logging service
-      // For now, we'll use console.error for errors and console.log for others
+      // In production, use structured logging with sanitization
+      const structuredLog = this.formatStructuredLog(logEntry);
+
+      // Always use console.error for errors, console.log for others
+      // This ensures proper log level handling in production environments
       if (level === LogLevel.ERROR) {
-        console.error(formattedLog);
+        console.error(JSON.stringify(structuredLog));
       } else {
-        console.log(formattedLog);
+        console.log(JSON.stringify(structuredLog));
       }
     }
   }
@@ -142,6 +203,29 @@ class Logger {
     const errorObj = error instanceof Error ? error : new Error(String(error));
     this.error(message, errorObj, context);
   }
+
+  // Create a child logger with predefined context
+  child(context: LogContext): {
+    debug: (message: string, additionalContext?: LogContext) => void;
+    info: (message: string, additionalContext?: LogContext) => void;
+    warn: (message: string, additionalContext?: LogContext) => void;
+    error: (
+      message: string,
+      error?: Error,
+      additionalContext?: LogContext
+    ) => void;
+  } {
+    return {
+      debug: (message: string, additionalContext?: LogContext) =>
+        this.debug(message, { ...context, ...additionalContext }),
+      info: (message: string, additionalContext?: LogContext) =>
+        this.info(message, { ...context, ...additionalContext }),
+      warn: (message: string, additionalContext?: LogContext) =>
+        this.warn(message, { ...context, ...additionalContext }),
+      error: (message: string, error?: Error, additionalContext?: LogContext) =>
+        this.error(message, error, { ...context, ...additionalContext }),
+    };
+  }
 }
 
 // Export Logger class for testing
@@ -162,4 +246,5 @@ export const log = {
     logger.error(message, error, context),
   apiError: (message: string, error: unknown, context?: LogContext) =>
     logger.apiError(message, error, context),
+  child: (context: LogContext) => logger.child(context),
 };

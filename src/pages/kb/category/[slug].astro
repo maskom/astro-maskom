@@ -1,0 +1,23 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import KnowledgeBase from '../../../components/support/KnowledgeBase.astro';
+
+export interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<Layout title="Knowledge Base - Maskom Network">
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <KnowledgeBase 
+        categorySlug={slug}
+        showSearch={true}
+        showCategories={true}
+        limit={20}
+      />
+    </div>
+  </div>
+</Layout>

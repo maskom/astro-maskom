@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "pages:dev": "wrangler pages dev ./dist",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy dist",
     "security:audit": "npm audit --audit-level moderate",
     "security:audit:critical": "npm audit --audit-level critical",
     "security:audit:full": "npm audit --audit-level low",
@@ -27,7 +28,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build"
+    "verify:setup": "node scripts/verify-typescript-setup.js",
+    "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
+    "deploy:verify": "node scripts/verify-deployment.js"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.10",
@@ -38,10 +41,10 @@
     "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/vite": "^4.1.17",
     "@types/node": "^24.10.1",
-    "astro": "^5.15.4",
+    "astro": "^5.15.8",
     "astro-icon": "^1.1.5",
     "astro-seo": "^0.8.4",
-    "chart.js": "^4.4.0",
+    "chart.js": "^4.5.1",
     "openai": "^6.9.0",
     "supabase": "^2.58.5",
     "tailwindcss": "^4.1.17",
