@@ -6,6 +6,7 @@ import { sessionManager } from '../../../lib/security/session';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import {
   Permission,
+  type SecurityContext,
   SecuritySeverity,
   UserRole,
 } from '../../../lib/security/types';
@@ -13,7 +14,7 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies, url }) => {
-  let securityContext: any = null;
+  let securityContext: SecurityContext | null = null;
   try {
     securityContext = await SecurityMiddleware.createSecurityContext(
       request,
