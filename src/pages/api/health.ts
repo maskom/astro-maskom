@@ -136,6 +136,7 @@ export const GET: APIRoute = async () => {
     if (cfEnv.pages.url) {
       checks.services.cloudflare.features.push('pages-deployed');
     }
+
     // Test KV namespace availability
     try {
       // Check if SESSION KV binding is available (runtime check)

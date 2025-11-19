@@ -24,7 +24,7 @@ export interface AppConfig {
 
 export const config: AppConfig = {
   supabaseUrl: process.env.SUPABASE_URL || '',
-supabaseAnonKey: process.env.SUPABASE_KEY || '',
+  supabaseAnonKey: process.env.SUPABASE_KEY || '',
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   midtransServerKey: process.env.MIDTRANS_SERVER_KEY || '',
   midtransClientKey: process.env.MIDTRANS_CLIENT_KEY || '',
