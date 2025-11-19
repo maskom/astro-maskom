@@ -74,12 +74,16 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     // Get summary statistics
     const stats = await getSecurityStats(securityContext.userId);
 
+    // Get CSP violation statistics
+    const cspStats = await getCSPStats(securityContext.userId);
+
     return new Response(
       JSON.stringify({
         events,
         auditLogs,
         userSessions,
         stats,
+        cspStats,
         permissions: securityContext.permissions,
         role: securityContext.role,
       }),
@@ -164,6 +168,119 @@ async function getSecurityStats(userId: string) {
       suspiciousSessions: 0,
       lastLogin: null,
       mfaEnabled: false,
+    };
+  }
+}
+
+async function getCSPStats(userId: string) {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // Get CSP violations from logs (this would ideally query a database)
+    const allLogs = await securityAuditLogger.getAuditLogs(
+      undefined,
+      undefined,
+      5000
+    );
+
+    // Filter CSP-related logs
+    const cspLogs = allLogs.filter(
+      log =>
+        log.details &&
+        typeof log.details === 'object' &&
+        log.details !== null &&
+        'violationType' in log.details &&
+        log.details.violationType === 'CSP violation'
+    );
+
+    // Recent violations (last 24 hours)
+    const recentViolations = cspLogs.filter(
+      log => new Date(log.timestamp) > twentyFourHoursAgo
+    );
+
+    // Weekly violations
+    const weeklyViolations = cspLogs.filter(
+      log => new Date(log.timestamp) > sevenDaysAgo
+    );
+
+    // Categorize by severity
+    const highSeverityViolations = weeklyViolations.filter(
+      log =>
+        log.details &&
+        typeof log.details === 'object' &&
+        log.details !== null &&
+        'severity' in log.details &&
+        log.details.severity === 'high'
+    ).length;
+
+    const mediumSeverityViolations = weeklyViolations.filter(
+      log =>
+        log.details &&
+        typeof log.details === 'object' &&
+        log.details !== null &&
+        'severity' in log.details &&
+        log.details.severity === 'medium'
+    ).length;
+
+    const lowSeverityViolations = weeklyViolations.filter(
+      log =>
+        log.details &&
+        typeof log.details === 'object' &&
+        log.details !== null &&
+        'severity' in log.details &&
+        log.details.severity === 'low'
+    ).length;
+
+    // Most common violated directives
+    const directiveCounts: Record<string, number> = {};
+    weeklyViolations.forEach(log => {
+      if (
+        log.details &&
+        typeof log.details === 'object' &&
+        log.details !== null &&
+        'violatedDirective' in log.details &&
+        typeof log.details.violatedDirective === 'string'
+      ) {
+        const directive = log.details.violatedDirective;
+        directiveCounts[directive] = (directiveCounts[directive] || 0) + 1;
+      }
+    });
+
+    const mostCommonViolations = Object.entries(directiveCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([directive, count]) => ({ directive, count }));
+
+    return {
+      totalViolations24h: recentViolations.length,
+      totalViolations7d: weeklyViolations.length,
+      highSeverityViolations,
+      mediumSeverityViolations,
+      lowSeverityViolations,
+      mostCommonViolations,
+      lastViolation:
+        recentViolations.length > 0 ? recentViolations[0].timestamp : null,
+    };
+  } catch (error) {
+    logger.error(
+      'CSP stats error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/dashboard',
+        operation: 'getCSPStats',
+        userId,
+      }
+    );
+    return {
+      totalViolations24h: 0,
+      totalViolations7d: 0,
+      highSeverityViolations: 0,
+      mediumSeverityViolations: 0,
+      lowSeverityViolations: 0,
+      mostCommonViolations: [],
+      lastViolation: null,
     };
   }
 }
