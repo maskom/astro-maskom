@@ -1,7 +1,6 @@
 {
-  "extends": "astro/tsconfigs/base",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
+  "include": ["**/*", "types/**/*"],
+  "exclude": ["dist", ".astro"],
   "compilerOptions": {
     "jsx": "preserve",
     "target": "ES2020",
@@ -18,9 +17,13 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   }
 }
