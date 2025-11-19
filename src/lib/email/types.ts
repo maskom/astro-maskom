@@ -6,7 +6,7 @@ export interface EmailQueueItem {
   content_html?: string;
   content_text?: string;
   template_id?: string;
-  template_data: Record<string, any>;
+  template_data: Record<string, unknown>;
   priority: number;
   status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'retry';
   attempts: number;
@@ -15,7 +15,7 @@ export interface EmailQueueItem {
   next_retry_at?: string;
   sent_at?: string;
   error_message?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -50,12 +50,12 @@ export interface EmailDeliveryLog {
   response_code?: string;
   response_message?: string;
   processed_at: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface EmailQueueSettings {
   key: string;
-  value: any;
+  value: unknown;
   description?: string;
   updated_at: string;
 }
@@ -76,9 +76,9 @@ export interface SendEmailOptions {
   html?: string;
   text?: string;
   template?: string;
-  templateData?: Record<string, any>;
+  templateData?: Record<string, unknown>;
   priority?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface EmailConfig {
@@ -120,4 +120,39 @@ export interface EmailDeliveryResult {
   error?: string;
   provider: string;
   timestamp?: Date;
+}
+
+// Supabase database types for email queue operations
+export interface EmailQueueInsert {
+  to_email: string;
+  subject: string;
+  content_html?: string | null;
+  content_text?: string | null;
+  status: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'retry';
+  priority: number;
+  template_data: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface EmailQueueUpdate {
+  status?: 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled' | 'retry';
+  next_retry_at?: string | null;
+  error_message?: string | null;
+}
+
+export type TemplateInsert = Omit<
+  EmailTemplate,
+  'id' | 'created_at' | 'updated_at' | 'version'
+>;
+
+export interface QueueSettingUpsert {
+  key: string;
+  value: unknown;
+  updated_at: string;
+}
+
+// Generic template data type for better type safety
+export interface TemplateData {
+  [key: string]: unknown;
 }

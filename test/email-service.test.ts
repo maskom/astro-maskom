@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { EmailQueueService } from '@/lib/email/queue';
 
 // Mock EmailQueueService first
 vi.mock('@/lib/email/queue', () => ({
@@ -25,10 +26,8 @@ describe('EmailService', () => {
 
   describe('sendWelcomeEmail', () => {
     it('should send welcome email', async () => {
-      const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
-        'email-id'
-      );
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const result = await service.sendWelcomeEmail(
         'test@example.com',
@@ -49,10 +48,8 @@ describe('EmailService', () => {
 
   describe('sendPaymentConfirmation', () => {
     it('should send payment confirmation email', async () => {
-      const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
-        'email-id'
-      );
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const orderData = {
         orderId: 'ORD-123',
@@ -83,10 +80,8 @@ describe('EmailService', () => {
 
   describe('sendPasswordReset', () => {
     it('should send password reset email', async () => {
-      const queueService = service.getQueueService();
-      (queueService.sendTransactionalEmail as any).mockResolvedValue(
-        'email-id'
-      );
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.sendTransactionalEmail.mockResolvedValue('email-id');
 
       const result = await service.sendPasswordReset(
         'test@example.com',
@@ -109,8 +104,8 @@ describe('EmailService', () => {
 
   describe('sendServiceNotification', () => {
     it('should send service notification with error severity', async () => {
-      const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -131,8 +126,8 @@ describe('EmailService', () => {
     });
 
     it('should send service notification with info severity', async () => {
-      const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const result = await service.sendServiceNotification(
         'test@example.com',
@@ -155,8 +150,8 @@ describe('EmailService', () => {
 
   describe('sendBillingReminder', () => {
     it('should send billing reminder email', async () => {
-      const queueService = service.getQueueService();
-      (queueService.addEmailToQueue as any).mockResolvedValue('email-id');
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.addEmailToQueue.mockResolvedValue('email-id');
 
       const invoiceData = {
         invoiceNumber: 'INV-123',
@@ -187,11 +182,15 @@ describe('EmailService', () => {
 
   describe('processQueue', () => {
     it('should process queue with custom batch size', async () => {
-      const queueService = service.getQueueService();
-      (queueService.getSettings as any).mockResolvedValue([
-        { key: 'max_batch_size', value: 20 },
+      const queueService = vi.mocked(service.getQueueService());
+      queueService.getSettings.mockResolvedValue([
+        {
+          key: 'max_batch_size',
+          value: 20,
+          updated_at: '2024-01-01T00:00:00Z',
+        },
       ]);
-      (queueService.processQueue as any).mockResolvedValue({
+      queueService.processQueue.mockResolvedValue({
         processed: 15,
         failed: 2,
       });

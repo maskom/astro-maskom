@@ -1,9 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
-import type { EmailOptions, EmailDeliveryResult } from '../types';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type {
+  EmailOptions,
+  EmailDeliveryResult,
+  EmailQueueInsert,
+} from '../types';
 
 export class SupabaseEmailProvider {
   public readonly name = 'supabase';
-  private supabase: ReturnType<typeof createClient>;
+  private supabase: SupabaseClient;
 
   constructor() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -48,19 +52,21 @@ export class SupabaseEmailProvider {
 
       // Use Supabase Database to store email for queue processing
       // Note: This stores the email in the database for later processing by the email queue
-      const { data, error } = await (this.supabase as any)
+      const emailData: EmailQueueInsert = {
+        to_email: toEmails[0],
+        subject: options.subject,
+        content_html: options.html || null,
+        content_text: options.text || null,
+        status: 'pending',
+        priority: options.priority || 5,
+        template_data: options.templateData || {},
+        metadata: options.metadata || {},
+        created_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await this.supabase
         .from('email_queue')
-        .insert({
-          to_email: toEmails[0],
-          subject: options.subject,
-          content_html: options.html,
-          content_text: options.text,
-          status: 'pending',
-          priority: options.priority || 5,
-          template_data: options.templateData || {},
-          metadata: options.metadata || {},
-          created_at: new Date().toISOString(),
-        })
+        .insert(emailData)
         .select()
         .single();
 

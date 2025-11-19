@@ -165,7 +165,8 @@ View your invoice at: ${process.env.SITE_URL}/billing
   async processQueue(): Promise<{ processed: number; failed: number }> {
     const settings = await this.queueService.getSettings();
     const batchSizeSetting = settings.find(s => s.key === 'max_batch_size');
-    const batchSize = batchSizeSetting?.value || 10;
+    const batchSize =
+      typeof batchSizeSetting?.value === 'number' ? batchSizeSetting.value : 10;
 
     return this.queueService.processQueue(batchSize);
   }
@@ -206,7 +207,7 @@ View your invoice at: ${process.env.SITE_URL}/billing
   /**
    * Get configuration
    */
-  getConfiguration(): Record<string, any> {
+  getConfiguration(): Record<string, unknown> {
     return {
       provider: 'supabase',
       queueEnabled: true,
