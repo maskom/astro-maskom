@@ -56,7 +56,8 @@ export const getStatusData = async (): Promise<StatusData> => {
     if (servicesError) throw servicesError;
 
     // Fetch active incidents
-    const { data: incidents, error: incidentsError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: incidents, error: incidentsError } = await (supabase as any)
       .from('incidents')
       .select('*')
       .in('status', ['investigating', 'identified', 'monitoring'])
@@ -118,7 +119,8 @@ export const getUptimePercentage = async (
   try {
     // This is a simplified implementation
     // In a real system, you would have a history table tracking service status over time
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('service_uptime')
       .select('uptime_percentage')
       .eq('service_id', serviceId)
@@ -149,7 +151,8 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .insert({
         ...incident,
@@ -195,7 +198,8 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -236,7 +240,8 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('incidents')
       .select('*')
       .order('created_at', { ascending: false });
