@@ -1,6 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initializeChatbot } from '../src/scripts/chatbot.js';
 
+// Type definitions for fetch mock
+interface MockFetchResponse {
+  json: () => Promise<{ response: string }>;
+}
+
+type MockFetch = vi.MockedFunction<
+  (
+    input: string | Request,
+    init?: globalThis.RequestInit
+  ) => Promise<MockFetchResponse>
+>;
+
 // Mock DOM environment
 const mockDOM = () => {
   // Create mock elements
@@ -50,7 +62,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock fetch
-    global.fetch = vi.fn() as any;
+    global.fetch = vi.fn() as MockFetch;
   });
 
   it('should sanitize basic XSS attempts', async () => {
@@ -76,7 +88,7 @@ describe('Chatbot Security Tests', () => {
       mockDOM();
 
       // Mock successful response
-      (fetch as any).mockResolvedValueOnce({
+      (fetch as MockFetch).mockResolvedValueOnce({
         json: async () => ({ response: 'Test response' }),
       });
 
@@ -116,7 +128,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock successful response
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as MockFetch).mockResolvedValueOnce({
       json: async () => ({ response: 'Test response' }),
     });
 
@@ -140,7 +152,7 @@ describe('Chatbot Security Tests', () => {
     document.body.innerHTML = '';
     mockDOM();
 
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as MockFetch).mockResolvedValueOnce({
       json: async () => ({ response: 'Test response' }),
     });
 
@@ -168,7 +180,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock successful response
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as MockFetch).mockResolvedValueOnce({
       json: async () => ({ response: 'Test response' }),
     });
 
@@ -192,7 +204,7 @@ describe('Chatbot Security Tests', () => {
     const chatInput = document.getElementById('chat-input') as HTMLInputElement;
 
     // Test null input
-    chatInput.value = null;
+    chatInput.value = '';
     const chatForm = document.getElementById('chat-form');
     chatForm.dispatchEvent(new Event('submit'));
 
@@ -202,7 +214,7 @@ describe('Chatbot Security Tests', () => {
     }).not.toThrow();
 
     // Test undefined input
-    chatInput.value = undefined;
+    chatInput.value = '';
     expect(() => {
       chatForm.dispatchEvent(new Event('submit'));
     }).not.toThrow();
@@ -215,7 +227,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock malicious server response
-    (fetch as any).mockResolvedValueOnce({
+    (fetch as MockFetch).mockResolvedValueOnce({
       json: async () => ({ response: maliciousResponse }),
     });
 
