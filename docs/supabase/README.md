@@ -56,12 +56,54 @@ SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
+## Performance Optimization
+
+### Database Indexes
+
+The database includes comprehensive indexing strategies for optimal performance:
+
+#### Security Tables
+
+- `security_audit_logs`: Composite indexes on user_id+timestamp, action+timestamp, risk_level+timestamp
+- `security_events`: Type and severity-based indexes with timestamp ordering
+- `security_alerts`: Priority-based indexes for alert management
+
+#### Business Logic Tables
+
+- `bandwidth_usage`: User-date composite indexes for usage analytics
+- `payment_transactions`: Status and date-based indexes for financial queries
+- `support_tickets`: Priority and status indexes for ticket management
+- `customer_subscriptions`: Active subscription optimization indexes
+
+#### Partial Indexes
+
+- Pending transactions only
+- High-priority open tickets
+- Unresolved high-severity security events
+
+#### Full-Text Search
+
+- Support ticket subjects and descriptions
+- Ticket message content
+- GIN indexes for efficient text search
+
+### Performance Monitoring
+
+A `performance_metrics` view provides real-time insights into:
+
+- Table row counts and growth
+- Recent activity patterns (24-hour windows)
+- Latest record timestamps
+
+Use `SELECT update_table_statistics();` to refresh PostgreSQL statistics for optimal query planning.
+
 ## Security
 
 - Row Level Security enabled on all tables
 - API keys properly scoped
 - Environment variables for sensitive data
 - Regular security audits recommended
+- Comprehensive audit logging with performance-optimized queries
 
 ## Development Setup
 
@@ -73,4 +115,4 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ---
 
-_Last Updated: 2025-11-14_
+_Last Updated: 2025-11-20_
