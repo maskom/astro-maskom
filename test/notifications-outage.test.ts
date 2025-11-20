@@ -26,11 +26,11 @@ describe('OutageNotifications', () => {
     title: 'Test Outage',
     description: 'Test outage description',
     severity: 'high',
-    status: 'active',
+    status: 'investigating',
     affected_regions: ['region-1'],
     affected_services: ['service-1'],
     estimated_resolution: '2024-01-01T12:00:00Z',
-    actual_resolution: null,
+    actual_resolution: undefined,
     created_at: '2024-01-01T10:00:00Z',
     updated_at: '2024-01-01T10:00:00Z',
   };
@@ -50,8 +50,8 @@ describe('OutageNotifications', () => {
     recipient: 'test@example.com',
     message_content: 'Test message',
     created_at: '2024-01-01T10:00:00Z',
-    sent_at: null,
-    error_message: null,
+    sent_at: undefined,
+    error_message: undefined,
   };
 
   beforeEach(() => {
@@ -85,12 +85,20 @@ describe('OutageNotifications', () => {
         mockUser,
       ]);
       vi.mocked(mockDatabase.getUserNotificationPreferences).mockResolvedValue({
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: true,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium' as const,
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       });
       vi.mocked(mockValidation.shouldNotifyUser).mockReturnValue(true);
       vi.mocked(mockDatabase.getNotificationTemplate).mockResolvedValue({
@@ -167,17 +175,34 @@ describe('OutageNotifications', () => {
   describe('processUserNotification', () => {
     it('should skip users with outage notifications disabled', async () => {
       vi.mocked(mockDatabase.getUserNotificationPreferences).mockResolvedValue({
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: false,
         email_notifications: true,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium',
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       });
 
       // Access private method through prototype for testing
       const processUserNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).processUserNotification.bind(outageNotifications);
       await processUserNotification(
         mockUser,
@@ -194,7 +219,16 @@ describe('OutageNotifications', () => {
       );
 
       const processUserNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).processUserNotification.bind(outageNotifications);
       await processUserNotification(
         mockUser,
@@ -209,12 +243,20 @@ describe('OutageNotifications', () => {
   describe('sendNotification', () => {
     beforeEach(() => {
       vi.mocked(mockDatabase.getUserNotificationPreferences).mockResolvedValue({
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: true,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium',
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       });
     });
 
@@ -222,7 +264,16 @@ describe('OutageNotifications', () => {
       vi.mocked(mockDatabase.getNotificationTemplate).mockResolvedValue(null);
 
       const sendNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
         mockUser,
@@ -253,7 +304,16 @@ describe('OutageNotifications', () => {
       });
 
       const sendNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
         mockUser,
@@ -290,7 +350,16 @@ describe('OutageNotifications', () => {
       });
 
       const sendNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
         mockUser,
@@ -308,7 +377,16 @@ describe('OutageNotifications', () => {
       vi.mocked(mockDatabase.updateNotificationStatus).mockResolvedValue(true);
 
       const deliverNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverNotification.bind(outageNotifications);
       await deliverNotification(mockNotification, 'Test Subject', {
         title: 'Test',
@@ -326,12 +404,21 @@ describe('OutageNotifications', () => {
     it('should handle unknown notification types', async () => {
       const unknownNotification = {
         ...mockNotification,
-        notification_type: 'unknown' as any,
+        notification_type: 'email' as const,
       };
       vi.mocked(mockDatabase.updateNotificationStatus).mockResolvedValue(true);
 
       const deliverNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverNotification.bind(outageNotifications);
       await deliverNotification(unknownNotification);
 
@@ -356,9 +443,18 @@ describe('OutageNotifications', () => {
         severity: 'High',
       };
 
-      const renderTemplate = (outageNotifications as any).renderTemplate.bind(
-        outageNotifications
-      );
+      const renderTemplate = (
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
+      ).renderTemplate.bind(outageNotifications);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe(
@@ -372,9 +468,18 @@ describe('OutageNotifications', () => {
         title: 'Test Outage',
       };
 
-      const renderTemplate = (outageNotifications as any).renderTemplate.bind(
-        outageNotifications
-      );
+      const renderTemplate = (
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
+      ).renderTemplate.bind(outageNotifications);
       const result = renderTemplate(template, variables);
 
       expect(result).toBe('Outage Test Outage: {{missing_var}}');
@@ -440,7 +545,16 @@ describe('OutageNotifications', () => {
 
     it('should deliver email notifications', async () => {
       const deliverEmailNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverEmailNotification.bind(outageNotifications);
       const result = await deliverEmailNotification(mockNotification);
 
@@ -449,7 +563,16 @@ describe('OutageNotifications', () => {
 
     it('should deliver SMS notifications', async () => {
       const deliverSmsNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverSmsNotification.bind(outageNotifications);
       const result = await deliverSmsNotification(mockNotification);
 
@@ -458,7 +581,16 @@ describe('OutageNotifications', () => {
 
     it('should deliver in-app notifications', async () => {
       const deliverInAppNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverInAppNotification.bind(outageNotifications);
       const result = await deliverInAppNotification(mockNotification);
 
@@ -467,7 +599,16 @@ describe('OutageNotifications', () => {
 
     it('should deliver push notifications', async () => {
       const deliverPushNotification = (
-        outageNotifications as any
+        outageNotifications as unknown as {
+          processUserNotification: (...args: unknown[]) => Promise<unknown>;
+          renderTemplate: (...args: unknown[]) => Promise<unknown>;
+          sendNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverEmailNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverSmsNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverInAppNotification: (...args: unknown[]) => Promise<unknown>;
+          deliverPushNotification: (...args: unknown[]) => Promise<unknown>;
+        }
       ).deliverPushNotification.bind(outageNotifications);
       const result = await deliverPushNotification(mockNotification);
 

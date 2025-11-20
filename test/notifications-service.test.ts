@@ -51,11 +51,11 @@ describe('OutageNotificationService', () => {
     title: 'Test Outage',
     description: 'Test outage description',
     severity: 'high' as const,
-    status: 'active' as const,
+    status: 'investigating' as const,
     affected_regions: ['region-1'],
     affected_services: ['service-1'],
     estimated_resolution: '2024-01-01T12:00:00Z',
-    actual_resolution: null,
+    actual_resolution: undefined,
     created_at: '2024-01-01T10:00:00Z',
     updated_at: '2024-01-01T10:00:00Z',
   };
@@ -65,7 +65,7 @@ describe('OutageNotificationService', () => {
       title: 'Test Outage',
       description: 'Test outage description',
       severity: 'high',
-      status: 'active',
+      status: 'investigating',
       affected_regions: ['region-1'],
       affected_services: ['service-1'],
       estimated_resolution: '2024-01-01T12:00:00Z',
@@ -255,12 +255,20 @@ describe('OutageNotificationService', () => {
       );
 
       const mockPreferences = {
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: true,
         sms_notifications: false,
         in_app_notifications: true,
         push_notifications: false,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium' as const,
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       };
 
       vi.mocked(
@@ -281,12 +289,20 @@ describe('OutageNotificationService', () => {
       );
 
       const mockDefaultPreferences = {
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: true,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium' as const,
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       };
 
       vi.mocked(
@@ -315,12 +331,20 @@ describe('OutageNotificationService', () => {
       );
 
       const mockDefaultPreferences = {
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: true,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium' as const,
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       };
 
       vi.mocked(
@@ -354,12 +378,20 @@ describe('OutageNotificationService', () => {
         };
 
       const mockUpdatedPreferences = {
+        id: 'pref-123',
         user_id: 'user-123',
         outage_notifications: true,
         email_notifications: false,
         sms_notifications: true,
         in_app_notifications: true,
         push_notifications: true,
+        maintenance_notifications: false,
+        billing_notifications: false,
+        marketing_notifications: false,
+        minimum_severity: 'medium' as const,
+        timezone: 'UTC',
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
       };
 
       vi.mocked(
@@ -423,8 +455,8 @@ describe('OutageNotificationService', () => {
       const mockTemplate = {
         id: 'template-123',
         name: 'Test Template',
-        type: 'outage_started',
-        channel: 'email',
+        type: 'outage_started' as const,
+        channel: 'email' as const,
         subject_template: 'Outage: {{title}}',
         message_template: 'Outage {{title}}: {{description}}',
         variables: ['title', 'description'],
@@ -461,13 +493,13 @@ describe('OutageNotificationService', () => {
           id: 'notification-123',
           outage_event_id: 'outage-123',
           user_id: 'user-123',
-          notification_type: 'email',
-          status: 'sent',
+          notification_type: 'email' as const,
+          status: 'sent' as const,
           recipient: 'test@example.com',
           message_content: 'Test message',
           created_at: '2024-01-01T10:00:00Z',
           sent_at: '2024-01-01T10:05:00Z',
-          error_message: null,
+          error_message: undefined,
         },
       ];
 
@@ -600,7 +632,7 @@ describe('OutageNotificationService', () => {
 
       const templateData = {
         name: 'Test Template',
-        type: 'outage_started',
+        type: 'outage_started' as const,
         channel: 'email',
         subject_template: 'Outage: {{title}}',
         message_template: 'Outage {{title}}: {{description}}',
@@ -631,7 +663,7 @@ describe('OutageNotificationService', () => {
 
       const templateData = {
         name: '',
-        type: 'outage_started',
+        type: 'outage_started' as const,
         channel: 'email',
         message_template: 'Test message',
       };

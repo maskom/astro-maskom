@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  ValidationEngine,
-  ValidationSchema,
-  ValidationRule,
-} from '../src/lib/validation';
+import { ValidationEngine, ValidationSchema } from '../src/lib/validation';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
@@ -47,7 +43,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should validate array types with constraints', () => {
@@ -77,7 +74,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject invalid array data', () => {
@@ -98,8 +96,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].message).toContain('must be an array');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].message).toContain('must be an array');
     });
 
     it('should validate URL patterns', () => {
@@ -115,7 +114,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject invalid URLs', () => {
@@ -131,7 +131,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
     });
 
     it('should handle conditional validation', () => {
@@ -146,7 +147,7 @@ describe('ValidationEngine Extended Tests', () => {
           required: false,
           custom: (value, data) => {
             if (
-              data.type === 'admin' &&
+              (data as Record<string, unknown>).type === 'admin' &&
               (!Array.isArray(value) || value.length === 0)
             ) {
               return 'Admin users must have permissions';
@@ -163,8 +164,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(adminWithoutPermissions, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].message).toContain('permissions');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].message).toContain('permissions');
     });
 
     it('should validate complex number ranges', () => {
@@ -187,7 +189,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject numbers outside range', () => {
@@ -204,8 +207,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].message).toContain('at least 18');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].message).toContain('at least 18');
     });
 
     it('should handle string sanitization', () => {
@@ -228,7 +232,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should validate boolean fields', () => {
@@ -247,7 +252,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject invalid boolean values', () => {
@@ -262,7 +268,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
     });
 
     it('should handle multiple validation errors', () => {
@@ -292,8 +299,13 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(3);
-      expect(result.errors.map(e => e.field)).toEqual(['email', 'age', 'name']);
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(3);
+      expect(result.errors!.map(e => e.field)).toEqual([
+        'email',
+        'age',
+        'name',
+      ]);
     });
 
     it('should validate optional fields with valid data', () => {
@@ -313,7 +325,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(data, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(data);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(data);
     });
 
     it('should validate optional fields when provided', () => {
@@ -333,8 +346,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(data, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].field).toBe('optional');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].field).toBe('optional');
     });
 
     it('should handle cross-field validation', () => {
@@ -348,7 +362,7 @@ describe('ValidationEngine Extended Tests', () => {
           type: 'string',
           required: true,
           custom: (value, data) => {
-            if (value !== data.password) {
+            if (value !== (data as Record<string, unknown>).password) {
               return 'Passwords do not match';
             }
             return true;
@@ -364,8 +378,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].message).toContain('validation failed');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].message).toContain('validation failed');
     });
 
     it('should validate enum values correctly', () => {
@@ -381,7 +396,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject invalid enum values', () => {
@@ -397,8 +413,9 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].message).toContain('must be one of');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
+      expect(result.errors![0].message).toContain('must be one of');
     });
 
     it('should handle numeric enum values', () => {
@@ -414,7 +431,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(validData, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(validData);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(validData);
     });
 
     it('should reject invalid numeric enum values', () => {
@@ -430,7 +448,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(invalidData, schema);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(1);
+      expect(result.errors).toBeDefined();
+      expect(result.errors!).toHaveLength(1);
     });
   });
 
@@ -468,7 +487,8 @@ describe('ValidationEngine Extended Tests', () => {
       const result = validationEngine.validate(data, schema);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(data);
+      expect(result.data).toBeDefined();
+      expect(result.data!).toEqual(data);
     });
 
     it('should handle validation context', () => {

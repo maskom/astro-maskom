@@ -21,27 +21,23 @@ const mockSupabase = {
   eq: vi.fn(() => mockSupabase),
   single: vi.fn(() => mockSupabase),
   insert: vi.fn(() => mockSupabase),
+  data: null,
+  error: null,
 };
 
 describe('Subscribers API - Email Service Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(createServiceClient).mockReturnValue(mockSupabase);
+    vi.mocked(createServiceClient).mockReturnValue(mockSupabase as any);
     vi.mocked(emailService.sendCustomEmail).mockResolvedValue('email-id');
   });
 
   it('should send confirmation email when new subscriber is created', async () => {
     // Mock database responses
     mockSupabase.single.mockResolvedValueOnce({
-      data: null,
-      error: { code: 'PGRST116' },
-    }); // Email not found
-    mockSupabase.insert.mockReturnValueOnce(mockSupabase);
-    mockSupabase.select.mockReturnValueOnce(mockSupabase);
-    mockSupabase.single.mockResolvedValueOnce({
       data: { id: 'subscriber-123', email: 'test@example.com' },
       error: null,
-    });
+    } as any);
 
     const request = new Request('http://localhost:4321/api/subscribers', {
       method: 'POST',
@@ -49,7 +45,23 @@ describe('Subscribers API - Email Service Integration', () => {
       body: JSON.stringify({ email: 'test@example.com' }),
     });
 
-    const response = await POST({ request } as any);
+    const response = await POST({
+      request,
+      params: {},
+      props: {},
+      url: new URL('http://localhost:4321/api/subscribers'),
+      site: {},
+      generator: {},
+      redirect: () => {},
+      clientAddress: '127.0.0.1',
+      locals: {},
+      getStaticPaths: () => [],
+      route: '',
+      origin: '',
+      pathname: '',
+      search: '',
+      searchParams: new URLSearchParams(),
+    } as any);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -70,15 +82,9 @@ describe('Subscribers API - Email Service Integration', () => {
   it('should handle email service failure gracefully', async () => {
     // Mock database responses
     mockSupabase.single.mockResolvedValueOnce({
-      data: null,
-      error: { code: 'PGRST116' },
-    }); // Email not found
-    mockSupabase.insert.mockReturnValueOnce(mockSupabase);
-    mockSupabase.select.mockReturnValueOnce(mockSupabase);
-    mockSupabase.single.mockResolvedValueOnce({
       data: { id: 'subscriber-123', email: 'test@example.com' },
       error: null,
-    });
+    } as any);
 
     // Mock email service failure
     vi.mocked(emailService.sendCustomEmail).mockRejectedValueOnce(
@@ -91,7 +97,23 @@ describe('Subscribers API - Email Service Integration', () => {
       body: JSON.stringify({ email: 'test@example.com' }),
     });
 
-    const response = await POST({ request } as any);
+    const response = await POST({
+      request,
+      params: {},
+      props: {},
+      url: new URL('http://localhost:4321/api/subscribers'),
+      site: {},
+      generator: {},
+      redirect: () => {},
+      clientAddress: '127.0.0.1',
+      locals: {},
+      getStaticPaths: () => [],
+      route: '',
+      origin: '',
+      pathname: '',
+      search: '',
+      searchParams: new URLSearchParams(),
+    } as any);
     const data = await response.json();
 
     // Should still succeed despite email failure
@@ -108,14 +130,14 @@ describe('Subscribers API - Email Service Integration', () => {
     // Mock database responses
     mockSupabase.single.mockResolvedValueOnce({
       data: null,
-      error: { code: 'PGRST116' },
-    }); // Email not found
+      error: { message: 'Not found' },
+    } as any); // Email not found
     mockSupabase.insert.mockReturnValueOnce(mockSupabase);
     mockSupabase.select.mockReturnValueOnce(mockSupabase);
     mockSupabase.single.mockResolvedValueOnce({
-      data: { id: 'subscriber-456', email: 'user@example.com' },
-      error: null,
-    });
+      data: null,
+      error: { message: 'Already exists' },
+    } as any);
 
     const request = new Request('http://localhost:4321/api/subscribers', {
       method: 'POST',
