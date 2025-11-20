@@ -13,15 +13,30 @@ This document outlines the required environment variables and secrets for the de
 
 ## Environment Variables
 
+### Required Environment Variables
+
+The application requires these environment variables to be configured in Cloudflare Pages:
+
+#### Supabase Configuration (Required)
+- `SUPABASE_URL`: Your Supabase project URL (e.g., `https://your-project.supabase.co`)
+- `SUPABASE_KEY`: Your Supabase anonymous/public key
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (optional, for admin operations)
+
+#### Application Configuration (Required)
+- `NODE_ENV`: Set to "production" for production deployments
+- `SITE_URL`: The production site URL (e.g., `https://astro-maskom.pages.dev`)
+- `LOG_LEVEL`: Set to "info" for production logging
+
 ### Staging Environment
 - `NODE_ENV`: Set to "staging"
-- `VITE_SUPABASE_URL`: Supabase project URL for staging
-- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key for staging
+- `SUPABASE_URL`: Supabase project URL for staging
+- `SUPABASE_KEY`: Supabase anonymous key for staging
 
 ### Production Environment  
 - `NODE_ENV`: Set to "production"
-- `VITE_SUPABASE_URL`: Supabase project URL for production
-- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key for production
+- `SUPABASE_URL`: Supabase project URL for production
+- `SUPABASE_KEY`: Supabase anonymous key for production
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key for production
 
 ## Cloudflare Projects
 
@@ -97,8 +112,40 @@ Cloudflare Pages provides zero-downtime deployments by:
 2. **Configure GitHub Secrets**:
    - Go to Repository → Settings → Secrets and variables → Actions
    - Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
+   - Add Supabase secrets: `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 
-3. **Test Deployment**:
+3. **Configure Cloudflare Pages Environment Variables**:
+   
+   **Option A: Using the automated script**
+   ```bash
+   # Set environment variables first
+   export CLOUDFLARE_API_TOKEN=your_token
+   export CLOUDFLARE_ACCOUNT_ID=your_account_id
+   export SUPABASE_URL=your_supabase_url
+   export SUPABASE_KEY=your_supabase_anon_key
+   export SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   
+   # Run the fix script
+   ./scripts/fix-production-env.sh
+   ```
+   
+   **Option B: Manual configuration via Cloudflare Dashboard**
+   1. Go to Cloudflare Pages dashboard
+   2. Select your project (astro-maskom)
+   3. Navigate to Settings → Environment variables
+   4. Add the following variables:
+      - `SUPABASE_URL`: Your Supabase project URL
+      - `SUPABASE_KEY`: Your Supabase anon/public key
+      - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+      - `NODE_ENV`: `production`
+      - `SITE_URL`: `https://astro-maskom.pages.dev`
+      - `LOG_LEVEL`: `info`
+
+4. **Verify KV namespace binding**:
+   - Ensure the `SESSION` KV namespace is properly bound to the Pages project
+   - KV namespace ID: `e2109995612b4daea45cb0731ad33b85`
+
+5. **Test Deployment**:
    ```bash
    # Test staging deployment
    npm run deploy:staging
@@ -107,9 +154,12 @@ Cloudflare Pages provides zero-downtime deployments by:
    npm run deploy:production
    ```
 
-4. **Verify Health Checks**:
+6. **Verify Health Checks**:
    ```bash
-   npm run health:check
+   # Test health check endpoint
+   curl -s https://astro-maskom.pages.dev/api/health
+   
+   # Should return HTTP 200 with detailed health information
    ```
 
 ## Troubleshooting
@@ -118,6 +168,24 @@ Cloudflare Pages provides zero-downtime deployments by:
 - **Build failures**: Check that all dependencies are installed and compatible
 - **Permission errors**: Verify Cloudflare API token has correct permissions
 - **Health check failures**: Ensure application builds correctly and handles requests
+- **HTTP 500 errors**: Usually caused by missing environment variables, especially Supabase configuration
+
+### Environment Variable Issues
+If you're getting HTTP 500 errors, check the health endpoint:
+```bash
+curl -s https://astro-maskom.pages.dev/api/health | jq .
+```
+
+Look for these indicators:
+- `env_check.status: "error"` - Missing required environment variables
+- `env_check.missing_vars` - Lists which variables are missing
+- `services.supabase.status: "error"` - Supabase client not properly configured
+
+**Quick fix for missing environment variables:**
+```bash
+# Run the automated fix script
+./scripts/fix-production-env.sh
+```
 
 ### Debug Commands
 ```bash
@@ -129,4 +197,10 @@ npm run dev
 
 # Verify Cloudflare configuration
 wrangler pages project list
+
+# Check environment variables in production
+curl -s https://astro-maskom.pages.dev/api/health | jq '.env_check'
+
+# Test Supabase connectivity
+curl -s https://astro-maskom.pages.dev/api/health | jq '.services.supabase'
 ```
