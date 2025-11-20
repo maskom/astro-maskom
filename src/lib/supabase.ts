@@ -26,13 +26,17 @@ export const supabase =
 // Server-side Supabase instance for API routes
 export function createServerClient() {
   try {
-    const config = getSupabaseConfig();
+    // Check environment variables directly first to avoid validation errors
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
+    const supabaseKey = import.meta.env.SUPABASE_KEY;
 
-    if (!config.url || !config.anonKey) {
+    if (!supabaseUrl || !supabaseKey) {
       throw new Error(
         'Missing Supabase configuration: SUPABASE_URL and SUPABASE_KEY must be set'
       );
     }
+
+    const config = getSupabaseConfig();
 
     const client = createClient(config.url, config.anonKey, {
       auth: {

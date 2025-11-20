@@ -1,4 +1,4 @@
-import { isDevelopment } from '@/lib/env';
+// Removed import to avoid environment validation during initialization
 
 export interface SecurityHeaders {
   'Content-Security-Policy': string;
@@ -28,7 +28,7 @@ export interface CSPViolationReport {
 }
 
 export const getSecurityHeaders = (nonce?: string): SecurityHeaders => {
-  const isDev = isDevelopment();
+  const isDev = import.meta.env.DEV || import.meta.env.MODE === 'development';
 
   // Enhanced CSP with comprehensive directives
   const cspDirectives = [
