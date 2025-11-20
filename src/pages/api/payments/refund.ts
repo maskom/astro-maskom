@@ -2,13 +2,17 @@ import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
 import { logger } from '../../../lib/logger';
 import { validateRequest, createHeaders } from '../../../lib/validation';
-import { PaymentSchemas } from '../../../lib/validation/schemas';
+import {
+  PaymentSchemas,
+  ValidatedPaymentRefundData,
+} from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = validateRequest(PaymentSchemas.refundPayment)(
   async ({ request, validatedData, requestId }) => {
     try {
-      const { transactionId, amount, reason } = validatedData;
+      const { transactionId, amount, reason } = (validatedData ||
+        {}) as unknown as ValidatedPaymentRefundData;
 
       // Get authenticated user
       const authHeader = request.headers.get('Authorization');

@@ -6,7 +6,19 @@ export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url);
     const testEmail = url.searchParams.get('email');
 
-    const result = await emailService.testEmail(testEmail || undefined);
+    if (!testEmail) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: {
+            code: 'INVALID_REQUEST',
+            message: 'Email parameter is required',
+          },
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    const result = await emailService.testEmail(testEmail);
 
     return new Response(
       JSON.stringify({
