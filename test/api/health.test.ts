@@ -32,9 +32,9 @@ describe('Health API Endpoint', () => {
       const { createServerClient } = await import('../../src/lib/supabase');
       vi.mocked(createServerClient).mockReturnValue({
         auth: { getUser: vi.fn() },
-      } as any);
+      } as unknown as ReturnType<typeof createServerClient>);
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -47,7 +47,7 @@ describe('Health API Endpoint', () => {
       vi.stubEnv('SUPABASE_URL', '');
       vi.stubEnv('SUPABASE_KEY', '');
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(503);
@@ -63,7 +63,7 @@ describe('Health API Endpoint', () => {
         throw new Error('Supabase connection failed');
       });
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data.services.supabase.status).toBe('error');
@@ -77,7 +77,7 @@ describe('Health API Endpoint', () => {
         throw new Error('Development error');
       });
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data.services.supabase.status).toBe('skipped');
@@ -87,7 +87,7 @@ describe('Health API Endpoint', () => {
     });
 
     it('should include proper CORS headers', async () => {
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
 
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
       expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
@@ -100,7 +100,7 @@ describe('Health API Endpoint', () => {
     });
 
     it('should include required health check fields', async () => {
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data).toHaveProperty('status');
@@ -120,9 +120,9 @@ describe('Health API Endpoint', () => {
         get: vi.fn().mockResolvedValue('123'),
         delete: vi.fn().mockResolvedValue(undefined),
       };
-      (globalThis as any).SESSION = mockKV;
+      (globalThis as unknown as { SESSION: typeof mockKV }).SESSION = mockKV;
 
-      await GET({ url: 'https://example.com/api/health' });
+      await GET({ url: new URL('https://example.com/api/health') });
 
       expect(mockKV.put).toHaveBeenCalled();
       expect(mockKV.get).toHaveBeenCalled();
@@ -135,9 +135,9 @@ describe('Health API Endpoint', () => {
         get: vi.fn().mockResolvedValue('different-value'), // Simulate read/write mismatch
         delete: vi.fn().mockResolvedValue(undefined),
       };
-      (globalThis as any).SESSION = mockKV;
+      (globalThis as unknown as { SESSION: typeof mockKV }).SESSION = mockKV;
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data.services.cloudflare.kv.status).toBe('error');
@@ -149,7 +149,7 @@ describe('Health API Endpoint', () => {
 
   describe('HEAD /api/health', () => {
     it('should return 200 status with no body', async () => {
-      const response = await HEAD({ url: 'https://example.com/api/health' });
+      const response = await HEAD();
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Cache-Control')).toBe(
@@ -161,7 +161,7 @@ describe('Health API Endpoint', () => {
   describe('Response Time Measurement', () => {
     it('should measure and include response time', async () => {
       const startTime = Date.now();
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const endTime = Date.now();
       const data = await response.json();
 
@@ -180,7 +180,7 @@ describe('Health API Endpoint', () => {
         writable: true,
       });
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data.services.cloudflare.features).toContain('workers-runtime');
@@ -191,7 +191,7 @@ describe('Health API Endpoint', () => {
       vi.stubEnv('CF_PAGES_BRANCH', 'main');
       vi.stubEnv('GITHUB_SHA', 'abc123');
 
-      const response = await GET({ url: 'https://example.com/api/health' });
+      const response = await GET();
       const data = await response.json();
 
       expect(data.services.deployment.deployment_url).toBe(
