@@ -5,7 +5,7 @@ import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
 import { logger } from '../../../lib/logger';
 import { validateRequest } from '../../../lib/validation';
-import { AuthSchemas } from '../../../lib/validation/schemas';
+import { AuthSchemas, ValidatedMFAData } from '../../../lib/validation/schemas';
 
 export const prerender = false;
 
@@ -13,7 +13,7 @@ export const POST: APIRoute = validateRequest({
   email: AuthSchemas.register.email,
 })(async ({ request, cookies, validatedData, requestId }) => {
   try {
-    const { email } = validatedData;
+    const { email } = (validatedData || {}) as unknown as ValidatedMFAData;
 
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -82,7 +82,8 @@ export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(async ({
   requestId,
 }) => {
   try {
-    const { secret, code } = validatedData;
+    const { secret, code } = (validatedData ||
+      {}) as unknown as ValidatedMFAData;
 
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -102,6 +103,18 @@ export const PUT: APIRoute = validateRequest(AuthSchemas.setupMFA)(async ({
     });
 
     // Verify the TOTP code
+    if (!secret || !code) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: {
+            code: 'INVALID_REQUEST',
+            message: 'Secret and code are required',
+          },
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     const isValid = await mfaService.verifyTOTP(secret, code);
 
     if (!isValid) {
@@ -176,7 +189,7 @@ export const DELETE: APIRoute = validateRequest({
   code: AuthSchemas.setupMFA.code,
 })(async ({ request, cookies, validatedData, requestId }) => {
   try {
-    const { code } = validatedData;
+    const { code } = (validatedData || {}) as unknown as ValidatedMFAData;
 
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
@@ -205,6 +218,18 @@ export const DELETE: APIRoute = validateRequest({
     }
 
     // Verify the TOTP code before disabling
+    if (!code) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: {
+            code: 'INVALID_REQUEST',
+            message: 'Verification code is required',
+          },
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     const isValid = await mfaService.verifyTOTP(profile.mfa_secret, code);
 
     if (!isValid) {

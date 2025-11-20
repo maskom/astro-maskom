@@ -14,6 +14,7 @@ export interface Invoice {
   userId: string;
   transactionId: string;
   amount: number;
+  subtotal: number;
   tax: number;
   total: number;
   dueDate: Date;

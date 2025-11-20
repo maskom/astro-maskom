@@ -101,8 +101,11 @@ describe('ValidationEngine', () => {
       password: {
         type: 'string' as const,
         required: true,
-        custom: (value: string) => {
-          return value.length >= 8 || 'Password must be at least 8 characters';
+        custom: (value: unknown) => {
+          return (
+            (typeof value === 'string' && value.length >= 8) ||
+            'Password must be at least 8 characters'
+          );
         },
       },
     };

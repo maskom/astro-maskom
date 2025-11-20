@@ -1,14 +1,18 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { logger } from '../../../lib/logger';
 import { validateRequest, createHeaders } from '../../../lib/validation';
-import { PaymentSchemas } from '../../../lib/validation/schemas';
+import {
+  PaymentSchemas,
+  ValidatedPaymentStatusData,
+} from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = validateRequest(PaymentSchemas.paymentStatus, {
   source: 'query',
 })(async ({ validatedData, requestId }) => {
   try {
-    const { transactionId } = validatedData;
+    const { transactionId } = (validatedData ||
+      {}) as unknown as ValidatedPaymentStatusData;
 
     logger.info('Getting payment status', {
       requestId,

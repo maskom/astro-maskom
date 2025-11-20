@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request }) => {
       sourceFile: report['source-file'],
       statusCode: report['status-code'],
       scriptSample: report['script-sample']?.substring(0, 100), // Limit sample length
-      userAgent: request.headers.get('user-agent'),
+      userAgent: request.headers.get('user-agent') || undefined,
       timestamp: new Date().toISOString(),
     });
 

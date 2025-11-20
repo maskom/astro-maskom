@@ -104,7 +104,7 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 function generateInvoiceHTML(invoiceData: InvoiceData): string {
-  const { invoice, company } = invoiceData;
+  const { invoice } = invoiceData;
   const itemsHTML = invoice.items
     .map(
       (item: InvoiceItem) => `

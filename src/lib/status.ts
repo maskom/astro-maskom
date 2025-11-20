@@ -36,10 +36,6 @@ export interface StatusData {
   incidents: Incident[];
 }
 
-// Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient<StatusDatabase>> | null =
-  null;
-
 export const createSupabaseClient = () => {
   return createClient<StatusDatabase>(
     import.meta.env.SUPABASE_URL,

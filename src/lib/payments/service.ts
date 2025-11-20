@@ -394,6 +394,7 @@ export class PaymentService {
       userId: data.user_id,
       transactionId: data.transaction_id,
       amount: data.amount,
+      subtotal: data.amount, // Using amount as subtotal for now
       tax: data.tax,
       total: data.total,
       dueDate: new Date(data.due_date),

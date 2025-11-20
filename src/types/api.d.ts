@@ -7,7 +7,7 @@ export interface ValidatedData<T = unknown> {
 
 declare module 'astro' {
   interface APIContext {
-    validatedData?: ValidatedData;
+    validatedData?: Record<string, unknown>;
     requestId?: string;
   }
 }
