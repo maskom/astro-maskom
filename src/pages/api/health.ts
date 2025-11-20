@@ -141,7 +141,7 @@ export const GET: APIRoute = async () => {
       checks.services.cloudflare.kv.error =
         kvError instanceof Error ? kvError.message : 'KV test failed';
     }
-  } catch (error) {
+  } catch {
     // Cloudflare detection failed, but don't mark as degraded
   }
 
