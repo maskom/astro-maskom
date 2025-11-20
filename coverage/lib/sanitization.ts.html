@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for middleware/security.ts</title>
+    <title>Code coverage report for lib/sanitization.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">middleware</a> security.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">lib</a> sanitization.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.27% </span>
+                <span class="strong">34.69% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>57/58</span>
+                <span class='fraction'>17/49</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.96% </span>
+                <span class="strong">26.41% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>32/33</span>
+                <span class='fraction'>14/53</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>3/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.24% </span>
+                <span class="strong">36.95% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>56/57</span>
+                <span class='fraction'>17/46</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -249,34 +249,7 @@
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
 <a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a>
-<a name='L207'></a><a href='#L207'>207</a>
-<a name='L208'></a><a href='#L208'>208</a>
-<a name='L209'></a><a href='#L209'>209</a>
-<a name='L210'></a><a href='#L210'>210</a>
-<a name='L211'></a><a href='#L211'>211</a>
-<a name='L212'></a><a href='#L212'>212</a>
-<a name='L213'></a><a href='#L213'>213</a>
-<a name='L214'></a><a href='#L214'>214</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L187'></a><a href='#L187'>187</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -305,11 +278,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -321,387 +293,334 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">128x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">45x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">35x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { isDevelopment } from '@/lib/env';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Consolidated sanitization utilities to prevent XSS attacks and validate input
+ * This module combines functionality from the previous duplicate sanitization files
+ */
 &nbsp;
-export interface SecurityHeaders {
-  'Content-Security-Policy': string;
-  'Content-Security-Policy-Report-Only'?: string;
-  'X-Frame-Options': string;
-  'X-Content-Type-Options': string;
-  'Referrer-Policy': string;
-  'Permissions-Policy': string;
-  'Strict-Transport-Security': string;
+// Interface for message objects
+export interface ChatMessage {
+  role: string;
+  content: string;
 }
 &nbsp;
-export interface CSPViolationReport {
-  'csp-report': {
-    'document-uri': string;
-    referrer: string;
-    'violated-directive': string;
-    'effective-directive': string;
-    'original-policy': string;
-    disposition: string;
-    'blocked-uri': string;
-    'line-number'?: number;
-    'column-number'?: number;
-    'source-file'?: string;
-    'status-code'?: number;
-    'script-sample'?: string;
+// Interface for JSON data
+export type SanitizableData =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | SanitizableObject
+  | SanitizableData[];
+&nbsp;
+interface SanitizableObject {
+  [key: string]: SanitizableData;
+}
+&nbsp;
+/**
+ * Basic input sanitization - removes potentially dangerous characters
+ */
+export function sanitizeInput(input: unknown): string {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof input !== 'string') <span class="cstat-no" title="statement not covered" >return '';</span>
+&nbsp;
+  return input
+    .replace(/[&lt;&gt;]/g, '') // Remove basic HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .trim();
+}
+&nbsp;
+/**
+ * Escape HTML entities in a string to prevent XSS
+ */
+export function <span class="fstat-no" title="function not covered" >escapeHtml(u</span>nsafe: string): string {
+<span class="cstat-no" title="statement not covered" >  if (typeof unsafe !== 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    return '';</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return unsafe</span>
+    .replace(/&amp;/g, '&amp;amp;')
+    .replace(/&lt;/g, '&amp;lt;')
+    .replace(/&gt;/g, '&amp;gt;')
+    .replace(/"/g, '&amp;quot;')
+    .replace(/'/g, '&amp;#039;');
+}
+&nbsp;
+/**
+ * Validate and sanitize email addresses
+ */
+export function sanitizeEmail(email: string): string {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!email || typeof email !== 'string') {
+<span class="cstat-no" title="statement not covered" >    return '';</span>
+  }
+&nbsp;
+  // Basic email validation and sanitization
+  const sanitized = email.trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+&nbsp;
+  return emailRegex.test(sanitized) ? sanitized : <span class="branch-1 cbranch-no" title="branch not covered" >'';</span>
+}
+&nbsp;
+/**
+ * Sanitize text input by removing potentially dangerous characters
+ */
+export function <span class="fstat-no" title="function not covered" >sanitizeText(t</span>ext: string): string {
+<span class="cstat-no" title="statement not covered" >  if (!text || typeof text !== 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    return '';</span>
+  }
+&nbsp;
+  // Remove null bytes and control characters except newlines and tabs
+<span class="cstat-no" title="statement not covered" >  return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim();</span>
+}
+&nbsp;
+/**
+ * Sanitize message objects for chat applications
+ */
+export function <span class="fstat-no" title="function not covered" >sanitizeMessage(m</span>essage: unknown): ChatMessage {
+<span class="cstat-no" title="statement not covered" >  if (!message || typeof message !== 'object') {</span>
+<span class="cstat-no" title="statement not covered" >    return { role: 'user', content: '' };</span>
+  }
+&nbsp;
+  const msg = <span class="cstat-no" title="statement not covered" >message as Record&lt;string, unknown&gt;;</span>
+<span class="cstat-no" title="statement not covered" >  return {</span>
+    role: sanitizeInput(String(msg.role)) || 'user',
+    content: sanitizeInput(String(msg.content)) || '',
   };
 }
 &nbsp;
-export const getSecurityHeaders = (nonce?: string): SecurityHeaders =&gt; {
-  const isDev = isDevelopment();
-&nbsp;
-  // Enhanced CSP with comprehensive directives
-  const cspDirectives = [
-    "default-src 'self'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "object-src 'none'",
-    "media-src 'self'",
-    "manifest-src 'self'",
-    "worker-src 'self' blob:",
-    "child-src 'self' blob:",
-  ];
-&nbsp;
-  // Script source: hardened for production, controlled for development
-  if (isDev) {
-    // Development: minimal unsafe allowances for Astro dev server
-    const cspScriptSrc = nonce
-      ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'unsafe-inline'`
-      : "'self' 'unsafe-eval' 'unsafe-inline'";
-    cspDirectives.push(`script-src ${cspScriptSrc}`);
-  } else {
-    // Production: strict nonce-based CSP
-    const cspScriptSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
-    cspDirectives.push(`script-src ${cspScriptSrc}`);
+/**
+ * Validate and sanitize an array of messages
+ */
+export function <span class="fstat-no" title="function not covered" >validateMessages(m</span>essages: unknown[]): ChatMessage[] {
+<span class="cstat-no" title="statement not covered" >  if (!Array.isArray(messages)) {</span>
+<span class="cstat-no" title="statement not covered" >    return [];</span>
   }
 &nbsp;
-  // Style source: hardened with nonce support
-  if (isDev) {
-    cspDirectives.push("style-src 'self' 'unsafe-inline'");
-  } else {
-    const cspStyleSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
-    cspDirectives.push(`style-src ${cspStyleSrc}`);
+<span class="cstat-no" title="statement not covered" >  return messages</span>
+    .filter(<span class="fstat-no" title="function not covered" >msg =&gt; <span class="cstat-no" title="statement not covered" >m</span>sg &amp;&amp; typeof msg === 'object')</span>
+    .map(sanitizeMessage)
+    .filter(<span class="fstat-no" title="function not covered" >msg =&gt; <span class="cstat-no" title="statement not covered" >m</span>sg.content.length &gt; 0 &amp;&amp; msg.content.length &lt;= 10000)</span>
+    .slice(0, 50); // Limit conversation history
+}
+&nbsp;
+/**
+ * Sanitize response text
+ */
+export function <span class="fstat-no" title="function not covered" >sanitizeResponse(r</span>esponse: string): string {
+<span class="cstat-no" title="statement not covered" >  if (typeof response !== 'string') <span class="cstat-no" title="statement not covered" >return '';</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return sanitizeInput(response);</span>
+}
+&nbsp;
+/**
+ * Recursively sanitize JSON input data
+ */
+export function sanitizeJsonInput(data: unknown): SanitizableData {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (data === null || data === undefined) {
+<span class="cstat-no" title="statement not covered" >    return data as SanitizableData;</span>
   }
 &nbsp;
-  // Enhanced resource directives with strict third-party control
-  cspDirectives.push("img-src 'self' data: https: blob:");
-  cspDirectives.push("font-src 'self' data:");
-&nbsp;
-  // Connect source with explicit allowlist
-  const connectSources = [
-    "'self'",
-    'https://api.openai.com',
-    'https://*.supabase.co',
-    'wss://*.supabase.co',
-  ];
-&nbsp;
-  // Add CSP violation reporting endpoint in production
-  if (!isDev) {
-    connectSources.push("'self'"); // For the CSP report endpoint
+  if (typeof data === 'string') {
+    return sanitizeInput(data);
   }
 &nbsp;
-  cspDirectives.push(`connect-src ${connectSources.join(' ')}`);
-&nbsp;
-  // Additional security directives
-  cspDirectives.push("frame-src 'self'");
-  cspDirectives.push("prefetch-src 'self'");
-  cspDirectives.push("navigate-to 'self'");
-&nbsp;
-  const headers: SecurityHeaders = {
-    'Content-Security-Policy': cspDirectives.join('; '),
-    'X-Frame-Options': 'DENY',
-    'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy':
-      'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()',
-    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-  };
-&nbsp;
-  // Add CSP report-only policy for monitoring in production
-  if (!isDev) {
-    const reportOnlyDirectives = [
-      ...cspDirectives,
-      'report-uri /api/security/csp-report',
-      'report-to csp-endpoint',
-    ];
-    headers['Content-Security-Policy-Report-Only'] =
-      reportOnlyDirectives.join('; ');
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (Array.isArray(data)) {
+<span class="cstat-no" title="statement not covered" >    return data.map(<span class="fstat-no" title="function not covered" >item =&gt; <span class="cstat-no" title="statement not covered" >s</span>anitizeJsonInput(item))</span>;</span>
   }
 &nbsp;
-  return headers;
-};
-&nbsp;
-export const generateNonce = (): string =&gt; {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Array.from(array, byte =&gt; byte.toString(16).padStart(2, '0')).join('');
-};
-&nbsp;
-export const getCSPReportGroup = (): string =&gt; {
-  return JSON.stringify({
-    group: 'csp-endpoint',
-    max_age: 10886400, // 7 days
-    endpoints: [
-      {
-        url: '/api/security/csp-report',
-      },
-    ],
-    include_subdomains: false,
-  });
-};
-&nbsp;
-export const validateCSPViolation = (report: CSPViolationReport): boolean =&gt; {
-  const cspReport = report['csp-report'];
-&nbsp;
-  // Required fields validation
-  const requiredFields = [
-    'document-uri',
-    'violated-directive',
-    'effective-directive',
-    'original-policy',
-    'disposition',
-    'blocked-uri',
-  ];
-&nbsp;
-  for (const field of requiredFields) {
-    if (!(field in cspReport)) {
-      return false;
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof data === 'object' &amp;&amp; data !== null) {
+    const sanitized: Record&lt;string, unknown&gt; = {};
+    for (const [key, value] of Object.entries(data)) {
+      const sanitizedKey = sanitizeInput(key);
+      sanitized[sanitizedKey] = sanitizeJsonInput(value);
     }
+    return sanitized as SanitizableData;
   }
 &nbsp;
-  // Check that required non-empty fields are not empty
-  const nonEmptyFields = [
-    'document-uri',
-    'violated-directive',
-    'effective-directive',
-    'original-policy',
-    'disposition',
-  ];
+<span class="cstat-no" title="statement not covered" >  return data as SanitizableData;</span>
+}
 &nbsp;
-  for (const field of nonEmptyFields) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!cspReport[field as keyof typeof cspReport]) {
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
+/**
+ * Validate that required fields are present in an object
+ */
+export function <span class="fstat-no" title="function not covered" >validateRequiredFields(</span>
+  data: unknown,
+  requiredFields: string[]
+): { isValid: boolean; missingFields: string[] } {
+<span class="cstat-no" title="statement not covered" >  if (!data || typeof data !== 'object' || data === null) {</span>
+<span class="cstat-no" title="statement not covered" >    return {</span>
+      isValid: false,
+      missingFields: requiredFields,
+    };
   }
 &nbsp;
-  // Validate URI format
-  try {
-    new URL(cspReport['document-uri']);
-    // blocked-uri can be empty, 'none', or a valid URL
-    if (
-      cspReport['blocked-uri'] &amp;&amp;
-      cspReport['blocked-uri'] !== '' &amp;&amp;
-      cspReport['blocked-uri'] !== 'none'
+  const obj = <span class="cstat-no" title="statement not covered" >data as Record&lt;string, unknown&gt;;</span>
+  const missingFields: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  for (const field of requiredFields) {</span>
+<span class="cstat-no" title="statement not covered" >    if (</span>
+      !(field in obj) ||
+      obj[field] === null ||
+      obj[field] === undefined ||
+      obj[field] === ''
     ) {
-      new URL(cspReport['blocked-uri']);
+<span class="cstat-no" title="statement not covered" >      missingFields.push(field);</span>
     }
-  } catch {
-    return false;
   }
 &nbsp;
-  return true;
-};
+<span class="cstat-no" title="statement not covered" >  return {</span>
+    isValid: missingFields.length === 0,
+    missingFields,
+  };
+}
 &nbsp;
-export const getCSPSeverity = (
-  violation: CSPViolationReport
-): 'low' | 'medium' | 'high' =&gt; {
-  const report = violation['csp-report'];
-  const blockedUri = report['blocked-uri'];
-  const violatedDirective = report['violated-directive'];
-&nbsp;
-  // High severity: script-src violations, external domains
-  if (
-    violatedDirective.includes('script-src') &amp;&amp;
-    blockedUri &amp;&amp;
-    !blockedUri.includes('self') &amp;&amp;
-    !blockedUri.includes('data:')
-  ) {
-    return 'high';
-  }
-&nbsp;
-  // Medium severity: style-src, connect-src violations
-  if (
-    violatedDirective.includes('style-src') ||
-    violatedDirective.includes('connect-src')
-  ) {
-    return 'medium';
-  }
-&nbsp;
-  // Low severity: other directive violations
-  return 'low';
-};
+// Alias for sanitizeInput to maintain backward compatibility
+export const sanitizeString = sanitizeInput;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->

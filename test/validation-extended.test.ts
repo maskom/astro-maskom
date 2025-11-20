@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  ValidationEngine,
-  ValidationSchema,
-  ValidationRule,
-} from '../src/lib/validation';
+import { ValidationEngine, ValidationSchema } from '../src/lib/validation';
 
 // Mock the logger
 vi.mock('../src/lib/logger', () => ({
