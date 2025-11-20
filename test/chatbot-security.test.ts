@@ -1,232 +1,238 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { JSDOM } from 'jsdom';
-import '../src/scripts/chatbot.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { initializeChatbot } from '../src/scripts/chatbot.js';
 
-// Set up DOM environment
-const dom = new JSDOM(
-  `
-  <!DOCTYPE html>
-  <html>
-    <body>
-      <div id="messages-list"></div>
-      <input id="chat-input" />
-      <form id="chat-form"></form>
-      <button id="send-button"></button>
-      <div id="loading-indicator" class="hidden"></div>
-      <div id="messages-end"></div>
-    </body>
-  </html>
-`,
-  { runScripts: 'dangerously' }
-);
+// Mock DOM environment
+const mockDOM = () => {
+  // Create mock elements
+  const messagesList = document.createElement('div');
+  messagesList.id = 'messages-list';
 
-global.window = dom.window;
-global.document = dom.window.document;
-global.HTMLElement = dom.window.HTMLElement;
-global.HTMLDivElement = dom.window.HTMLDivElement;
+  const chatInput = document.createElement('input') as HTMLInputElement;
+  chatInput.id = 'chat-input';
+  chatInput.type = 'text';
+
+  const chatForm = document.createElement('form');
+  chatForm.id = 'chat-form';
+  chatForm.appendChild(chatInput);
+
+  const sendButton = document.createElement('button');
+  sendButton.id = 'send-button';
+
+  const loadingIndicator = document.createElement('div');
+  loadingIndicator.id = 'loading-indicator';
+  loadingIndicator.className = 'hidden';
+
+  const messagesEnd = document.createElement('div');
+  messagesEnd.id = 'messages-end';
+  messagesEnd.scrollIntoView = vi.fn(); // Mock the scrollIntoView method
+
+  // Append to body
+  document.body.appendChild(messagesList);
+  document.body.appendChild(chatForm);
+  document.body.appendChild(sendButton);
+  document.body.appendChild(loadingIndicator);
+  document.body.appendChild(messagesEnd);
+
+  return {
+    messagesList,
+    chatInput,
+    chatForm,
+    sendButton,
+    loadingIndicator,
+    messagesEnd,
+  };
+};
 
 describe('Chatbot Security Tests', () => {
   beforeEach(() => {
-    // Reset DOM before each test
-    document.getElementById('messages-list').innerHTML = '';
-    (document.getElementById('chat-input') as HTMLInputElement).value = '';
+    // Clear DOM before each test
+    document.body.innerHTML = '';
+    mockDOM();
+
+    // Mock fetch
+    global.fetch = vi.fn() as any;
   });
 
-  describe('XSS Protection', () => {
-    it('should sanitize script tags in user input', () => {
-      const maliciousInput = '<script>alert("XSS")</script>Hello';
+  it('should sanitize basic XSS attempts', async () => {
+    const xssPayloads = [
+      '<script>alert("xss")</script>',
+      '<img src="x" onerror="alert(\'xss\')">',
+      '<svg onload="alert(\'xss\')">',
+      'javascript:alert("xss")',
+      '<iframe src="javascript:alert(\'xss\')"></iframe>',
+      '<body onload="alert(\'xss\')">',
+      '<input onfocus="alert(\'xss\')" autofocus>',
+      '<select onfocus="alert(\'xss\')" autofocus><option>x</option></select>',
+      '<textarea onfocus="alert(\'xss\')" autofocus></textarea>',
+      '<keygen onfocus="alert(\'xss\')" autofocus>',
+      '<video><source onerror="alert(\'xss\')">',
+      '<audio src="x" onerror="alert(\'xss\')">',
+      '<details open ontoggle="alert(\'xss\')">',
+      '<marquee onstart="alert(\'xss\')">x</marquee>',
+    ];
+
+    for (const payload of xssPayloads) {
+      document.body.innerHTML = '';
+      mockDOM();
+
+      // Mock successful response
+      (fetch as any).mockResolvedValueOnce({
+        json: async () => ({ response: 'Test response' }),
+      });
+
+      initializeChatbot();
       const chatInput = document.getElementById(
         'chat-input'
       ) as HTMLInputElement;
-      chatInput.value = maliciousInput;
 
-      // Simulate the sanitization that would happen
-      const sanitized = maliciousInput
-        .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags and content
-        .replace(/<[^>]*>/g, '') // Remove other HTML tags
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
+      // Set XSS payload as input
+      chatInput.value = payload;
 
-      expect(sanitized).toBe('Hello');
-      expect(sanitized).not.toContain('<script>');
-      expect(sanitized).not.toContain('alert');
-    });
+      // Get the form and submit it
+      const chatForm = document.getElementById('chat-form');
+      chatForm.dispatchEvent(new Event('submit'));
 
-    it('should sanitize javascript: protocol', () => {
-      const maliciousInput = 'javascript:alert("XSS")';
-      const sanitized = maliciousInput
-        .replace(/javascript:/gi, '')
-        .replace(/vbscript:/gi, '')
-        .replace(/data:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
+      // Wait for async operations
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(sanitized).toBe('alert("XSS")');
-      expect(sanitized).not.toContain('javascript:');
-    });
+      // Check that no script elements were added to the DOM
+      const scripts = document.querySelectorAll('script');
+      expect(scripts).toHaveLength(0);
 
-    it('should sanitize event handlers', () => {
-      const maliciousInput = '<img src="x" onerror="alert(\'XSS\')">';
-      const sanitized = maliciousInput
-        .replace(/<[^>]*>/g, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
-
-      expect(sanitized).not.toContain('onerror');
-      expect(sanitized).not.toContain('alert');
-    });
-
-    it('should sanitize vbscript: protocol', () => {
-      const maliciousInput = 'vbscript:msgbox("XSS")';
-      const sanitized = maliciousInput
-        .replace(/javascript:/gi, '')
-        .replace(/vbscript:/gi, '')
-        .replace(/data:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
-
-      expect(sanitized).toBe('msgbox("XSS")');
-      expect(sanitized).not.toContain('vbscript:');
-    });
-
-    it('should sanitize data: protocol', () => {
-      const maliciousInput = 'data:text/html,<script>alert("XSS")</script>';
-      const sanitized = maliciousInput
-        .replace(/javascript:/gi, '')
-        .replace(/vbscript:/gi, '')
-        .replace(/data:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
-
-      expect(sanitized).toBe('text/html,<script>alert("XSS")</script>');
-      expect(sanitized).not.toContain('data:');
-    });
-
-    it('should handle null and undefined inputs', () => {
-      const input1 = null;
-      const input2 = undefined;
-      const sanitized1 = typeof input1 !== 'string' ? '' : input1;
-      const sanitized2 = typeof input2 !== 'string' ? '' : input2;
-
-      expect(sanitized1).toBe('');
-      expect(sanitized2).toBe('');
-    });
-
-    it('should handle non-string inputs', () => {
-      const input1 = 123;
-      const input2 = {};
-      const sanitized1 = typeof input1 !== 'string' ? '' : input1;
-      const sanitized2 = typeof input2 !== 'string' ? '' : input2;
-
-      expect(sanitized1).toBe('');
-      expect(sanitized2).toBe('');
-    });
-
-    it('should handle non-string inputs', () => {
-      const input1 = 123;
-      const input2 = {};
-      const sanitized1 = typeof input1 !== 'string' ? '' : input1;
-      const sanitized2 = typeof input2 !== 'string' ? '' : input2;
-
-      expect(sanitized1).toBe('');
-      expect(sanitized2).toBe('');
-    });
-  });
-
-  describe('Content Security', () => {
-    it('should use textContent instead of innerHTML', () => {
+      // Check that no event handlers were executed
       const messagesList = document.getElementById('messages-list');
-      const message = {
-        role: 'user',
-        content: '<script>alert("XSS")</script>Hello',
-      };
-
-      // Simulate message rendering (should use textContent)
-      const messageContainer = document.createElement('div');
-      const messageBubble = document.createElement('div');
-      messageBubble.textContent = message.content; // This is what our code does
-      messageContainer.appendChild(messageBubble);
-      messagesList.appendChild(messageContainer);
-
-      const renderedContent = messageBubble.textContent;
-      expect(renderedContent).toBe('<script>alert("XSS")</script>Hello');
-      // The script tag should not be executed, just displayed as text
-    });
-
-    it('should prevent HTML injection in message content', () => {
-      const messagesList = document.getElementById('messages-list');
-      const maliciousContent = '<img src="x" onerror="alert(\'XSS\')">';
-
-      const messageContainer = document.createElement('div');
-      const messageBubble = document.createElement('div');
-      messageBubble.textContent = maliciousContent;
-      messageContainer.appendChild(messageBubble);
-      messagesList.appendChild(messageContainer);
-
-      const renderedContent = messageBubble.textContent;
-      expect(renderedContent).toBe('<img src="x" onerror="alert(\'XSS\')">');
-      // Should be treated as text, not HTML
-    });
+      expect(messagesList.innerHTML).not.toContain('<script>');
+      expect(messagesList.innerHTML).not.toContain('onerror');
+      expect(messagesList.innerHTML).not.toContain('onload');
+      expect(messagesList.innerHTML).not.toContain('javascript:');
+    }
   });
 
-  describe('Input Validation', () => {
-    it('should trim whitespace from input', () => {
-      const input = '   Hello World   ';
-      const sanitized = input.trim();
-      expect(sanitized).toBe('Hello World');
+  it('should sanitize HTML injection attempts', async () => {
+    // Test each payload individually to avoid interference
+    const payload = '<div style="color:red">Malicious HTML</div>';
+
+    document.body.innerHTML = '';
+    mockDOM();
+
+    // Mock successful response
+    (fetch as any).mockResolvedValueOnce({
+      json: async () => ({ response: 'Test response' }),
     });
 
-    it('should handle empty strings', () => {
-      const input = '';
-      const sanitized = input.trim();
-      expect(sanitized).toBe('');
+    initializeChatbot();
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+
+    chatInput.value = payload;
+
+    const chatForm = document.getElementById('chat-form');
+    chatForm.dispatchEvent(new Event('submit'));
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const messagesList = document.getElementById('messages-list');
+    // HTML tags should be preserved as text, not rendered as HTML
+    expect(messagesList.innerHTML).not.toContain('style="color:red"');
+    // But the text content should be preserved
+    expect(messagesList.textContent).toContain('Malicious HTML');
+
+    // Test another payload
+    document.body.innerHTML = '';
+    mockDOM();
+
+    (fetch as any).mockResolvedValueOnce({
+      json: async () => ({ response: 'Test response' }),
     });
 
-    it('should handle strings with only whitespace', () => {
-      const input = '   \t\n   ';
-      const sanitized = input.trim();
-      expect(sanitized).toBe('');
-    });
+    initializeChatbot();
+    const chatInput2 = document.getElementById(
+      'chat-input'
+    ) as HTMLInputElement;
+
+    chatInput2.value = '<span class="malicious">Content</span>';
+
+    const chatForm2 = document.getElementById('chat-form');
+    chatForm2.dispatchEvent(new Event('submit'));
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const messagesList2 = document.getElementById('messages-list');
+    expect(messagesList2.innerHTML).not.toContain('class="malicious"');
+    expect(messagesList2.textContent).toContain('Content');
   });
 
-  describe('Complex Attack Vectors', () => {
-    it('should handle encoded malicious content', () => {
-      const maliciousInput = '%3Cscript%3Ealert%28%22XSS%22%29%3C%2Fscript%3E';
-      const sanitized = maliciousInput
-        .replace(/<[^>]*>/g, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
+  it('should allow safe text content', async () => {
+    const input = 'Hello, how are you?';
 
-      expect(sanitized).toBe('%3Cscript%3Ealert%28%22XSS%22%29%3C%2Fscript%3E');
-      // URL encoded content should remain as text
+    document.body.innerHTML = '';
+    mockDOM();
+
+    // Mock successful response
+    (fetch as any).mockResolvedValueOnce({
+      json: async () => ({ response: 'Test response' }),
     });
 
-    it('should handle mixed case attacks', () => {
-      const maliciousInput = '<ScRiPt>AlErT("XSS")</ScRiPt>';
-      const sanitized = maliciousInput
-        .replace(/<[^>]*>/g, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
+    initializeChatbot();
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
 
-      expect(sanitized).toBe('AlErT("XSS")');
-      expect(sanitized).not.toContain('<ScRiPt>');
+    chatInput.value = input;
+
+    const chatForm = document.getElementById('chat-form');
+    chatForm.dispatchEvent(new Event('submit'));
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const messagesList = document.getElementById('messages-list');
+    // Safe content should be preserved in textContent
+    expect(messagesList.textContent).toContain(input);
+  });
+
+  it('should handle null and undefined inputs safely', () => {
+    initializeChatbot();
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+
+    // Test null input
+    chatInput.value = null;
+    const chatForm = document.getElementById('chat-form');
+    chatForm.dispatchEvent(new Event('submit'));
+
+    // Should not throw error
+    expect(() => {
+      chatForm.dispatchEvent(new Event('submit'));
+    }).not.toThrow();
+
+    // Test undefined input
+    chatInput.value = undefined;
+    expect(() => {
+      chatForm.dispatchEvent(new Event('submit'));
+    }).not.toThrow();
+  });
+
+  it('should sanitize server responses as well', async () => {
+    const maliciousResponse = 'Response with <div>malicious</div> content';
+
+    document.body.innerHTML = '';
+    mockDOM();
+
+    // Mock malicious server response
+    (fetch as any).mockResolvedValueOnce({
+      json: async () => ({ response: maliciousResponse }),
     });
 
-    it('should handle nested tag attacks', () => {
-      const maliciousInput = '<div><script>alert("XSS")</script></div>';
-      const sanitized = maliciousInput
-        .replace(/<[^>]*>/g, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+=/gi, '')
-        .trim();
+    initializeChatbot();
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
 
-      expect(sanitized).toBe('alert("XSS")');
-      expect(sanitized).not.toContain('<div>');
-      expect(sanitized).not.toContain('<script>');
-    });
+    chatInput.value = 'Hello';
+
+    const chatForm = document.getElementById('chat-form');
+    chatForm.dispatchEvent(new Event('submit'));
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const messagesList = document.getElementById('messages-list');
+    // Server response should also be sanitized - HTML tags not executed
+    expect(messagesList.innerHTML).not.toContain('<div>');
+    // But text content should be preserved
+    expect(messagesList.textContent).toContain('malicious');
   });
 });

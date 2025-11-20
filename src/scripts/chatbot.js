@@ -33,7 +33,7 @@ export function initializeChatbot(initialMessages = []) {
 
         // Sanitize message content to prevent XSS
         // Use textContent for maximum security - no HTML rendering
-        messageBubble.textContent = sanitizeMessageContent(message.content);
+        messageBubble.textContent = sanitizeUserInput(message.content);
 
         messageContainer.appendChild(messageBubble);
         messagesList.appendChild(messageContainer);
@@ -44,7 +44,7 @@ export function initializeChatbot(initialMessages = []) {
 
   const sendMessage = async () => {
     if (!chatInput) return;
-    const input = sanitizeUserInput(chatInput.value.trim());
+    const input = sanitizeInput(chatInput.value.trim());
     if (!input || loading) return;
 
     const userMessage = { role: 'user', content: input };
@@ -70,7 +70,7 @@ export function initializeChatbot(initialMessages = []) {
 
       const assistantMessage = {
         role: 'assistant',
-        content: sanitizeMessageContent(data.response),
+        content: sanitizeInput(data.response),
       };
       messages = [...messages, assistantMessage];
     } catch {
@@ -102,42 +102,34 @@ export function initializeChatbot(initialMessages = []) {
  * Sanitize user input to prevent XSS attacks
  * Uses DOMPurify for comprehensive HTML sanitization
  */
-function sanitizeUserInput(input) {
+function sanitizeInput(input) {
   if (typeof input !== 'string') return '';
 
-  // First, use DOMPurify for comprehensive HTML sanitization
-  const sanitized = DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: [], // No HTML tags allowed in user input
+  // Use DOMPurify for comprehensive HTML sanitization
+  // Configured to be strict: no HTML tags allowed, only text content
+  const clean = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [], // No HTML tags allowed
     ALLOWED_ATTR: [], // No attributes allowed
     KEEP_CONTENT: true, // Keep text content
-    RETURN_DOM: false,
+    RETURN_DOM: false, // Return string
     RETURN_DOM_FRAGMENT: false,
     RETURN_DOM_IMPORT: false,
+    SANITIZE_DOM: true,
+    SANITIZE_DOM_FRAGMENT: true,
+    SANITIZE_NAMED_PROPS: true,
+    WHOLE_DOCUMENT: false,
+    CUSTOM_ELEMENT_HANDLING: {
+      tagNameCheck: null,
+      attributeNameCheck: null,
+      allowCustomizedBuiltInElements: false,
+    },
   });
 
-  // Additional security measures for edge cases
-  return sanitized
+  // Additional sanitization for protocols and patterns that DOMPurify might miss in plain text
+  return clean
     .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
     .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers
     .trim();
-}
-
-/**
- * Sanitize message content (for assistant responses)
- * More permissive for legitimate content but still secure
- */
-function sanitizeMessageContent(content) {
-  if (typeof content !== 'string') return '';
-
-  // Use DOMPurify with safe configuration for message content
-  return DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p'], // Allow basic formatting
-    ALLOWED_ATTR: [], // No attributes allowed
-    KEEP_CONTENT: true,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    RETURN_DOM_IMPORT: false,
-  });
 }
