@@ -136,17 +136,14 @@ export const GET: APIRoute = async () => {
     // Test KV namespace availability
     try {
       // Check if SESSION KV binding is available (runtime check)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof globalThis !== 'undefined' && (globalThis as any).SESSION) {
+      if (typeof globalThis !== 'undefined' && globalThis.SESSION) {
         // Simple KV test - try to write and read a test value
         const testKey = 'health-check-test';
         const testValue = Date.now().toString();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any).SESSION.put(testKey, testValue, {
+        await globalThis.SESSION.put(testKey, testValue, {
           expirationTtl: 60,
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await (globalThis as any).SESSION.get(testKey);
 
         if (result === testValue) {
@@ -158,8 +155,7 @@ export const GET: APIRoute = async () => {
         }
 
         // Clean up test key
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any).SESSION.delete(testKey);
+        await globalThis.SESSION.delete(testKey);
       } else {
         checks.services.cloudflare.kv.status = 'error';
         checks.services.cloudflare.kv.error =

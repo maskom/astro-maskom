@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
 import { outageNotificationService } from './notifications/outage-service';
-import type { Database } from './database.types';
+import type { StatusDatabase } from './types/status';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -13,13 +13,20 @@ export interface ServiceStatus {
 }
 
 export interface Incident {
-  id: string;
+  id?: string;
   title: string;
-  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
-  created_at: string;
-  updated_at: string;
   description: string;
-  affected_services: string[]; // Array of service IDs
+  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+  affected_services: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface IncidentUpdate {
+  title?: string;
+  description?: string;
+  status?: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+  affected_services?: string[];
 }
 
 export interface StatusData {
@@ -30,16 +37,14 @@ export interface StatusData {
 }
 
 // Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
+let supabaseClient: ReturnType<typeof createClient<StatusDatabase>> | null =
+  null;
 
 export const createSupabaseClient = () => {
-  if (!supabaseClient) {
-    supabaseClient = createClient<Database>(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
-    );
-  }
-  return supabaseClient;
+  return createClient<StatusDatabase>(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_KEY
+  );
 };
 
 // Status API functions
@@ -118,8 +123,7 @@ export const getUptimePercentage = async (
   try {
     // This is a simplified implementation
     // In a real system, you would have a history table tracking service status over time
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('service_uptime')
       .select('uptime_percentage')
       .eq('service_id', serviceId)
@@ -150,7 +154,6 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('incidents')
       .insert({
@@ -197,7 +200,6 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -239,8 +241,7 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .select('*')
       .order('created_at', { ascending: false });
