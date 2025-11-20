@@ -31,6 +31,9 @@
     "verify:setup": "node scripts/verify-typescript-setup.js",
     "ci": "npm run lint && npm run typecheck && npm run test:run && npm run build",
     "deploy:verify": "node scripts/verify-deployment.js",
+    "deploy:verify:prod": "./scripts/verify-deployment.sh",
+    "deploy:fix-env": "./scripts/fix-production-env.sh",
+    "health:check": "curl -s https://astro-maskom.pages.dev/api/health | jq .",
     "migrations:verify": "tsx scripts/verify-migrations.ts"
   },
   "dependencies": {

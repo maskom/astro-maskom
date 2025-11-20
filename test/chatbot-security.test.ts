@@ -1,17 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initializeChatbot } from '../src/scripts/chatbot.js';
 
-// Type definitions for fetch mock
-interface MockFetchResponse {
-  json: () => Promise<{ response: string }>;
-}
-
-type MockFetch = vi.MockedFunction<
-  (
-    input: string | Request,
-    init?: globalThis.RequestInit
-  ) => Promise<MockFetchResponse>
->;
+type MockFetch = ReturnType<typeof vi.fn>;
 
 // Mock DOM environment
 const mockDOM = () => {
@@ -62,7 +52,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock fetch
-    global.fetch = vi.fn() as MockFetch;
+    global.fetch = vi.fn() as unknown as typeof global.fetch;
   });
 
   it('should sanitize basic XSS attempts', async () => {
