@@ -1,0 +1,380 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+// Get user session
+const user = await supabase.auth.getUser();
+
+// Get billing preferences (mock data for now)
+let billingPreferences = {
+  email_notifications: true,
+  sms_notifications: false,
+  payment_reminders: true,
+  overdue_reminders: true,
+  payment_confirmations: true,
+  monthly_statements: true,
+  auto_payment: false,
+  default_payment_method: '',
+  billing_address: {
+    street: '',
+    city: '',
+    postal_code: '',
+    country: 'Indonesia'
+  },
+  tax_information: {
+    tax_id: '',
+    business_name: '',
+    is_business: false
+  }
+};
+
+if (user.data.user) {
+  try {
+    // In a real implementation, you would fetch this from a billing_preferences table
+    // For now, we'll use mock data
+    billingPreferences = {
+      ...billingPreferences,
+      billing_address: {
+        street: 'Jl. Example No. 123',
+        city: 'Jakarta',
+        postal_code: '12345',
+        country: 'Indonesia'
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching billing preferences:', error);
+  }
+}
+---
+
+<Layout title="Billing Settings - Maskom Network">
+  <div class="max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Billing Settings</h1>
+      <p class="text-gray-600 mt-2">Manage your billing preferences and notification settings</p>
+    </div>
+
+    <form id="billing-settings-form" class="space-y-8">
+      <!-- Notification Preferences -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Notification Preferences</h2>
+          <p class="text-sm text-gray-500 mt-1">Choose how you want to receive billing notifications</p>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Email Notifications</h3>
+              <p class="text-sm text-gray-500">Receive billing updates via email</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="email_notifications"
+                checked={billingPreferences.email_notifications}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">SMS Notifications</h3>
+              <p class="text-sm text-gray-500">Receive important billing alerts via SMS</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="sms_notifications"
+                checked={billingPreferences.sms_notifications}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Payment Reminders</h3>
+              <p class="text-sm text-gray-500">Get reminded before your payment is due</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="payment_reminders"
+                checked={billingPreferences.payment_reminders}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Overdue Reminders</h3>
+              <p class="text-sm text-gray-500">Alert when payments are overdue</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="overdue_reminders"
+                checked={billingPreferences.overdue_reminders}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Payment Confirmations</h3>
+              <p class="text-sm text-gray-500">Receive confirmation when payments are processed</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="payment_confirmations"
+                checked={billingPreferences.payment_confirmations}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Monthly Statements</h3>
+              <p class="text-sm text-gray-500">Receive monthly billing statements</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="monthly_statements"
+                checked={billingPreferences.monthly_statements}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Settings -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Payment Settings</h2>
+          <p class="text-sm text-gray-500 mt-1">Configure your payment preferences</p>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Auto-Payment</h3>
+              <p class="text-sm text-gray-500">Automatically pay bills on due date</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="auto_payment"
+                checked={billingPreferences.auto_payment}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Default Payment Method</label>
+            <select 
+              name="default_payment_method"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select default payment method</option>
+              <option value="method1">Visa ending in 1234</option>
+              <option value="method2">BCA Account</option>
+            </select>
+            <p class="mt-1 text-sm text-gray-500">This payment method will be used for auto-payments</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing Address -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Billing Address</h2>
+          <p class="text-sm text-gray-500 mt-1">Your billing address for invoices and receipts</p>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+              <input 
+                type="text" 
+                name="street"
+                value={billingPreferences.billing_address.street}
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+              <input 
+                type="text" 
+                name="city"
+                value={billingPreferences.billing_address.city}
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+              <input 
+                type="text" 
+                name="postal_code"
+                value={billingPreferences.billing_address.postal_code}
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+              <select 
+                name="country"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Indonesia" selected>Indonesia</option>
+                <option value="Malaysia">Malaysia</option>
+                <option value="Singapore">Singapore</option>
+                <option value="Thailand">Thailand</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Information -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Tax Information</h2>
+          <p class="text-sm text-gray-500 mt-1">For business accounts and tax purposes</p>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="flex items-center">
+            <input 
+              type="checkbox" 
+              name="is_business"
+              checked={billingPreferences.tax_information.is_business}
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label class="ml-2 block text-sm text-gray-900">
+              This is a business account
+            </label>
+          </div>
+
+          <div id="business-fields" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
+              <input 
+                type="text" 
+                name="business_name"
+                value={billingPreferences.tax_information.business_name}
+                placeholder="Your company name"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tax ID (NPWP)</label>
+              <input 
+                type="text" 
+                name="tax_id"
+                value={billingPreferences.tax_information.tax_id}
+                placeholder="XX.XXX.XXX.X-XXX.XXX"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p class="mt-1 text-sm text-gray-500">For tax invoice purposes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-end">
+        <button 
+          type="submit"
+          class="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Save Settings
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Toggle business fields
+    document.querySelector('input[name="is_business"]').addEventListener('change', function() {
+      const businessFields = document.getElementById('business-fields');
+      if (this.checked) {
+        businessFields.classList.remove('hidden');
+      } else {
+        businessFields.classList.add('hidden');
+      }
+    });
+
+    // Form submission
+    document.getElementById('billing-settings-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const settings = {
+        email_notifications: formData.get('email_notifications') === 'on',
+        sms_notifications: formData.get('sms_notifications') === 'on',
+        payment_reminders: formData.get('payment_reminders') === 'on',
+        overdue_reminders: formData.get('overdue_reminders') === 'on',
+        payment_confirmations: formData.get('payment_confirmations') === 'on',
+        monthly_statements: formData.get('monthly_statements') === 'on',
+        auto_payment: formData.get('auto_payment') === 'on',
+        default_payment_method: formData.get('default_payment_method'),
+        billing_address: {
+          street: formData.get('street'),
+          city: formData.get('city'),
+          postal_code: formData.get('postal_code'),
+          country: formData.get('country')
+        },
+        tax_information: {
+          is_business: formData.get('is_business') === 'on',
+          business_name: formData.get('business_name'),
+          tax_id: formData.get('tax_id')
+        }
+      };
+
+      try {
+        const response = await fetch('/api/billing/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${document.cookie.match(/sb-access-token=([^;]+)/)?.[1]}`
+          },
+          body: JSON.stringify(settings)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('Billing settings saved successfully!');
+        } else {
+          alert('Failed to save settings: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        alert('Failed to save settings. Please try again.');
+      }
+    });
+
+    // Initialize business fields visibility
+    const isBusinessCheckbox = document.querySelector('input[name="is_business"]');
+    const businessFields = document.getElementById('business-fields');
+    if (!isBusinessCheckbox.checked) {
+      businessFields.classList.add('hidden');
+    }
+  </script>
+</Layout>

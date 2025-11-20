@@ -1,0 +1,589 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+// Get user session
+const user = await supabase.auth.getUser();
+
+// Get payment methods
+let paymentMethods = [];
+
+if (user.data.user) {
+  try {
+    const { data, error } = await supabase
+      .from('payment_methods')
+      .select('*')
+      .eq('user_id', user.data.user.id)
+      .order('created_at', { ascending: false });
+
+    if (!error) {
+      paymentMethods = data || [];
+    }
+  } catch (error) {
+    console.error('Error fetching payment methods:', error);
+  }
+}
+---
+
+<Layout title="Payment Methods - Maskom Network">
+  <div class="max-w-6xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Payment Methods</h1>
+        <p class="text-gray-600 mt-2">Manage your saved payment methods for faster checkout</p>
+      </div>
+      <button 
+        onclick="openAddPaymentMethodModal()"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+      >
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Add Payment Method
+      </button>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-blue-800">Secure Payment Processing</h3>
+          <div class="mt-2 text-sm text-blue-700">
+            <p>Your payment information is encrypted and securely stored. We are PCI DSS compliant and never store your full card details on our servers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Methods List -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Saved Payment Methods</h2>
+      </div>
+
+      {paymentMethods.length > 0 ? (
+        <div class="p-6">
+          <div class="space-y-4">
+            {paymentMethods.map(method => (
+              <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-4">
+                    <!-- Payment Method Icon -->
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                      {method.type === 'credit_card' ? (
+                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                          <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                        </svg>
+                      ) : method.type === 'bank_transfer' ? (
+                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                        </svg>
+                      )}
+                    </div>
+
+                    <!-- Payment Method Details -->
+                    <div>
+                      <h3 class="text-lg font-medium text-gray-900">{method.display_name}</h3>
+                      <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                        <span class="capitalize">{method.type.replace('_', ' ')}</span>
+                        <span>•••• {method.method_identifier.slice(-4)}</span>
+                        <span>Added {new Date(method.created_at).toLocaleDateString('id-ID')}</span>
+                      </div>
+                      {method.is_active && (
+                        <div class="mt-1">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex items-center space-x-2">
+                    {method.is_active ? (
+                      <button 
+                        onclick="setAsDefault('${method.id}')"
+                        class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        Set as Default
+                      </button>
+                    ) : (
+                      <button 
+                        onclick="activatePaymentMethod('${method.id}')"
+                        class="text-sm text-green-600 hover:text-green-800 font-medium"
+                      >
+                        Activate
+                      </button>
+                    )}
+                    <button 
+                      onclick="editPaymentMethod('${method.id}')"
+                      class="text-sm text-gray-600 hover:text-gray-800 font-medium"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onclick="removePaymentMethod('${method.id}')"
+                      class="text-sm text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Additional Details (shown for credit cards) -->
+                {method.type === 'credit_card' && method.metadata && (
+                  <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-500">Card Type:</span>
+                        <span class="ml-2 font-medium">{method.metadata.card_type || 'Visa'}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Expires:</span>
+                        <span class="ml-2 font-medium">{method.metadata.expiry || '12/25'}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Cardholder:</span>
+                        <span class="ml-2 font-medium">{method.metadata.cardholder_name || 'John Doe'}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Provider:</span>
+                        <span class="ml-2 font-medium">{method.provider}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div class="p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No payment methods</h3>
+          <p class="mt-1 text-sm text-gray-500">Add a payment method to make checkout faster.</p>
+          <div class="mt-6">
+            <button 
+              onclick="openAddPaymentMethodModal()"
+              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            >
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Add Payment Method
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Supported Payment Methods -->
+    <div class="mt-8 bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Supported Payment Methods</h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <h3 class="font-medium text-gray-900">Credit Cards</h3>
+            <p class="text-sm text-gray-500 mt-1">Visa, Mastercard, Amex</p>
+          </div>
+
+          <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <h3 class="font-medium text-gray-900">Bank Transfer</h3>
+            <p class="text-sm text-gray-500 mt-1">All major banks</p>
+          </div>
+
+          <div class="text-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+              </svg>
+            </div>
+            <h3 class="font-medium text-gray-900">E-Wallets</h3>
+            <p class="text-sm text-gray-500 mt-1">GoPay, ShopeePay, OVO</p>
+          </div>
+
+          <div class="text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <h3 class="font-medium text-gray-900">QRIS</h3>
+            <p class="text-sm text-gray-500 mt-1">QR code payments</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Payment Method Modal -->
+  <div id="add-payment-method-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-900">Add Payment Method</h3>
+        <button onclick="closeAddPaymentMethodModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="add-payment-method-form" class="space-y-4">
+        <!-- Payment Method Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method Type</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="relative flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="type" value="credit_card" class="sr-only" required>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-gray-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-medium">Credit Card</span>
+              </div>
+            </label>
+
+            <label class="relative flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="type" value="bank_transfer" class="sr-only">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-gray-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-medium">Bank Transfer</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Display Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+          <input 
+            type="text" 
+            name="display_name"
+            required
+            placeholder="e.g., My Visa Card, BCA Account"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <!-- Credit Card Fields (shown when credit card is selected) -->
+        <div id="credit-card-fields" class="space-y-4 hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+            <input 
+              type="text" 
+              name="card_number"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+              <input 
+                type="text" 
+                name="expiry"
+                placeholder="MM/YY"
+                maxlength="5"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">CVV</label>
+              <input 
+                type="text" 
+                name="cvv"
+                placeholder="123"
+                maxlength="4"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
+            <input 
+              type="text" 
+              name="cardholder_name"
+              placeholder="John Doe"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        <!-- Bank Transfer Fields (shown when bank transfer is selected) -->
+        <div id="bank-transfer-fields" class="space-y-4 hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+            <select 
+              name="bank_name"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select Bank</option>
+              <option value="bca">BCA</option>
+              <option value="bni">BNI</option>
+              <option value="bri">BRI</option>
+              <option value="mandiri">Mandiri</option>
+              <option value="cimb">CIMB Niaga</option>
+              <option value="permata">Permata</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+            <input 
+              type="text" 
+              name="account_number"
+              placeholder="1234567890"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Account Holder Name</label>
+            <input 
+              type="text" 
+              name="account_holder_name"
+              placeholder="John Doe"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        <!-- Provider -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Provider</label>
+          <select 
+            name="provider"
+            required
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Select Provider</option>
+            <option value="Midtrans">Midtrans</option>
+            <option value="Xendit">Xendit</option>
+            <option value="DOKU">DOKU</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end space-x-3 pt-4 border-t">
+          <button 
+            type="button"
+            onclick="closeAddPaymentMethodModal()"
+            class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit"
+            class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+          >
+            Add Payment Method
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Modal management
+    function openAddPaymentMethodModal() {
+      document.getElementById('add-payment-method-modal').classList.remove('hidden');
+    }
+
+    function closeAddPaymentMethodModal() {
+      document.getElementById('add-payment-method-modal').classList.add('hidden');
+      document.getElementById('add-payment-method-form').reset();
+      document.getElementById('credit-card-fields').classList.add('hidden');
+      document.getElementById('bank-transfer-fields').classList.add('hidden');
+    }
+
+    // Payment method type selection
+    document.querySelectorAll('input[name="type"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        const creditCardFields = document.getElementById('credit-card-fields');
+        const bankTransferFields = document.getElementById('bank-transfer-fields');
+        
+        if (this.value === 'credit_card') {
+          creditCardFields.classList.remove('hidden');
+          bankTransferFields.classList.add('hidden');
+        } else if (this.value === 'bank_transfer') {
+          creditCardFields.classList.add('hidden');
+          bankTransferFields.classList.remove('hidden');
+        }
+      });
+    });
+
+    // Form submission
+    document.getElementById('add-payment-method-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const type = formData.get('type');
+      
+      let methodIdentifier = '';
+      let metadata = {};
+      
+      if (type === 'credit_card') {
+        methodIdentifier = formData.get('card_number').replace(/\s/g, '');
+        metadata = {
+          card_type: detectCardType(methodIdentifier),
+          expiry: formData.get('expiry'),
+          cardholder_name: formData.get('cardholder_name'),
+          last_four: methodIdentifier.slice(-4)
+        };
+      } else if (type === 'bank_transfer') {
+        methodIdentifier = formData.get('account_number');
+        metadata = {
+          bank_name: formData.get('bank_name'),
+          account_holder_name: formData.get('account_holder_name')
+        };
+      }
+
+      const payload = {
+        type,
+        provider: formData.get('provider'),
+        method_identifier: methodIdentifier,
+        display_name: formData.get('display_name'),
+        metadata
+      };
+
+      try {
+        const response = await fetch('/api/billing', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${document.cookie.match(/sb-access-token=([^;]+)/)?.[1]}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('Payment method added successfully!');
+          closeAddPaymentMethodModal();
+          window.location.reload();
+        } else {
+          alert('Failed to add payment method: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error adding payment method:', error);
+        alert('Failed to add payment method. Please try again.');
+      }
+    });
+
+    // Card number formatting
+    document.querySelector('input[name="card_number"]')?.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\s/g, '');
+      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+      e.target.value = formattedValue;
+    });
+
+    // Expiry date formatting
+    document.querySelector('input[name="expiry"]')?.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2, 4);
+      }
+      e.target.value = value;
+    });
+
+    // CVV validation
+    document.querySelector('input[name="cvv"]')?.addEventListener('input', function(e) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Card type detection
+    function detectCardType(cardNumber) {
+      if (cardNumber.startsWith('4')) return 'Visa';
+      if (cardNumber.startsWith('5')) return 'Mastercard';
+      if (cardNumber.startsWith('3')) return 'Amex';
+      return 'Unknown';
+    }
+
+    // Payment method actions
+    async function setAsDefault(methodId) {
+      // Implementation for setting default payment method
+      alert('Set as default functionality would be implemented here');
+    }
+
+    async function activatePaymentMethod(methodId) {
+      // Implementation for activating payment method
+      alert('Activate payment method functionality would be implemented here');
+    }
+
+    function editPaymentMethod(methodId) {
+      // Implementation for editing payment method
+      alert('Edit payment method functionality would be implemented here');
+    }
+
+    async function removePaymentMethod(methodId) {
+      if (confirm('Are you sure you want to remove this payment method?')) {
+        try {
+          const response = await fetch(`/api/payments/methods/${methodId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${document.cookie.match(/sb-access-token=([^;]+)/)?.[1]}`
+            }
+          });
+
+          if (response.ok) {
+            alert('Payment method removed successfully');
+            window.location.reload();
+          } else {
+            alert('Failed to remove payment method');
+          }
+        } catch (error) {
+          console.error('Error removing payment method:', error);
+          alert('Failed to remove payment method. Please try again.');
+        }
+      }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('add-payment-method-modal');
+      if (event.target === modal) {
+        closeAddPaymentMethodModal();
+      }
+    }
+  </script>
+</Layout>

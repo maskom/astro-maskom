@@ -1,0 +1,509 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+const url = new URL(Astro.request.url);
+const page = parseInt(url.searchParams.get('page') || '1');
+const status = url.searchParams.get('status');
+const limit = 10;
+const offset = (page - 1) * limit;
+
+// Get user session
+const user = await supabase.auth.getUser();
+
+// Get invoices data
+let invoices = [];
+let pagination = { page, limit, total: 0, pages: 0 };
+
+if (user.data.user) {
+  try {
+    let query = supabase
+      .from('invoices')
+      .select(`
+        *,
+        invoice_items (
+          id,
+          description,
+          quantity,
+          unit_price,
+          total
+        )
+      `, { count: 'exact' })
+      .eq('user_id', user.data.user.id)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (status) {
+      query = query.in('status', status.split(','));
+    }
+
+    const { data, error, count } = await query;
+
+    if (!error && data) {
+      invoices = data;
+      pagination = {
+        page,
+        limit,
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit)
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+  }
+}
+
+// Calculate totals
+const totalAmount = invoices.reduce((sum, inv) => sum + Number(inv.total), 0);
+const paidAmount = invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + Number(inv.total), 0);
+const outstandingAmount = invoices.filter(inv => ['sent', 'overdue'].includes(inv.status)).reduce((sum, inv) => sum + Number(inv.total), 0);
+---
+
+<Layout title="Invoices - Maskom Network">
+  <div class="max-w-7xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Invoices</h1>
+        <p class="text-gray-600 mt-2">View and manage your billing invoices</p>
+      </div>
+      <div class="flex space-x-3">
+        <button class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+          Download All
+        </button>
+        <a href="/billing/payment" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+          </svg>
+          Make Payment
+        </a>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-full">
+            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Total Invoices</p>
+            <p class="text-2xl font-bold text-gray-900">{pagination.total}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-full">
+            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Paid Amount</p>
+            <p class="text-2xl font-bold text-gray-900">Rp {paidAmount.toLocaleString('id-ID')}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-yellow-100 rounded-full">
+            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Outstanding</p>
+            <p class="text-2xl font-bold text-gray-900">Rp {outstandingAmount.toLocaleString('id-ID')}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-purple-100 rounded-full">
+            <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Total Billed</p>
+            <p class="text-2xl font-bold text-gray-900">Rp {totalAmount.toLocaleString('id-ID')}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow mb-6">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Filter Invoices</h2>
+      </div>
+      <div class="p-6">
+        <div class="flex flex-wrap gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <select 
+              id="status-filter"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              onchange="window.location.href=`?status=${this.value}`"
+            >
+              <option value="">All Status</option>
+              <option value="draft" ?selected={status === 'draft'}>Draft</option>
+              <option value="sent" ?selected={status === 'sent'}>Sent</option>
+              <option value="paid" ?selected={status === 'paid'}>Paid</option>
+              <option value="overdue" ?selected={status === 'overdue'}>Overdue</option>
+              <option value="cancelled" ?selected={status === 'cancelled'}>Cancelled</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <input 
+              type="date" 
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">&nbsp;</label>
+            <input 
+              type="date" 
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div class="flex items-end">
+            <button class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-900">Invoice List</h2>
+        <div class="text-sm text-gray-500">
+          Showing {invoices.length} of {pagination.total} invoices
+        </div>
+      </div>
+
+      {invoices.length > 0 ? (
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invoice Number
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Due Date
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {invoices.map(invoice => (
+                <tr key={invoice.id} class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{invoice.invoice_number}</div>
+                    {invoice.transaction_id && (
+                      <div class="text-xs text-gray-500">Transaction: {invoice.transaction_id.slice(0, 8)}...</div>
+                    )}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(invoice.created_at).toLocaleDateString('id-ID')}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(invoice.due_date).toLocaleDateString('id-ID')}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">Rp {Number(invoice.total).toLocaleString('id-ID')}</div>
+                    <div class="text-xs text-gray-500">Tax: Rp {Number(invoice.tax).toLocaleString('id-ID')}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      invoice.status === 'paid' 
+                        ? 'bg-green-100 text-green-800' 
+                        : invoice.status === 'sent'
+                          ? 'bg-blue-100 text-blue-800'
+                          : invoice.status === 'overdue'
+                            ? 'bg-red-100 text-red-800'
+                            : invoice.status === 'draft'
+                              ? 'bg-gray-100 text-gray-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {invoice.status}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <button 
+                        onclick={`viewInvoice('${invoice.id}')`}
+                        class="text-blue-600 hover:text-blue-900"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onclick={`downloadInvoice('${invoice.id}')`}
+                        class="text-green-600 hover:text-green-900"
+                      >
+                        Download
+                      </button>
+                      {['sent', 'overdue'].includes(invoice.status) && (
+                        <button 
+                          onclick={`payInvoice('${invoice.id}')`}
+                          class="text-purple-600 hover:text-purple-900"
+                        >
+                          Pay
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div class="p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clip-rule="evenodd" />
+            <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No invoices found</h3>
+          <p class="mt-1 text-sm text-gray-500">No invoices match your current filters.</p>
+        </div>
+      )}
+
+      <!-- Pagination -->
+      {pagination.pages > 1 && (
+        <div class="px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Showing page {pagination.page} of {pagination.pages}
+            </div>
+            <div class="flex space-x-2">
+              {pagination.page > 1 && (
+                <a 
+                  href={`?page=${pagination.page - 1}${status ? `&status=${status}` : ''}`}
+                  class="px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Previous
+                </a>
+              )}
+              
+              {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                const pageNum = i + 1;
+                const isActive = pageNum === pagination.page;
+                return (
+                  <a
+                    href={`?page=${pageNum}${status ? `&status=${status}` : ''}`}
+                    class={`px-3 py-2 border text-sm font-medium rounded-md ${
+                      isActive 
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </a>
+                );
+              })}
+              
+              {pagination.page < pagination.pages && (
+                <a 
+                  href={`?page=${pagination.page + 1}${status ? `&status=${status}` : ''}`}
+                  class="px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Next
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Invoice Detail Modal -->
+  <div id="invoice-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-900">Invoice Details</h3>
+        <button onclick="closeInvoiceModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div id="invoice-content" class="space-y-4">
+        <!-- Invoice content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentInvoice = null;
+
+    async function viewInvoice(invoiceId) {
+      try {
+        const response = await fetch(`/api/invoices/${invoiceId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          currentInvoice = data.invoice;
+          displayInvoiceDetails(currentInvoice);
+          document.getElementById('invoice-modal').classList.remove('hidden');
+        } else {
+          alert('Failed to load invoice details');
+        }
+      } catch (error) {
+        console.error('Error loading invoice:', error);
+        alert('Failed to load invoice details');
+      }
+    }
+
+    function displayInvoiceDetails(invoice) {
+      const content = document.getElementById('invoice-content');
+      content.innerHTML = `
+        <div class="border-b pb-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="text-xl font-bold text-gray-900">${invoice.invoice_number}</h4>
+              <p class="text-sm text-gray-500">Invoice ID: ${invoice.id}</p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+              invoice.status === 'paid' 
+                ? 'bg-green-100 text-green-800' 
+                : invoice.status === 'sent'
+                  ? 'bg-blue-100 text-blue-800'
+                  : invoice.status === 'overdue'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-gray-100 text-gray-800'
+            }">
+              ${invoice.status}
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h5 class="font-medium text-gray-900 mb-2">Invoice Details</h5>
+            <div class="space-y-1 text-sm">
+              <p><span class="text-gray-500">Issue Date:</span> ${new Date(invoice.created_at).toLocaleDateString('id-ID')}</p>
+              <p><span class="text-gray-500">Due Date:</span> ${new Date(invoice.due_date).toLocaleDateString('id-ID')}</p>
+              <p><span class="text-gray-500">Transaction ID:</span> ${invoice.transaction_id || 'N/A'}</p>
+            </div>
+          </div>
+          <div>
+            <h5 class="font-medium text-gray-900 mb-2">Amount</h5>
+            <div class="space-y-1 text-sm">
+              <p><span class="text-gray-500">Subtotal:</span> Rp ${Number(invoice.amount).toLocaleString('id-ID')}</p>
+              <p><span class="text-gray-500">Tax (11%):</span> Rp ${Number(invoice.tax).toLocaleString('id-ID')}</p>
+              <p class="font-bold"><span class="text-gray-500">Total:</span> Rp ${Number(invoice.total).toLocaleString('id-ID')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h5 class="font-medium text-gray-900 mb-2">Items</h5>
+          <div class="border rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${invoice.items.map(item => `
+                  <tr>
+                    <td class="px-4 py-2 text-sm">${item.description}</td>
+                    <td class="px-4 py-2 text-sm">${item.quantity}</td>
+                    <td class="px-4 py-2 text-sm">Rp ${Number(item.unit_price).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2 text-sm">Rp ${Number(item.total).toLocaleString('id-ID')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t">
+          <button onclick="downloadInvoice('${invoice.id}')" class="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700">
+            Download PDF
+          </button>
+          ${['sent', 'overdue'].includes(invoice.status) ? `
+            <button onclick="payInvoice('${invoice.id}')" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
+              Pay Now
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function closeInvoiceModal() {
+      document.getElementById('invoice-modal').classList.add('hidden');
+      currentInvoice = null;
+    }
+
+    async function downloadInvoice(invoiceId) {
+      try {
+        const response = await fetch(`/api/invoices/${invoiceId}/download`);
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `invoice-${invoiceId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } else {
+          alert('Failed to download invoice');
+        }
+      } catch (error) {
+        console.error('Error downloading invoice:', error);
+        alert('Failed to download invoice');
+      }
+    }
+
+    function payInvoice(invoiceId) {
+      window.location.href = `/billing/payment?invoice_id=${invoiceId}`;
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('invoice-modal');
+      if (event.target === modal) {
+        closeInvoiceModal();
+      }
+    }
+  </script>
+</Layout>
