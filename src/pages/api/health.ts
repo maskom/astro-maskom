@@ -56,7 +56,11 @@ export const GET: APIRoute = async () => {
   };
 
   // Test Supabase connectivity only if environment variables are properly configured
-  if (missingEnvVars.length === 0) {
+  // Skip Supabase check in development mode
+  if (import.meta.env.MODE === 'development') {
+    checks.services.supabase.status = 'skipped';
+    checks.services.supabase.error = 'Supabase not available in development';
+  } else if (missingEnvVars.length === 0) {
     try {
       const { createServerClient } = await import('../../lib/supabase');
       const supabase = createServerClient();
@@ -86,6 +90,24 @@ export const GET: APIRoute = async () => {
 
   // Detect Cloudflare environment
   try {
+    // Check for Cloudflare Workers runtime
+    if (
+      typeof globalThis !== 'undefined' &&
+      globalThis.navigator &&
+      globalThis.navigator.userAgent &&
+      globalThis.navigator.userAgent.includes('Cloudflare-Workers')
+    ) {
+      checks.services.cloudflare.features.push('workers-runtime');
+    }
+
+    // Also check for Cloudflare Workers environment in other ways
+    if (
+      typeof globalThis !== 'undefined' &&
+      (globalThis as any).WebSocketPair
+    ) {
+      checks.services.cloudflare.features.push('workers-runtime');
+    }
+
     // Try to access Cloudflare-specific environment variables
     const cfEnv = {
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID,

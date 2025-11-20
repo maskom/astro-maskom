@@ -19,7 +19,10 @@ describe('Health API Endpoint', () => {
     vi.clearAllMocks();
     // Reset environment variables
     vi.stubEnv('SUPABASE_URL', 'https://test.supabase.co');
-    vi.stubEnv('SUPABASE_KEY', 'test-key');
+    vi.stubEnv(
+      'SUPABASE_KEY',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlc3Qtc3VwYWJhc2UiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MjAwMDAwMDAwMH0.test123456789012345678901234567890123456789012345678901234567890'
+    );
     vi.stubEnv('MODE', 'test');
   });
 
@@ -31,7 +34,12 @@ describe('Health API Endpoint', () => {
     it('should return healthy status when all checks pass', async () => {
       const { createServerClient } = await import('../../src/lib/supabase');
       vi.mocked(createServerClient).mockReturnValue({
-        auth: { getUser: vi.fn() },
+        auth: {
+          getUser: vi.fn(),
+          getSession: vi
+            .fn()
+            .mockResolvedValue({ data: { session: null }, error: null }),
+        },
       } as unknown as ReturnType<typeof createServerClient>);
 
       const response = await GET();
