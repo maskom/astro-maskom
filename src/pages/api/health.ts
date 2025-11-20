@@ -144,7 +144,11 @@ export const GET: APIRoute = async () => {
         await globalThis.SESSION.put(testKey, testValue, {
           expirationTtl: 60,
         });
-        const result = await (globalThis as any).SESSION.get(testKey);
+        const result = await (
+          globalThis as {
+            SESSION: { get: (key: string) => Promise<string | null> };
+          }
+        ).SESSION.get(testKey);
 
         if (result === testValue) {
           checks.services.cloudflare.kv.status = 'healthy';

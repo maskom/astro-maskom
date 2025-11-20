@@ -55,7 +55,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // Check if user owns this invoice
-    if ((invoice as any).userId !== user.id) {
+    if (invoice.userId !== user.id) {
       return new Response(
         JSON.stringify({ success: false, error: 'Access denied' }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }

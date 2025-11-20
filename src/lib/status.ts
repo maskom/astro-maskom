@@ -150,7 +150,7 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .insert({
         ...incident,
@@ -196,7 +196,7 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
