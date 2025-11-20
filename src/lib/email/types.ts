@@ -132,6 +132,7 @@ export interface EmailDeliveryResult {
   provider: string;
   timestamp?: Date;
 }
+<<<<<<< HEAD
 
 export interface CustomerEmailPreferences {
   customerId: string;
@@ -195,5 +196,70 @@ export interface EmailTrackingPixel {
   customerId?: string;
   campaignId?: string;
   userAgent?: string;
-  ipAddress?: string;
+ipAddress?: string;
+}
+
+export interface CustomerEmailPreferences {
+  customerId: string;
+  emailEnabled: boolean;
+  transactionalEmails: boolean;
+  marketingEmails: boolean;
+  newsletterEmails: boolean;
+  billingNotifications: boolean;
+  serviceNotifications: boolean;
+  appointmentReminders: boolean;
+  promotionalEmails: boolean;
+  productUpdates: boolean;
+  securityNotifications: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MarketingCampaign {
+  id: string;
+  name: string;
+  description?: string;
+  subject: string;
+  contentHtml: string;
+  contentText?: string;
+  campaignType: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
+  targetAudience?: Record<string, any>;
+  status: 'draft' | 'scheduled' | 'active' | 'paused' | 'completed' | 'cancelled';
+  scheduledAt?: string;
+  sentAt?: string;
+  totalRecipients?: number;
+  totalSent?: number;
+  totalOpened?: number;
+  totalClicked?: number;
+  totalBounced?: number;
+  totalComplained?: number;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailAnalytics {
+  totalSent: number;
+  totalDelivered: number;
+  totalOpened: number;
+  totalClicked: number;
+  totalBounced: number;
+  totalComplained: number;
+  openRate: number;
+  clickRate: number;
+  bounceRate: number;
+  complaintRate: number;
+  deliveryRate: number;
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+}
+
+export interface EmailEvent {
+  id: string;
+  emailId: string;
+  eventType: 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'complained' | 'unsubscribed';
+  eventData?: Record<string, any>;
+  timestamp: string;
 }

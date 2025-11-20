@@ -71,7 +71,6 @@ export const POST: APIRoute = withApiMiddleware(
         });
         // Don't fail registration if email fails
       }
-
       return redirect('/signin');
     }
   )

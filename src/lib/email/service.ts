@@ -8,13 +8,20 @@ export class EmailService {
 
   constructor(supabaseUrl: string, supabaseKey: string) {
     this.queueService = new EmailQueueService(supabaseUrl, supabaseKey);
-    this.notificationService = new EmailNotificationService(supabaseUrl, supabaseKey);
+    this.notificationService = new EmailNotificationService(
+      supabaseUrl,
+      supabaseKey
+    );
   }
 
   /**
    * Send welcome email to new user
    */
-  async sendWelcomeEmail(to: string, userName: string, language: 'id' | 'en' = 'id'): Promise<string> {
+  async sendWelcomeEmail(
+    to: string,
+    userName: string,
+    language: 'id' | 'en' = 'id'
+  ): Promise<string> {
     return this.notificationService.sendWelcomeEmail(to, userName, language);
   }
 
@@ -31,7 +38,11 @@ export class EmailService {
     },
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.notificationService.sendPaymentConfirmation(to, orderData, language);
+    return this.notificationService.sendPaymentConfirmation(
+      to,
+      orderData,
+      language
+    );
   }
 
   /**
@@ -43,7 +54,12 @@ export class EmailService {
     userName?: string,
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.notificationService.sendPasswordReset(to, resetUrl, userName, language);
+    return this.notificationService.sendPasswordReset(
+      to,
+      resetUrl,
+      userName,
+      language
+    );
   }
 
   /**
@@ -249,7 +265,10 @@ View your invoice at: ${process.env.SITE_URL}/billing
    * Update customer email preferences
    */
   async updateCustomerEmailPreferences(customerId: string, preferences: any) {
-    return this.notificationService.updateCustomerEmailPreferences(customerId, preferences);
+    return this.notificationService.updateCustomerEmailPreferences(
+      customerId,
+      preferences
+    );
   }
 
   /**
@@ -267,7 +286,11 @@ View your invoice at: ${process.env.SITE_URL}/billing
     },
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.notificationService.sendAppointmentConfirmation(to, appointmentData, language);
+    return this.notificationService.sendAppointmentConfirmation(
+      to,
+      appointmentData,
+      language
+    );
   }
 
   /**
@@ -285,7 +308,11 @@ View your invoice at: ${process.env.SITE_URL}/billing
     },
     language: 'id' | 'en' = 'id'
   ): Promise<string> {
-    return this.notificationService.sendInstallationConfirmation(to, installationData, language);
+    return this.notificationService.sendInstallationConfirmation(
+      to,
+      installationData,
+      language
+    );
   }
 
   /**
@@ -298,13 +325,23 @@ View your invoice at: ${process.env.SITE_URL}/billing
     contentText?: string,
     options?: {
       description?: string;
-      campaignType?: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
+      campaignType?:
+        | 'marketing'
+        | 'newsletter'
+        | 'promotional'
+        | 'announcement';
       targetAudience?: Record<string, any>;
       scheduledAt?: Date;
       createdBy?: string;
     }
   ): Promise<string> {
-    return this.notificationService.createMarketingCampaign(name, subject, contentHtml, contentText, options);
+    return this.notificationService.createMarketingCampaign(
+      name,
+      subject,
+      contentHtml,
+      contentText,
+      options
+    );
   }
 
   /**
@@ -328,7 +365,11 @@ View your invoice at: ${process.env.SITE_URL}/billing
     eventType: 'opened' | 'clicked' | 'bounced' | 'complained',
     eventData?: Record<string, any>
   ): Promise<void> {
-    return this.notificationService.trackEmailEvent(emailId, eventType, eventData);
+    return this.notificationService.trackEmailEvent(
+      emailId,
+      eventType,
+      eventData
+    );
   }
 
   /**
