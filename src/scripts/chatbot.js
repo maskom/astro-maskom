@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 export function initializeChatbot(initialMessages = []) {
   let messages = [...initialMessages];
   let loading = false;
@@ -30,7 +32,8 @@ export function initializeChatbot(initialMessages = []) {
         }`;
 
         // Sanitize message content to prevent XSS
-        messageBubble.textContent = message.content;
+        // Use textContent for maximum security - no HTML rendering
+        messageBubble.textContent = sanitizeMessageContent(message.content);
 
         messageContainer.appendChild(messageBubble);
         messagesList.appendChild(messageContainer);
@@ -41,7 +44,7 @@ export function initializeChatbot(initialMessages = []) {
 
   const sendMessage = async () => {
     if (!chatInput) return;
-    const input = sanitizeInput(chatInput.value.trim());
+    const input = sanitizeUserInput(chatInput.value.trim());
     if (!input || loading) return;
 
     const userMessage = { role: 'user', content: input };
@@ -67,7 +70,7 @@ export function initializeChatbot(initialMessages = []) {
 
       const assistantMessage = {
         role: 'assistant',
-        content: sanitizeInput(data.response),
+        content: sanitizeMessageContent(data.response),
       };
       messages = [...messages, assistantMessage];
     } catch {
@@ -95,13 +98,46 @@ export function initializeChatbot(initialMessages = []) {
   renderMessages();
 }
 
-function sanitizeInput(input) {
+/**
+ * Sanitize user input to prevent XSS attacks
+ * Uses DOMPurify for comprehensive HTML sanitization
+ */
+function sanitizeUserInput(input) {
   if (typeof input !== 'string') return '';
 
-  // Basic HTML sanitization
-  return input
-    .replace(/[<>]/g, '') // Remove basic HTML tags
+  // First, use DOMPurify for comprehensive HTML sanitization
+  const sanitized = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [], // No HTML tags allowed in user input
+    ALLOWED_ATTR: [], // No attributes allowed
+    KEEP_CONTENT: true, // Keep text content
+    RETURN_DOM: false,
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_DOM_IMPORT: false,
+  });
+
+  // Additional security measures for edge cases
+  return sanitized
     .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/data:/gi, '') // Remove data: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers
     .trim();
+}
+
+/**
+ * Sanitize message content (for assistant responses)
+ * More permissive for legitimate content but still secure
+ */
+function sanitizeMessageContent(content) {
+  if (typeof content !== 'string') return '';
+
+  // Use DOMPurify with safe configuration for message content
+  return DOMPurify.sanitize(content, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p'], // Allow basic formatting
+    ALLOWED_ATTR: [], // No attributes allowed
+    KEEP_CONTENT: true,
+    RETURN_DOM: false,
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_DOM_IMPORT: false,
+  });
 }
