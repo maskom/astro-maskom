@@ -1,6 +1,4 @@
 import type { APIRoute } from 'astro';
-import { createServerClient } from '../../lib/supabase';
-import { logger } from '../../lib/logger';
 
 export const GET: APIRoute = async () => {
   const timestamp = new Date().toISOString();
@@ -57,64 +55,37 @@ export const GET: APIRoute = async () => {
     },
   };
 
-  try {
-    // Test Supabase connectivity using basic auth check
-    const supabase = createServerClient();
-    const supabaseStart = Date.now();
+  // Test Supabase connectivity only if environment variables are properly configured
+  if (missingEnvVars.length === 0) {
+    try {
+      const { createServerClient } = await import('../../lib/supabase');
+      const supabase = createServerClient();
+      const supabaseStart = Date.now();
 
-    // Simple test - just check if we can create the client and it has the right config
-    // Don't make actual database calls that might fail due to missing tables
-    const supabaseLatency = Date.now() - supabaseStart;
+      // Try basic health check using auth
+      const { error: authError } = await supabase.auth.getSession();
+      const supabaseLatency = Date.now() - supabaseStart;
 
-    // Check if Supabase client is properly configured
-    // Check if required environment variables are set for Supabase
-    const supabaseUrl = import.meta.env.SUPABASE_URL;
-    const supabaseKey = import.meta.env.SUPABASE_KEY;
-
-    if (supabase && supabaseUrl && supabaseKey) {
-      checks.services.supabase.status = 'healthy';
-      checks.services.supabase.latency = supabaseLatency;
-    } else {
-      checks.services.supabase.status = 'error';
-      checks.services.supabase.error =
-        'Supabase client not properly configured';
-      checks.status = 'degraded';
-    }
-
-    // Update overall status if environment check failed
-    if (checks.env_check.status === 'error') {
-      checks.status = 'degraded';
-    }
-  } catch (error) {
-    // In development, Supabase might not be running - don't mark as degraded
-    if (import.meta.env.MODE === 'development') {
-      checks.services.supabase.status = 'skipped';
-      checks.services.supabase.error = 'Supabase not available in development';
-    } else {
+      if (authError) {
+        checks.services.supabase.status = 'error';
+        checks.services.supabase.error = `Auth check failed: ${authError.message}`;
+      } else {
+        checks.services.supabase.status = 'healthy';
+        checks.services.supabase.latency = supabaseLatency;
+      }
+    } catch (error) {
       checks.services.supabase.status = 'error';
       checks.services.supabase.error =
         error instanceof Error ? error.message : 'Unknown error';
-      // Don't mark overall status as degraded for Supabase issues alone
-      // This allows the health check to pass even if Supabase is temporarily unavailable
     }
+  } else {
+    checks.services.supabase.status = 'error';
+    checks.services.supabase.error =
+      'Supabase environment variables not configured';
   }
 
   // Detect Cloudflare environment
   try {
-    // Check if we're running on Cloudflare Pages
-    if (
-      typeof globalThis.navigator !== 'undefined' &&
-      (globalThis as { navigator?: { userAgent?: string } }).navigator
-        ?.userAgent
-    ) {
-      const userAgent = (globalThis as { navigator: { userAgent: string } })
-        .navigator.userAgent;
-      if (userAgent.includes('Cloudflare-Workers')) {
-        checks.services.cloudflare.status = 'active';
-        checks.services.cloudflare.features.push('workers-runtime');
-      }
-    }
-
     // Try to access Cloudflare-specific environment variables
     const cfEnv = {
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
@@ -172,15 +143,15 @@ export const GET: APIRoute = async () => {
     }
   } catch (error) {
     // Cloudflare detection failed, but don't mark as degraded
-    logger.warn('Cloudflare environment detection failed', {
-      module: 'health',
-      operation: 'cloudflareDetection',
-      error: error instanceof Error ? error.message : String(error),
-    });
   }
 
   // Calculate total response time
   checks.responseTime = Date.now() - startTime;
+
+  // Update overall status if environment check failed
+  if (checks.env_check.status === 'error') {
+    checks.status = 'degraded';
+  }
 
   // Determine HTTP status based on overall health
   const httpStatus = checks.status === 'healthy' ? 200 : 503;
