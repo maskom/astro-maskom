@@ -33,7 +33,7 @@ export function initializeChatbot(initialMessages = []) {
 
         // Sanitize message content to prevent XSS
         // Use textContent for maximum security - no HTML rendering
-        messageBubble.textContent = sanitizeUserInput(message.content);
+        messageBubble.textContent = sanitizeInput(message.content);
 
         messageContainer.appendChild(messageBubble);
         messagesList.appendChild(messageContainer);
