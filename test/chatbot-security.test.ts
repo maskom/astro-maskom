@@ -6,12 +6,7 @@ interface MockFetchResponse {
   json: () => Promise<{ response: string }>;
 }
 
-type MockFetch = vi.MockedFunction<
-  (
-    input: string | Request,
-    init?: globalThis.RequestInit
-  ) => Promise<MockFetchResponse>
->;
+type MockFetch = ReturnType<typeof vi.fn>;
 
 // Mock DOM environment
 const mockDOM = () => {
@@ -62,7 +57,7 @@ describe('Chatbot Security Tests', () => {
     mockDOM();
 
     // Mock fetch
-    global.fetch = vi.fn() as MockFetch;
+    global.fetch = vi.fn() as any;
   });
 
   it('should sanitize basic XSS attempts', async () => {
