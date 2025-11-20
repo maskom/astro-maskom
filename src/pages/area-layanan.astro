@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PackageHomeAccess from '../components/ui/PackageHomeAccess.astro';
+import PackageSoho from '../components/ui/PackageSoho.astro';
+import PackageCorporate from '../components/ui/PackageCorporate.astro';
+---
+
+<Layout title="Area Layanan - Maskom Indonesia">
+  <div class="container mx-auto px-4 py-8">
+    <h1
+      class="text-4xl font-bold text-center text-gray-900 dark:text-white mb-4"
+    >
+      Area Layanan Maskom Indonesia
+    </h1>
+    <p
+      class="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto"
+    >
+      Kami menyediakan layanan internet berkualitas tinggi di berbagai area.
+      Temukan paket layanan yang sesuai dengan kebutuhan Anda.
+    </p>
+
+    <PackageHomeAccess />
+    <PackageSoho />
+    <PackageCorporate />
+  </div>
+</Layout>

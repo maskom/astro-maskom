@@ -1,0 +1,125 @@
+---
+import { frameworks } from '../../data/navigation';
+
+const currentPath = Astro.url.pathname;
+const isActivePath = (path: string) => {
+  const normalizedCurrent = currentPath.replace(/\/+$/, '').toLowerCase();
+  const normalizedPath = path.replace(/\/+$/, '').toLowerCase();
+  return path === '/'
+    ? normalizedCurrent === '' || normalizedCurrent === '/'
+    : normalizedCurrent.endsWith(normalizedPath);
+};
+---
+
+<header
+  class="fixed top-0 inset-x-0 z-50 bg-gray-900/80 backdrop-blur border-b border-purple-500/20"
+>
+  <nav class="max-w-6xl mx-auto flex items-center justify-between p-4">
+    <a href="/" class="flex items-center">
+      <img
+        src="/logo-maskom.svg"
+        alt="Maskom Network"
+        width="200"
+        height="60"
+        decoding="async"
+        class="h-10 w-auto"
+      />
+    </a>
+
+    <div class="hidden md:flex items-center space-x-6">
+      {
+        frameworks.map(framework => (
+          <a
+            href={framework.path}
+            class:list={[
+              'text-sm font-medium transition-colors',
+              isActivePath(framework.path)
+                ? 'text-white'
+                : 'text-gray-300 hover:text-white',
+            ]}
+          >
+            {framework.displayName}
+          </a>
+        ))
+      }
+
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition"
+        onclick="window.open('https://panel.maskom.co.id/', '_blank', 'noopener,noreferrer'); return false;"
+      >
+        Login
+      </a>
+    </div>
+
+    <button
+      id="mobile-menu-button"
+      class="md:hidden text-gray-200 p-2 focus:outline-none"
+      aria-label="Toggle navigation"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </nav>
+
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-gray-900/95 border-b border-purple-500/20"
+  >
+    <div class="max-w-6xl mx-auto p-4 flex flex-col space-y-4">
+      {
+        frameworks.map(framework => (
+          <a
+            href={framework.path}
+            class:list={[
+              'block px-2 py-2 rounded-md text-sm font-medium',
+              isActivePath(framework.path)
+                ? 'text-white bg-gray-800'
+                : 'text-gray-300 hover:bg-gray-800 hover:text-white',
+            ]}
+          >
+            {framework.displayName}
+          </a>
+        ))
+      }
+
+      <a
+        href="https://panel.maskom.co.id/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="block w-full text-center px-4 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow hover:opacity-90 transition"
+        onclick="window.open('https://panel.maskom.co.id/', '_blank', 'noopener,noreferrer'); return false;"
+      >
+        Login
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    if (!button || !menu) return;
+    button.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      if (menu.classList.contains('hidden')) {
+        document.body.classList.remove('overflow-hidden');
+      } else {
+        document.body.classList.add('overflow-hidden');
+      }
+    });
+  });
+</script>

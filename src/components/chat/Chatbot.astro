@@ -1,0 +1,85 @@
+---
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface ChatbotProps {
+  initialMessages?: Message[];
+}
+
+const { initialMessages = [] } = Astro.props;
+
+// Generate nonce for CSP
+const nonce = crypto
+  .getRandomValues(new Uint8Array(16))
+  .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+---
+
+<div
+  class="flex flex-col h-[500px] border border-gray-200 rounded-lg overflow-hidden"
+  id="chatbot"
+  data-initial-messages={JSON.stringify(initialMessages)}
+>
+  <!-- Chat header -->
+  <div class="bg-indigo-600 text-white p-4">
+    <h2 class="text-lg font-semibold">Maskom Network Assistant</h2>
+  </div>
+
+  <!-- Messages container -->
+  <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="messages-container">
+    <div id="messages-list"></div>
+    <div id="loading-indicator" class="hidden text-left mb-4">
+      <div
+        class="inline-block p-3 rounded-lg bg-white border border-gray-200 rounded-bl-none"
+      >
+        <div class="flex space-x-2">
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-200">
+          </div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-400">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="messages-end"></div>
+  </div>
+
+  <!-- Input area -->
+  <div class="border-t border-gray-200 p-4 bg-white">
+    <form id="chat-form" class="flex space-x-2">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Type your message..."
+        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <button
+        type="submit"
+        id="send-button"
+        class="bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+</style>
+
+<script type="module" nonce={nonce}>
+  import { initializeChatbot } from '../../scripts/chatbot.js';
+
+  const initialMessages = JSON.parse(
+    JSON.stringify(Astro.props.initialMessages || [])
+  );
+  initializeChatbot(initialMessages);
+</script>

@@ -1,0 +1,16 @@
+[
+  {
+    "author": {
+      "id": "U_kgDODgFBdQ",
+      "is_bot": false,
+      "login": "sulhimaskom",
+      "name": ""
+    },
+    "headRefName": "iflow/issue-29",
+    "labels": [],
+    "mergeable": "MERGEABLE",
+    "number": 30,
+    "title": "Implement AI features, authentication system, and customer dashboard",
+    "url": "https://github.com/maskom/astro-maskom/pull/30"
+  }
+]

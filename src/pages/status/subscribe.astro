@@ -1,0 +1,146 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+interface SubscriptionForm {
+  email: string;
+}
+---
+
+<Layout title="Status Notifications">
+  <div class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Status Notifications</h1>
+
+    <div class="bg-gray-800 rounded-lg p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Subscribe to Status Updates</h2>
+      <p class="text-gray-300 mb-6">
+        Get notified about network status changes and incidents.
+      </p>
+
+      <form id="subscribe-form" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium mb-1"
+            >Email Address</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-md transition"
+          >Subscribe</button
+        >
+      </form>
+
+      <div id="subscription-result" class="mt-4 hidden">
+        <p id="subscription-message" class="text-green-400"></p>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Notification Preferences</h2>
+      <p class="text-gray-300 mb-4">
+        Choose what types of notifications you want to receive:
+      </p>
+
+      <div class="space-y-3">
+        <label class="flex items-center">
+          <input
+            type="checkbox"
+            id="incident-notifications"
+            checked
+            class="mr-2"
+          />
+          <span>Incident notifications</span>
+        </label>
+        <label class="flex items-center">
+          <input
+            type="checkbox"
+            id="maintenance-notifications"
+            checked
+            class="mr-2"
+          />
+          <span>Maintenance notifications</span>
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" id="status-changes" checked class="mr-2" />
+          <span>Service status changes</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('subscribe-form');
+    const resultDiv = document.getElementById('subscription-result');
+    const messageElement = document.getElementById('subscription-message');
+
+    if (form) {
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const incidentNotifications = document.getElementById(
+          'incident-notifications'
+        ).checked;
+        const maintenanceNotifications = document.getElementById(
+          'maintenance-notifications'
+        ).checked;
+        const statusChanges = document.getElementById('status-changes').checked;
+
+        try {
+          const response = await fetch('/api/subscribers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email,
+              preferences: {
+                incidents: incidentNotifications,
+                maintenance: maintenanceNotifications,
+                statusChanges: statusChanges,
+              },
+            }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            // Show success message
+            if (messageElement) {
+              messageElement.textContent = `Successfully subscribed ${email} to status notifications!`;
+              messageElement.className = 'text-green-400';
+            }
+
+            if (resultDiv) {
+              resultDiv.classList.remove('hidden');
+            }
+
+            // Reset form
+            form.reset();
+          } else {
+            throw new Error(result.error || 'Failed to subscribe');
+          }
+        } catch (error) {
+          // Show error message
+          if (messageElement) {
+            messageElement.textContent = `Failed to subscribe: ${error.message}`;
+            messageElement.className = 'text-red-400';
+          }
+
+          if (resultDiv) {
+            resultDiv.classList.remove('hidden');
+          }
+        }
+      });
+    }
+  });
+</script>

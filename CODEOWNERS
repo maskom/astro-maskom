@@ -1,0 +1,88 @@
+# Code Owners
+
+This file defines who owns code in this repository. Code owners are automatically requested for review when pull requests are opened.
+
+## Global Owners
+# These users own all files in the repository
+@maskom-team
+
+## Repository Administrators
+# These users have full administrative access
+*
+@marve10s
+
+## Core Areas
+
+### Documentation
+# All documentation files
+*.md
+docs/**/
+@marve10s
+
+### Configuration
+# Build and deployment configuration
+package*.json
+astro.config.*
+tailwind.config.*
+tsconfig.json
+@marve10s
+
+### Security & Environment
+# Security and environment files
+.env*
+SECURITY.md
+CODEOWNERS
+.github/workflows/
+@marve10s
+
+### Source Code
+# Main application code
+src/**/
+@marve10s
+
+### API Endpoints
+# API routes and server code
+src/pages/api/**/
+functions/**/
+@marve10s
+
+### Database
+# Database configuration and migrations
+supabase/**/
+@marve10s
+
+### CI/CD
+# GitHub Actions and workflows
+.github/workflows/**/
+@marve10s
+
+## Review Requirements
+
+### Required Reviews
+- **All PRs**: Minimum 1 review from code owner
+- **Security Changes**: Minimum 2 reviews
+- **Database Changes**: Minimum 1 review from database owner
+- **API Changes**: Minimum 1 review from API owner
+
+### Auto-approval
+- **Documentation**: Auto-approved for typo fixes
+- **Dependencies**: Auto-approved for minor version updates
+- **CI/CD**: Auto-approved for workflow optimizations
+
+## Emergency Changes
+
+For critical security fixes, maintainers can bypass normal review process by:
+1. Adding `[EMERGENCY]` to PR title
+2. Including security team in review
+3. Documenting rationale in PR description
+
+## Contact
+
+For questions about code ownership:
+- **Primary**: @marve10s
+- **Security**: security@maskom.id
+- **General**: Create an issue in this repository
+
+---
+
+*Last Updated: 2025-11-15*

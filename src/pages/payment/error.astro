@@ -1,0 +1,196 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
+
+const url = new URL(Astro.request.url);
+const orderId = url.searchParams.get('order_id') || '';
+
+// Get transaction details
+let transaction = null;
+if (orderId) {
+  try {
+    const { data, error } = await supabase
+      .from('payment_transactions')
+      .select('*')
+      .eq('order_id', orderId)
+      .single();
+
+    if (!error) {
+      transaction = data;
+    }
+  } catch (err) {
+    logger.error('Error fetching transaction', err instanceof Error ? err : new Error(String(err)), {
+      module: 'payment',
+      operation: 'fetchTransaction',
+      orderId,
+    });
+  }
+}
+---
+
+<Layout title="Payment Failed - Maskom Network">
+  <div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+      <!-- Error Icon -->
+      <div class="mb-6">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full"
+        >
+          <svg
+            class="w-8 h-8 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Payment Failed</h1>
+      <p class="text-lg text-gray-600 mb-8">
+        We were unable to process your payment. Please try again or contact
+        support if the problem persists.
+      </p>
+
+      {
+        transaction && (
+          <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+            <h2 class="text-xl font-semibold mb-4">Transaction Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Order ID</p>
+                <p class="font-medium">{transaction.order_id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Transaction ID</p>
+                <p class="font-medium">{transaction.id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Amount</p>
+                <p class="font-medium">
+                  Rp {transaction.amount.toLocaleString('id-ID')}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p class="font-medium text-red-600 capitalize">
+                  {transaction.status}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Payment Method</p>
+                <p class="font-medium capitalize">
+                  {transaction.payment_method?.name || 'Online Payment'}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Date</p>
+                <p class="font-medium">
+                  {new Date(transaction.created_at).toLocaleDateString('id-ID')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/billing/payment"
+          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Try Again
+        </a>
+        <a
+          href="/dashboard"
+          class="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        >
+          Go to Dashboard
+        </a>
+        <a
+          href="/kontak"
+          class="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        >
+          Contact Support
+        </a>
+      </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="mt-8 bg-red-50 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-red-900 mb-3">
+        Common Issues & Solutions
+      </h3>
+      <div class="space-y-4 text-red-800">
+        <div>
+          <h4 class="font-medium mb-2">💳 Credit Card Issues</h4>
+          <ul class="list-disc list-inside space-y-1 ml-4 text-sm">
+            <li>Check if your card has sufficient funds</li>
+            <li>Ensure your card details are entered correctly</li>
+            <li>Verify your card is enabled for online transactions</li>
+            <li>Contact your bank if the issue persists</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-medium mb-2">🏦 Bank Transfer Issues</h4>
+          <ul class="list-disc list-inside space-y-1 ml-4 text-sm">
+            <li>Virtual account numbers are valid for 24 hours</li>
+            <li>Ensure you transfer the exact amount</li>
+            <li>Keep your payment receipt for verification</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-medium mb-2">📱 E-wallet Issues</h4>
+          <ul class="list-disc list-inside space-y-1 ml-4 text-sm">
+            <li>Check your e-wallet balance</li>
+            <li>Ensure your app is updated to the latest version</li>
+            <li>Try logging out and back into your e-wallet app</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Support -->
+    <div class="mt-8 bg-gray-100 rounded-lg p-6 text-center">
+      <h3 class="text-lg font-semibold text-gray-900 mb-3">Need Help?</h3>
+      <p class="text-gray-600 mb-4">
+        Our customer support team is available to assist you with any payment
+        issues.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="tel:+622112345678"
+          class="flex items-center justify-center px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+        >
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
+            ></path>
+          </svg>
+          +62-21-1234-5678
+        </a>
+        <a
+          href="mailto:support@maskom.co.id"
+          class="flex items-center justify-center px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+        >
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+            ></path>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
+            ></path>
+          </svg>
+          support@maskom.co.id
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

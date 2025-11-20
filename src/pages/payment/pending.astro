@@ -1,0 +1,194 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
+
+const url = new URL(Astro.request.url);
+const orderId = url.searchParams.get('order_id') || '';
+
+// Get transaction details
+let transaction = null;
+if (orderId) {
+  try {
+    const { data, error } = await supabase
+      .from('payment_transactions')
+      .select('*')
+      .eq('order_id', orderId)
+      .single();
+
+    if (!error) {
+      transaction = data;
+    }
+  } catch (err) {
+    logger.error('Error fetching transaction', err instanceof Error ? err : new Error(String(err)), {
+      module: 'payment',
+      operation: 'fetchTransaction',
+      orderId,
+    });
+  }
+}
+---
+
+<Layout title="Payment Pending - Maskom Network">
+  <div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+      <!-- Pending Icon -->
+      <div class="mb-6">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full"
+        >
+          <svg
+            class="w-8 h-8 text-yellow-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Payment Pending</h1>
+      <p class="text-lg text-gray-600 mb-8">
+        Your payment is being processed. We will notify you once the payment is
+        confirmed.
+      </p>
+
+      {
+        transaction && (
+          <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+            <h2 class="text-xl font-semibold mb-4">Transaction Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Order ID</p>
+                <p class="font-medium">{transaction.order_id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Transaction ID</p>
+                <p class="font-medium">{transaction.id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Amount</p>
+                <p class="font-medium">
+                  Rp {transaction.amount.toLocaleString('id-ID')}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p class="font-medium text-yellow-600 capitalize">
+                  {transaction.status}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Payment Method</p>
+                <p class="font-medium capitalize">
+                  {transaction.payment_method?.name || 'Online Payment'}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Date</p>
+                <p class="font-medium">
+                  {new Date(transaction.created_at).toLocaleDateString('id-ID')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/dashboard"
+          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Go to Dashboard
+        </a>
+        <button
+          onclick="checkPaymentStatus()"
+          class="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        >
+          Check Status
+        </button>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="mt-8 bg-yellow-50 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-yellow-900 mb-3">
+        Payment Instructions
+      </h3>
+      <div class="space-y-3 text-yellow-800">
+        <p><strong>For Bank Transfer:</strong></p>
+        <ul class="list-disc list-inside space-y-1 ml-4">
+          <li>
+            Complete the transfer using the virtual account number provided
+          </li>
+          <li>Payment confirmation may take 1-2 business hours</li>
+          <li>Keep your payment receipt as proof</li>
+        </ul>
+
+        <p class="mt-4"><strong>For E-wallet:</strong></p>
+        <ul class="list-disc list-inside space-y-1 ml-4">
+          <li>Complete the payment in your e-wallet app</li>
+          <li>Payment is usually confirmed within minutes</li>
+          <li>You will receive a notification once confirmed</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Auto-refresh script -->
+    <script>
+      let checkCount = 0;
+      const maxChecks = 10;
+
+      function checkPaymentStatus() {
+        if (checkCount >= maxChecks) {
+          alert(
+            'Maximum refresh attempts reached. Please check your email for updates.'
+          );
+          return;
+        }
+
+        const orderId = '{orderId}';
+        if (!orderId) return;
+
+        fetch(`/api/payments/status?order_id=${orderId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (
+              data.success &&
+              data.status.transactionStatus === 'settlement'
+            ) {
+              window.location.href = `/payment/success?order_id=${orderId}`;
+            } else if (
+              data.success &&
+              data.status.transactionStatus === 'deny'
+            ) {
+              window.location.href = `/payment/error?order_id=${orderId}`;
+            } else {
+              checkCount++;
+              setTimeout(checkPaymentStatus, 30000); // Check again in 30 seconds
+            }
+          })
+          .catch(error => {
+            console.error('Error checking payment status:', {
+              error: error instanceof Error ? error.message : String(error),
+              timestamp: new Date().toISOString(),
+              action: 'checkPaymentStatus',
+              orderId,
+              checkCount,
+            });
+            checkCount++;
+            setTimeout(checkPaymentStatus, 30000);
+          });
+      }
+
+      // Auto-check every 30 seconds
+      setTimeout(checkPaymentStatus, 30000);
+    </script>
+  </div>
+</Layout>

@@ -1,0 +1,147 @@
+name: "iFlow Intelijen"
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
+jobs:
+  gather_data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch GitHub Actions run history
+        run: |
+          mkdir -p intel
+          gh run list --limit 100 --json number,workflowName,conclusion,createdAt,startedAt,updatedAt,status > intel/gha_runs.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch recent open issues
+        run: |
+          gh issue list --state open --limit 200 --json number,title,labels,createdAt,updatedAt > intel/open_issues.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch recent PR history
+        run: |
+          gh pr list --state all --limit 200 --json number,title,mergedAt,createdAt,closedAt,author > intel/recent_prs.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload collected data
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-intel-data-${{ github.run_id }}
+          path: intel/
+
+  analyse_and_create_issues:
+    needs: gather_data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download data artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: repo-intel-data-${{ github.run_id }}
+          path: ./intel
+
+      ##############################################
+      # ANTI-DUPLICATE ISSUE SYSTEM
+      ##############################################
+      - name: Prevent duplicate issues (collect all titles)
+        id: dedupe
+        run: |
+          echo "Collecting existing issue titles..."
+          gh issue list --state open --limit 300 --json number,title > existing_issues.json
+
+          # Convert to single string separated by |
+          TITLES=$(jq -r '.[].title' existing_issues.json | tr '\n' '|' | sed 's/|$//')
+          echo "existing_issues=$TITLES" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      ##############################################
+      # IFLOW EXECUTION WITH BUILT-IN DE-DUP LOGIC
+      ##############################################
+      - name: Run iFlow CLI Agent for analysis and auto-issue creation
+        uses: iflow-ai/iflow-cli-action@v2.1.0
+        with:
+          api_key: ${{ secrets.IFLOW_API_KEY }}
+          timeout: "7200"
+          prompt: |
+            ## ROLE
+            You are an autonomous GitHub repository intelligence agent with write-access.
+
+            ## CONTEXT
+            - Repository: ${{ github.repository }}
+            - CI/CD runs data: ./intel/gha_runs.json
+            - Open issues data: ./intel/open_issues.json
+            - PR history data: ./intel/recent_prs.json
+            - Existing issue titles (for deduplication):
+              "${{ steps.dedupe.outputs.existing_issues }}"
+            - Full repository code base is checked-out and available.
+
+            ## TASKS
+            1. Deep-analyze the entire codebase: modules, dependencies, structure, architecture, smells, duplication, unreachable code, documentation gaps.
+            2. Analyze CI/CD logs: recurring failures, high-duration workflows (>10m), flaky steps.
+            3. Analyze issue/PR history: stale issues (>60 days), unmerged PRs, repeat bug patterns.
+            4. Produce findings:
+               - Bugs
+               - Inefficiencies
+               - Improvement suggestions
+               - Feature proposals
+            5. Select the **single most important finding**.
+            6. Create a GitHub Issue ***ONLY IF*** no duplicate exists, using:
+               `gh issue create --title "<Issue Title>" --body "<Issue Body>" --label "<labels>"`
+            7. If similar issue exists (>50% substring or semantic match):
+               - Do NOT create a new issue.
+               - Instead, add a comment to the existing issue:
+                 `gh issue comment <number> --body "<additional findings>"`
+            8. Provide unified diff patches for workflow/config changes if needed.
+            9. Generate a self-improvement plan saved to: `intel/self_improvement_plan.md`
+
+            ## RULES
+            - ABSOLUTE RULE: No duplicate issue may be created.
+            - Duplicate detection rules:
+              - Case-insensitive
+              - Substring match threshold: 0.5
+              - Fuzzy similarity > 0.5 means duplicate
+            - If duplicate: comment, not create.
+            - Do not print secrets.
+            - Use smallest atomic commits/changes.
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save self-improvement plan as artifact
+        run: |
+          if [ -f intel/self_improvement_plan.md ]; then
+            echo "Uploading self-improvement plan..."
+            gh release create "self-improvement-${{ github.run_id }}" intel/self_improvement_plan.md --draft --notes "Self-improvement plan generated by iFlow agent"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
