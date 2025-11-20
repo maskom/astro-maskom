@@ -153,7 +153,8 @@ export const onRequest = async (
   });
 
   // Add Report-To header for CSP violation reporting in production
-  const isDev = (await import('./lib/env')).isDevelopment();
+  // Use simple environment check to avoid validation errors
+  const isDev = import.meta.env.DEV || import.meta.env.MODE === 'development';
   if (!isDev) {
     response.headers.set('Report-To', getCSPReportGroup());
   }

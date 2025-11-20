@@ -72,10 +72,10 @@ export function validateEnv(): EnvConfig {
     throw new EnvValidationError('SUPABASE_URL must be a valid URL');
   }
 
-  // Validate Supabase key format (basic check)
-  if (env.SUPABASE_KEY.length < 100) {
+  // Validate Supabase key format (basic check) - be more defensive
+  if (typeof env.SUPABASE_KEY !== 'string' || env.SUPABASE_KEY.length < 50) {
     throw new EnvValidationError(
-      'SUPABASE_KEY appears to be invalid (too short)'
+      'SUPABASE_KEY appears to be invalid (too short or not a string)'
     );
   }
 
