@@ -1,7 +1,7 @@
 import { EmailQueueService } from './queue';
 import type {
   SendEmailOptions,
-  EmailCampaign,
+  MarketingCampaign,
   CustomerEmailPreferences,
   EmailAnalytics,
   TemplateData,
@@ -310,9 +310,12 @@ export class EmailNotificationService {
       serviceNotifications: prefs.service_notifications,
       appointmentReminders: prefs.appointment_reminders,
       promotionalEmails: prefs.promotional_emails,
+      productUpdates: prefs.product_updates || false,
       securityNotifications: prefs.security_notifications,
       frequencyPreference: prefs.frequency_preference,
       preferredLanguage: prefs.preferred_language as 'id' | 'en',
+      createdAt: prefs.created_at,
+      updatedAt: prefs.updated_at,
     };
   }
 
@@ -481,7 +484,7 @@ export class EmailNotificationService {
    */
   async getCampaignPerformance(
     campaignId: string
-  ): Promise<EmailCampaign | null> {
+  ): Promise<MarketingCampaign | null> {
     const { data, error } = await this.queueService.supabase
       .from('email_campaigns')
       .select('*')

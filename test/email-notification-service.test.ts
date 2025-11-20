@@ -111,9 +111,12 @@ describe('EmailNotificationService', () => {
         service_notifications: true,
         appointment_reminders: true,
         promotional_emails: false,
+        product_updates: false,
         security_notifications: true,
         frequency_preference: 'normal',
         preferred_language: 'id',
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z',
       };
 
       mockQueueService.supabase.rpc.mockResolvedValue({
@@ -134,9 +137,12 @@ describe('EmailNotificationService', () => {
         serviceNotifications: true,
         appointmentReminders: true,
         promotionalEmails: false,
+        productUpdates: false,
         securityNotifications: true,
         frequencyPreference: 'normal',
         preferredLanguage: 'id',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
       });
     });
 
