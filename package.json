@@ -51,7 +51,7 @@
     "astro-seo": "^0.8.4",
     "chart.js": "^4.5.1",
     "dompurify": "^3.3.0",
-    "openai": "^6.9.0",
+    "openai": "^6.9.1",
     "supabase": "^2.58.5",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
