@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const GET: APIRoute = async context => {
+export const GET: APIRoute = async _context => {
   const timestamp = new Date().toISOString();
   const startTime = Date.now();
 
@@ -185,7 +185,7 @@ export const GET: APIRoute = async context => {
   });
 };
 
-export const HEAD: APIRoute = async context => {
+export const HEAD: APIRoute = async _context => {
   return new Response(null, {
     status: 200,
     headers: {
