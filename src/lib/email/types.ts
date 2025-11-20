@@ -132,7 +132,6 @@ export interface EmailDeliveryResult {
   provider: string;
   timestamp?: Date;
 }
-<<<<<<< HEAD
 
 export interface CustomerEmailPreferences {
   customerId: string;
@@ -144,12 +143,15 @@ export interface CustomerEmailPreferences {
   serviceNotifications: boolean;
   appointmentReminders: boolean;
   promotionalEmails: boolean;
+  productUpdates: boolean;
   securityNotifications: boolean;
   frequencyPreference: 'immediate' | 'daily' | 'weekly' | 'never';
   preferredLanguage: 'id' | 'en';
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface EmailCampaign {
+export interface MarketingCampaign {
   id: string;
   name: string;
   description?: string;
@@ -157,16 +159,22 @@ export interface EmailCampaign {
   contentHtml: string;
   contentText?: string;
   campaignType: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
-  targetAudience: Record<string, any>;
+  targetAudience?: Record<string, any>;
+  status:
+    | 'draft'
+    | 'scheduled'
+    | 'active'
+    | 'paused'
+    | 'completed'
+    | 'cancelled';
   scheduledAt?: string;
   sentAt?: string;
-  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'cancelled' | 'paused';
-  totalRecipients: number;
-  sentCount: number;
-  deliveredCount: number;
-  openedCount: number;
-  clickedCount: number;
-  bouncedCount: number;
+  totalRecipients?: number;
+  totalSent?: number;
+  totalOpened?: number;
+  totalClicked?: number;
+  totalBounced?: number;
+  totalComplained?: number;
   createdBy?: string;
   createdAt: string;
   updatedAt: string;
@@ -184,61 +192,7 @@ export interface EmailAnalytics {
   timestamp: string;
 }
 
-export interface UnsubscribeRequest {
-  email: string;
-  customerId?: string;
-  reason?: string;
-  campaignId?: string;
-}
-
-export interface EmailTrackingPixel {
-  emailId: string;
-  customerId?: string;
-  campaignId?: string;
-  userAgent?: string;
-ipAddress?: string;
-}
-
-export interface CustomerEmailPreferences {
-  customerId: string;
-  emailEnabled: boolean;
-  transactionalEmails: boolean;
-  marketingEmails: boolean;
-  newsletterEmails: boolean;
-  billingNotifications: boolean;
-  serviceNotifications: boolean;
-  appointmentReminders: boolean;
-  promotionalEmails: boolean;
-  productUpdates: boolean;
-  securityNotifications: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MarketingCampaign {
-  id: string;
-  name: string;
-  description?: string;
-  subject: string;
-  contentHtml: string;
-  contentText?: string;
-  campaignType: 'marketing' | 'newsletter' | 'promotional' | 'announcement';
-  targetAudience?: Record<string, any>;
-  status: 'draft' | 'scheduled' | 'active' | 'paused' | 'completed' | 'cancelled';
-  scheduledAt?: string;
-  sentAt?: string;
-  totalRecipients?: number;
-  totalSent?: number;
-  totalOpened?: number;
-  totalClicked?: number;
-  totalBounced?: number;
-  totalComplained?: number;
-  createdBy?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EmailAnalytics {
+export interface EmailAnalyticsSummary {
   totalSent: number;
   totalDelivered: number;
   totalOpened: number;
@@ -259,7 +213,29 @@ export interface EmailAnalytics {
 export interface EmailEvent {
   id: string;
   emailId: string;
-  eventType: 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'complained' | 'unsubscribed';
+  eventType:
+    | 'sent'
+    | 'delivered'
+    | 'opened'
+    | 'clicked'
+    | 'bounced'
+    | 'complained'
+    | 'unsubscribed';
   eventData?: Record<string, any>;
   timestamp: string;
+}
+
+export interface UnsubscribeRequest {
+  email: string;
+  customerId?: string;
+  reason?: string;
+  campaignId?: string;
+}
+
+export interface EmailTrackingPixel {
+  emailId: string;
+  customerId?: string;
+  campaignId?: string;
+  userAgent?: string;
+  ipAddress?: string;
 }
