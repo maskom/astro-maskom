@@ -8,13 +8,17 @@ import { ErrorFactory } from '../../../lib/errors';
 import { SecurityAction } from '../../../lib/security/types';
 import { logger } from '../../../lib/logger';
 import { validateRequest } from '../../../lib/validation';
-import { AuthSchemas } from '../../../lib/validation/schemas';
+import {
+  AuthSchemas,
+  ValidatedSignInData,
+} from '../../../lib/validation/schemas';
 
 export const prerender = false;
 export const POST: APIRoute = withApiMiddleware(
   validateRequest(AuthSchemas.signIn)(
     async ({ request, cookies, redirect, validatedData, requestId }) => {
-      const { email, password } = validatedData;
+      const { email, password } = (validatedData ||
+        {}) as unknown as ValidatedSignInData;
 
       // Get client IP and user agent for security logging
       const ipAddress =

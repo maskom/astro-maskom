@@ -2,7 +2,10 @@ import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
 import { logger } from '../../../lib/logger';
 import { validateRequest, createHeaders } from '../../../lib/validation';
-import { PaymentSchemas } from '../../../lib/validation/schemas';
+import {
+  PaymentSchemas,
+  ValidatedPaymentHistoryData,
+} from '../../../lib/validation/schemas';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
@@ -15,7 +18,7 @@ export const GET: APIRoute = validateRequest(PaymentSchemas.paymentHistory, {
       startDate,
       endDate,
       status,
-    } = validatedData;
+    } = (validatedData || {}) as unknown as ValidatedPaymentHistoryData;
 
     // Get authenticated user
     const authHeader = request.headers.get('Authorization');

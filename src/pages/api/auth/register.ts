@@ -4,13 +4,17 @@ import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory } from '../../../lib/errors';
 import { logger } from '../../../lib/logger';
 import { validateRequest } from '../../../lib/validation';
-import { AuthSchemas } from '../../../lib/validation/schemas';
+import {
+  AuthSchemas,
+  ValidatedAuthData,
+} from '../../../lib/validation/schemas';
 
 export const prerender = false;
 export const POST: APIRoute = withApiMiddleware(
   validateRequest(AuthSchemas.register)(
     async ({ redirect, validatedData, requestId }) => {
-      const { email, password, fullName, phone } = validatedData;
+      const { email, password, fullName, phone } = (validatedData ||
+        {}) as unknown as ValidatedAuthData;
 
       logger.info('User registration attempt', {
         requestId,

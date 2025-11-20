@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
   let securityContext: {
     userId: string;
     permissions: string[];
-    role: string;
+    role: string | null;
   } | null = null;
   try {
     securityContext = await SecurityMiddleware.createSecurityContext(

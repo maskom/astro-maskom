@@ -141,9 +141,4 @@ export class SendGridEmailProvider {
       typeof recipient === 'string' ? { email: recipient } : recipient
     );
   }
-
-  private validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
 }
