@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EmailQueueService } from '@/lib/email/queue';
 
 // Mock EmailQueueService first
 vi.mock('@/lib/email/queue', () => ({
