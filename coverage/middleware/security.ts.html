@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for lib/security/mfa.ts</title>
+    <title>Code coverage report for middleware/security.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../prettify.css" />
-    <link rel="stylesheet" href="../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../sort-arrow-sprite.png);
+            background-image: url(../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">lib/security</a> mfa.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">middleware</a> security.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16.88% </span>
+                <span class="strong">98.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/77</span>
+                <span class='fraction'>57/58</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">96.96% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/34</span>
+                <span class='fraction'>32/33</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">36.36% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/11</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16% </span>
+                <span class="strong">98.24% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/75</span>
+                <span class='fraction'>56/57</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -268,416 +268,440 @@
 <a name='L203'></a><a href='#L203'>203</a>
 <a name='L204'></a><a href='#L204'>204</a>
 <a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">128x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">45x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import crypto from 'node:crypto';
-import { createClient } from '@supabase/supabase-js';
-import { logger } from '../logger';
-import type { UserSecurityProfile } from './types';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { isDevelopment } from '@/lib/env';
 &nbsp;
-export class MFAService {
-  private supabase = createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-&nbsp;
-  generateMFASecret(): string {
-    return crypto.randomBytes(20).toString('base64');
-  }
-&nbsp;
-  generateTOTPSecret(userEmail: string): { secret: string; qrCodeUrl: string } {
-    const secret = this.generateMFASecret();
-    const issuer = encodeURIComponent('Maskom Network');
-    const account = encodeURIComponent(userEmail);
-    const qrCodeUrl = `otpauth://totp/${issuer}:${account}?secret=${secret}&amp;issuer=${issuer}`;
-&nbsp;
-    return { secret, qrCodeUrl };
-  }
-&nbsp;
-  generateBackupCodes(): string[] {
-    const codes: string[] = [];
-    for (let i = 0; i &lt; 10; i++) {
-      codes.push(crypto.randomBytes(4).toString('hex').toUpperCase());
-    }
-    return codes;
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >enableMFA(u</span>serId: string, secret: string): Promise&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const backupCodes = <span class="cstat-no" title="statement not covered" >this.generateBackupCodes();</span>
-&nbsp;
-      const { error } = <span class="cstat-no" title="statement not covered" >await this.supabase</span>
-        .from('user_security_profiles')
-        .upsert({
-          user_id: userId,
-          mfa_enabled: true,
-          mfa_secret: secret,
-          backup_codes: backupCodes,
-          updated_at: new Date(),
-        });
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        logger.error('Failed to enable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-      }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return true;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('MFA enable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >disableMFA(u</span>serId: string): Promise&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const { error } = <span class="cstat-no" title="statement not covered" >await this.supabase</span>
-        .from('user_security_profiles')
-        .update({
-          mfa_enabled: false,
-          mfa_secret: null,
-          backup_codes: null,
-          updated_at: new Date(),
-        })
-        .eq('user_id', userId);
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        logger.error('Failed to disable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-      }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return true;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('MFA disable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >verifyTOTP(s</span>ecret: string, token: string): Promise&lt;boolean&gt; {
-    // This is a simplified TOTP verification
-    // In production, you'd use a library like 'otplib'
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const window = <span class="cstat-no" title="statement not covered" >1; // Allow 1 step before/after for clock drift</span>
-      const timeStep = <span class="cstat-no" title="statement not covered" >30; // 30-second time steps</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      for (let offset = <span class="cstat-no" title="statement not covered" >-window; o</span>ffset &lt;= window; offset++) {</span>
-        const time = <span class="cstat-no" title="statement not covered" >Math.floor(Date.now() / 1000 / timeStep) + offset;</span>
-        const expectedToken = <span class="cstat-no" title="statement not covered" >this.generateTOTPToken(secret, time);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >        if (token === expectedToken) {</span>
-<span class="cstat-no" title="statement not covered" >          return true;</span>
-        }
-      }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('TOTP verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyTOTP', secret });</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >verifyBackupCode(u</span>serId: string, code: string): Promise&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const { data: profile, error } = <span class="cstat-no" title="statement not covered" >await this.supabase</span>
-        .from('user_security_profiles')
-        .select('backup_codes')
-        .eq('user_id', userId)
-        .single();
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (error || !profile?.backup_codes) {</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-      }
-&nbsp;
-      const backupCodes = <span class="cstat-no" title="statement not covered" >profile.backup_codes as string[];</span>
-      const codeIndex = <span class="cstat-no" title="statement not covered" >backupCodes.indexOf(code.toUpperCase());</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (codeIndex === -1) {</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-      }
-&nbsp;
-      // Remove the used backup code
-<span class="cstat-no" title="statement not covered" >      backupCodes.splice(codeIndex, 1);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      await this.supabase</span>
-        .from('user_security_profiles')
-        .update({
-          backup_codes: backupCodes,
-          updated_at: new Date(),
-        })
-        .eq('user_id', userId);
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return true;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('Backup code verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyBackupCode', userId, code });</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >isMFAEnabled(u</span>serId: string): Promise&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const { data: profile, error } = <span class="cstat-no" title="statement not covered" >await this.supabase</span>
-        .from('user_security_profiles')
-        .select('mfa_enabled')
-        .eq('user_id', userId)
-        .single();
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
-      }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return profile?.mfa_enabled || false;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('MFA status check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'isMFAEnabled', userId });</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-    }
-  }
-&nbsp;
-  async <span class="fstat-no" title="function not covered" >getUserSecurityProfile(</span>
-    userId: string
-  ): Promise&lt;UserSecurityProfile | null&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-      const { data: profile, error } = <span class="cstat-no" title="statement not covered" >await this.supabase</span>
-        .from('user_security_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        return null;</span>
-      }
-&nbsp;
-<span class="cstat-no" title="statement not covered" >      return profile as UserSecurityProfile;</span>
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error('Get security profile error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'getUserSecurityProfile', userId });</span>
-<span class="cstat-no" title="statement not covered" >      return null;</span>
-    }
-  }
-&nbsp;
-  private <span class="fstat-no" title="function not covered" >generateTOTPToken(s</span>ecret: string, time: number): string {
-    // Simplified TOTP token generation
-    // In production, use a proper TOTP library
-    const buffer = <span class="cstat-no" title="statement not covered" >Buffer.alloc(8);</span>
-<span class="cstat-no" title="statement not covered" >    buffer.writeBigUInt64BE(BigInt(time), 0);</span>
-&nbsp;
-    const hmac = <span class="cstat-no" title="statement not covered" >crypto.createHmac('sha1', Buffer.from(secret, 'base64'));</span>
-<span class="cstat-no" title="statement not covered" >    hmac.update(buffer);</span>
-    const digest = <span class="cstat-no" title="statement not covered" >hmac.digest();</span>
-&nbsp;
-    const offset = <span class="cstat-no" title="statement not covered" >digest[digest.length - 1] &amp; 0x0f;</span>
-    const <span class="cstat-no" title="statement not covered" >code =</span>
-      (((digest[offset] &amp; 0x7f) &lt;&lt; 24) |
-        ((digest[offset + 1] &amp; 0xff) &lt;&lt; 16) |
-        ((digest[offset + 2] &amp; 0xff) &lt;&lt; 8) |
-        (digest[offset + 3] &amp; 0xff)) %
-      1000000;
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    return code.toString().padStart(6, '0');</span>
-  }
+export interface SecurityHeaders {
+  'Content-Security-Policy': string;
+  'Content-Security-Policy-Report-Only'?: string;
+  'X-Frame-Options': string;
+  'X-Content-Type-Options': string;
+  'Referrer-Policy': string;
+  'Permissions-Policy': string;
+  'Strict-Transport-Security': string;
 }
 &nbsp;
-export const mfaService = new MFAService();
+export interface CSPViolationReport {
+  'csp-report': {
+    'document-uri': string;
+    referrer: string;
+    'violated-directive': string;
+    'effective-directive': string;
+    'original-policy': string;
+    disposition: string;
+    'blocked-uri': string;
+    'line-number'?: number;
+    'column-number'?: number;
+    'source-file'?: string;
+    'status-code'?: number;
+    'script-sample'?: string;
+  };
+}
+&nbsp;
+export const getSecurityHeaders = (nonce?: string): SecurityHeaders =&gt; {
+  const isDev = isDevelopment();
+&nbsp;
+  // Enhanced CSP with comprehensive directives
+  const cspDirectives = [
+    "default-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "media-src 'self'",
+    "manifest-src 'self'",
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
+  ];
+&nbsp;
+  // Script source: hardened for production, controlled for development
+  if (isDev) {
+    // Development: minimal unsafe allowances for Astro dev server
+    const cspScriptSrc = nonce
+      ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'unsafe-inline'`
+      : "'self' 'unsafe-eval' 'unsafe-inline'";
+    cspDirectives.push(`script-src ${cspScriptSrc}`);
+  } else {
+    // Production: strict nonce-based CSP
+    const cspScriptSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
+    cspDirectives.push(`script-src ${cspScriptSrc}`);
+  }
+&nbsp;
+  // Style source: hardened with nonce support
+  if (isDev) {
+    cspDirectives.push("style-src 'self' 'unsafe-inline'");
+  } else {
+    const cspStyleSrc = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
+    cspDirectives.push(`style-src ${cspStyleSrc}`);
+  }
+&nbsp;
+  // Enhanced resource directives with strict third-party control
+  cspDirectives.push("img-src 'self' data: https: blob:");
+  cspDirectives.push("font-src 'self' data:");
+&nbsp;
+  // Connect source with explicit allowlist
+  const connectSources = [
+    "'self'",
+    'https://api.openai.com',
+    'https://*.supabase.co',
+    'wss://*.supabase.co',
+  ];
+&nbsp;
+  // Add CSP violation reporting endpoint in production
+  if (!isDev) {
+    connectSources.push("'self'"); // For the CSP report endpoint
+  }
+&nbsp;
+  cspDirectives.push(`connect-src ${connectSources.join(' ')}`);
+&nbsp;
+  // Additional security directives
+  cspDirectives.push("frame-src 'self'");
+  cspDirectives.push("prefetch-src 'self'");
+  cspDirectives.push("navigate-to 'self'");
+&nbsp;
+  const headers: SecurityHeaders = {
+    'Content-Security-Policy': cspDirectives.join('; '),
+    'X-Frame-Options': 'DENY',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy':
+      'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  };
+&nbsp;
+  // Add CSP report-only policy for monitoring in production
+  if (!isDev) {
+    const reportOnlyDirectives = [
+      ...cspDirectives,
+      'report-uri /api/security/csp-report',
+      'report-to csp-endpoint',
+    ];
+    headers['Content-Security-Policy-Report-Only'] =
+      reportOnlyDirectives.join('; ');
+  }
+&nbsp;
+  return headers;
+};
+&nbsp;
+export const generateNonce = (): string =&gt; {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte =&gt; byte.toString(16).padStart(2, '0')).join('');
+};
+&nbsp;
+export const getCSPReportGroup = (): string =&gt; {
+  return JSON.stringify({
+    group: 'csp-endpoint',
+    max_age: 10886400, // 7 days
+    endpoints: [
+      {
+        url: '/api/security/csp-report',
+      },
+    ],
+    include_subdomains: false,
+  });
+};
+&nbsp;
+export const validateCSPViolation = (report: CSPViolationReport): boolean =&gt; {
+  const cspReport = report['csp-report'];
+&nbsp;
+  // Required fields validation
+  const requiredFields = [
+    'document-uri',
+    'violated-directive',
+    'effective-directive',
+    'original-policy',
+    'disposition',
+    'blocked-uri',
+  ];
+&nbsp;
+  for (const field of requiredFields) {
+    if (!(field in cspReport)) {
+      return false;
+    }
+  }
+&nbsp;
+  // Check that required non-empty fields are not empty
+  const nonEmptyFields = [
+    'document-uri',
+    'violated-directive',
+    'effective-directive',
+    'original-policy',
+    'disposition',
+  ];
+&nbsp;
+  for (const field of nonEmptyFields) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!cspReport[field as keyof typeof cspReport]) {
+<span class="cstat-no" title="statement not covered" >      return false;</span>
+    }
+  }
+&nbsp;
+  // Validate URI format
+  try {
+    new URL(cspReport['document-uri']);
+    // blocked-uri can be empty, 'none', or a valid URL
+    if (
+      cspReport['blocked-uri'] &amp;&amp;
+      cspReport['blocked-uri'] !== '' &amp;&amp;
+      cspReport['blocked-uri'] !== 'none'
+    ) {
+      new URL(cspReport['blocked-uri']);
+    }
+  } catch {
+    return false;
+  }
+&nbsp;
+  return true;
+};
+&nbsp;
+export const getCSPSeverity = (
+  violation: CSPViolationReport
+): 'low' | 'medium' | 'high' =&gt; {
+  const report = violation['csp-report'];
+  const blockedUri = report['blocked-uri'];
+  const violatedDirective = report['violated-directive'];
+&nbsp;
+  // High severity: script-src violations, external domains
+  if (
+    violatedDirective.includes('script-src') &amp;&amp;
+    blockedUri &amp;&amp;
+    !blockedUri.includes('self') &amp;&amp;
+    !blockedUri.includes('data:')
+  ) {
+    return 'high';
+  }
+&nbsp;
+  // Medium severity: style-src, connect-src violations
+  if (
+    violatedDirective.includes('style-src') ||
+    violatedDirective.includes('connect-src')
+  ) {
+    return 'medium';
+  }
+&nbsp;
+  // Low severity: other directive violations
+  return 'low';
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -687,14 +711,14 @@ export const mfaService = new MFAService();
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2025-11-20T07:37:18.215Z
             </div>
-        <script src="../../prettify.js"></script>
+        <script src="../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../sorter.js"></script>
-        <script src="../../block-navigation.js"></script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
     </body>
 </html>
     
