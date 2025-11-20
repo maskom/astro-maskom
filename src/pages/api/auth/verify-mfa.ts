@@ -6,7 +6,10 @@ import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
 import { logger } from '../../../lib/logger';
 import { validateRequest } from '../../../lib/validation';
-import { AuthSchemas } from '../../../lib/validation/schemas';
+import {
+  AuthSchemas,
+  ValidatedVerifyMFAData,
+} from '../../../lib/validation/schemas';
 
 export const prerender = false;
 
@@ -17,7 +20,7 @@ export const POST: APIRoute = validateRequest(AuthSchemas.verifyMFA)(async ({
   requestId,
 }) => {
   try {
-    const { code } = validatedData;
+    const { code } = (validatedData || {}) as unknown as ValidatedVerifyMFAData;
 
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,

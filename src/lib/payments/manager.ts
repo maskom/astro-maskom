@@ -52,14 +52,18 @@ export class PaymentManager {
         paymentResponse,
       };
     } catch (error) {
-      logger.error('Error processing payment', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'processPayment',
-        userId,
-        orderId: paymentRequest.orderId,
-        amount: paymentRequest.amount,
-      });
+      logger.error(
+        'Error processing payment',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'processPayment',
+          userId,
+          orderId: paymentRequest.orderId,
+          amount: paymentRequest.amount,
+        }
+      );
       throw error;
     }
   }
@@ -91,13 +95,17 @@ export class PaymentManager {
 
       return { success: true, transactionId: transaction.id };
     } catch (error) {
-      logger.error('Error handling webhook', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'handleWebhook',
-        orderId: notification.order_id,
-        transactionStatus: notification.transaction_status,
-      });
+      logger.error(
+        'Error handling webhook',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'handleWebhook',
+          orderId: notification.order_id,
+          transactionStatus: notification.transaction_status,
+        }
+      );
       throw error;
     }
   }
@@ -164,12 +172,16 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error getting transaction status', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'getTransactionStatus',
-        orderId,
-      });
+      logger.error(
+        'Error getting transaction status',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'getTransactionStatus',
+          orderId,
+        }
+      );
       throw error;
     }
   }
@@ -191,12 +203,16 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error cancelling payment', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'cancelPayment',
-        orderId,
-      });
+      logger.error(
+        'Error cancelling payment',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'cancelPayment',
+          orderId,
+        }
+      );
       throw error;
     }
   }
@@ -218,13 +234,17 @@ export class PaymentManager {
 
       return paymentResponse;
     } catch (error) {
-      logger.error('Error refunding payment', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'refundPayment',
-        orderId,
-        amount,
-      });
+      logger.error(
+        'Error refunding payment',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'refundPayment',
+          orderId,
+          amount,
+        }
+      );
       throw error;
     }
   }
@@ -273,6 +293,7 @@ export class PaymentManager {
         userId: transaction.userId,
         transactionId: transaction.id,
         amount: transaction.amount,
+        subtotal: transaction.amount,
         tax: Math.round(transaction.amount * 0.11),
         total: transaction.amount + Math.round(transaction.amount * 0.11),
         dueDate,
@@ -288,14 +309,18 @@ export class PaymentManager {
         ],
       });
     } catch (error) {
-      logger.error('Error generating invoice', error instanceof Error ? error : new Error(String(error)), {
-        module: 'payments',
-        submodule: 'manager',
-        operation: 'generateInvoiceForTransaction',
-        transactionId: transaction.id,
-        userId: transaction.userId,
-        amount: transaction.amount,
-      });
+      logger.error(
+        'Error generating invoice',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          module: 'payments',
+          submodule: 'manager',
+          operation: 'generateInvoiceForTransaction',
+          transactionId: transaction.id,
+          userId: transaction.userId,
+          amount: transaction.amount,
+        }
+      );
     }
   }
 
