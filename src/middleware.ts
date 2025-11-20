@@ -34,8 +34,14 @@ export const onRequest = async (
 ) => {
   const { pathname } = new URL(request.url);
 
-  // Apply rate limiting to API endpoints
-  if (pathname.startsWith('/api/') && env.SESSION) {
+  // Apply rate limiting to API endpoints (temporarily disabled for debugging)
+  const RATE_LIMITING_ENABLED = false;
+  if (
+    RATE_LIMITING_ENABLED &&
+    pathname.startsWith('/api/') &&
+    env &&
+    env.SESSION
+  ) {
     try {
       const config = getRateLimitConfig(pathname);
       const rateLimiter = new RateLimiter(
