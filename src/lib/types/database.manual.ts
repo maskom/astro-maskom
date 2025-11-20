@@ -211,6 +211,7 @@ export interface UserProfile {
   avatar_url?: string;
   timezone?: string;
   language?: string;
+  role?: 'customer' | 'support' | 'admin' | 'super_admin';
   created_at: string;
   updated_at: string;
 }

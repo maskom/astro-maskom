@@ -1,6 +1,64 @@
 import type { ValidationSchema } from './index';
 import { CommonSchemas } from './index';
 
+// Type definitions for validated data
+export interface ValidatedAuthData {
+  email: string;
+  password: string;
+  fullName?: string;
+  phone?: string;
+}
+
+export interface ValidatedSignInData {
+  email: string;
+  password: string;
+}
+
+export interface ValidatedMFAData {
+  email: string;
+  secret?: string;
+  code?: string;
+}
+
+export interface ValidatedPaymentCancelData {
+  transactionId: string;
+  reason: string;
+}
+
+export interface ValidatedPaymentCreateData {
+  orderId: string;
+  amount: number;
+  customerDetails: Record<string, unknown>;
+  itemDetails: Record<string, unknown>[];
+  paymentMethod?: string;
+}
+
+export interface ValidatedPaymentHistoryData {
+  limit?: number;
+  offset?: number;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
+export interface ValidatedPaymentMethodsData {
+  type?: string;
+}
+
+export interface ValidatedPaymentRefundData {
+  transactionId: string;
+  amount: number;
+  reason: string;
+}
+
+export interface ValidatedPaymentStatusData {
+  transactionId: string;
+}
+
+export interface ValidatedVerifyMFAData {
+  code: string;
+}
+
 /**
  * Payment validation schemas
  */

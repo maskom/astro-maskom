@@ -137,19 +137,4 @@ export class SupabaseEmailProvider {
       };
     }
   }
-
-  private formatEmailAddress(address: {
-    email: string;
-    name?: string;
-  }): string {
-    if (address.name) {
-      return `${address.name} <${address.email}>`;
-    }
-    return address.email;
-  }
-
-  private validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
 }
