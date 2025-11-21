@@ -1,0 +1,824 @@
+---
+// AvailabilityResults.astro - Display coverage check results
+---
+
+<div class="availability-results" id="availability-results">
+  <!-- Loading state -->
+  <div class="loading-state hidden" id="results-loading">
+    <div class="loading-spinner"></div>
+    <p>Memeriksa ketersediaan layanan...</p>
+  </div>
+
+  <!-- Success state -->
+  <div class="success-state hidden" id="results-success">
+    <div class="result-header">
+      <div class="status-indicator" id="status-indicator"></div>
+      <div class="result-title">
+        <h2 id="result-title"></h2>
+        <p id="result-address"></p>
+      </div>
+    </div>
+
+    <div class="result-content">
+      <!-- Available packages -->
+      <div class="packages-section" id="packages-section">
+        <h3>Paket Tersedia</h3>
+        <div class="packages-grid" id="packages-grid">
+          <!-- Packages will be populated here -->
+        </div>
+      </div>
+
+      <!-- Installation info -->
+      <div class="installation-section" id="installation-section">
+        <h3>Informasi Instalasi</h3>
+        <div class="installation-info" id="installation-info">
+          <!-- Installation info will be populated here -->
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-actions">
+        <button class="btn-primary" id="proceed-btn">
+          Lanjutkan Pendaftaran
+        </button>
+        <button class="btn-secondary" id="check-another-btn">
+          Cek Alamat Lain
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coming soon state -->
+  <div class="coming-soon-state hidden" id="results-coming-soon">
+    <div class="result-header">
+      <div class="status-indicator coming-soon"></div>
+      <div class="result-title">
+        <h2>Segera Hadir di Area Anda!</h2>
+        <p id="coming-soon-address"></p>
+      </div>
+    </div>
+
+    <div class="result-content">
+      <div class="coming-soon-info">
+        <div class="info-card">
+          <h4>🚀 Perkiraan Tersedia</h4>
+          <p id="estimated-date"></p>
+        </div>
+        <div class="info-card">
+          <h4>📦 Paket yang Akan Tersedia</h4>
+          <div id="future-packages"></div>
+        </div>
+      </div>
+
+      <div class="lead-section">
+        <h3>Daftar Notifikasi</h3>
+        <p>Kami akan menghubungi Anda saat layanan tersedia di area Anda.</p>
+        
+        <form class="lead-form" id="lead-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="lead-name">Nama Lengkap</label>
+              <input type="text" id="lead-name" required>
+            </div>
+            <div class="form-group">
+              <label for="lead-email">Email</label>
+              <input type="email" id="lead-email" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="lead-phone">No. Telepon (Opsional)</label>
+              <input type="tel" id="lead-phone">
+            </div>
+            <div class="form-group">
+              <label for="lead-contact">Preferensi Kontak</label>
+              <select id="lead-contact">
+                <option value="email">Email</option>
+                <option value="phone">Telepon</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lead-notes">Catatan (Opsional)</label>
+            <textarea id="lead-notes" rows="3"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Daftar Notifikasi</button>
+            <button type="button" class="btn-secondary" id="check-another-coming-soon-btn">
+              Cek Alamat Lain
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unavailable state -->
+  <div class="unavailable-state hidden" id="results-unavailable">
+    <div class="result-header">
+      <div class="status-indicator unavailable"></div>
+      <div class="result-title">
+        <h2>Maaf, Layanan Belum Tersedia</h2>
+        <p id="unavailable-address"></p>
+      </div>
+    </div>
+
+    <div class="result-content">
+      <div class="unavailable-info">
+        <p>Saat ini kami belum memiliki rencana ekspansi ke area Anda. Namun, kami terus berkembang dan mungkin saja layanan kami akan tersedia di masa depan.</p>
+        
+        <div class="alternative-options">
+          <h4>Alternatif yang Tersedia:</h4>
+          <ul>
+            <li>Periksa alamat terdekat yang mungkin tercakup</li>
+            <li>Hubungi tim kami untuk informasi lebih lanjut</li>
+            <li>Daftar untuk mendapatkan update ekspansi</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lead-section">
+        <h3> tetap Terhubung</h3>
+        <p>Daftar untuk mendapatkan informasi tentang ekspansi layanan kami.</p>
+        
+        <form class="lead-form" id="unavailable-lead-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="unavailable-lead-name">Nama Lengkap</label>
+              <input type="text" id="unavailable-lead-name" required>
+            </div>
+            <div class="form-group">
+              <label for="unavailable-lead-email">Email</label>
+              <input type="email" id="unavailable-lead-email" required>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Daftar Update</button>
+            <button type="button" class="btn-secondary" id="check-another-unavailable-btn">
+              Cek Alamat Lain
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-state hidden" id="results-error">
+    <div class="error-content">
+      <div class="error-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h3>Terjadi Kesalahan</h3>
+      <p id="error-message"></p>
+      <div class="error-actions">
+        <button class="btn-primary" id="retry-btn">Coba Lagi</button>
+        <button class="btn-secondary" id="check-another-error-btn">Cek Alamat Lain</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .availability-results {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Loading state */
+  .loading-state {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Result header */
+  .result-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .status-indicator {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .status-indicator.available {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .status-indicator.coming-soon {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .status-indicator.unavailable {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .result-title h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .result-title p {
+    margin: 0;
+    color: #6b7280;
+  }
+
+  /* Packages section */
+  .packages-section {
+    margin-bottom: 32px;
+  }
+
+  .packages-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .package-card {
+    padding: 24px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .package-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  }
+
+  .package-card.recommended {
+    border-color: #3b82f6;
+    position: relative;
+  }
+
+  .package-card.recommended::before {
+    content: 'Direkomendasikan';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .package-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .package-speed {
+    font-size: 24px;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 8px;
+  }
+
+  .package-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 16px;
+  }
+
+  .package-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+  }
+
+  .package-features li {
+    padding: 4px 0;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .package-features li::before {
+    content: '✓';
+    color: #16a34a;
+    font-weight: bold;
+  }
+
+  /* Installation section */
+  .installation-section {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 12px;
+  }
+
+  .installation-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .installation-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .info-item {
+    text-align: center;
+  }
+
+  .info-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 4px;
+  }
+
+  .info-label {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  /* Actions */
+  .result-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  /* Coming soon state */
+  .coming-soon-info {
+    margin-bottom: 32px;
+  }
+
+  .info-card {
+    padding: 20px;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .info-card h4 {
+    margin: 0 0 8px 0;
+    color: #92400e;
+  }
+
+  /* Lead form */
+  .lead-section {
+    padding: 24px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+  }
+
+  .lead-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .lead-section > p {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* Buttons */
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #2563eb;
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .btn-secondary:hover {
+    background: #e5e7eb;
+  }
+
+  /* Error state */
+  .error-content {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .error-icon {
+    color: #dc2626;
+    margin-bottom: 24px;
+  }
+
+  .error-content h3 {
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .error-content p {
+    margin: 0 0 32px 0;
+    color: #6b7280;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    .result-header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .packages-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .result-actions,
+    .form-actions,
+    .error-actions {
+      flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  import { coverageService } from '../../lib/coverage';
+
+  class AvailabilityResults {
+    constructor() {
+      this.currentResult = null;
+      this.currentAddress = null;
+      
+      // State elements
+      this.loadingState = document.getElementById('results-loading');
+      this.successState = document.getElementById('results-success');
+      this.comingSoonState = document.getElementById('results-coming-soon');
+      this.unavailableState = document.getElementById('results-unavailable');
+      this.errorState = document.getElementById('results-error');
+      
+      // Content elements
+      this.resultTitle = document.getElementById('result-title');
+      this.resultAddress = document.getElementById('result-address');
+      this.packagesGrid = document.getElementById('packages-grid');
+      this.installationInfo = document.getElementById('installation-info');
+      
+      // Form elements
+      this.leadForm = document.getElementById('lead-form');
+      this.unavailableLeadForm = document.getElementById('unavailable-lead-form');
+      
+      // Buttons
+      this.proceedBtn = document.getElementById('proceed-btn');
+      this.retryBtn = document.getElementById('retry-btn');
+      
+      this.init();
+    }
+
+    init() {
+      // Form submissions
+      this.leadForm?.addEventListener('submit', this.handleLeadSubmit.bind(this));
+      this.unavailableLeadForm?.addEventListener('submit', this.handleLeadSubmit.bind(this));
+      
+      // Button actions
+      this.proceedBtn?.addEventListener('click', this.handleProceed.bind(this));
+      this.retryBtn?.addEventListener('click', this.handleRetry.bind(this));
+      
+      // Check another buttons
+      document.getElementById('check-another-btn')?.addEventListener('click', this.handleCheckAnother.bind(this));
+      document.getElementById('check-another-coming-soon-btn')?.addEventListener('click', this.handleCheckAnother.bind(this));
+      document.getElementById('check-another-unavailable-btn')?.addEventListener('click', this.handleCheckAnother.bind(this));
+      document.getElementById('check-another-error-btn')?.addEventListener('click', this.handleCheckAnother.bind(this));
+    }
+
+    async checkAvailability(address) {
+      this.currentAddress = address;
+      this.showLoading();
+
+      try {
+        const result = await coverageService.checkAvailability(address);
+        this.currentResult = result;
+        this.showResult(result);
+      } catch (error) {
+        this.showError(error.message);
+      }
+    }
+
+    showLoading() {
+      this.hideAllStates();
+      this.loadingState.classList.remove('hidden');
+    }
+
+    showResult(result) {
+      this.hideAllStates();
+
+      if (result.is_available) {
+        this.showSuccessResult(result);
+      } else if (result.zone?.type === 'coming_soon') {
+        this.showComingSoonResult(result);
+      } else {
+        this.showUnavailableResult(result);
+      }
+    }
+
+    showSuccessResult(result) {
+      this.successState.classList.remove('hidden');
+      
+      // Update header
+      this.resultTitle.textContent = 'Layanan Tersedia! 🎉';
+      this.resultAddress.textContent = this.currentAddress;
+      
+      // Update status indicator
+      const statusIndicator = document.querySelector('#status-indicator');
+      statusIndicator.className = 'status-indicator available';
+      statusIndicator.innerHTML = '✓';
+      
+      // Show packages
+      this.showPackages(result.available_packages, result.recommended_package);
+      
+      // Show installation info
+      this.showInstallationInfo(result);
+    }
+
+    showPackages(packages, recommended) {
+      this.packagesGrid.innerHTML = '';
+      
+      packages.forEach(pkg => {
+        const isRecommended = recommended?.package_id === pkg.package_id;
+        const card = document.createElement('div');
+        card.className = `package-card ${isRecommended ? 'recommended' : ''}`;
+        
+        card.innerHTML = `
+          <div class="package-name">${pkg.package_info?.name || 'Paket Internet'}</div>
+          <div class="package-speed">${pkg.max_speed} Mbps</div>
+          <div class="package-price">Rp ${pkg.monthly_fee.toLocaleString('id-ID')}/bulan</div>
+          <ul class="package-features">
+            ${pkg.package_info?.features?.map(feature => `<li>${feature}</li>`).join('') || ''}
+            <li>Biaya instalasi: Rp ${pkg.installation_fee.toLocaleString('id-ID')}</li>
+          </ul>
+          <button class="btn-primary" onclick="window.availabilityResults.selectPackage('${pkg.package_id}')">
+            Pilih Paket
+          </button>
+        `;
+        
+        this.packagesGrid.appendChild(card);
+      });
+    }
+
+    showInstallationInfo(result) {
+      const days = result.estimated_installation_days || 7;
+      this.installationInfo.innerHTML = `
+        <div class="info-item">
+          <div class="info-value">${days}</div>
+          <div class="info-label">Hari Instalasi</div>
+        </div>
+        <div class="info-item">
+          <div class="info-value">Gratis</div>
+          <div class="info-label">Biaya Instalasi</div>
+        </div>
+        <div class="info-item">
+          <div class="info-value">24/7</div>
+          <div class="info-label">Dukungan Teknis</div>
+        </div>
+      `;
+    }
+
+    showComingSoonResult(result) {
+      this.comingSoonState.classList.remove('hidden');
+      
+      document.getElementById('coming-soon-address').textContent = this.currentAddress;
+      
+      const estimatedDate = result.estimated_available_date 
+        ? new Date(result.estimated_available_date).toLocaleDateString('id-ID', { 
+            year: 'numeric', 
+            month: 'long', 
+            quarter: 'numeric' 
+          })
+        : 'Segera';
+      
+      document.getElementById('estimated-date').textContent = estimatedDate;
+      
+      // Show future packages
+      const futurePackages = document.getElementById('future-packages');
+      futurePackages.innerHTML = result.available_packages.map(pkg => 
+        `<div>• ${pkg.package_info?.name || pkg.package_id} - ${pkg.max_speed} Mbps</div>`
+      ).join('');
+    }
+
+    showUnavailableResult(result) {
+      this.unavailableState.classList.remove('hidden');
+      document.getElementById('unavailable-address').textContent = this.currentAddress;
+    }
+
+    showError(message) {
+      this.hideAllStates();
+      this.errorState.classList.remove('hidden');
+      document.getElementById('error-message').textContent = message;
+    }
+
+    hideAllStates() {
+      this.loadingState.classList.add('hidden');
+      this.successState.classList.add('hidden');
+      this.comingSoonState.classList.add('hidden');
+      this.unavailableState.classList.add('hidden');
+      this.errorState.classList.add('hidden');
+    }
+
+    async handleLeadSubmit(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const leadData = {
+        name: formData.get('name') || document.getElementById('lead-name')?.value,
+        email: formData.get('email') || document.getElementById('lead-email')?.value,
+        phone: formData.get('phone') || document.getElementById('lead-phone')?.value,
+        address: this.currentAddress,
+        preferred_contact_method: formData.get('contact') || document.getElementById('lead-contact')?.value,
+        notes: formData.get('notes') || document.getElementById('lead-notes')?.value
+      };
+
+      try {
+        await coverageService.createLead(leadData);
+        this.showLeadSuccess();
+      } catch (error) {
+        alert('Gagal menyimpan data. Silakan coba lagi.');
+      }
+    }
+
+    showLeadSuccess() {
+      alert('Terima kasih! Kami akan menghubungi Anda saat layanan tersedia.');
+      this.handleCheckAnother();
+    }
+
+    selectPackage(packageId) {
+      // Store selected package and proceed to registration
+      sessionStorage.setItem('selectedPackage', packageId);
+      sessionStorage.setItem('serviceAddress', this.currentAddress);
+      
+      // Redirect to registration
+      window.location.href = '/register';
+    }
+
+    handleProceed() {
+      if (this.currentResult?.available_packages?.length > 0) {
+        this.selectPackage(this.currentResult.available_packages[0].package_id);
+      }
+    }
+
+    handleRetry() {
+      if (this.currentAddress) {
+        this.checkAvailability(this.currentAddress);
+      }
+    }
+
+    handleCheckAnother() {
+      this.hideAllStates();
+      this.currentResult = null;
+      this.currentAddress = null;
+      
+      // Clear address input
+      const addressInput = document.getElementById('address-input');
+      if (addressInput) {
+        addressInput.value = '';
+        addressInput.focus();
+      }
+    }
+
+    // Public methods
+    reset() {
+      this.hideAllStates();
+      this.currentResult = null;
+      this.currentAddress = null;
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    window.availabilityResults = new AvailabilityResults();
+  });
+</script>
