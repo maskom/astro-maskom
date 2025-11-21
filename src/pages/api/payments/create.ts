@@ -49,8 +49,38 @@ export const POST: APIRoute = validateRequest(PaymentSchemas.createPayment)(
       const paymentRequest = {
         orderId,
         amount,
-        customerDetails: customerDetails,
-        itemDetails: itemDetails,
+        customerDetails: customerDetails as {
+          firstName: string;
+          lastName: string;
+          email: string;
+          phone: string;
+          billingAddress?: {
+            firstName: string;
+            lastName: string;
+            address: string;
+            city: string;
+            postalCode: string;
+            phone: string;
+            countryCode: string;
+          };
+          shippingAddress?: {
+            firstName: string;
+            lastName: string;
+            address: string;
+            city: string;
+            postalCode: string;
+            phone: string;
+            countryCode: string;
+          };
+        },
+        itemDetails: itemDetails as Array<{
+          id: string;
+          price: number;
+          quantity: number;
+          name: string;
+          category?: string;
+          merchant_name?: string;
+        }>,
         paymentMethod,
       };
 

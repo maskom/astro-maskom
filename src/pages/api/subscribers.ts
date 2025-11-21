@@ -209,10 +209,14 @@ Maskom Network Team
       });
     } catch (emailError) {
       // Log email error but don't fail the subscription
-      logger.error('Failed to send confirmation email', emailError, {
-        email: sanitizedEmail,
-        subscriberId: insertedSubscriber.id,
-      });
+      logger.error(
+        'Failed to send confirmation email',
+        emailError as Error | undefined,
+        {
+          email: sanitizedEmail,
+          subscriberId: insertedSubscriber.id,
+        }
+      );
     }
 
     return new Response(JSON.stringify(insertedSubscriber), {

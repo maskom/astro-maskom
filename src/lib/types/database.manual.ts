@@ -83,6 +83,36 @@ export interface NotificationRateLimit {
 export interface Database {
   public: {
     Tables: {
+      // Status management tables
+      incidents: {
+        Row: {
+          id: string;
+          title: string;
+          description: string;
+          status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          affected_services: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description: string;
+          status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          affected_services: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string;
+          status?: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+          affected_services?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       // Existing tables (add as needed)
       services: {
         Row: {

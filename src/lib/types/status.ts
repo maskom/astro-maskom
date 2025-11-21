@@ -31,6 +31,29 @@ export interface StatusDatabase {
           updated_at?: string;
         };
       };
+      services: {
+        Row: {
+          id: string;
+          name: string;
+          status: 'operational' | 'degraded' | 'outage';
+          description: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          status: 'operational' | 'degraded' | 'outage';
+          description: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          status?: 'operational' | 'degraded' | 'outage';
+          description?: string;
+          updated_at?: string;
+        };
+      };
       service_uptime: {
         Row: {
           service_id: string;
