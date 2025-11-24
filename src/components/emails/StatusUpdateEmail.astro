@@ -1,0 +1,278 @@
+---
+import EmailLayout from './EmailLayout.astro';
+import EmailButton from './EmailButton.astro';
+import EmailCard from './EmailCard.astro';
+
+export interface Props {
+  userName: string;
+  statusType: 'maintenance' | 'outage' | 'resolved' | 'upgrade';
+  serviceName: string;
+  statusTitle: string;
+  statusMessage: string;
+  affectedAreas?: string[];
+  startTime?: string;
+  estimatedResolution?: string;
+  resolutionTime?: string;
+  updates?: Array<{
+    time: string;
+    message: string;
+  }>;
+  language?: 'id' | 'en';
+  statusPageLink?: string;
+}
+
+const { 
+  userName, 
+  statusType, 
+  serviceName, 
+  statusTitle, 
+  statusMessage, 
+  affectedAreas, 
+  startTime, 
+  estimatedResolution, 
+  resolutionTime,
+  updates,
+  language = 'id',
+  statusPageLink 
+} = Astro.props;
+
+// Translations
+const translations = {
+  id: {
+    maintenance: {
+      subject: 'Pemeliharaan Terjadwal - {service}',
+      previewText: 'Pemeliharaan terjadwal akan dilakukan. Informasi detail dan jadwal.',
+      statusLabel: 'Pemeliharaan Terjadwal',
+      statusColor: '#F59E0B',
+      icon: '🔧'
+    },
+    outage: {
+      subject: 'GANGGUAN LAYANAN - {service}',
+      previewText: 'Kami sedang mengatasi gangguan layanan. Update terkini akan segera disampaikan.',
+      statusLabel: 'Gangguan Layanan',
+      statusColor: '#EF4444',
+      icon: '🚨'
+    },
+    resolved: {
+      subject: 'LAYANAN NORMAL - {service}',
+      previewText: 'Gangguan layanan telah selesai. Layanan telah kembali normal.',
+      statusLabel: 'Layanan Normal',
+      statusColor: '#10B981',
+      icon: '✅'
+    },
+    upgrade: {
+      subject: 'PENINGKATAN LAYANAN - {service}',
+      previewText: 'Kami melakukan peningkatan layanan untuk pengalaman yang lebih baik.',
+      statusLabel: 'Peningkatan Layanan',
+      statusColor: '#3B82F6',
+      icon: '🚀'
+    }
+  },
+  en: {
+    maintenance: {
+      subject: 'Scheduled Maintenance - {service}',
+      previewText: 'Scheduled maintenance will be performed. Detailed information and schedule.',
+      statusLabel: 'Scheduled Maintenance',
+      statusColor: '#F59E0B',
+      icon: '🔧'
+    },
+    outage: {
+      subject: 'SERVICE OUTAGE - {service}',
+      previewText: 'We are currently addressing a service outage. Latest updates will follow.',
+      statusLabel: 'Service Outage',
+      statusColor: '#EF4444',
+      icon: '🚨'
+    },
+    resolved: {
+      subject: 'SERVICE RESTORED - {service}',
+      previewText: 'The service outage has been resolved. Service is back to normal.',
+      statusLabel: 'Service Restored',
+      statusColor: '#10B981',
+      icon: '✅'
+    },
+    upgrade: {
+      subject: 'SERVICE UPGRADE - {service}',
+      previewText: 'We are upgrading our service for a better experience.',
+      statusLabel: 'Service Upgrade',
+      statusColor: '#3B82F6',
+      icon: '🚀'
+    }
+  }
+};
+
+const commonTranslations = {
+  id: {
+    greeting: 'Halo {name},',
+    statusUpdate: 'Update Status Layanan',
+    affectedAreas: 'Area Terpengaruh:',
+    startTime: 'Waktu Mulai:',
+    estimatedResolution: 'Perkiraan Selesai:',
+    resolutionTime: 'Waktu Selesai:',
+    latestUpdates: 'Update Terkini:',
+    whatWeDoing: 'Yang Kami Lakukan:',
+    expectedImpact: 'Dampak yang Diharapkan:',
+    weApologize: 'Kami mohon maaf atas ketidaknyamanan ini.',
+    thankYou: 'Terima kasih atas pengertian Anda.',
+    monitorStatus: 'Monitor Status',
+    contactSupport: 'Hubungi Dukungan',
+    teamSignature: 'Tim Operasional Maskom Network'
+  },
+  en: {
+    greeting: 'Hello {name},',
+    statusUpdate: 'Service Status Update',
+    affectedAreas: 'Affected Areas:',
+    startTime: 'Start Time:',
+    estimatedResolution: 'Estimated Resolution:',
+    resolutionTime: 'Resolution Time:',
+    latestUpdates: 'Latest Updates:',
+    whatWeDoing: 'What We\'re Doing:',
+    expectedImpact: 'Expected Impact:',
+    weApologize: 'We apologize for any inconvenience.',
+    thankYou: 'Thank you for your understanding.',
+    monitorStatus: 'Monitor Status',
+    contactSupport: 'Contact Support',
+    teamSignature: 'The Maskom Network Operations Team'
+  }
+};
+
+const t = translations[language][statusType];
+const ct = commonTranslations[language];
+const greeting = ct.greeting.replace('{name}', userName);
+const subject = t.subject.replace('{service}', serviceName);
+const previewText = t.previewText;
+---
+
+<EmailLayout subject={subject} previewText={previewText} language={language}>
+  
+  <!-- Status Header -->
+  <div style="margin-bottom: 24px; padding: 20px; background-color: {statusType === 'outage' ? '#FEE2E2' : statusType === 'resolved' ? '#D1FAE5' : '#FEF3C7'}; border-left: 4px solid {t.statusColor}; border-radius: 4px;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td style="font-size: 24px; padding-right: 16px;" valign="middle">
+          {t.icon}
+        </td>
+        <td valign="middle">
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: {statusType === 'outage' ? '#991B1B' : statusType === 'resolved' ? '#065F46' : '#92400E'}; line-height: 1.3;">
+            {t.statusLabel}
+          </h2>
+          <p style="margin: 0; font-size: 14px; color: {statusType === 'outage' ? '#991B1B' : statusType === 'resolved' ? '#065F46' : '#92400E'}; font-weight: 600;">
+            {serviceName}
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- Greeting -->
+  <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #111827; line-height: 1.3;">
+    {greeting}
+  </h1>
+  
+  <!-- Status Title -->
+  <h2 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #111827; line-height: 1.3;">
+    {statusTitle}
+  </h2>
+  
+  <!-- Status Message -->
+  <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    {statusMessage}
+  </p>
+  
+  <!-- Status Details -->
+  <EmailCard title={ct.statusUpdate}>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      {startTime && (
+        <tr>
+          <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 140px;" valign="top">
+            {statusType === 'resolved' ? ct.resolutionTime : ct.startTime}
+          </td>
+          <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+            {statusType === 'resolved' ? resolutionTime : startTime}
+          </td>
+        </tr>
+      )}
+      {estimatedResolution && statusType !== 'resolved' && (
+        <tr>
+          <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+            {ct.estimatedResolution}
+          </td>
+          <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+            {estimatedResolution}
+          </td>
+        </tr>
+      )}
+      {affectedAreas && affectedAreas.length > 0 && (
+        <tr>
+          <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;" valign="top">
+            {ct.affectedAreas}
+          </td>
+          <td style="padding: 8px 0; font-size: 16px; color: #374151;" valign="top">
+            {affectedAreas.join(', ')}
+          </td>
+        </tr>
+      )}
+    </table>
+  </EmailCard>
+  
+  <!-- Latest Updates -->
+  {updates && updates.length > 0 && (
+    <EmailCard title={ct.latestUpdates}>
+      {updates.map((update, index) => (
+        <div style={`margin-bottom: ${index < updates.length - 1 ? '16px' : '0'}; padding-bottom: ${index < updates.length - 1 ? '16px' : '0'}; border-bottom: ${index < updates.length - 1 ? '1px solid #E5E7EB' : 'none'};`}>
+          <p style="margin: 0 0 4px 0; font-size: 14px; color: #6B7280; font-weight: 600;">
+            {update.time}
+          </p>
+          <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.5;">
+            {update.message}
+          </p>
+        </div>
+      ))}
+    </EmailCard>
+  )}
+  
+  <!-- Action buttons -->
+  {statusPageLink && (
+    <EmailButton href={statusPageLink} text={ct.monitorStatus} />
+  )}
+  
+  <EmailButton href="tel:+622112345678" text={ct.contactSupport} color="secondary" />
+  
+  <!-- Apology/Thank you message -->
+  <div style="margin-top: 32px; padding: 20px; background-color: #F0F9FF; border-left: 4px solid #3B82F6; border-radius: 4px;">
+    <p style="margin: 0 0 8px 0; font-size: 16px; color: #1E40AF; font-weight: 600; line-height: 1.5;">
+      {statusType === 'resolved' ? '✨ ' : ''}{statusType === 'outage' || statusType === 'maintenance' ? ct.weApologize : ct.thankYou}
+    </p>
+    <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+      {statusType === 'outage' || statusType === 'maintenance' 
+        ? 'Tim kami sedang bekerja keras untuk menyelesaikan masalah ini secepat mungkin.' 
+        : 'Layanan telah kembali normal dan siap digunakan.'}
+    </p>
+  </div>
+  
+  <!-- Additional info based on status type -->
+  {statusType === 'maintenance' && (
+    <div style="margin-top: 24px; padding: 16px; background-color: #FEF3C7; border-left: 4px solid #F59E0B; border-radius: 4px;">
+      <p style="margin: 0; font-size: 14px; color: #92400E; line-height: 1.5;">
+        <strong>Penting:</strong> Selama pemeliharaan, layanan mungkin tidak tersedia atau mengalami penurunan performa.
+      </p>
+    </div>
+  )}
+  
+  {statusType === 'outage' && (
+    <div style="margin-top: 24px; padding: 16px; background-color: #FEE2E2; border-left: 4px solid #EF4444; border-radius: 4px;">
+      <p style="margin: 0; font-size: 14px; color: #991B1B; line-height: 1.5;">
+        <strong>Status Saat Ini:</strong> Tim teknis kami sedang melakukan investigasi dan perbaikan.
+      </p>
+    </div>
+  )}
+  
+  <!-- Closing -->
+  <p style="margin: 32px 0 16px 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    Hormat kami,
+  </p>
+  
+  <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+    <strong>{ct.teamSignature}</strong>
+  </p>
+  
+</EmailLayout>
