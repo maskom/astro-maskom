@@ -179,6 +179,8 @@ For feature requests:
 - Focus on what's best for the community
 - Show empathy towards other contributors
 
+All contributors are expected to follow our [Code of Conduct](../../CODE_OF_CONDUCT.md).
+
 ## 📞 Getting Help
 
 - Create an issue for questions or problems
