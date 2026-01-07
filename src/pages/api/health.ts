@@ -101,10 +101,7 @@ export const GET: APIRoute = async () => {
     }
 
     // Also check for Cloudflare Workers environment in other ways
-    if (
-      typeof globalThis !== 'undefined' &&
-      (globalThis as any).WebSocketPair
-    ) {
+    if (typeof globalThis !== 'undefined' && 'WebSocketPair' in globalThis) {
       checks.services.cloudflare.features.push('workers-runtime');
     }
 

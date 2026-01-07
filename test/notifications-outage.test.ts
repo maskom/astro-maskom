@@ -177,6 +177,7 @@ describe('OutageNotifications', () => {
 
       // Access private method through prototype for testing
       const processUserNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).processUserNotification.bind(outageNotifications);
       await processUserNotification(
@@ -194,6 +195,7 @@ describe('OutageNotifications', () => {
       );
 
       const processUserNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).processUserNotification.bind(outageNotifications);
       await processUserNotification(
@@ -222,6 +224,7 @@ describe('OutageNotifications', () => {
       vi.mocked(mockDatabase.getNotificationTemplate).mockResolvedValue(null);
 
       const sendNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
@@ -253,6 +256,7 @@ describe('OutageNotifications', () => {
       });
 
       const sendNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
@@ -290,6 +294,7 @@ describe('OutageNotifications', () => {
       });
 
       const sendNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).sendNotification.bind(outageNotifications);
       await sendNotification(
@@ -308,6 +313,7 @@ describe('OutageNotifications', () => {
       vi.mocked(mockDatabase.updateNotificationStatus).mockResolvedValue(true);
 
       const deliverNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverNotification.bind(outageNotifications);
       await deliverNotification(mockNotification, 'Test Subject', {
@@ -326,11 +332,13 @@ describe('OutageNotifications', () => {
     it('should handle unknown notification types', async () => {
       const unknownNotification = {
         ...mockNotification,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         notification_type: 'unknown' as any,
       };
       vi.mocked(mockDatabase.updateNotificationStatus).mockResolvedValue(true);
 
       const deliverNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverNotification.bind(outageNotifications);
       await deliverNotification(unknownNotification);
@@ -356,6 +364,7 @@ describe('OutageNotifications', () => {
         severity: 'High',
       };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       const renderTemplate = (outageNotifications as any).renderTemplate.bind(
         outageNotifications
       );
@@ -372,6 +381,7 @@ describe('OutageNotifications', () => {
         title: 'Test Outage',
       };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       const renderTemplate = (outageNotifications as any).renderTemplate.bind(
         outageNotifications
       );
@@ -440,6 +450,7 @@ describe('OutageNotifications', () => {
 
     it('should deliver email notifications', async () => {
       const deliverEmailNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverEmailNotification.bind(outageNotifications);
       const result = await deliverEmailNotification(mockNotification);
@@ -449,6 +460,7 @@ describe('OutageNotifications', () => {
 
     it('should deliver SMS notifications', async () => {
       const deliverSmsNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverSmsNotification.bind(outageNotifications);
       const result = await deliverSmsNotification(mockNotification);
@@ -458,6 +470,7 @@ describe('OutageNotifications', () => {
 
     it('should deliver in-app notifications', async () => {
       const deliverInAppNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverInAppNotification.bind(outageNotifications);
       const result = await deliverInAppNotification(mockNotification);
@@ -467,6 +480,7 @@ describe('OutageNotifications', () => {
 
     it('should deliver push notifications', async () => {
       const deliverPushNotification = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         outageNotifications as any
       ).deliverPushNotification.bind(outageNotifications);
       const result = await deliverPushNotification(mockNotification);
