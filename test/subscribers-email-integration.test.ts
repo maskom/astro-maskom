@@ -49,6 +49,7 @@ describe('Subscribers API - Email Service Integration', () => {
       body: JSON.stringify({ email: 'test@example.com' }),
     });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await POST({ request } as any);
     const data = await response.json();
 
@@ -91,6 +92,7 @@ describe('Subscribers API - Email Service Integration', () => {
       body: JSON.stringify({ email: 'test@example.com' }),
     });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await POST({ request } as any);
     const data = await response.json();
 
@@ -123,6 +125,7 @@ describe('Subscribers API - Email Service Integration', () => {
       body: JSON.stringify({ email: 'user@example.com' }),
     });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     await POST({ request } as any);
 
     const emailCall = vi.mocked(emailService.sendCustomEmail).mock.calls[0][0];
