@@ -28,14 +28,6 @@ jobs:
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
 
     steps:
-      - name: Wait in Queue
-        uses: softprops/turnstyle@v2
-        with:
-          poll-interval-seconds: 30
-          same-branch-only: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout
         uses: actions/checkout@v5
         with:
