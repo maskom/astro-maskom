@@ -5,6 +5,29 @@ import {
   type APIContext,
 } from '../../../../lib/utils/api';
 
+interface InvoiceItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+}
+
+interface Invoice {
+  id: string;
+  user_id: string;
+  invoice_number: string;
+  created_at: string;
+  due_date: string;
+  status: string;
+  amount: number;
+  tax: number;
+  total: number;
+  transaction_id: string | null;
+  payment_transactions?: Array<{ order_id?: string }>;
+  invoice_items?: InvoiceItem[];
+}
+
 export async function GET({ params, request }: APIContext) {
   try {
     if (!supabase) {
@@ -16,7 +39,7 @@ export async function GET({ params, request }: APIContext) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const invoiceId = params.id;
+    const invoiceId = params?.id;
 
     // Get invoice with items
     const { data: invoice, error } = await supabase
@@ -62,12 +85,8 @@ export async function GET({ params, request }: APIContext) {
   }
 }
 
-function generateInvoiceHTML(invoice: any): string {
+function generateInvoiceHTML(invoice: Invoice): string {
   const items = invoice.invoice_items || [];
-  const subtotal = items.reduce(
-    (sum: number, item: any) => sum + Number(item.total),
-    0
-  );
 
   return `
 <!DOCTYPE html>
@@ -246,7 +265,7 @@ function generateInvoiceHTML(invoice: any): string {
             <tbody>
                 ${items
                   .map(
-                    (item: any) => `
+                    (item: InvoiceItem) => `
                     <tr>
                         <td>${item.description}</td>
                         <td class="text-right">${item.quantity}</td>

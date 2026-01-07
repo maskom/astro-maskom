@@ -108,7 +108,7 @@ export async function GET({ request }: APIContext) {
       };
     }
 
-    return createSuccessResponse({ settings: defaultSettings });
+    return createSuccessResponse({ settings });
   } catch (error) {
     logError('Get billing settings error', 'unknown', error);
     return createErrorResponse('Internal server error', 500);

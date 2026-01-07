@@ -12,6 +12,12 @@ interface ServiceSubscription {
   next_billing_date: string;
 }
 
+interface ScheduledEvent {
+  cron: string;
+  scheduledTime: number;
+  noRetry: () => void;
+}
+
 export class BillingScheduler {
   private paymentService: PaymentService;
 
@@ -34,7 +40,6 @@ export class BillingScheduler {
 
       // Get active subscriptions that need billing
       const today = new Date();
-      const todayDay = today.getDate();
 
       const { data: subscriptions, error } = await supabase
         .from('service_subscriptions')
@@ -224,7 +229,11 @@ export class BillingScheduler {
     }
   }
 
-  private async sendOverdueNotification(invoice: any): Promise<void> {
+  private async sendOverdueNotification(invoice: {
+    id: string;
+    user_id: string;
+    invoice_number: string;
+  }): Promise<void> {
     // Get user's billing preferences
     const { data: preferences, error } = await supabase
       .from('billing_preferences')
@@ -267,7 +276,7 @@ export class BillingScheduler {
 }
 
 // Scheduled job handler for Cloudflare Workers
-export async function handleScheduled(event: ScheduledEvent): Promise<void> {
+export async function handleScheduled(_event: ScheduledEvent): Promise<void> {
   try {
     const scheduler = new BillingScheduler();
 
