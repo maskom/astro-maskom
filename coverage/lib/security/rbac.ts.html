@@ -30,9 +30,15 @@
         
             
             <div class='fl pad1y space-right2'>
+<<<<<<< HEAD
+                <span class="strong">18.42% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>7/38</span>
+=======
                 <span class="strong">10.93% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>7/64</span>
+>>>>>>> main
             </div>
         
             
@@ -367,9 +373,13 @@
 <a name='L302'></a><a href='#L302'>302</a>
 <a name='L303'></a><a href='#L303'>303</a>
 <a name='L304'></a><a href='#L304'>304</a>
+<<<<<<< HEAD
+<a name='L305'></a><a href='#L305'>305</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+=======
 <a name='L305'></a><a href='#L305'>305</a>
 <a name='L306'></a><a href='#L306'>306</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+>>>>>>> main
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -674,7 +684,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { createClient } from '@supabase/supabase-js';
+<<<<<<< HEAD
+=======
 import { logger } from '../logger';
+>>>>>>> main
 import { UserRole, Permission, type UserSecurityProfile } from './types';
 &nbsp;
 export class RBACService {
@@ -727,7 +740,11 @@ export class RBACService {
         });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >        console.error('Failed to assign role:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >        logger.error('Failed to assign role', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'assignRole', userId, role, assignedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
@@ -742,7 +759,11 @@ export class RBACService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Role assignment error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Role assignment error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'assignRole', userId, role, assignedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -776,7 +797,11 @@ export class RBACService {
         .eq('user_id', userId);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >        console.error('Failed to grant permission:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >        logger.error('Failed to grant permission', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'grantPermission', userId, permission, grantedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
@@ -791,7 +816,11 @@ export class RBACService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Permission grant error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Permission grant error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'grantPermission', userId, permission, grantedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -827,7 +856,11 @@ export class RBACService {
         .eq('user_id', userId);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >        console.error('Failed to revoke permission:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >        logger.error('Failed to revoke permission', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'revokePermission', userId, permission, revokedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
@@ -842,7 +875,11 @@ export class RBACService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Permission revocation error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Permission revocation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'revokePermission', userId, permission, revokedBy });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -869,7 +906,11 @@ export class RBACService {
 <span class="branch-1 cbranch-no" title="branch not covered" >        explicitPermissions.includes(permission)</span>
       );
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Permission check error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Permission check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'hasPermission', userId, permission });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -888,7 +929,11 @@ export class RBACService {
 &nbsp;
       return profile?.role === role;
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Role check error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Role check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'hasRole', userId, role });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -898,7 +943,11 @@ export class RBACService {
       const profile = <span class="cstat-no" title="statement not covered" >await this.getUserSecurityProfile(userId);</span>
 <span class="cstat-no" title="statement not covered" >      return profile?.role || null;</span>
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Get user role error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Get user role error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserRole', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -917,7 +966,11 @@ export class RBACService {
       // Combine and deduplicate permissions
       return [...new Set([...rolePermissions, ...explicitPermissions])];
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Get user permissions error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Get user permissions error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserPermissions', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
   }
@@ -930,13 +983,21 @@ export class RBACService {
         .eq('role', role);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >        console.error('Failed to get users by role:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >        logger.error('Failed to get users by role', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUsersByRole', role });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return [];</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return data?.map(<span class="fstat-no" title="function not covered" >profile =&gt; <span class="cstat-no" title="statement not covered" >p</span>rofile.user_id)</span> || [];</span>
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Users by role error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Users by role error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUsersByRole', role });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
   }
@@ -957,7 +1018,11 @@ export class RBACService {
 &nbsp;
       return profile as UserSecurityProfile;
     } catch (error) {
+<<<<<<< HEAD
+<span class="cstat-no" title="statement not covered" >      console.error('Get security profile error:', error);</span>
+=======
 <span class="cstat-no" title="statement not covered" >      logger.error('Get security profile error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserSecurityProfile', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -985,7 +1050,11 @@ export const rbacService = new RBACService();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+<<<<<<< HEAD
+                at 2025-11-17T05:31:28.490Z
+=======
                 at 2025-11-20T10:56:38.664Z
+>>>>>>> main
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -20,6 +20,9 @@ export default defineConfig({
         '**/*.d.ts',
         'src/test/',
         '**/*.config.*',
+        'test/api/', // Temporarily exclude new API tests until they're fixed
+        'test/api-wip/', // Exclude work-in-progress API tests
+        'test-api-wip-backup/', // Exclude backup API tests
       ],
       thresholds: {
         global: {
