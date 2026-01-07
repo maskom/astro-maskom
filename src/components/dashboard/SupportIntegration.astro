@@ -29,7 +29,11 @@ if (user.data.user) {
 
     serviceRequests = requests || [];
   } catch (error) {
-    console.error('Error fetching support data:', error);
+    console.error('Error fetching support data:', {
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+      action: 'fetchSupportData',
+    });
   }
 }
 

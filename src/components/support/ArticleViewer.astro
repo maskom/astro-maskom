@@ -1,0 +1,547 @@
+---
+import { knowledgeBaseService, type ArticleWithCategory, type KBRating } from '../../lib/knowledge-base';
+
+export interface Props {
+  slug: string;
+  userId?: string;
+}
+
+const { slug, userId } = Astro.props;
+
+// Fetch article with view count increment
+const article: ArticleWithCategory | null = await knowledgeBaseService.getArticleBySlug(slug, true);
+
+// Fetch related articles
+const relatedArticles = article 
+  ? await knowledgeBaseService.getRelatedArticles(article.id, 5)
+  : [];
+
+// Fetch user's rating if logged in
+let userRating: KBRating | null = null;
+if (userId && article) {
+  userRating = await knowledgeBaseService.getUserRating(article.id, userId);
+}
+
+// Fetch all ratings for this article
+const ratings = article 
+  ? await knowledgeBaseService.getArticleRatings(article.id)
+  : [];
+
+// Calculate rating statistics
+const averageRating = ratings.length > 0 
+  ? Math.round((ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length) * 10) / 10
+  : 0;
+
+const helpfulCount = ratings.filter(r => r.helpful).length;
+const notHelpfulCount = ratings.filter(r => !r.helpful).length;
+---
+
+{article ? (
+  <article class="article-viewer max-w-4xl mx-auto">
+    <!-- Article Header -->
+    <header class="mb-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+        <a href="/kb" class="hover:text-blue-600 transition-colors">Knowledge Base</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <a 
+          href={`/kb/category/${article.category.slug}`}
+          class="hover:text-blue-600 transition-colors"
+        >
+          {article.category.name}
+        </a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span class="text-gray-900">{article.title}</span>
+      </nav>
+
+      <!-- Title and Meta -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center space-x-2 mb-4">
+          <span 
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white"
+            style={`background-color: ${article.category.color}`}
+          >
+            {article.category.icon} {article.category.name}
+          </span>
+          {article.difficulty_level && (
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+              {article.difficulty_level}
+            </span>
+          )}
+          {article.featured && (
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+              ⭐ Featured
+            </span>
+          )}
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{article.title}</h1>
+
+        {article.excerpt && (
+          <p class="text-lg text-gray-600 mb-6">{article.excerpt}</p>
+        )}
+
+        <!-- Article Meta -->
+        <div class="flex flex-wrap items-center text-sm text-gray-500 space-x-6 border-t border-gray-200 pt-4">
+          <div class="flex items-center space-x-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>By {article.author?.name || article.author?.email || 'Unknown'}</span>
+          </div>
+          {article.published_at && (
+            <div class="flex items-center space-x-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>{new Date(article.published_at).toLocaleDateString()}</span>
+            </div>
+          )}
+          {article.reading_time_minutes && (
+            <div class="flex items-center space-x-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{article.reading_time_minutes} min read</span>
+            </div>
+          )}
+          <div class="flex items-center space-x-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>{article.view_count} views</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Article Content -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <!-- Video Tutorial (if available) -->
+      {article.video_url && (
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">📹 Video Tutorial</h3>
+          <div class="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+            <iframe
+              src={article.video_url}
+              class="w-full h-96"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+      )}
+
+      <!-- Article Body -->
+      <div class="prose prose-lg max-w-none">
+        <div set:html={article.content} />
+      </div>
+
+      <!-- Tags -->
+      {article.tags && article.tags.length > 0 && (
+        <div class="mt-8 pt-6 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-900 mb-3">Tags</h3>
+          <div class="flex flex-wrap gap-2">
+            {article.tags.map((tag) => (
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Rating and Feedback -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Was this article helpful?</h3>
+      
+      {/* Rating Display */}
+      <div class="mb-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <svg
+                class={`w-6 h-6 ${
+                  star <= Math.round(averageRating) 
+                    ? 'text-yellow-400' 
+                    : 'text-gray-300'
+                }`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+            <span class="ml-2 text-sm text-gray-600">
+              {averageRating} out of 5 ({ratings.length} {ratings.length === 1 ? 'rating' : 'ratings'})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Feedback Form */}
+      {userId ? (
+        <div class="space-y-4">
+          {userRating ? (
+            <div class="bg-green-50 border border-green-200 rounded-md p-4">
+              <p class="text-sm text-green-800">
+                ✅ Thank you for your feedback! You rated this article {userRating.rating} stars.
+              </p>
+            </div>
+          ) : (
+            <form id="ratingForm" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Rate this article:
+                </label>
+                <div class="flex space-x-2">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <button
+                      type="button"
+                      name="rating"
+                      value={rating}
+                      class="rating-star text-2xl text-gray-300 hover:text-yellow-400 focus:outline-none focus:text-yellow-400 transition-colors"
+                      data-rating={rating}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label for="feedback" class="block text-sm font-medium text-gray-700 mb-2">
+                  Additional feedback (optional):
+                </label>
+                <textarea
+                  id="feedback"
+                  name="feedback"
+                  rows={3}
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Tell us more about your experience..."
+                ></textarea>
+              </div>
+
+              <div class="flex space-x-4">
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+                >
+                  Submit Feedback
+                </button>
+                <button
+                  type="button"
+                  name="helpful"
+                  value="true"
+                  class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500 helpful-btn"
+                >
+                  👍 Helpful
+                </button>
+                <button
+                  type="button"
+                  name="helpful"
+                  value="false"
+                  class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 helpful-btn"
+                >
+                  👎 Not Helpful
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      ) : (
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+          <p class="text-sm text-gray-600">
+            <a href="/signin" class="text-blue-600 hover:text-blue-700 font-medium">Sign in</a> to rate this article and provide feedback.
+          </p>
+        </div>
+      )}
+
+      {/* Quick Stats */}
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <div class="flex items-center space-x-6 text-sm text-gray-500">
+          <span>👍 {helpfulCount} found this helpful</span>
+          <span>👎 {notHelpfulCount} found this not helpful</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    {relatedArticles.length > 0 && (
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Related Articles</h3>
+        <div class="space-y-4">
+          {relatedArticles.map((relatedArticle) => (
+            <a
+              href={`/kb/article/${relatedArticle.slug}`}
+              class="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
+            >
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div 
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
+                    style={`background-color: ${relatedArticle.category.color}`}
+                  >
+                    {relatedArticle.category.icon}
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900 mb-1">{relatedArticle.title}</h4>
+                  <p class="text-sm text-gray-600 mb-2">
+                    {relatedArticle.excerpt || knowledgeBaseService.extractExcerpt(relatedArticle.content, 100)}
+                  </p>
+                  <div class="flex items-center text-xs text-gray-500 space-x-3">
+                    <span>{relatedArticle.category.name}</span>
+                    <span>{relatedArticle.view_count} views</span>
+                    {relatedArticle.reading_time_minutes && (
+                      <span>{relatedArticle.reading_time_minutes} min read</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </article>
+) : (
+  <div class="max-w-4xl mx-auto text-center py-12">
+    <div class="text-gray-400 mb-4">
+      <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">Article Not Found</h1>
+    <p class="text-gray-600 mb-6">
+      The article you're looking for doesn't exist or has been removed.
+    </p>
+    <a 
+      href="/kb"
+      class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+    >
+      Browse Knowledge Base
+    </a>
+  </div>
+)}
+
+<script>
+  // Rating functionality
+  const ratingForm = document.getElementById('ratingForm');
+  const ratingStars = document.querySelectorAll('.rating-star');
+  const helpfulButtons = document.querySelectorAll('.helpful-btn');
+  
+  let selectedRating = 0;
+  
+  // Star rating interaction
+  ratingStars.forEach(star => {
+    star.addEventListener('click', function() {
+      selectedRating = parseInt(this.dataset.rating);
+      updateStarDisplay(selectedRating);
+    });
+    
+    star.addEventListener('mouseenter', function() {
+      const hoverRating = parseInt(this.dataset.rating);
+      updateStarDisplay(hoverRating);
+    });
+  });
+  
+  document.querySelector('.flex.space-x-2')?.addEventListener('mouseleave', function() {
+    updateStarDisplay(selectedRating);
+  });
+  
+  function updateStarDisplay(rating) {
+    ratingStars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add('text-yellow-400');
+        star.classList.remove('text-gray-300');
+      } else {
+        star.classList.remove('text-yellow-400');
+        star.classList.add('text-gray-300');
+      }
+    });
+  }
+  
+  // Form submission
+  if (ratingForm) {
+    ratingForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(ratingForm);
+      const feedback = formData.get('feedback') || '';
+      
+      if (selectedRating === 0 && !formData.get('helpful')) {
+        alert('Please provide a rating or feedback');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/kb/articles/{slug}/rate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rating: selectedRating,
+            feedback: feedback,
+            helpful: formData.get('helpful') === 'true'
+          })
+        });
+        
+        if (response.ok) {
+          // Reload page to show updated rating
+          window.location.reload();
+        } else {
+          throw new Error('Failed to submit rating');
+        }
+      } catch (error) {
+        console.error('Error submitting rating:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'submitRating',
+          articleId: article?.id,
+          rating,
+        });
+        alert('Failed to submit feedback. Please try again.');
+      }
+    });
+  }
+  
+  // Quick helpful buttons
+  helpfulButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const helpful = this.value === 'true';
+      
+      try {
+        const response = await fetch(`/api/kb/articles/{slug}/rate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            helpful: helpful
+          })
+        });
+        
+        if (response.ok) {
+          // Reload page to show updated stats
+          window.location.reload();
+        } else {
+          throw new Error('Failed to submit feedback');
+        }
+      } catch (error) {
+        console.error('Error submitting feedback:', {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          action: 'submitFeedback',
+          articleId: article?.id,
+        });
+        alert('Failed to submit feedback. Please try again.');
+      }
+    });
+  });
+</script>
+
+<style>
+  .prose {
+    color: #374151;
+    line-height: 1.75;
+  }
+  
+  .prose h1 {
+    font-size: 2.25em;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    color: #111827;
+  }
+  
+  .prose h2 {
+    font-size: 1.875em;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 1.875em;
+    margin-bottom: 0.875em;
+    color: #111827;
+  }
+  
+  .prose h3 {
+    font-size: 1.5em;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    color: #111827;
+  }
+  
+  .prose p {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+  
+  .prose ul, .prose ol {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-left: 1.5em;
+  }
+  
+  .prose li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+  
+  .prose code {
+    background-color: #f3f4f6;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    padding: 0.125rem 0.25rem;
+    color: #111827;
+  }
+  
+  .prose pre {
+    background-color: #1f2937;
+    border-radius: 0.5rem;
+    color: #f9fafb;
+    font-size: 0.875em;
+    line-height: 1.7142857;
+    margin-top: 1.7142857em;
+    margin-bottom: 1.7142857em;
+    overflow-x: auto;
+    padding: 0.8571429em 1.1428571em;
+  }
+  
+  .prose pre code {
+    background-color: transparent;
+    border-width: 0;
+    color: inherit;
+    font-size: inherit;
+    padding: 0;
+  }
+  
+  .prose blockquote {
+    border-left: 4px solid #e5e7eb;
+    font-style: italic;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    padding-left: 1em;
+    color: #6b7280;
+  }
+  
+  .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  .prose a:hover {
+    color: #1d4ed8;
+  }
+</style>

@@ -1,42 +1,60 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '../../../lib/supabase';
-import { sanitizeInput, sanitizeEmail } from '../../../lib/sanitization';
 import { withApiMiddleware } from '../../../lib/middleware/api';
-import { ErrorFactory, Validation } from '../../../lib/errors';
+import { ErrorFactory } from '../../../lib/errors';
+import { logger } from '../../../lib/logger';
+import { validateRequest } from '../../../lib/validation';
+import {
+  AuthSchemas,
+  ValidatedAuthData,
+} from '../../../lib/validation/schemas';
 
 export const prerender = false;
 export const POST: APIRoute = withApiMiddleware(
-  async ({ request, redirect }) => {
-    const formData = await request.formData();
-    const email = sanitizeInput(formData.get('email')?.toString());
-    const password = formData.get('password')?.toString(); // Don't sanitize password
+  validateRequest(AuthSchemas.register)(
+    async ({ redirect, validatedData, requestId }) => {
+      const { email, password, fullName, phone } = (validatedData ||
+        {}) as unknown as ValidatedAuthData;
 
-    // Validate and sanitize email
-    const sanitizedEmail = sanitizeEmail(email || '');
+      logger.info('User registration attempt', {
+        requestId,
+        email,
+        fullName,
+        phone,
+      });
 
-    // Validate required fields
-    Validation.required(sanitizedEmail, 'email');
-    Validation.required(password, 'password');
-    Validation.email(sanitizedEmail);
+      const supabase = createServerClient();
 
-    if (!password) {
-      throw ErrorFactory.missingRequiredField('password');
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone || null,
+          },
+        },
+      });
+
+      if (error) {
+        logger.warn('Registration failed', {
+          requestId,
+          email,
+          error: error.message,
+        });
+
+        throw ErrorFactory.validationFailed(
+          'Registration failed: ' + error.message
+        );
+      }
+
+      logger.info('Registration successful', {
+        requestId,
+        email,
+        fullName,
+      });
+
+      return redirect('/signin');
     }
-    Validation.minLength(password, 8, 'password');
-
-    const supabase = createServerClient();
-
-    const { error } = await supabase.auth.signUp({
-      email: sanitizedEmail,
-      password,
-    });
-
-    if (error) {
-      throw ErrorFactory.validationFailed(
-        'Registration failed: ' + error.message
-      );
-    }
-
-    return redirect('/signin');
-  }
+  )
 );

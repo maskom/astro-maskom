@@ -22,13 +22,12 @@ const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
           >
             <div class="flex items-center gap-4">
               <div
-                class="w-14 h-14 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                style={`background-color: ${framework.color}15`}
+                class="w-14 h-14 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 framework-bg"
+                style={`--framework-color: ${framework.color};`}
               >
                 <Icon
                   name={framework.name}
-                  class="w-8 h-8 transition-all duration-300 group-hover:scale-110"
-                  style={`color: ${framework.color}`}
+                  class="w-8 h-8 transition-all duration-300 group-hover:scale-110 framework-icon"
                 />
               </div>
               <div class="flex-1">
@@ -82,5 +81,13 @@ const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
   .grid > a:hover {
     transform: translateZ(20px);
+  }
+
+  .framework-bg {
+    background-color: color-mix(in srgb, var(--framework-color, #6366f1) 15%, transparent);
+  }
+
+  .framework-icon {
+    color: var(--framework-color, #6366f1);
   }
 </style>

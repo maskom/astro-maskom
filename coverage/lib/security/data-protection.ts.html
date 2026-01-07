@@ -30,9 +30,15 @@
         
             
             <div class='fl pad1y space-right2'>
+<<<<<<< HEAD
                 <span class="strong">7.4% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>2/27</span>
+=======
+                <span class="strong">4.25% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>2/47</span>
+>>>>>>> main
             </div>
         
             
@@ -394,7 +400,13 @@
 <a name='L329'></a><a href='#L329'>329</a>
 <a name='L330'></a><a href='#L330'>330</a>
 <a name='L331'></a><a href='#L331'>331</a>
+<<<<<<< HEAD
 <a name='L332'></a><a href='#L332'>332</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+=======
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+>>>>>>> main
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -727,6 +739,10 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+<<<<<<< HEAD
+=======
+import { logger } from '../logger';
+>>>>>>> main
 import type { DataConsent, ConsentType, UserDataExport } from './types';
 &nbsp;
 export class DataProtectionService {
@@ -755,7 +771,11 @@ export class DataProtectionService {
 &nbsp;
       return iv.toString('hex') + ':' + encrypted;
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Encryption error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Encryption error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'encryptSensitiveData' });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      throw new Error('Failed to encrypt data');</span>
     }
   }
@@ -777,7 +797,11 @@ export class DataProtectionService {
 &nbsp;
       return decrypted;
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Decryption error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Decryption error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'decryptSensitiveData' });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      throw new Error('Failed to decrypt data');</span>
     }
   }
@@ -798,7 +822,11 @@ export class DataProtectionService {
         .toString('hex');
       return hash === verifyHash;
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Password verification error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Password verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'verifyPassword' });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -828,13 +856,21 @@ export class DataProtectionService {
         .insert(consent);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >        console.error('Failed to record data consent:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to record data consent', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'recordDataConsent', userId, consentType, granted, purpose });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Data consent recording error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Data consent recording error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'recordDataConsent', userId, consentType, granted, purpose });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -872,7 +908,11 @@ export class DataProtectionService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return !!consent;</span>
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Data consent check error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Data consent check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'hasDataConsent', userId, consentType });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -892,7 +932,11 @@ export class DataProtectionService {
         .eq('id', userId);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (profileError) {</span>
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >        console.error('Failed to anonymize profile:', profileError);</span>
+=======
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to anonymize profile', profileError instanceof Error ? profileError : new Error(String(profileError)), { module: 'security', submodule: 'data-protection', operation: 'anonymizeUserData', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
@@ -907,7 +951,11 @@ export class DataProtectionService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Data anonymization error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Data anonymization error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'anonymizeUserData', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -962,7 +1010,11 @@ export class DataProtectionService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return deletedCount.count;</span>
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('Expired data deletion error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('Expired data deletion error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'deleteExpiredData' });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return 0;</span>
     }
   }
@@ -1038,7 +1090,11 @@ export class DataProtectionService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return userData;</span>
     } catch (error) {
+<<<<<<< HEAD
 <span class="cstat-no" title="statement not covered" >      console.error('User data export error:', error);</span>
+=======
+<span class="cstat-no" title="statement not covered" >      logger.error('User data export error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'data-protection', operation: 'exportUserData', userId });</span>
+>>>>>>> main
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -1063,7 +1119,11 @@ export const dataProtectionService = new DataProtectionService();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+<<<<<<< HEAD
                 at 2025-11-17T05:31:28.490Z
+=======
+                at 2025-11-20T10:56:38.664Z
+>>>>>>> main
             </div>
         <script src="../../prettify.js"></script>
         <script>

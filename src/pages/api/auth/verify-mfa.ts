@@ -4,51 +4,56 @@ import { sessionManager } from '../../../lib/security/session';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
 import { securityAuditLogger } from '../../../lib/security/audit';
 import { SecurityAction } from '../../../lib/security/types';
+import { logger } from '../../../lib/logger';
+import { validateRequest } from '../../../lib/validation';
+import {
+  AuthSchemas,
+  ValidatedVerifyMFAData,
+} from '../../../lib/validation/schemas';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = validateRequest(AuthSchemas.verifyMFA)(async ({
+  request,
+  cookies,
+  validatedData,
+  requestId,
+}) => {
   try {
+    const { code } = (validatedData || {}) as unknown as ValidatedVerifyMFAData;
+
     const securityContext = await SecurityMiddleware.createSecurityContext(
       request,
       cookies
     );
 
     if (!securityContext) {
+      logger.warn('MFA verification: Authentication required', {
+        requestId,
+      });
       return new Response('Authentication required', { status: 401 });
     }
 
-    const { code, backupCode } = await request.json();
+    logger.info('MFA verification attempt', {
+      requestId,
+      userId: securityContext.userId,
+      verificationMethod: 'totp',
+    });
 
-    if (!code && !backupCode) {
-      return new Response('Verification code or backup code is required', {
-        status: 400,
+    // Verify TOTP code
+    const profile = await mfaService.getUserSecurityProfile(
+      securityContext.userId
+    );
+
+    if (!profile?.mfa_secret) {
+      logger.warn('MFA verification: MFA not enabled', {
+        requestId,
+        userId: securityContext.userId,
       });
+      return new Response('MFA is not enabled', { status: 400 });
     }
 
-    let isValid = false;
-    let verificationMethod = '';
-
-    if (code) {
-      // Verify TOTP code
-      const profile = await mfaService.getUserSecurityProfile(
-        securityContext.userId
-      );
-
-      if (!profile?.mfa_secret) {
-        return new Response('MFA is not enabled', { status: 400 });
-      }
-
-      isValid = await mfaService.verifyTOTP(profile.mfa_secret, code);
-      verificationMethod = 'totp';
-    } else if (backupCode) {
-      // Verify backup code
-      isValid = await mfaService.verifyBackupCode(
-        securityContext.userId,
-        backupCode
-      );
-      verificationMethod = 'backup_code';
-    }
+    const isValid = await mfaService.verifyTOTP(profile.mfa_secret, code);
 
     if (!isValid) {
       await securityAuditLogger.logSecurityAction(
@@ -60,9 +65,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         false,
         {
           reason: 'invalid_mfa_code',
-          verification_method: verificationMethod,
+          verification_method: 'totp',
         }
       );
+
+      logger.warn('MFA verification: Invalid code', {
+        requestId,
+        userId: securityContext.userId,
+      });
 
       return new Response('Invalid verification code', { status: 400 });
     }
@@ -83,8 +93,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       securityContext.ipAddress,
       securityContext.userAgent,
       true,
-      { verification_method: verificationMethod }
+      { verification_method: 'totp' }
     );
+
+    logger.info('MFA verification successful', {
+      requestId,
+      userId: securityContext.userId,
+    });
 
     return new Response(
       JSON.stringify({
@@ -93,11 +108,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId || 'unknown',
+        },
       }
     );
   } catch (error) {
-    console.error('MFA verification error:', error);
+    logger.error('MFA verification error', error as Error, { requestId });
     return new Response('Failed to verify MFA', { status: 500 });
   }
-};
+});

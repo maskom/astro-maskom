@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
 
 const url = new URL(Astro.request.url);
 const orderId = url.searchParams.get('order_id') || '';
@@ -19,7 +20,11 @@ if (orderId) {
       transaction = data;
     }
   } catch (err) {
-    console.error('Error fetching transaction:', err);
+    logger.error('Error fetching transaction', err instanceof Error ? err : new Error(String(err)), {
+      module: 'payment',
+      operation: 'fetchTransaction',
+      orderId,
+    });
   }
 }
 ---

@@ -6,7 +6,7 @@ import {
   createSuccessResponse,
   logError,
   type APIContext,
-} from '../../../../lib/api-utils.ts';
+} from '../../../../lib/utils/api';
 
 export async function POST({ request, params }: APIContext) {
   try {
@@ -78,8 +78,11 @@ export async function POST({ request, params }: APIContext) {
     });
 
     return createSuccessResponse(
-      ticketMessage,
-      'Message sent successfully',
+      {
+        success: true,
+        data: ticketMessage,
+        message: 'Message sent successfully'
+      },
       201
     );
   } catch (error) {

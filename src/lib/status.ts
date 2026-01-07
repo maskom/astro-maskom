@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
 import { outageNotificationService } from './notifications/outage-service';
-import type { Database } from './database.types';
+import type { StatusDatabase } from './types/status';
 
 // Define types for our status data
 export interface ServiceStatus {
@@ -13,13 +13,20 @@ export interface ServiceStatus {
 }
 
 export interface Incident {
-  id: string;
+  id?: string;
   title: string;
-  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
-  created_at: string;
-  updated_at: string;
   description: string;
-  affected_services: string[]; // Array of service IDs
+  status: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+  affected_services: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface IncidentUpdate {
+  title?: string;
+  description?: string;
+  status?: 'investigating' | 'identified' | 'monitoring' | 'resolved';
+  affected_services?: string[];
 }
 
 export interface StatusData {
@@ -29,17 +36,11 @@ export interface StatusData {
   incidents: Incident[];
 }
 
-// Singleton Supabase client for server-side usage
-let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
-
 export const createSupabaseClient = () => {
-  if (!supabaseClient) {
-    supabaseClient = createClient<Database>(
-      import.meta.env.SUPABASE_URL,
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for server-side operations
-    );
-  }
-  return supabaseClient;
+  return createClient<StatusDatabase>(
+    import.meta.env.SUPABASE_URL,
+    import.meta.env.SUPABASE_KEY
+  );
 };
 
 // Status API functions
@@ -118,8 +119,7 @@ export const getUptimePercentage = async (
   try {
     // This is a simplified implementation
     // In a real system, you would have a history table tracking service status over time
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('service_uptime')
       .select('uptime_percentage')
       .eq('service_id', serviceId)
@@ -150,8 +150,7 @@ export const createIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .insert({
         ...incident,
@@ -172,7 +171,7 @@ export const createIncident = async (
         severity: 'medium', // Default severity, could be determined from incident type
         affected_services: incident.affected_services,
         affected_regions: [], // Could be determined from service coverage
-        created_by: 'system', // Would come from auth context
+        created_by: undefined, // Would be set to current user ID
       });
     }
 
@@ -197,8 +196,7 @@ export const updateIncident = async (
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -216,7 +214,6 @@ export const updateIncident = async (
           await outageNotificationService.updateOutageEvent(event.id, {
             status: 'resolved',
             actual_resolution: new Date().toISOString(),
-            resolved_by: 'system', // Would come from auth context
           });
         }
       }
@@ -240,8 +237,7 @@ export const getAllIncidents = async (): Promise<Incident[]> => {
   const supabase = createSupabaseClient();
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('incidents')
       .select('*')
       .order('created_at', { ascending: false });

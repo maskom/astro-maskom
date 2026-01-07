@@ -223,15 +223,19 @@ const daysRemaining = getDaysRemaining();
   let selectedPackageId = null;
 
   function showUpgradeModal() {
-    document.getElementById('upgradeModal').style.display = 'flex';
+    const modal = document.getElementById('upgradeModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
   }
 
   function closeUpgradeModal() {
-    document.getElementById('upgradeModal').style.display = 'none';
+    const modal = document.getElementById('upgradeModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
     selectedPackageId = null;
   }
 
-  function selectPackage(packageId: string) {
+  function selectPackage(packageId) {
     selectedPackageId = packageId;
     
     // Update UI to show selected package
@@ -270,12 +274,17 @@ const daysRemaining = getDaysRemaining();
         alert('Gagal mengupgrade paket: ' + error.error);
       }
     } catch (error) {
-      console.error('Error upgrading package:', error);
+      console.error('Error upgrading package:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'upgradePackage',
+        packageId,
+      });
       alert('Terjadi kesalahan saat mengupgrade paket');
     }
   }
 
-  function getPackageCap(packageId: string): number {
+  function getPackageCap(packageId) {
     // This should match the package caps defined in your system
     const caps = {
       'home-a': 50,
@@ -293,4 +302,12 @@ const daysRemaining = getDaysRemaining();
   function showPackageSelection() {
     showUpgradeModal();
   }
+
+  // Ensure functions are available globally
+  window.showUpgradeModal = showUpgradeModal;
+  window.closeUpgradeModal = closeUpgradeModal;
+  window.selectPackage = selectPackage;
+  window.confirmUpgrade = confirmUpgrade;
+  window.getPackageCap = getPackageCap;
+  window.showPackageSelection = showPackageSelection;
 </script>

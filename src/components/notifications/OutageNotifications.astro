@@ -230,7 +230,12 @@ function getChannelIcon(channel: string): string {
         }
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('Error marking notification as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markNotificationAsRead',
+        notificationId,
+      });
     }
   }
 
@@ -277,11 +282,15 @@ function getChannelIcon(channel: string): string {
         const badge = document.querySelector('.bg-red-500.text-white.text-xs.rounded-full');
         if (badge) {
           badge.textContent = '0';
-          badge.style.display = 'none';
+          badge.classList.add('hidden');
         }
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error('Error marking all notifications as read:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'markAllNotificationsAsRead',
+      });
     } finally {
       isLoading = false;
       showLoading(false);
@@ -305,13 +314,17 @@ function getChannelIcon(channel: string): string {
       if (response.ok) {
         const element = document.querySelector(`[data-notification-id="${notificationId}"]`);
         if (element) {
-          element.style.opacity = '0';
-          element.style.transform = 'translateX(100%)';
+          element.classList.add('opacity-0', 'translate-x-full');
           setTimeout(() => element.remove(), 300);
         }
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      console.error('Error deleting notification:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'deleteNotification',
+        notificationId,
+      });
     }
   }
 
@@ -336,7 +349,11 @@ function getChannelIcon(channel: string): string {
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error refreshing notifications:', error);
+      console.error('Error refreshing notifications:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+        action: 'refreshNotifications',
+      });
     } finally {
       isLoading = false;
       showLoading(false);

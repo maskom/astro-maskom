@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 import { rbacService } from '../../../lib/security/rbac';
 import { dataProtectionService } from '../../../lib/security/data-protection';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
@@ -77,7 +78,15 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
       }
     );
   } catch (error) {
-    console.error('User profile error:', error);
+    logger.error(
+      'User profile error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/users',
+        method: 'GET',
+      }
+    );
     return new Response('Failed to fetch user profile', { status: 500 });
   }
 };
@@ -195,7 +204,15 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User profile update error:', error);
+    logger.error(
+      'User profile update error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/users',
+        method: 'PUT',
+      }
+    );
     return new Response('Failed to update user profile', { status: 500 });
   }
 };
@@ -261,7 +278,15 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
       }
     );
   } catch (error) {
-    console.error('User deletion error:', error);
+    logger.error(
+      'User deletion error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/users',
+        method: 'DELETE',
+      }
+    );
     return new Response('Failed to delete user', { status: 500 });
   }
 };

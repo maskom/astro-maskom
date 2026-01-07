@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 export function initializeChatbot(initialMessages = []) {
   let messages = [...initialMessages];
   let loading = false;
@@ -30,7 +32,8 @@ export function initializeChatbot(initialMessages = []) {
         }`;
 
         // Sanitize message content to prevent XSS
-        messageBubble.textContent = message.content;
+        // Use textContent for maximum security - no HTML rendering
+        messageBubble.textContent = sanitizeInput(message.content);
 
         messageContainer.appendChild(messageBubble);
         messagesList.appendChild(messageContainer);
@@ -95,13 +98,38 @@ export function initializeChatbot(initialMessages = []) {
   renderMessages();
 }
 
+/**
+ * Sanitize user input to prevent XSS attacks
+ * Uses DOMPurify for comprehensive HTML sanitization
+ */
 function sanitizeInput(input) {
   if (typeof input !== 'string') return '';
 
-  // Basic HTML sanitization
-  return input
-    .replace(/[<>]/g, '') // Remove basic HTML tags
+  // Use DOMPurify for comprehensive HTML sanitization
+  // Configured to be strict: no HTML tags allowed, only text content
+  const clean = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [], // No HTML tags allowed
+    ALLOWED_ATTR: [], // No attributes allowed
+    KEEP_CONTENT: true, // Keep text content
+    RETURN_DOM: false, // Return string
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_DOM_IMPORT: false,
+    SANITIZE_DOM: true,
+    SANITIZE_DOM_FRAGMENT: true,
+    SANITIZE_NAMED_PROPS: true,
+    WHOLE_DOCUMENT: false,
+    CUSTOM_ELEMENT_HANDLING: {
+      tagNameCheck: null,
+      attributeNameCheck: null,
+      allowCustomizedBuiltInElements: false,
+    },
+  });
+
+  // Additional sanitization for protocols and patterns that DOMPurify might miss in plain text
+  return clean
     .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
     .replace(/on\w+=/gi, '') // Remove event handlers
     .trim();
 }
