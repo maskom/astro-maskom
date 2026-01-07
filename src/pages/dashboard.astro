@@ -14,6 +14,7 @@ import { getMainPackages } from '../data/packages.ts';
 const packages = getMainPackages();
 import { createClient } from '@supabase/supabase-js';
 import { outageNotificationService } from '../lib/notifications/outage-service';
+import { logger } from '../lib/logger';
 
 const supabase = createClient(
   import.meta.env.SUPABASE_URL,
@@ -85,7 +86,10 @@ if (session) {
       notificationPreferences = prefsData.preferences;
     }
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
+    logger.error('Error fetching dashboard data', error instanceof Error ? error : new Error(String(error)), {
+      module: 'dashboard',
+      operation: 'fetchDashboardData',
+    });
   }
 }
 ---

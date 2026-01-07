@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 import { dataProtectionService } from '../../../lib/security/data-protection';
 import { rbacService } from '../../../lib/security/rbac';
 import { SecurityMiddleware } from '../../../lib/security/middleware';
@@ -93,7 +94,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       },
     });
   } catch (error) {
-    console.error('Data export error:', error);
+    logger.error(
+      'Data export error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'security/export-data',
+        method: 'POST',
+      }
+    );
     return new Response('Failed to export data', { status: 500 });
   }
 };

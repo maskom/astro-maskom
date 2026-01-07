@@ -208,7 +208,11 @@ import { securityConfig } from '../../lib/security/config';
           this.updateSessionsSection(data.userSessions);
           this.updateEventsSection(data.events);
         } catch (error) {
-          console.error('Error loading security data:', error);
+          console.error('Error loading security data:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'loadSecurityData',
+          });
           this.showError('Failed to load security data');
         }
       }
@@ -227,112 +231,189 @@ import { securityConfig } from '../../lib/security/config';
 
       updateMFASection(mfaEnabled) {
         const mfaSection = document.getElementById('mfa-section');
+        
+        // Clear existing content
+        mfaSection.innerHTML = '';
 
+        const container = document.createElement('div');
+        container.className = 'flex items-center justify-between';
+
+        const leftDiv = document.createElement('div');
+        
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'flex items-center';
+        
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'w-5 h-5 mr-2');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('stroke-width', '2');
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'font-medium';
+        
+        const descriptionP = document.createElement('p');
+        descriptionP.className = 'text-sm text-gray-600 mt-1';
+        
+        const button = document.createElement('button');
+        button.className = 'px-4 py-2 rounded-md transition-colors text-white';
+        
         if (mfaEnabled) {
-          mfaSection.innerHTML = `
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="flex items-center">
-                  <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <span class="text-green-700 font-medium">MFA is enabled</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">Your account is protected with multi-factor authentication.</p>
-              </div>
-              <button onclick="dashboard.disableMFA()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
-                Disable MFA
-              </button>
-            </div>
-          `;
+          svg.classList.add('text-green-500');
+          path.setAttribute('d', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z');
+          statusSpan.classList.add('text-green-700');
+          statusSpan.textContent = 'MFA is enabled';
+          descriptionP.textContent = 'Your account is protected with multi-factor authentication.';
+          button.classList.add('bg-red-600', 'hover:bg-red-700');
+          button.textContent = 'Disable MFA';
+          button.onclick = () => this.disableMFA();
         } else {
-          mfaSection.innerHTML = `
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="flex items-center">
-                  <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                  </svg>
-                  <span class="text-yellow-700 font-medium">MFA is disabled</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">Enable MFA to add an extra layer of security to your account.</p>
-              </div>
-              <button onclick="dashboard.setupMFA()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                Enable MFA
-              </button>
-            </div>
-          `;
+          svg.classList.add('text-yellow-500');
+          path.setAttribute('d', 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z');
+          statusSpan.classList.add('text-yellow-700');
+          statusSpan.textContent = 'MFA is disabled';
+          descriptionP.textContent = 'Enable MFA to add an extra layer of security to your account.';
+          button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+          button.textContent = 'Enable MFA';
+          button.onclick = () => this.setupMFA();
         }
+        
+        svg.appendChild(path);
+        statusDiv.appendChild(svg);
+        statusDiv.appendChild(statusSpan);
+        
+        leftDiv.appendChild(statusDiv);
+        leftDiv.appendChild(descriptionP);
+        
+        container.appendChild(leftDiv);
+        container.appendChild(button);
+        
+        mfaSection.appendChild(container);
       }
 
       updateSessionsSection(sessions) {
         const sessionsSection = document.getElementById('sessions-section');
 
+        // Clear existing content
+        sessionsSection.innerHTML = '';
+
         if (sessions.length === 0) {
-          sessionsSection.innerHTML =
-            '<p class="text-gray-600">No active sessions found.</p>';
+          const noSessionsP = document.createElement('p');
+          noSessionsP.className = 'text-gray-600';
+          noSessionsP.textContent = 'No active sessions found.';
+          sessionsSection.appendChild(noSessionsP);
           return;
         }
 
-        const sessionsHTML = sessions
-          .map(
-            session => `
-          <div class="border border-gray-200 rounded-lg p-4 mb-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="font-medium text-gray-900">IP Address: ${session.ip_address}</p>
-                <p class="text-sm text-gray-600">Last Activity: ${new Date(session.last_activity).toLocaleString()}</p>
-                <p class="text-sm text-gray-600">Created: ${new Date(session.created_at).toLocaleString()}</p>
-                <p class="text-sm text-gray-600">User Agent: ${session.user_agent.substring(0, 100)}...</p>
-              </div>
-              <button onclick="dashboard.invalidateSession('${session.session_id}')" class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors text-sm">
-                Revoke
-              </button>
-            </div>
-          </div>
-        `
-          )
-          .join('');
+        sessions.forEach(session => {
+          const sessionDiv = document.createElement('div');
+          sessionDiv.className = 'border border-gray-200 rounded-lg p-4 mb-4';
 
-        sessionsSection.innerHTML = sessionsHTML;
+          const flexDiv = document.createElement('div');
+          flexDiv.className = 'flex items-center justify-between';
+
+          const leftDiv = document.createElement('div');
+
+          const ipP = document.createElement('p');
+          ipP.className = 'font-medium text-gray-900';
+          ipP.textContent = `IP Address: ${session.ip_address}`;
+
+          const lastActivityP = document.createElement('p');
+          lastActivityP.className = 'text-sm text-gray-600';
+          lastActivityP.textContent = `Last Activity: ${new Date(session.last_activity).toLocaleString()}`;
+
+          const createdP = document.createElement('p');
+          createdP.className = 'text-sm text-gray-600';
+          createdP.textContent = `Created: ${new Date(session.created_at).toLocaleString()}`;
+
+          const userAgentP = document.createElement('p');
+          userAgentP.className = 'text-sm text-gray-600';
+          userAgentP.textContent = `User Agent: ${session.user_agent.substring(0, 100)}...`;
+
+          leftDiv.appendChild(ipP);
+          leftDiv.appendChild(lastActivityP);
+          leftDiv.appendChild(createdP);
+          leftDiv.appendChild(userAgentP);
+
+          const button = document.createElement('button');
+          button.className = 'bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors text-sm';
+          button.textContent = 'Revoke';
+          button.onclick = () => this.invalidateSession(session.session_id);
+
+          flexDiv.appendChild(leftDiv);
+          flexDiv.appendChild(button);
+
+          sessionDiv.appendChild(flexDiv);
+          sessionsSection.appendChild(sessionDiv);
+        });
       }
 
       updateEventsSection(events) {
         const eventsSection = document.getElementById('events-section');
 
+        // Clear existing content
+        eventsSection.innerHTML = '';
+
         if (events.length === 0) {
-          eventsSection.innerHTML =
-            '<p class="text-gray-600">No recent security events.</p>';
+          const noEventsP = document.createElement('p');
+          noEventsP.className = 'text-gray-600';
+          noEventsP.textContent = 'No recent security events.';
+          eventsSection.appendChild(noEventsP);
           return;
         }
 
-        const eventsHTML = events
-          .slice(0, 10)
-          .map(event => {
-            const severityColor = {
-              low: 'text-gray-600',
-              medium: 'text-yellow-600',
-              high: 'text-orange-600',
-              critical: 'text-red-600',
-            }[event.severity];
+        events.slice(0, 10).forEach(event => {
+          const severityColor = {
+            low: 'text-gray-600',
+            medium: 'text-yellow-600',
+            high: 'text-orange-600',
+            critical: 'text-red-600',
+          }[event.severity] || 'text-gray-600';
 
-            return `
-            <div class="border border-gray-200 rounded-lg p-4 mb-4">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium text-gray-900">${event.type.replace('_', ' ').toUpperCase()}</p>
-                  <p class="text-sm text-gray-600">${event.description}</p>
-                  <p class="text-sm text-gray-600">Time: ${new Date(event.timestamp).toLocaleString()}</p>
-                  <p class="text-sm text-gray-600">IP: ${event.ip_address}</p>
-                </div>
-                <span class="text-sm font-medium ${severityColor}">${event.severity.toUpperCase()}</span>
-              </div>
-            </div>
-          `;
-          })
-          .join('');
+          const eventDiv = document.createElement('div');
+          eventDiv.className = 'border border-gray-200 rounded-lg p-4 mb-4';
 
-        eventsSection.innerHTML = eventsHTML;
+          const flexDiv = document.createElement('div');
+          flexDiv.className = 'flex items-center justify-between';
+
+          const leftDiv = document.createElement('div');
+
+          const typeP = document.createElement('p');
+          typeP.className = 'font-medium text-gray-900';
+          typeP.textContent = event.type.replace('_', ' ').toUpperCase();
+
+          const descriptionP = document.createElement('p');
+          descriptionP.className = 'text-sm text-gray-600';
+          descriptionP.textContent = event.description;
+
+          const timeP = document.createElement('p');
+          timeP.className = 'text-sm text-gray-600';
+          timeP.textContent = `Time: ${new Date(event.timestamp).toLocaleString()}`;
+
+          const ipP = document.createElement('p');
+          ipP.className = 'text-sm text-gray-600';
+          ipP.textContent = `IP: ${event.ip_address}`;
+
+          leftDiv.appendChild(typeP);
+          leftDiv.appendChild(descriptionP);
+          leftDiv.appendChild(timeP);
+          leftDiv.appendChild(ipP);
+
+          const severitySpan = document.createElement('span');
+          severitySpan.className = `text-sm font-medium ${severityColor}`;
+          severitySpan.textContent = event.severity.toUpperCase();
+
+          flexDiv.appendChild(leftDiv);
+          flexDiv.appendChild(severitySpan);
+
+          eventDiv.appendChild(flexDiv);
+          eventsSection.appendChild(eventDiv);
+        });
       }
 
       setupEventListeners() {
@@ -358,7 +439,11 @@ import { securityConfig } from '../../lib/security/config';
           const data = await response.json();
           this.showMFAModal(data);
         } catch (error) {
-          console.error('Error setting up MFA:', error);
+          console.error('Error setting up MFA:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'setupMFA',
+          });
           alert('Failed to setup MFA. Please try again.');
         }
       }
@@ -396,7 +481,11 @@ import { securityConfig } from '../../lib/security/config';
           alert('MFA disabled successfully');
           this.loadSecurityData();
         } catch (error) {
-          console.error('Error disabling MFA:', error);
+          console.error('Error disabling MFA:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'disableMFA',
+          });
           alert(
             'Failed to disable MFA. Please check your verification code and try again.'
           );
@@ -420,7 +509,12 @@ import { securityConfig } from '../../lib/security/config';
           alert('Session revoked successfully');
           this.loadSecurityData();
         } catch (error) {
-          console.error('Error invalidating session:', error);
+          console.error('Error invalidating session:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'invalidateSession',
+            sessionId,
+          });
           alert('Failed to revoke session. Please try again.');
         }
       }
@@ -428,32 +522,77 @@ import { securityConfig } from '../../lib/security/config';
       showMFAModal(data) {
         // Create modal for MFA setup
         const modal = document.createElement('div');
-        modal.className =
-          'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-          <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Setup Multi-Factor Authentication</h3>
-            <p class="text-gray-600 mb-4">Scan this QR code with your authenticator app:</p>
-            <div class="bg-gray-100 p-4 rounded-lg mb-4">
-              <p class="text-sm text-gray-600 text-center">QR Code would be displayed here</p>
-              <p class="text-xs text-gray-500 text-center mt-2">${data.qrCodeUrl}</p>
-            </div>
-            <p class="text-sm text-gray-600 mb-4">Or enter this secret manually:</p>
-            <div class="bg-gray-100 p-2 rounded mb-4">
-              <code class="text-sm">${data.secret}</code>
-            </div>
-            <input type="text" id="verification-code" placeholder="Enter verification code" class="w-full border border-gray-300 rounded-md px-3 py-2 mb-4">
-            <div class="flex space-x-4">
-              <button onclick="dashboard.verifyMFA('${data.secret}')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                Verify and Enable
-              </button>
-              <button onclick="dashboard.closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors">
-                Cancel
-              </button>
-            </div>
-          </div>
-        `;
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
 
+        const modalContent = document.createElement('div');
+        modalContent.className = 'bg-white rounded-lg p-6 max-w-md w-full mx-4';
+
+        const title = document.createElement('h3');
+        title.className = 'text-lg font-medium text-gray-900 mb-4';
+        title.textContent = 'Setup Multi-Factor Authentication';
+
+        const qrText = document.createElement('p');
+        qrText.className = 'text-gray-600 mb-4';
+        qrText.textContent = 'Scan this QR code with your authenticator app:';
+
+        const qrDiv = document.createElement('div');
+        qrDiv.className = 'bg-gray-100 p-4 rounded-lg mb-4';
+
+        const qrPlaceholder = document.createElement('p');
+        qrPlaceholder.className = 'text-sm text-gray-600 text-center';
+        qrPlaceholder.textContent = 'QR Code would be displayed here';
+
+        const qrUrl = document.createElement('p');
+        qrUrl.className = 'text-xs text-gray-500 text-center mt-2';
+        qrUrl.textContent = data.qrCodeUrl;
+
+        qrDiv.appendChild(qrPlaceholder);
+        qrDiv.appendChild(qrUrl);
+
+        const secretText = document.createElement('p');
+        secretText.className = 'text-sm text-gray-600 mb-4';
+        secretText.textContent = 'Or enter this secret manually:';
+
+        const secretDiv = document.createElement('div');
+        secretDiv.className = 'bg-gray-100 p-2 rounded mb-4';
+
+        const secretCode = document.createElement('code');
+        secretCode.className = 'text-sm';
+        secretCode.textContent = data.secret;
+
+        secretDiv.appendChild(secretCode);
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'verification-code';
+        input.placeholder = 'Enter verification code';
+        input.className = 'w-full border border-gray-300 rounded-md px-3 py-2 mb-4';
+
+        const buttonDiv = document.createElement('div');
+        buttonDiv.className = 'flex space-x-4';
+
+        const verifyButton = document.createElement('button');
+        verifyButton.className = 'bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors';
+        verifyButton.textContent = 'Verify and Enable';
+        verifyButton.onclick = () => this.verifyMFA(data.secret);
+
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors';
+        cancelButton.textContent = 'Cancel';
+        cancelButton.onclick = () => this.closeModal();
+
+        buttonDiv.appendChild(verifyButton);
+        buttonDiv.appendChild(cancelButton);
+
+        modalContent.appendChild(title);
+        modalContent.appendChild(qrText);
+        modalContent.appendChild(qrDiv);
+        modalContent.appendChild(secretText);
+        modalContent.appendChild(secretDiv);
+        modalContent.appendChild(input);
+        modalContent.appendChild(buttonDiv);
+
+        modal.appendChild(modalContent);
         document.body.appendChild(modal);
       }
 
@@ -493,7 +632,11 @@ import { securityConfig } from '../../lib/security/config';
           this.closeModal();
           this.loadSecurityData();
         } catch (error) {
-          console.error('Error verifying MFA:', error);
+          console.error('Error verifying MFA:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString(),
+            action: 'verifyMFA',
+          });
           alert(
             'Failed to verify MFA. Please check your verification code and try again.'
           );

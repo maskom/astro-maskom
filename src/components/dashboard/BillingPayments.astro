@@ -43,7 +43,11 @@ if (user.data.user) {
 
     paymentMethods = methods || [];
   } catch (error) {
-    console.error('Error fetching billing data:', error);
+    console.error('Error fetching billing data:', {
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+      action: 'fetchBillingData',
+    });
   }
 }
 ---

@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/34</span>
             </div>
         
             
@@ -267,7 +267,9 @@
 <a name='L202'></a><a href='#L202'>202</a>
 <a name='L203'></a><a href='#L203'>203</a>
 <a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -473,6 +475,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { UserSecurityProfile } from './types';
 &nbsp;
 export class MFAService {
@@ -517,13 +520,13 @@ export class MFAService {
         });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to enable MFA:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to enable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('MFA enable error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('MFA enable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'enableMFA', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -541,13 +544,13 @@ export class MFAService {
         .eq('user_id', userId);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to disable MFA:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to disable MFA', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('MFA disable error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('MFA disable error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'disableMFA', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -570,7 +573,7 @@ export class MFAService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('TOTP verification error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('TOTP verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyTOTP', secret });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -607,7 +610,7 @@ export class MFAService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Backup code verification error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Backup code verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'verifyBackupCode', userId, code });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -626,7 +629,7 @@ export class MFAService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return profile?.mfa_enabled || false;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('MFA status check error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('MFA status check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'isMFAEnabled', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -647,7 +650,7 @@ export class MFAService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return profile as UserSecurityProfile;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Get security profile error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Get security profile error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'mfa', operation: 'getUserSecurityProfile', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -682,7 +685,7 @@ export const mfaService = new MFAService();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-17T05:31:28.490Z
+                at 2025-11-20T10:56:38.664Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

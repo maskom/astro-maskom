@@ -1,4 +1,6 @@
 // Environment variable validation and configuration
+import { logger } from './logger';
+
 export interface EnvConfig {
   // Supabase Configuration
   SUPABASE_URL: string;
@@ -70,10 +72,10 @@ export function validateEnv(): EnvConfig {
     throw new EnvValidationError('SUPABASE_URL must be a valid URL');
   }
 
-  // Validate Supabase key format (basic check)
-  if (env.SUPABASE_KEY.length < 100) {
+  // Validate Supabase key format (basic check) - be more defensive
+  if (typeof env.SUPABASE_KEY !== 'string' || env.SUPABASE_KEY.length < 50) {
     throw new EnvValidationError(
-      'SUPABASE_KEY appears to be invalid (too short)'
+      'SUPABASE_KEY appears to be invalid (too short or not a string)'
     );
   }
 
@@ -109,8 +111,13 @@ export function validateEnv(): EnvConfig {
 
   // Optional validations with warnings
   if (env.ENABLE_CHATBOT === 'true' && !env.OPENAI_API_KEY) {
-    console.warn(
-      'Warning: ENABLE_CHATBOT is true but OPENAI_API_KEY is not set'
+    logger.warn(
+      'Warning: ENABLE_CHATBOT is true but OPENAI_API_KEY is not set',
+      {
+        module: 'env',
+        operation: 'validation',
+        feature: 'chatbot',
+      }
     );
   }
 

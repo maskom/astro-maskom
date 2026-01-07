@@ -53,8 +53,7 @@ export const GET: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((profile as any)?.role !== 'admin') {
+    if (profile?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -244,8 +243,7 @@ export const POST: APIRoute = async ({ request }) => {
       .eq('id', user.id)
       .single();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((profile as any)?.role !== 'admin') {
+    if (profile?.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -253,8 +251,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create or update data cap for user
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error: upsertError } = await (supabase as any)
+    const { data, error: upsertError } = await supabase
       .from('data_caps')
       .upsert({
         user_id: userId,

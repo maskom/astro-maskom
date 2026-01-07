@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import { UserRole, Permission, type UserSecurityProfile } from './types';
 
 export class RBACService {
@@ -51,7 +52,7 @@ export class RBACService {
         });
 
       if (error) {
-        console.error('Failed to assign role:', error);
+        logger.error('Failed to assign role', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'assignRole', userId, role, assignedBy });
         return false;
       }
 
@@ -66,7 +67,7 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Role assignment error:', error);
+      logger.error('Role assignment error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'assignRole', userId, role, assignedBy });
       return false;
     }
   }
@@ -100,7 +101,7 @@ export class RBACService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to grant permission:', error);
+        logger.error('Failed to grant permission', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'grantPermission', userId, permission, grantedBy });
         return false;
       }
 
@@ -115,7 +116,7 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Permission grant error:', error);
+      logger.error('Permission grant error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'grantPermission', userId, permission, grantedBy });
       return false;
     }
   }
@@ -151,7 +152,7 @@ export class RBACService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Failed to revoke permission:', error);
+        logger.error('Failed to revoke permission', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'revokePermission', userId, permission, revokedBy });
         return false;
       }
 
@@ -166,7 +167,7 @@ export class RBACService {
 
       return true;
     } catch (error) {
-      console.error('Permission revocation error:', error);
+      logger.error('Permission revocation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'revokePermission', userId, permission, revokedBy });
       return false;
     }
   }
@@ -193,7 +194,7 @@ export class RBACService {
         explicitPermissions.includes(permission)
       );
     } catch (error) {
-      console.error('Permission check error:', error);
+      logger.error('Permission check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'hasPermission', userId, permission });
       return false;
     }
   }
@@ -212,7 +213,7 @@ export class RBACService {
 
       return profile?.role === role;
     } catch (error) {
-      console.error('Role check error:', error);
+      logger.error('Role check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'hasRole', userId, role });
       return false;
     }
   }
@@ -222,7 +223,7 @@ export class RBACService {
       const profile = await this.getUserSecurityProfile(userId);
       return profile?.role || null;
     } catch (error) {
-      console.error('Get user role error:', error);
+      logger.error('Get user role error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserRole', userId });
       return null;
     }
   }
@@ -241,7 +242,7 @@ export class RBACService {
       // Combine and deduplicate permissions
       return [...new Set([...rolePermissions, ...explicitPermissions])];
     } catch (error) {
-      console.error('Get user permissions error:', error);
+      logger.error('Get user permissions error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserPermissions', userId });
       return [];
     }
   }
@@ -254,13 +255,13 @@ export class RBACService {
         .eq('role', role);
 
       if (error) {
-        console.error('Failed to get users by role:', error);
+        logger.error('Failed to get users by role', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUsersByRole', role });
         return [];
       }
 
       return data?.map(profile => profile.user_id) || [];
     } catch (error) {
-      console.error('Users by role error:', error);
+      logger.error('Users by role error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUsersByRole', role });
       return [];
     }
   }
@@ -281,7 +282,7 @@ export class RBACService {
 
       return profile as UserSecurityProfile;
     } catch (error) {
-      console.error('Get security profile error:', error);
+      logger.error('Get security profile error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'rbac', operation: 'getUserSecurityProfile', userId });
       return null;
     }
   }

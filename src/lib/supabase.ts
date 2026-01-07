@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 import { getSupabaseConfig, isDevelopment } from './env';
 
 // Client-side Supabase instance for browser
@@ -9,7 +10,14 @@ export const supabase =
           const config = getSupabaseConfig();
           return createClient(config.url, config.anonKey);
         } catch (error) {
-          console.error('Failed to initialize Supabase client:', error);
+          logger.error(
+            'Failed to initialize Supabase client',
+            error instanceof Error ? error : new Error(String(error)),
+            {
+              module: 'supabase',
+              operation: 'client-initialization',
+            }
+          );
           return null;
         }
       })()
@@ -18,13 +26,17 @@ export const supabase =
 // Server-side Supabase instance for API routes
 export function createServerClient() {
   try {
-    const config = getSupabaseConfig();
+    // Check environment variables directly first to avoid validation errors
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
+    const supabaseKey = import.meta.env.SUPABASE_KEY;
 
-    if (!config.url || !config.anonKey) {
+    if (!supabaseUrl || !supabaseKey) {
       throw new Error(
         'Missing Supabase configuration: SUPABASE_URL and SUPABASE_KEY must be set'
       );
     }
+
+    const config = getSupabaseConfig();
 
     const client = createClient(config.url, config.anonKey, {
       auth: {
@@ -35,7 +47,14 @@ export function createServerClient() {
 
     return client;
   } catch (error) {
-    console.error('Failed to create Supabase server client:', error);
+    logger.error(
+      'Failed to create Supabase server client',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'supabase',
+        operation: 'server-client-creation',
+      }
+    );
     throw error;
   }
 }
@@ -47,8 +66,12 @@ export function createServiceClient() {
 
     if (!config.url || !config.serviceRoleKey) {
       if (isDevelopment()) {
-        console.warn(
-          'Service role key not configured, using anon key for development'
+        logger.warn(
+          'Service role key not configured, using anon key for development',
+          {
+            module: 'supabase',
+            operation: 'service-client-creation',
+          }
         );
         return createServerClient();
       }
@@ -65,7 +88,14 @@ export function createServiceClient() {
       },
     });
   } catch (error) {
-    console.error('Failed to create Supabase service client:', error);
+    logger.error(
+      'Failed to create Supabase service client',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'supabase',
+        operation: 'service-client-creation',
+      }
+    );
     throw error;
   }
 }

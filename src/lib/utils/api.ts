@@ -367,7 +367,13 @@ export function handleDatabaseError(
   operation: string,
   requestId?: string
 ): never {
-  console.error(`Database error during ${operation}:`, error);
+  logger.error(`Database error during ${operation}`, new Error(error.message || 'Database error'), {
+    module: 'utils',
+    submodule: 'api',
+    operation: 'handleDatabaseError',
+    errorCode: error.code,
+    requestId
+  });
 
   // You can customize this based on your database error patterns
   if (error.code === 'PGRST116') {

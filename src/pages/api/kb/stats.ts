@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { knowledgeBaseService } from '../../../lib/knowledge-base';
 import { withApiMiddleware } from '../../../lib/middleware/api';
 import { ErrorFactory } from '../../../lib/errors';
+import { logger } from '../../../lib/logger';
 
 export const prerender = false;
 
@@ -27,7 +28,8 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
     // Include popular articles if requested
     if (includePopular) {
       const popularArticles = await knowledgeBaseService.getPopularArticles(10);
-      (response.data as any).popular_articles = popularArticles;
+      (response.data as { popular_articles?: unknown }).popular_articles =
+        popularArticles;
     }
 
     // Include recent articles if requested
@@ -37,7 +39,8 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
         sort_by: 'published_at',
         sort_order: 'desc',
       });
-      (response.data as any).recent_articles = recentArticles;
+      (response.data as { recent_articles?: unknown }).recent_articles =
+        recentArticles;
     }
 
     return new Response(JSON.stringify(response), {
@@ -48,7 +51,13 @@ export const GET: APIRoute = withApiMiddleware(async ({ url }) => {
       },
     });
   } catch (error) {
-    console.error('Stats fetch error:', error);
+    logger.error('Stats fetch error', error instanceof Error ? error : new Error(String(error)), { 
+      module: 'api', 
+      endpoint: 'kb/stats', 
+      method: 'GET',
+      include_popular: includePopular,
+      include_recent: includeRecent
+    });
     throw ErrorFactory.internalError('Failed to fetch statistics');
   }
 });

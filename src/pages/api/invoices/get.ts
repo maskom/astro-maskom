@@ -1,6 +1,7 @@
 import { getPaymentManager } from '../../../lib/payments';
 import { createServerClient } from '../../../lib/supabase';
 import type { APIRoute } from 'astro';
+import { logger } from '../../../lib/logger';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -66,7 +67,15 @@ export const GET: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Invoice details error:', error);
+    logger.error(
+      'Invoice details error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        module: 'api',
+        endpoint: 'invoices/get',
+        method: 'GET',
+      }
+    );
     return new Response(
       JSON.stringify({
         success: false,

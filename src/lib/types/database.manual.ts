@@ -211,6 +211,7 @@ export interface UserProfile {
   avatar_url?: string;
   timezone?: string;
   language?: string;
+  role?: 'customer' | 'support' | 'admin' | 'super_admin';
   created_at: string;
   updated_at: string;
 }
@@ -291,7 +292,7 @@ export interface Payment {
   status: 'pending' | 'completed' | 'failed' | 'refunded';
   payment_method: string;
   description: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -464,8 +465,8 @@ export interface AuditLog {
   action: string;
   resource_type: string;
   resource_id?: string;
-  old_values?: Record<string, any>;
-  new_values?: Record<string, any>;
+  old_values?: Record<string, unknown>;
+  new_values?: Record<string, unknown>;
   ip_address?: string;
   user_agent?: string;
   created_at: string;

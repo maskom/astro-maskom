@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16.66% </span>
+                <span class="strong">8.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/36</span>
+                <span class='fraction'>6/72</span>
             </div>
         
             
@@ -375,7 +375,9 @@
 <a name='L310'></a><a href='#L310'>310</a>
 <a name='L311'></a><a href='#L311'>311</a>
 <a name='L312'></a><a href='#L312'>312</a>
-<a name='L313'></a><a href='#L313'>313</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L313'></a><a href='#L313'>313</a>
+<a name='L314'></a><a href='#L314'>314</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -689,6 +691,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '../logger';
 import type { SessionSecurity } from './types';
 &nbsp;
 export class SessionManager {
@@ -724,13 +727,13 @@ export class SessionManager {
         .insert(session);
 &nbsp;
       <span class="missing-if-branch" title="if path not taken" >I</span>if (error) {
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to create session:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to create session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'createSession', userId, ipAddress });</span>
 <span class="cstat-no" title="statement not covered" >        return null;</span>
       }
 &nbsp;
       return sessionId;
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session creation error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session creation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'createSession', userId, ipAddress });</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -765,7 +768,7 @@ export class SessionManager {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return session as SessionSecurity;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session validation error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session validation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'validateSession', sessionId, ipAddress });</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
     }
   }
@@ -781,13 +784,13 @@ export class SessionManager {
         .eq('session_id', sessionId);
 &nbsp;
       <span class="missing-if-branch" title="if path not taken" >I</span>if (error) {
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to invalidate session:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to invalidate session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateSession', sessionId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
       return true;
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session invalidation error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session invalidation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateSession', sessionId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -813,13 +816,13 @@ export class SessionManager {
       const { error } = <span class="cstat-no" title="statement not covered" >await query;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to invalidate user sessions:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to invalidate user sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateAllUserSessions', userId, exceptSessionId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('User sessions invalidation error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('User sessions invalidation error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'invalidateAllUserSessions', userId, exceptSessionId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -842,13 +845,13 @@ export class SessionManager {
         .eq('is_active', true);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to extend session:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to extend session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'extendSession', sessionId, additionalMinutes });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session extension error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session extension error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'extendSession', sessionId, additionalMinutes });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -865,13 +868,13 @@ export class SessionManager {
         .eq('is_active', true);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to verify MFA for session:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to verify MFA for session', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'verifyMFAForSession', sessionId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return true;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('MFA session verification error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('MFA session verification error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'verifyMFAForSession', sessionId });</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -887,13 +890,13 @@ export class SessionManager {
         .order('last_activity', { ascending: false });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to get user sessions:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to get user sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'getUserActiveSessions', userId });</span>
 <span class="cstat-no" title="statement not covered" >        return [];</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return sessions as SessionSecurity[];</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Get user sessions error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Get user sessions error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'getUserActiveSessions', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
   }
@@ -907,13 +910,13 @@ export class SessionManager {
         .eq('is_active', true);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (error) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error('Failed to cleanup expired sessions:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('Failed to cleanup expired sessions', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'cleanupExpiredSessions' });</span>
 <span class="cstat-no" title="statement not covered" >        return 0;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return count || 0;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session cleanup error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session cleanup error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'cleanupExpiredSessions' });</span>
 <span class="cstat-no" title="statement not covered" >      return 0;</span>
     }
   }
@@ -945,7 +948,7 @@ export class SessionManager {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return [...new Set(suspiciousSessions)];</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Suspicious session detection error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Suspicious session detection error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'detectSuspiciousSessions', userId });</span>
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
   }
@@ -960,7 +963,7 @@ export class SessionManager {
         })
         .eq('session_id', sessionId);
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error('Session activity update error:', error);</span>
+<span class="cstat-no" title="statement not covered" >      logger.error('Session activity update error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'updateSessionActivity', sessionId });</span>
     }
   }
 &nbsp;
@@ -991,7 +994,7 @@ export class SessionManager {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        return session.mfa_verified;</span>
       } catch (error) {
-<span class="cstat-no" title="statement not covered" >        console.error('MFA verification check error:', error);</span>
+<span class="cstat-no" title="statement not covered" >        logger.error('MFA verification check error', error instanceof Error ? error : new Error(String(error)), { module: 'security', submodule: 'session', operation: 'requireMFAVerification', sessionId });</span>
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       }
     };
@@ -1006,7 +1009,7 @@ export const sessionManager = new SessionManager();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-17T05:31:28.490Z
+                at 2025-11-20T10:56:38.664Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
