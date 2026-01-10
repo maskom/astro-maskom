@@ -1,0 +1,651 @@
+---
+// CoverageMap.astro - Interactive coverage map with zones and areas
+---
+
+<div class="coverage-map-container" id="coverage-map">
+  <div class="map-wrapper">
+    <div id="map" class="map-element"></div>
+    
+    <!-- Map controls -->
+    <div class="map-controls">
+      <button class="control-btn" id="zoom-in" title="Perbesar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="11" y1="8" x2="11" y2="14"></line>
+          <line x1="8" y1="11" x2="14" y2="11"></line>
+        </svg>
+      </button>
+      <button class="control-btn" id="zoom-out" title="Perkecil">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="8" y1="11" x2="14" y2="11"></line>
+        </svg>
+      </button>
+      <button class="control-btn" id="reset-view" title="Reset Tampilan">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="map-loading hidden" id="map-loading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p>Memuat peta cakupan...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map legend -->
+  <div class="map-legend">
+    <h4>Legenda Peta</h4>
+    <div class="legend-items">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #22c55e;"></div>
+        <span>Tersedia</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #f59e0b;"></div>
+        <span>Segera Hadir</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #3b82f6;"></div>
+        <span>Rencana Ekspansi</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ef4444;"></div>
+        <span>Tidak Tersedia</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Area info popup -->
+  <div class="area-popup hidden" id="area-popup">
+    <div class="popup-content">
+      <button class="popup-close" id="popup-close">&times;</button>
+      <h3 id="popup-title"></h3>
+      <div id="popup-body"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .coverage-map-container {
+    width: 100%;
+    position: relative;
+  }
+
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+  }
+
+  .map-element {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+  }
+
+  .control-btn {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .control-btn:hover {
+    background: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .control-btn:active {
+    transform: translateY(0);
+  }
+
+  .map-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+
+  .loading-content {
+    text-align: center;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .map-legend {
+    margin-top: 16px;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .map-legend h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .area-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    z-index: 3000;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .popup-content {
+    padding: 24px;
+    position: relative;
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f3f4f6;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+  }
+
+  .popup-close:hover {
+    background: #e5e7eb;
+  }
+
+  .popup-content h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .popup-body {
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  .popup-info {
+    margin-bottom: 8px;
+  }
+
+  .popup-label {
+    font-weight: 500;
+    color: #111827;
+  }
+
+  .popup-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .popup-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .popup-btn-primary {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .popup-btn-primary:hover {
+    background: #2563eb;
+  }
+
+  .popup-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .popup-btn-secondary:hover {
+    background: #e5e7eb;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    .map-wrapper {
+      height: 400px;
+    }
+
+    .map-controls {
+      top: 12px;
+      right: 12px;
+    }
+
+    .control-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .legend-items {
+      grid-template-columns: 1fr;
+    }
+
+    .area-popup {
+      width: 95%;
+    }
+
+    .popup-content {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  // Simple map implementation using basic HTML/CSS/JS
+  // In a real implementation, you would use Leaflet or Google Maps
+  
+  class CoverageMap {
+    constructor() {
+      this.mapElement = document.getElementById('map');
+      this.loadingElement = document.getElementById('map-loading');
+      this.popupElement = document.getElementById('area-popup');
+      this.popupTitle = document.getElementById('popup-title');
+      this.popupBody = document.getElementById('popup-body');
+      
+      this.zoomInBtn = document.getElementById('zoom-in');
+      this.zoomOutBtn = document.getElementById('zoom-out');
+      this.resetViewBtn = document.getElementById('reset-view');
+      this.popupCloseBtn = document.getElementById('popup-close');
+      
+      this.coverageData = null;
+      this.currentZoom = 10;
+      this.currentCenter = { lat: -6.2088, lng: 106.8456 }; // Jakarta
+      
+      this.init();
+    }
+
+    async init() {
+      this.setupEventListeners();
+      await this.loadCoverageData();
+      this.renderMap();
+    }
+
+    setupEventListeners() {
+      this.zoomInBtn.addEventListener('click', () => this.zoomIn());
+      this.zoomOutBtn.addEventListener('click', () => this.zoomOut());
+      this.resetViewBtn.addEventListener('click', () => this.resetView());
+      this.popupCloseBtn.addEventListener('click', () => this.hidePopup());
+      
+      // Close popup when clicking outside
+      document.addEventListener('click', (e) => {
+        if (this.popupElement && !this.popupElement.contains(e.target)) {
+          this.hidePopup();
+        }
+      });
+    }
+
+    async loadCoverageData() {
+      this.showLoading();
+      
+      try {
+        // In a real implementation, this would fetch from your API
+        // For now, use sample data
+        this.coverageData = await this.getSampleCoverageData();
+      } catch (error) {
+        console.error('Failed to load coverage data:', error);
+        this.showError('Gagal memuat data cakupan');
+      } finally {
+        this.hideLoading();
+      }
+    }
+
+    async getSampleCoverageData() {
+      // Sample coverage data - in real implementation, fetch from API
+      return {
+        zones: [
+          { id: '1', name: 'Tersedia', type: 'available', color: '#22c55e' },
+          { id: '2', name: 'Segera Hadir', type: 'coming_soon', color: '#f59e0b' },
+          { id: '3', name: 'Rencana', type: 'planned', color: '#3b82f6' }
+        ],
+        areas: [
+          {
+            id: '1',
+            name: 'Jakarta Pusat',
+            zone_type: 'available',
+            color: '#22c55e',
+            bounds: {
+              north: -6.1,
+              south: -6.2,
+              east: 106.9,
+              west: 106.8
+            },
+            center: { lat: -6.15, lng: 106.85 },
+            info: {
+              installation_days: 7,
+              packages: ['Home Basic', 'Home Premium'],
+              population: '1.6M'
+            }
+          },
+          {
+            id: '2',
+            name: 'Surabaya Timur',
+            zone_type: 'available',
+            color: '#22c55e',
+            bounds: {
+              north: -7.2,
+              south: -7.3,
+              east: 112.8,
+              west: 112.7
+            },
+            center: { lat: -7.25, lng: 112.75 },
+            info: {
+              installation_days: 5,
+              packages: ['Home Basic'],
+              population: '800K'
+            }
+          },
+          {
+            id: '3',
+            name: 'Bandung Selatan',
+            zone_type: 'coming_soon',
+            color: '#f59e0b',
+            bounds: {
+              north: -6.85,
+              south: -6.95,
+              east: 107.7,
+              west: 107.6
+            },
+            center: { lat: -6.9, lng: 107.65 },
+            info: {
+              estimated_date: 'Q2 2024',
+              packages: ['Home Basic', 'Home Premium'],
+              population: '500K'
+            }
+          }
+        ]
+      };
+    }
+
+    renderMap() {
+      if (!this.coverageData) return;
+
+      // Clear existing content
+      this.mapElement.innerHTML = '';
+
+      // Create simple SVG-based map
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.setAttribute('viewBox', '0 0 1000 600');
+      svg.style.background = '#f8fafc';
+
+      // Add coverage areas
+      this.coverageData.areas.forEach(area => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.cursor = 'pointer';
+        
+        // Create rectangle for area (simplified)
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', this.lngToX(area.bounds.west));
+        rect.setAttribute('y', this.latToY(area.bounds.north));
+        rect.setAttribute('width', this.lngToX(area.bounds.east) - this.lngToX(area.bounds.west));
+        rect.setAttribute('height', this.latToY(area.bounds.south) - this.latToY(area.bounds.north));
+        rect.setAttribute('fill', area.color);
+        rect.setAttribute('fill-opacity', '0.7');
+        rect.setAttribute('stroke', area.color);
+        rect.setAttribute('stroke-width', '2');
+        
+        // Add hover effects
+        rect.addEventListener('mouseenter', () => {
+          rect.setAttribute('fill-opacity', '0.9');
+        });
+        
+        rect.addEventListener('mouseleave', () => {
+          rect.setAttribute('fill-opacity', '0.7');
+        });
+        
+        rect.addEventListener('click', () => {
+          this.showAreaPopup(area);
+        });
+        
+        g.appendChild(rect);
+        
+        // Add area label
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', this.lngToX(area.center.lng));
+        text.setAttribute('y', this.latToY(area.center.lat));
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.style.fill = 'white';
+        text.style.fontSize = '14px';
+        text.style.fontWeight = 'bold';
+        text.style.pointerEvents = 'none';
+        text.textContent = area.name;
+        
+        g.appendChild(text);
+        svg.appendChild(g);
+      });
+
+      this.mapElement.appendChild(svg);
+    }
+
+    lngToX(lng) {
+      // Simple projection - in real implementation, use proper map projection
+      return ((lng - 100) / 20) * 1000;
+    }
+
+    latToY(lat) {
+      // Simple projection - in real implementation, use proper map projection
+      return ((-lat + 5) / 15) * 600;
+    }
+
+    showAreaPopup(area) {
+      this.popupTitle.textContent = area.name;
+      
+      let content = `
+        <div class="popup-info">
+          <span class="popup-label">Status:</span> ${this.getZoneTypeLabel(area.zone_type)}
+        </div>
+      `;
+
+      if (area.zone_type === 'available') {
+        content += `
+          <div class="popup-info">
+            <span class="popup-label">Estimasi Instalasi:</span> ${area.info.installment_days} hari
+          </div>
+          <div class="popup-info">
+            <span class="popup-label">Paket Tersedia:</span> ${area.info.packages.join(', ')}
+          </div>
+        `;
+      } else if (area.zone_type === 'coming_soon') {
+        content += `
+          <div class="popup-info">
+            <span class="popup-label">Perkiraan Tersedia:</span> ${area.info.estimated_date}
+          </div>
+          <div class="popup-info">
+            <span class="popup-label">Paket yang Akan Tersedia:</span> ${area.info.packages.join(', ')}
+          </div>
+        `;
+      }
+
+      content += `
+        <div class="popup-info">
+          <span class="popup-label">Populasi:</span> ${area.info.population}
+        </div>
+        <div class="popup-actions">
+          <button class="popup-btn popup-btn-primary" onclick="window.coverageMap.checkAddressForArea('${area.name}')">
+            Cek Alamat di Area Ini
+          </button>
+        </div>
+      `;
+
+      this.popupBody.innerHTML = content;
+      this.popupElement.classList.remove('hidden');
+    }
+
+    hidePopup() {
+      this.popupElement.classList.add('hidden');
+    }
+
+    getZoneTypeLabel(type) {
+      const labels = {
+        'available': 'Tersedia',
+        'coming_soon': 'Segera Hadir',
+        'planned': 'Rencana Ekspansi',
+        'unavailable': 'Tidak Tersedia'
+      };
+      return labels[type] || type;
+    }
+
+    checkAddressForArea(areaName) {
+      this.hidePopup();
+      
+      // Trigger address search focus
+      const addressInput = document.getElementById('address-input');
+      if (addressInput) {
+        addressInput.focus();
+        addressInput.value = areaName;
+      }
+    }
+
+    zoomIn() {
+      this.currentZoom = Math.min(this.currentZoom + 1, 18);
+      this.updateMapView();
+    }
+
+    zoomOut() {
+      this.currentZoom = Math.max(this.currentZoom - 1, 1);
+      this.updateMapView();
+    }
+
+    resetView() {
+      this.currentZoom = 10;
+      this.currentCenter = { lat: -6.2088, lng: 106.8456 };
+      this.updateMapView();
+    }
+
+    updateMapView() {
+      // In a real implementation, this would update the map view
+      console.log('Updating map view:', { zoom: this.currentZoom, center: this.currentCenter });
+    }
+
+    showLoading() {
+      this.loadingElement.classList.remove('hidden');
+    }
+
+    hideLoading() {
+      this.loadingElement.classList.add('hidden');
+    }
+
+    showError(message) {
+      this.mapElement.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; color: #ef4444;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+
+    // Public methods
+    centerOnCoordinates(lat, lng) {
+      this.currentCenter = { lat, lng };
+      this.currentZoom = 14;
+      this.updateMapView();
+    }
+
+    highlightArea(areaId) {
+      // In a real implementation, this would highlight a specific area
+      console.log('Highlighting area:', areaId);
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    window.coverageMap = new CoverageMap();
+  });
+</script>

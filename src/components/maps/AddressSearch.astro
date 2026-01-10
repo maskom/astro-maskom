@@ -1,0 +1,533 @@
+---
+// AddressSearch.astro - Interactive address search with autocomplete
+---
+
+<div class="address-search-container" id="address-search">
+  <div class="search-input-wrapper">
+    <div class="relative">
+      <input
+        type="text"
+        id="address-input"
+        class="search-input"
+        placeholder="Masukkan alamat Anda..."
+        autocomplete="off"
+      />
+      <div class="search-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </div>
+      <div class="loading-spinner hidden" id="loading-spinner">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+        </svg>
+      </div>
+    </div>
+    
+    <!-- Suggestions dropdown -->
+    <div class="suggestions-dropdown hidden" id="suggestions-dropdown">
+      <div class="suggestions-list" id="suggestions-list">
+        <!-- Suggestions will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-actions">
+    <button class="location-btn" id="use-current-location" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+      Gunakan Lokasi Saya
+    </button>
+  </div>
+
+  <!-- Search status -->
+  <div class="search-status hidden" id="search-status">
+    <div class="status-message" id="status-message"></div>
+  </div>
+</div>
+
+<style>
+  .address-search-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 16px 48px 16px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .search-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+  }
+
+  .loading-spinner {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #3b82f6;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+  }
+
+  .suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 4px;
+  }
+
+  .suggestions-list {
+    padding: 4px 0;
+  }
+
+  .suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  .suggestion-item:hover {
+    background-color: #f9fafb;
+  }
+
+  .suggestion-item.selected {
+    background-color: #eff6ff;
+  }
+
+  .suggestion-primary {
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 2px;
+  }
+
+  .suggestion-secondary {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .quick-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .location-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .location-btn:hover {
+    background: #e5e7eb;
+  }
+
+  .location-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .search-status {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .search-status.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+
+  .search-status.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  .search-status.info {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    .search-input {
+      font-size: 16px; /* Prevent zoom on iOS */
+      padding: 14px 44px 14px 14px;
+    }
+
+    .quick-actions {
+      flex-direction: column;
+    }
+
+    .location-btn {
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  import { geocodingService } from '../../lib/geocoding';
+
+  class AddressSearch {
+    constructor() {
+      this.input = document.getElementById('address-input');
+      this.suggestionsDropdown = document.getElementById('suggestions-dropdown');
+      this.suggestionsList = document.getElementById('suggestions-list');
+      this.loadingSpinner = document.getElementById('loading-spinner');
+      this.searchIcon = document.querySelector('.search-icon');
+      this.locationBtn = document.getElementById('use-current-location');
+      this.searchStatus = document.getElementById('search-status');
+      this.statusMessage = document.getElementById('status-message');
+      
+      this.suggestions = [];
+      this.selectedIndex = -1;
+      this.searchTimeout = null;
+      this.isSearching = false;
+
+      this.init();
+    }
+
+    init() {
+      // Input event listeners
+      this.input.addEventListener('input', this.handleInput.bind(this));
+      this.input.addEventListener('keydown', this.handleKeydown.bind(this));
+      this.input.addEventListener('focus', this.handleFocus.bind(this));
+      this.input.addEventListener('blur', this.handleBlur.bind(this));
+
+      // Location button
+      this.locationBtn.addEventListener('click', this.handleLocationClick.bind(this));
+
+      // Click outside to close suggestions
+      document.addEventListener('click', this.handleDocumentClick.bind(this));
+
+      // Custom event for address selection
+      this.input.addEventListener('addressSelected', this.handleAddressSelection.bind(this));
+    }
+
+    handleInput(event) {
+      const query = event.target.value.trim();
+      
+      if (query.length < 3) {
+        this.hideSuggestions();
+        return;
+      }
+
+      // Debounce search
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(() => {
+        this.searchAddresses(query);
+      }, 300);
+    }
+
+    async searchAddresses(query) {
+      if (this.isSearching) return;
+      
+      this.isSearching = true;
+      this.showLoading();
+
+      try {
+        this.suggestions = await geocodingService.searchAddresses(query, 5);
+        this.showSuggestions();
+      } catch (error) {
+        this.showError(error.message);
+        this.hideSuggestions();
+      } finally {
+        this.isSearching = false;
+        this.hideLoading();
+      }
+    }
+
+    showSuggestions() {
+      if (this.suggestions.length === 0) {
+        this.hideSuggestions();
+        return;
+      }
+
+      this.suggestionsList.innerHTML = '';
+      this.selectedIndex = -1;
+
+      this.suggestions.forEach((suggestion, index) => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.setAttribute('data-index', index);
+
+        const primary = document.createElement('div');
+        primary.className = 'suggestion-primary';
+        primary.textContent = suggestion.display_name.split(',')[0];
+
+        const secondary = document.createElement('div');
+        secondary.className = 'suggestion-secondary';
+        secondary.textContent = suggestion.display_name.split(',').slice(1).join(',').trim();
+
+        item.appendChild(primary);
+        item.appendChild(secondary);
+
+        item.addEventListener('click', () => {
+          this.selectSuggestion(index);
+        });
+
+        this.suggestionsList.appendChild(item);
+      });
+
+      this.suggestionsDropdown.classList.remove('hidden');
+    }
+
+    hideSuggestions() {
+      this.suggestionsDropdown.classList.add('hidden');
+      this.suggestions = [];
+      this.selectedIndex = -1;
+    }
+
+    selectSuggestion(index) {
+      if (index < 0 || index >= this.suggestions.length) return;
+
+      const suggestion = this.suggestions[index];
+      this.input.value = suggestion.display_name;
+      this.hideSuggestions();
+
+      // Dispatch custom event with selected address
+      const event = new CustomEvent('addressSelected', {
+        detail: {
+          address: suggestion.display_name,
+          coordinates: {
+            lat: suggestion.lat,
+            lng: suggestion.lon
+          },
+          components: suggestion.address
+        }
+      });
+      this.input.dispatchEvent(event);
+    }
+
+    handleKeydown(event) {
+      if (this.suggestions.length === 0) return;
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          this.selectedIndex = Math.min(this.selectedIndex + 1, this.suggestions.length - 1);
+          this.highlightSuggestion();
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+          this.highlightSuggestion();
+          break;
+        case 'Enter':
+          event.preventDefault();
+          if (this.selectedIndex >= 0) {
+            this.selectSuggestion(this.selectedIndex);
+          }
+          break;
+        case 'Escape':
+          this.hideSuggestions();
+          this.input.blur();
+          break;
+      }
+    }
+
+    highlightSuggestion() {
+      const items = this.suggestionsList.querySelectorAll('.suggestion-item');
+      items.forEach((item, index) => {
+        if (index === this.selectedIndex) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+    }
+
+    handleFocus() {
+      if (this.input.value.trim().length >= 3 && this.suggestions.length > 0) {
+        this.showSuggestions();
+      }
+    }
+
+    handleBlur() {
+      // Delay hiding to allow click events on suggestions
+      setTimeout(() => {
+        this.hideSuggestions();
+      }, 200);
+    }
+
+    handleDocumentClick(event) {
+      if (!this.input.contains(event.target) && !this.suggestionsDropdown.contains(event.target)) {
+        this.hideSuggestions();
+      }
+    }
+
+    async handleLocationClick() {
+      this.locationBtn.disabled = true;
+      this.showInfo('Mendapatkan lokasi Anda...');
+
+      try {
+        const location = await geocodingService.getCurrentLocation();
+        
+        if (!location) {
+          throw new Error('Tidak dapat mengakses lokasi Anda. Pastikan GPS diaktifkan.');
+        }
+
+        // Reverse geocode to get address
+        const address = await geocodingService.reverseGeocode(location.lat, location.lng);
+        
+        if (address) {
+          this.input.value = address.formatted;
+          this.showSuccess('Lokasi berhasil ditemukan!');
+          
+          // Dispatch custom event
+          const event = new CustomEvent('addressSelected', {
+            detail: {
+              address: address.formatted,
+              coordinates: location,
+              components: address.components,
+              fromLocation: true
+            }
+          });
+          this.input.dispatchEvent(event);
+        } else {
+          throw new Error('Tidak dapat menemukan alamat untuk lokasi ini.');
+        }
+      } catch (error) {
+        this.showError(error.message);
+      } finally {
+        this.locationBtn.disabled = false;
+      }
+    }
+
+    handleAddressSelection(event) {
+      const { address, coordinates, components, fromLocation } = event.detail;
+      
+      if (fromLocation) {
+        this.showSuccess(`Lokasi ditemukan: ${address}`);
+      } else {
+        this.showSuccess(`Alamat dipilih: ${address}`);
+      }
+
+      // Hide status after 3 seconds
+      setTimeout(() => {
+        this.hideStatus();
+      }, 3000);
+    }
+
+    showLoading() {
+      this.loadingSpinner.classList.remove('hidden');
+      this.searchIcon.classList.add('hidden');
+    }
+
+    hideLoading() {
+      this.loadingSpinner.classList.add('hidden');
+      this.searchIcon.classList.remove('hidden');
+    }
+
+    showSuccess(message) {
+      this.showStatus(message, 'success');
+    }
+
+    showError(message) {
+      this.showStatus(message, 'error');
+    }
+
+    showInfo(message) {
+      this.showStatus(message, 'info');
+    }
+
+    showStatus(message, type) {
+      this.statusMessage.textContent = message;
+      this.searchStatus.className = `search-status ${type}`;
+      this.searchStatus.classList.remove('hidden');
+    }
+
+    hideStatus() {
+      this.searchStatus.classList.add('hidden');
+    }
+
+    // Public methods
+    clear() {
+      this.input.value = '';
+      this.hideSuggestions();
+      this.hideStatus();
+    }
+
+    setValue(address) {
+      this.input.value = address;
+      this.hideSuggestions();
+    }
+
+    getValue() {
+      return this.input.value;
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    window.addressSearch = new AddressSearch();
+  });
+</script>

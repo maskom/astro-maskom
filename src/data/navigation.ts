@@ -8,6 +8,12 @@ export interface Framework {
 export const frameworks: Framework[] = [
   { name: 'home', displayName: 'Home', path: '/', color: '#FF5D01' },
   {
+    name: 'coverage',
+    displayName: 'Cek Cakupan',
+    path: '/coverage',
+    color: '#4CAF50',
+  },
+  {
     name: 'area-layanan',
     displayName: 'Area Layanan',
     path: '/area-layanan',
